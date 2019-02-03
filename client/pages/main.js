@@ -3,6 +3,7 @@ import { Header, Icon } from 'semantic-ui-react';
 
 import App from '../components/App';
 import StructureList from '../components/StructureList';
+import StructureForm from '../components/StructureForm';
 
 const MainPage = () => (
   <App>
@@ -11,6 +12,7 @@ const MainPage = () => (
       <Header.Content>Structures</Header.Content>
     </Header>
     <StructureList />
+    <StructureForm />
   </App>
 );
 

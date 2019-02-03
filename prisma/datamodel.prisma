@@ -56,10 +56,10 @@ type Event {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
-  name: String!
-  about: String!
   start: DateTime!
   end: DateTime!
+  name: String!
+  about: String!
   location: Location
   images: [Image!]
   authors: [Person!]
