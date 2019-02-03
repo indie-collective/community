@@ -9,8 +9,14 @@ type Mutation {
   createStructure(
     type: StructureType!
     name: String!
-    about: String
+    about: String!
+    location: LocationInput!
   ): Structure
+}
+
+input LocationInput {
+  country: String!
+  city: String!
 }
 
 type User {
@@ -81,8 +87,8 @@ type Image {
 type Location {
   country: String!
   city: String!
-  latitude: Float!
-  longitude: Float!
+  latitude: Float
+  longitude: Float
   structures: [Structure!]
   events: [Event!]
 }

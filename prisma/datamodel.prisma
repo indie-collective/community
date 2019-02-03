@@ -78,8 +78,8 @@ type Image {
 type Location {
   country: String!
   city: String!
-  latitude: Float!
-  longitude: Float!
+  latitude: Float
+  longitude: Float
   structures: [Structure!]
   events: [Event!]
 }

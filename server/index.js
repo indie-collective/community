@@ -12,20 +12,20 @@ const resolvers = {
   },
 
   Mutation: {
-    createStructure(root, { type, name, about }, context) {
+    createStructure(root, { type, name, about, location }, context) {
       return context.prisma.createStructure(
-        { type, name, about },
+        { type, name, about, location: { create: location } },
       )
     }
   },
 
-  // Structure: {
-  //   structures(root, args, context) {
-  //     return context.prisma.user({
-  //       id: root.id
-  //     }).posts()
-  //   }
-  // }
+  Structure: {
+    location(root, args, context) {
+      return context.prisma.structure({
+        id: root.id
+      }).location()
+    }
+  }
 }
 
 const server = new GraphQLServer({
