@@ -2,9 +2,20 @@ type User {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
-  email: String @unique
-  name: String!
+  email: String! @unique
   avatar: [Image!]
+  person: Person
+}
+
+type Person {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: User
+  name: String!
+  structures: [Structure!]
+  games: [Game!]
+  events: [Event!]
 }
 
 enum StructureType {
@@ -21,7 +32,7 @@ type Structure {
   name: String!
   about: String!
   location: Location!
-  people: [User!]
+  people: [Person!]
   structures: [Structure!]
   images: [Image!]
   games: [Game!]
@@ -32,9 +43,10 @@ type Game {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
+  releasedAt: DateTime
   name: String!
   about: String!
-  authors: [User!]
+  authors: [Person!]
   structures: [Structure!]
   images: [Image!]
   events: [Event!]
@@ -50,7 +62,7 @@ type Event {
   end: DateTime!
   location: Location
   images: [Image!]
-  authors: [User!]
+  authors: [Person!]
   structures: [Structure!]
   games: [Game!]
 }
