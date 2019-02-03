@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Connect, mutation } from 'urql';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-import { Input, Select, Form, TextArea } from 'semantic-ui-react';
+import { Segment, Input, Select, Form, TextArea } from 'semantic-ui-react';
 
 import { countryOptions } from './countries';
 
@@ -40,34 +38,50 @@ const structureTypes = [
   { text: 'organisation', value: 'ORGANISATION' },
 ];
 
-const StructureList = () => (
-  <Connect
-    mutation={{
-      createStructure: mutation(createStructure),
-    }}
-  >
-    {({ createStructure }) => (
-      <Formik
-        onSubmit={(values) => {
-          createStructure(values);
+const StructureList = () => {
+
+  const [type, setType] = useState('');
+  const [name, setName] = useState('');
+  const [about, setAbout] = useState('');
+  const [country, setCountry] = useState('');
+  const [city, setCity] = useState('');
+
+  return (
+    <Segment compact>
+      <Connect
+        mutation={{
+          createStructure: mutation(createStructure),
         }}
       >
-        {({ handleChange, setFieldValue, handleSubmit }) => (
-          <Form style={{ maxWidth: 400, margin: 'auto' }} onSubmit={handleSubmit}>
+        {({ createStructure }) => (
+          <Form
+            style={{ maxWidth: 400, margin: 'auto' }}
+            onSubmit={() => {
+              createStructure({ type, name, about, country, city });
+              setType('');
+              setName('');
+              setAbout('');
+              setCountry('');
+              setCity('');
+            }}
+          >
             <Form.Group widths="equal">
               <Form.Field>
                 <Select 
                   name="type"
                   options={structureTypes}
                   placeholder="Type…"
-                  onChange={(e, data) => setFieldValue('type', data.value)}
+                  value={type}
+                  onChange={(e, data) => setType(data.value)}
                 />
               </Form.Field>
               <Form.Field>
-                <Input
+                <input
                   name="name"
                   placeholder="Name…"
-                  onChange={handleChange}
+                  value={name}
+                  text={name}
+                  onChange={e => setName(e.target.value)}
                 />
               </Form.Field>
             </Form.Group>
@@ -75,7 +89,8 @@ const StructureList = () => (
               <TextArea
                 name="about"
                 placeholder="About…"
-                onChange={handleChange}
+                value={about}
+                onChange={(e, data) => setAbout(data.value)}
               />
             </Form.Group>
             <Form.Group widths="equal">
@@ -84,14 +99,16 @@ const StructureList = () => (
                   name="country"
                   options={countryOptions}
                   placeholder="Country"
-                  onChange={(e, data) => setFieldValue('country', data.value)}
+                  value={country}
+                  onChange={(e, data) => setCountry(data.value)}
                 />
               </Form.Field>
               <Form.Field>
                 <Input
                   name="city"
                   placeholder="City"
-                  onChange={handleChange}
+                  value={city}
+                  onChange={(e, data) => setCity(data.value)}
                 />
               </Form.Field>
             </Form.Group>
@@ -99,9 +116,10 @@ const StructureList = () => (
             <Form.Button content='Add' />
           </Form>
         )}
-      </Formik>
-    )}
-  </Connect>
-);
+      </Connect>
+    </Segment> 
+  );
+}
+
 
 export default StructureList;
