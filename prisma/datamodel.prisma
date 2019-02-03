@@ -1,0 +1,73 @@
+type User {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  email: String @unique
+  name: String!
+  avatar: [Image!]
+}
+
+enum StructureType {
+  STUDIO
+  ASSOCIATION
+  ORGANISATION
+}
+
+type Structure {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  type: StructureType!
+  name: String!
+  about: String!
+  location: Location!
+  people: [User!]
+  structures: [Structure!]
+  images: [Image!]
+  games: [Game!]
+  events: [Event!]
+}
+
+type Game {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  about: String!
+  authors: [User!]
+  structures: [Structure!]
+  images: [Image!]
+  events: [Event!]
+}
+
+type Event {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  about: String!
+  start: DateTime!
+  end: DateTime!
+  location: Location
+  images: [Image!]
+  authors: [User!]
+  structures: [Structure!]
+  games: [Game!]
+}
+
+type Image {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  filename: String!
+  mimetype: String!
+}
+
+type Location {
+  country: String!
+  city: String!
+  latitude: Float!
+  longitude: Float!
+  structures: [Structure!]
+  events: [Event!]
+}

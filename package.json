@@ -1,0 +1,11 @@
+{
+  "name": "indie-collective-community",
+  "dependencies": {
+    "graphql-yoga": "^1.17.1",
+    "prisma-client-lib": "^1.25.6"
+  },
+  "scripts": {
+    "deploy": "prisma deploy",
+    "start": "node src/index.js"
+  }
+}

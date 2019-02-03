@@ -1,0 +1,88 @@
+scalar Upload
+
+type Query {
+  allStructures: [Structure!]
+  structure(structureId: ID!): Structure
+}
+
+type Mutation {
+  createStructure(
+    type: StructureType!
+    name: String!
+    about: String
+  ): Structure
+}
+
+type User {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  email: String
+  name: String!
+  avatar: [Image!]
+}
+
+enum StructureType {
+  STUDIO
+  ASSOCIATION
+  ORGANISATION
+}
+
+type Structure {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  type: StructureType!
+  name: String!
+  about: String!
+  location: Location!
+  people: [User!]
+  structures: [Structure!]
+  images: [Image!]
+  games: [Game!]
+  events: [Event!]
+}
+
+type Game {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  name: String!
+  about: String!
+  authors: [User!]
+  structures: [Structure!]
+  images: [Image!]
+  events: [Event!]
+}
+
+type Event {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  name: String!
+  about: String!
+  start: String!
+  end: String!
+  location: Location
+  images: [Image!]
+  authors: [User!]
+  structures: [Structure!]
+  games: [Game!]
+}
+
+type Image {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  filename: String!
+  mimetype: String!
+}
+
+type Location {
+  country: String!
+  city: String!
+  latitude: Float!
+  longitude: Float!
+  structures: [Structure!]
+  events: [Event!]
+}
