@@ -1,8 +1,9 @@
 scalar Upload
+scalar DateTime
 
 type Query {
   allStructures: [Structure!]
-  structure(structureId: ID!): Structure
+  structure(id: ID!): Structure
 }
 
 type Mutation {
@@ -21,8 +22,8 @@ input LocationInput {
 
 type User {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   email: String
   name: String!
   avatar: [Image!]
@@ -36,8 +37,8 @@ enum StructureType {
 
 type Structure {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   type: StructureType!
   name: String!
   about: String!
@@ -51,8 +52,9 @@ type Structure {
 
 type Game {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  releasedAt: DateTime
   name: String!
   about: String!
   authors: [User!]
@@ -63,12 +65,12 @@ type Game {
 
 type Event {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  start: DateTime!
+  end: DateTime!
   name: String!
   about: String!
-  start: String!
-  end: String!
   location: Location
   images: [Image!]
   authors: [User!]
@@ -78,8 +80,8 @@ type Event {
 
 type Image {
   id: ID!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   filename: String!
   mimetype: String!
 }

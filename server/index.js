@@ -6,8 +6,8 @@ const resolvers = {
     allStructures(root, args, context) {
       return context.prisma.structures()
     },
-    structure(root, args, context) {
-      return context.prisma.structure({ id: args.postId })
+    structure(root, { id }, context) {
+      return context.prisma.structure({ id })
     }
   },
 
