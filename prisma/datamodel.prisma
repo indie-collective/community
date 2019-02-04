@@ -3,7 +3,8 @@ type User {
   createdAt: DateTime!
   updatedAt: DateTime!
   email: String! @unique
-  avatar: [Image!]
+  password: String!
+  avatar: Image
   person: Person
 }
 

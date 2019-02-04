@@ -2,6 +2,7 @@ scalar Upload
 scalar DateTime
 
 type Query {
+  me: User
   allStructures: [Structure!]
   structure(id: ID!): Structure
 }
@@ -13,6 +14,20 @@ type Mutation {
     about: String!
     location: LocationInput!
   ): Structure
+  signup(
+    email: String!
+    password: String!
+    name: String
+  ): AuthPayload!
+  login(
+    email: String!
+    password: String!
+  ): AuthPayload!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
 }
 
 input LocationInput {
@@ -24,9 +39,21 @@ type User {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  email: String
+  email: String!
   name: String!
-  avatar: [Image!]
+  avatar: Image
+  person: Person
+}
+
+type Person {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: User
+  name: String!
+  structures: [Structure!]
+  games: [Game!]
+  events: [Event!]
 }
 
 enum StructureType {
