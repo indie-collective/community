@@ -3,10 +3,9 @@ const { sign } = require('jsonwebtoken');
 const { APP_SECRET, getUserId } = require('../utils');
 
 const Mutation = {
-  signup: async (parent, { name, email, password }, context) => {
+  signup: async (parent, { email, password }, context) => {
     const hashedPassword = await hash(password, 10);
     const user = await context.prisma.createUser({
-      name,
       email,
       password: hashedPassword,
     });

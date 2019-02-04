@@ -17,7 +17,6 @@ type Mutation {
   signup(
     email: String!
     password: String!
-    name: String
   ): AuthPayload!
   login(
     email: String!
@@ -40,7 +39,6 @@ type User {
   createdAt: DateTime!
   updatedAt: DateTime!
   email: String!
-  name: String!
   avatar: Image
   person: Person
 }
