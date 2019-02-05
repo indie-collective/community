@@ -47,77 +47,74 @@ const StructureList = () => {
   const [city, setCity] = useState('');
 
   return (
-    <Segment compact>
-      <Connect
-        mutation={{
-          createStructure: mutation(createStructure),
-        }}
-      >
-        {({ createStructure }) => (
-          <Form
-            style={{ maxWidth: 400, margin: 'auto' }}
-            onSubmit={() => {
-              createStructure({ type, name, about, country, city });
-              setType('');
-              setName('');
-              setAbout('');
-              setCountry('');
-              setCity('');
-            }}
-          >
-            <Form.Group widths="equal">
-              <Form.Field>
-                <Select 
-                  name="type"
-                  options={structureTypes}
-                  placeholder="Type…"
-                  value={type}
-                  onChange={(e, data) => setType(data.value)}
-                />
-              </Form.Field>
-              <Form.Field>
-                <input
-                  name="name"
-                  placeholder="Name…"
-                  value={name}
-                  text={name}
-                  onChange={e => setName(e.target.value)}
-                />
-              </Form.Field>
-            </Form.Group>
-            <Form.Group>
-              <TextArea
-                name="about"
-                placeholder="About…"
-                value={about}
-                onChange={(e, data) => setAbout(data.value)}
+    <Connect
+      mutation={{
+        createStructure: mutation(createStructure),
+      }}
+    >
+      {({ createStructure }) => (
+        <Form
+          onSubmit={() => {
+            createStructure({ type, name, about, country, city });
+            setType('');
+            setName('');
+            setAbout('');
+            setCountry('');
+            setCity('');
+          }}
+        >
+          <Form.Group widths="equal">
+            <Form.Field>
+              <Select 
+                name="type"
+                options={structureTypes}
+                placeholder="Type…"
+                value={type}
+                onChange={(e, data) => setType(data.value)}
               />
-            </Form.Group>
-            <Form.Group widths="equal">
-              <Form.Field>
-                <Select
-                  name="country"
-                  options={countryOptions}
-                  placeholder="Country"
-                  value={country}
-                  onChange={(e, data) => setCountry(data.value)}
-                />
-              </Form.Field>
-              <Form.Field>
-                <Input
-                  name="city"
-                  placeholder="City"
-                  value={city}
-                  onChange={(e, data) => setCity(data.value)}
-                />
-              </Form.Field>
-            </Form.Group>
+            </Form.Field>
+            <Form.Field>
+              <input
+                name="name"
+                placeholder="Name…"
+                value={name}
+                text={name}
+                onChange={e => setName(e.target.value)}
+              />
+            </Form.Field>
+          </Form.Group>
+          <Form.Group>
+            <TextArea
+              name="about"
+              placeholder="About…"
+              value={about}
+              onChange={(e, data) => setAbout(data.value)}
+            />
+          </Form.Group>
+          <Form.Group widths="equal">
+            <Form.Field>
+              <Select
+                name="country"
+                options={countryOptions}
+                placeholder="Country"
+                value={country}
+                onChange={(e, data) => setCountry(data.value)}
+              />
+            </Form.Field>
+            <Form.Field>
+              <Input
+                name="city"
+                placeholder="City"
+                value={city}
+                onChange={(e, data) => setCity(data.value)}
+              />
+            </Form.Field>
+          </Form.Group>
 
-            <Form.Button content='Add' />
-          </Form>
-        )}
-      </Connect>
-    </Segment> 
+          <Form.Button content='Add' />
+        </Form>
+      )}
+    </Connect>
   );
 }
 
