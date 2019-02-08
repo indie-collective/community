@@ -1,6 +1,6 @@
 import React from 'react';
 import { Connect, query, mutation } from 'urql';
-import { Segment, Dimmer, Loader, Table, Flag } from 'semantic-ui-react';
+import { Table, Popover, Position, TextDropdownButton, Menu } from 'evergreen-ui';
 
 const allStructures = `
   {
@@ -17,6 +17,12 @@ const allStructures = `
   }
 `;
 
+const Order = {
+  NONE: 'NONE',
+  ASC: 'ASC',
+  DESC: 'DESC'
+};
+
 const structureTypes = [
   { text: 'studio', value: 'STUDIO' },
   { text: 'association', value: 'ASSOCIATION' },
@@ -26,23 +32,50 @@ const structureTypes = [
 const StructureList = () => (
   <Connect query={query(allStructures)}>
     {({ loaded, fetching, data }) => (
-      <Table color="blue">
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>Type</Table.HeaderCell>
-            <Table.HeaderCell>Name</Table.HeaderCell>
-            <Table.HeaderCell>About</Table.HeaderCell>
-            <Table.HeaderCell>Location</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
+      <Table>
+        <Table.Head>
+          <Table.TextHeaderCell>Type</Table.TextHeaderCell>
+          <Table.SearchHeaderCell
+            onChange={value => console.log(value)}
+            placeholder="Search by name…"
+          />
+          <Table.TextHeaderCell>About</Table.TextHeaderCell>
+          <Table.HeaderCell>
+            <Popover
+              position={Position.BOTTOM_LEFT}
+              content={({ close }) => (
+                <Menu>
+                  <Menu.OptionsGroup
+                    title="Order"
+                    options={[
+                      { label: 'Ascending', value: Order.ASC },
+                      { label: 'Descending', value: Order.DESC }
+                    ]}
+                    selected={null}
+                    onChange={value => {
+                      console.log(value);
+                      close()
+                    }}
+                  />
+                </Menu>
+              )}
+            >
+              <TextDropdownButton
+                icon="caret-down"
+              >
+                Location
+              </TextDropdownButton>
+            </Popover>
+          </Table.HeaderCell>
+        </Table.Head>
     
         <Table.Body>
           {loaded && data.allStructures.map(({ type, name, about, location }) => (
             <Table.Row key={name}>
-              <Table.Cell collapsing>{type}</Table.Cell>
-              <Table.Cell collapsing>{name}</Table.Cell>
-              <Table.Cell>{about}</Table.Cell>
-              <Table.Cell collapsing><Flag name={location.country.toLowerCase()} /> {location.city}</Table.Cell>
+              <Table.TextCell>{type}</Table.TextCell>
+              <Table.TextCell>{name}</Table.TextCell>
+              <Table.TextCell>{about}</Table.TextCell>
+              <Table.TextCell>{location.city}, {location.country}</Table.TextCell>
             </Table.Row>
           ))}
         </Table.Body>
