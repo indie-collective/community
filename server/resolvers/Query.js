@@ -13,6 +13,14 @@ const Query = {
   structure(root, { id }, context) {
     return context.prisma.structure({ id })
   },
+
+  allEvents(root, args, context) {
+    return context.prisma.events({ sortBy: 'startAt_ASC' })
+  },
+
+  event(root, { id }, context) {
+    return context.prisma.event({ id })
+  },
 };
 
 module.exports = {
