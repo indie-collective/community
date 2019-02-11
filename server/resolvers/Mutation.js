@@ -37,7 +37,13 @@ const Mutation = {
     return context.prisma.createStructure(
       { type, name, about, location: { create: location } },
     )
-  }
+  },
+
+  createEvent(root, { name, about, startAt, endAt, location }, context) {
+    return context.prisma.createEvent(
+      { name, about, location: { create: location } },
+    )
+  },
 }
 
 module.exports = {
