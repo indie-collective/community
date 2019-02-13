@@ -15,7 +15,7 @@ const Query = {
   },
 
   allEvents(root, args, context) {
-    return context.prisma.events({ sortBy: 'startAt_ASC' })
+    return context.prisma.events({ orderBy: 'startAt_ASC' })
   },
 
   event(root, { id }, context) {

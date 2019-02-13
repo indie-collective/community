@@ -4,7 +4,9 @@ scalar DateTime
 type Query {
   me: User
   allStructures: [Structure!]
+  allEvents: [Event!]
   structure(id: ID!): Structure
+  event(id: ID!): Event
 }
 
 type Mutation {
@@ -14,6 +16,13 @@ type Mutation {
     about: String!
     location: LocationInput!
   ): Structure
+  createEvent(
+    name: String!
+    about:String!
+    startAt: DateTime!
+    endAt: DateTime!
+    location: LocationInput!
+  ): Event
   signup(
     email: String!
     password: String!
@@ -92,8 +101,8 @@ type Event {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  start: DateTime!
-  end: DateTime!
+  startAt: DateTime!
+  endAt: DateTime!
   name: String!
   about: String!
   location: Location
