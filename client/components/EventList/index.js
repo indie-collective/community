@@ -13,8 +13,8 @@ const allEvents = `
         country
       }
       # until the model changes
-      startAt: start
-      endAt: end
+      startAt
+      endAt
     }
   }
 `;
@@ -31,11 +31,11 @@ const EventList = () => (
         </Table.Head>
     
         <Table.Body>
-          {loaded && data.allStructures.map(({ type, name, about, startAt, endAt, location }) => (
+          {loaded && data.allEvents.map(({ type, name, about, startAt, endAt, location }) => (
             <Table.Row key={name} isSelectable onSelect={() => alert('hello')}>
               <Table.TextCell>{name}</Table.TextCell>
               <Table.TextCell>{about}</Table.TextCell>
-              <Table.TextCell>{new Date(startAt).toLocaleDateString() - new Date(endAt).toLocaleDateString()}</Table.TextCell>
+              <Table.TextCell>{new Date(startAt).toLocaleDateString()} - {new Date(endAt).toLocaleDateString()}</Table.TextCell>
               <Table.TextCell>{location.city}, {location.country}</Table.TextCell>
             </Table.Row>
           ))}

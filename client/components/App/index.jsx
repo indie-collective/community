@@ -4,7 +4,7 @@ import { Provider, Client } from 'urql';
 import Navigation from '../Navigation';
 
 const client = new Client({
-  url: 'http://localhost:4000',
+  url: `${window.location.origin}/graphql`,
   fetchOptions() {
     if (localStorage.key('token')) {
       return {

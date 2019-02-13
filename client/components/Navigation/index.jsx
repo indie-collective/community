@@ -29,6 +29,8 @@ const Navigation = () => {
           right={0}
           alignItems="center"
           padding={10}
+	  maxWidth={820}
+	  margin="auto"
         >
           <Logo />
 
