@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from '@reach/router';
 import { Connect, query, mutation } from 'urql';
 import { Table, Popover, Position, TextDropdownButton, Menu } from 'evergreen-ui';
 
@@ -70,10 +71,12 @@ const StructureList = () => (
         </Table.Head>
     
         <Table.Body>
-          {loaded && data.allStructures.map(({ type, name, about, location }) => (
+          {loaded && data.allStructures.map(({ id, type, name, about, location }) => (
             <Table.Row key={name}>
               <Table.TextCell>{type}</Table.TextCell>
-              <Table.TextCell>{name}</Table.TextCell>
+              <Table.TextCell>
+                <Link to={`/structure/${id}`}>{name}</Link>
+              </Table.TextCell>
               <Table.TextCell>{about}</Table.TextCell>
               <Table.TextCell>{location.city}, {location.country}</Table.TextCell>
             </Table.Row>

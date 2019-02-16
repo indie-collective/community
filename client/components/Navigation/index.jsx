@@ -40,7 +40,7 @@ const Navigation = () => {
                 key={tab}
                 id={tab}
                 isSelected={`/${tab}` === location.pathname}
-                onSelect={() => navigate(tab)}
+                onSelect={() => navigate(`/${tab}`)}
                 style={{ textTransform: 'capitalize' }}
               >
                 {tab}
