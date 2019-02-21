@@ -1,6 +1,7 @@
 import React from 'react';
 import { Connect, query } from 'urql';
 import { Table } from 'evergreen-ui';
+import { navigate } from '@reach/router';
 
 const allEvents = `
   {
@@ -31,8 +32,8 @@ const EventList = () => (
         </Table.Head>
     
         <Table.Body>
-          {loaded && data.allEvents.map(({ type, name, about, startAt, endAt, location }) => (
-            <Table.Row key={name} isSelectable onSelect={() => alert('hello')}>
+          {loaded && data.allEvents.map(({ id, name, about, startAt, endAt, location }) => (
+            <Table.Row key={name} isSelectable onSelect={() => navigate(`/events/${id}`)}>
               <Table.TextCell>{name}</Table.TextCell>
               <Table.TextCell>{about}</Table.TextCell>
               <Table.TextCell>{new Date(startAt).toLocaleDateString()} - {new Date(endAt).toLocaleDateString()}</Table.TextCell>

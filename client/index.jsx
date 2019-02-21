@@ -8,12 +8,15 @@ import GamesPage from './pages/games';
 import PeoplePage from './pages/people';
 
 import StructurePage from './pages/structure';
+import EventDialog from './pages/event';
 
 render(
   <Router>
     <Redirect from="/" to="/structures" />
     <StructuresPage path="/structures" />
-    <EventsPage path="/events" />
+    <EventsPage path="/events">
+      <EventDialog path=":id" />
+    </EventsPage>
     <GamesPage path="/games" />
     <PeoplePage path="/people" />
     <StructurePage path="/structure/:id" />
