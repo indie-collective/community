@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Connect, query } from 'urql';
+import { useQuery } from 'urql';
 import { Pane, TabNavigation, Tab, Avatar, Button, Spinner } from "evergreen-ui";
 import { Location } from '@reach/router';
 
@@ -17,6 +17,7 @@ const me = `
 const Navigation = () => {
 
   const [loginVisible, setLoginVisible] = useState(false);
+  const [res] = useQuery({ query: me });
 
   return (
     <Location>
@@ -50,38 +51,28 @@ const Navigation = () => {
 
           <div style={{ flex: 'auto' }} />
 
-          <Connect query={query(me)}>
-            {({ loaded, fetching, error, data }) => {
-              if (loaded && !fetching) {
-                if (data.me && data.me.email) {
-                  return (
-                    <Button
-                      appearance="primary"
-                      intent="danger"
-                      onClick={() => {
-                        localStorage.removeItem('token');
-                      }}
-                    >
-                      Logout
-                    </Button>
-                  );
-                } else {
-                  return (
-                    <Button
-                      appearance="primary"
-                      onClick={() => setLoginVisible(true)}
-                    >
-                      Login
-                    </Button>
-                  );
-                }
-              }
-
-              return (
-                <Spinner size={24} />
-              );
-            }}
-          </Connect>
+          {res.fetching ? (
+            <Spinner size={24} />
+          ) : (
+            (res.data && res.data.me && res.data.me.email) ? (
+              <Button
+                appearance="primary"
+                intent="danger"
+                onClick={() => {
+                  localStorage.removeItem('token');
+                }}
+              >
+                Logout
+              </Button>
+            ) : (
+              <Button
+                appearance="primary"
+                onClick={() => setLoginVisible(true)}
+              >
+                Login
+              </Button>
+            )
+          )}
 
           <LoginDialog visible={loginVisible} onClose={() => setLoginVisible(false)}/>
         </Pane>

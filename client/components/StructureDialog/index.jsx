@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Connect, mutation } from 'urql';
+import { useMutation } from 'urql';
 import {
   Dialog,
   Pane,
@@ -54,77 +54,71 @@ const StructureDialog = ({ visible, onClose }) => {
   const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
 
+  const [res, executeMutation] = useMutation(createStructure)
+
   return (
-    <Connect
-      mutation={{
-        createStructure: mutation(createStructure),
+    <Dialog
+      isShown={visible}
+      title="Create Structure"
+      onConfirm={() => {
+        executeMutation({ type, name, about, country, city })
+          .then(() => {
+            onClose();
+          });
       }}
+      confirmLabel="Create structure"
     >
-      {({ createStructure }) => (
-        <Dialog
-          isShown={visible}
-          title="Create Structure"
-          onConfirm={() => {
-            createStructure({ type, name, about, country, city })
-              .then(() => {
-                onClose();
-              });
-          }}
-          confirmLabel="Create structure"
+      <Pane>
+        <SegmentedControl
+          options={structureTypes}
+          value={type}
+          onChange={value => setType(value)}
+        />
+        <br />
+        <TextInputField
+          label="Name"
+          placeholder="Name…"
+          value={name}
+          onChange={e => setName(e.target.value)}
+        />
+        <Textarea
+          placeholder="About…"
+          value={about}
+          onChange={e => setAbout(e.target.value)}
+        />
+        <br />
+        <br />
+        <Autocomplete
+          label="country"
+          items={countryOptions.map(d => d.text)}
+          value={country}
+          onChange={value => setCountry(value)}
         >
-          <Pane>
-            <SegmentedControl
-              options={structureTypes}
-              value={type}
-              onChange={value => setType(value)}
-            />
-            <br />
-            <TextInputField
-              label="Name"
-              placeholder="Name…"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-            <Textarea
-              placeholder="About…"
-              value={about}
-              onChange={e => setAbout(e.target.value)}
-            />
-            <br />
-            <br />
-            <Autocomplete
-              label="country"
-              items={countryOptions.map(d => d.text)}
-              value={country}
-              onChange={value => setCountry(value)}
-            >
-              {(props) => {
-                const { getInputProps, getRef, inputValue, openMenu } = props
-                return (
-                  <TextInput
-                    placeholder="Country"
-                    value={inputValue}
-                    innerRef={getRef}
-                    {...getInputProps({
-                      onFocus: () => {
-                        openMenu()
-                      }
-                    })}
-                  />
-                )
-              }}
-            </Autocomplete>
-            <br />
-            <TextInputField
-              label="City"
-              placeholder="City"
-              value={city}
-              onChange={e => setCity(e.target.value)}
-            />
-          </Pane>
-        </Dialog>
-      )}
-    </Connect>
+          {(props) => {
+            const { getInputProps, getRef, inputValue, openMenu } = props
+            return (
+              <TextInput
+                placeholder="Country"
+                value={inputValue}
+                innerRef={getRef}
+                {...getInputProps({
+                  onFocus: () => {
+                    openMenu()
+                  }
+                })}
+              />
+            )
+          }}
+        </Autocomplete>
+        <br />
+        <TextInputField
+          label="City"
+          placeholder="City"
+          value={city}
+          onChange={e => setCity(e.target.value)}
+        />
+      </Pane>
+    </Dialog>
   );
 }
 

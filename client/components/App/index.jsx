@@ -1,16 +1,26 @@
 import React from 'react';
-import { Provider, Client } from 'urql';
+import {
+  createClient,
+  cacheExchange,
+  debugExchange,
+  fetchExchange,
+  Provider,
+} from 'urql';
 
 import Navigation from '../Navigation';
 
-const client = new Client({
+const client = createClient({
   url: `http://localhost:4000/graphql`,
+  exchanges: [
+    debugExchange,
+    cacheExchange,
+    fetchExchange,
+  ],
   fetchOptions() {
     if (localStorage.key('token')) {
       return {
         headers: {
           authorization: `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
         },
       };
     }
@@ -19,7 +29,7 @@ const client = new Client({
 });
 
 const App = ({ children }) => (
-  <Provider client={client}>
+  <Provider value={client}>
     <Navigation />
     <div style={{ paddingTop: 90 }}>
       {children}

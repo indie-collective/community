@@ -25,8 +25,6 @@ const EventsPage = ({children}) => {
         </Button>
       </Pane>
 
-      {children}
-
       <EventDialog
         visible={isDialogVisible}
         onClose={() => setDialogVisible(false)}

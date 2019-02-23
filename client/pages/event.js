@@ -1,6 +1,8 @@
 import React from 'react';
 import { Heading, Pane, Paragraph, Dialog } from 'evergreen-ui';
-import { Connect, query } from 'urql';
+import { Query } from 'urql';
+
+import App from '../components/App';
 
 const eventQuery = `
   query getEvent($id: ID!) {
@@ -19,8 +21,8 @@ const eventQuery = `
 `;
 
 const EventDialog = ({ id, navigate }) => (
-  <Connect query={query(eventQuery, { id })}>
-    {({ loaded, fetching, data }) => {
+  <Query query={eventQuery} variables={{ id }}>
+    {({ loaded, data }) => {
       return loaded && (
         <Dialog title={data.event.name} isShown onCloseComplete={() => navigate('/events')} hasFooter={false}>
           <Pane maxWidth={800} margin="auto">
@@ -33,7 +35,7 @@ const EventDialog = ({ id, navigate }) => (
         </Dialog>
       );
     }}
-  </Connect>
+  </Query>
 );  
 
 export default EventDialog;

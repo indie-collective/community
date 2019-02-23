@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Heading, Pane, Paragraph } from 'evergreen-ui';
-import { Connect, query } from 'urql';
+import React from 'react';
+import { Heading, Pane, Paragraph, Spinner } from 'evergreen-ui';
+import { Query } from 'urql';
 
 import App from '../components/App';
 
@@ -21,9 +21,13 @@ const structureQuery = `
 
 const StructurePage = ({ id }) => (
   <App>
-    <Connect query={query(structureQuery, { id })}>
-      {({ loaded, fetching, data }) => {
-        return loaded && (
+    <Query query={structureQuery} variables={{ id }}>
+      {({ data }) => {
+        if (!data) {
+          return <Spinner size={24} />;
+        }
+
+        return (
           <Pane maxWidth={800} margin="auto">
             <Heading size={200}>{data.structure.type}</Heading>
             <Heading size={800}>{data.structure.name}</Heading>
@@ -34,7 +38,7 @@ const StructurePage = ({ id }) => (
           </Pane>
         );
       }}
-    </Connect>
+    </Query>
   </App>
 );  
 

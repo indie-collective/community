@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Connect, mutation } from 'urql';
+import { useMutation } from 'urql';
 import {
   Dialog,
   Pane,
@@ -25,44 +25,38 @@ const LoginDialog = ({ visible, onClose }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
 
+  const [res, login] = useMutation(loginMutation);
+
   return (
-    <Connect
-      mutation={{
-        login: mutation(loginMutation),
+    <Dialog
+      width={320}
+      isShown={visible}
+      hasHeader={false}
+      onConfirm={() => {
+        login({ email, password })
+          .then(res => {
+            if (res.login.token) {
+              localStorage.setItem('token', res.login.token);
+            }
+            onClose();
+          });
       }}
+      confirmLabel="Login"
     >
-      {({ login }) => (
-        <Dialog
-          width={320}
-          isShown={visible}
-          hasHeader={false}
-          onConfirm={() => {
-            login({ email, password })
-              .then(res => {
-                if (res.login.token) {
-                  localStorage.setItem('token', res.login.token);
-                }
-                onClose();
-              });
-          }}
-          confirmLabel="Login"
-        >
-          <Pane>
-            <TextInputField
-              label="Email"
-              placeholder="jean-michel.jam@indieco.xyz"
-              onChange={e => setEmail(e.target.value)}
-            />
-            <TextInputField
-              type="password"
-              label="Password"
-              placeholder="JAMTASTIC"
-              onChange={e => setPassword(e.target.value)}
-            />
-          </Pane>
-        </Dialog>
-      )}
-    </Connect>
+      <Pane>
+        <TextInputField
+          label="Email"
+          placeholder="jean-michel.jam@indieco.xyz"
+          onChange={e => setEmail(e.target.value)}
+        />
+        <TextInputField
+          type="password"
+          label="Password"
+          placeholder="JAMTASTIC"
+          onChange={e => setPassword(e.target.value)}
+        />
+      </Pane>
+    </Dialog>
   );
 }
 
