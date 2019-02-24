@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useMutation } from 'urql';
+import { useQuery, useMutation } from 'urql';
 import {
   Dialog,
   Pane,
   TextInputField,
+  toaster,
 } from 'evergreen-ui';
 
 const loginMutation = `
@@ -16,16 +17,28 @@ const loginMutation = `
       password: $password
     ) {
       token
+      user {
+        email
+      }
     }
   }
 `;
 
-const LoginDialog = ({ visible, onClose }) => {
+const meQuery = `
+  {
+    me {
+      email
+    }
+  }
+`;
 
+
+const LoginDialog = ({ visible, onClose }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
 
-  const [res, login] = useMutation(loginMutation);
+  const login = useMutation(loginMutation)[1];
+  const [me, getMe] = useQuery({ query: meQuery, requestPolicy: 'network-only' });
 
   return (
     <Dialog
@@ -34,9 +47,11 @@ const LoginDialog = ({ visible, onClose }) => {
       hasHeader={false}
       onConfirm={() => {
         login({ email, password })
-          .then(res => {
-            if (res.login.token) {
-              localStorage.setItem('token', res.login.token);
+          .then(d => {
+            if (d.data.login.token) {
+              localStorage.setItem('token', d.data.login.token);
+              getMe();
+              toaster.success(`Welcome back, ${d.data.login.user.email}!`)
             }
             onClose();
           });

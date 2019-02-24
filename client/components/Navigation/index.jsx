@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useQuery } from 'urql';
-import { Pane, TabNavigation, Tab, Avatar, Button, Spinner } from "evergreen-ui";
+import { Pane, TabNavigation, Tab, Button, Spinner, toaster } from "evergreen-ui";
 
 import Logo from '../Logo';
 import LoginDialog from '../LoginDialog';
 import useLocation from '../../hooks/useLocation';
 
-const me = `
+const meQuery = `
   {
     me {
       email
@@ -16,7 +16,7 @@ const me = `
 
 const Navigation = () => {
   const [loginVisible, setLoginVisible] = useState(false);
-  const [res] = useQuery({ query: me });
+  const [me, getMe] = useQuery({ query: meQuery, requestPolicy: 'network-only' });
   const { location, navigate } = useLocation();
 
   return (
@@ -49,15 +49,19 @@ const Navigation = () => {
 
       <div style={{ flex: 'auto' }} />
 
-      {res.fetching ? (
+      {me.fetching ? (
         <Spinner size={24} />
       ) : (
-        (res.data && res.data.me && res.data.me.email) ? (
+        (me.data && me.data.me && me.data.me.email) ? (
           <Button
             appearance="primary"
             intent="danger"
             onClick={() => {
               localStorage.removeItem('token');
+              getMe();
+              toaster.success(
+                'Successfully logged out.'
+              )
             }}
           >
             Logout
