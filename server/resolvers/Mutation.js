@@ -1,6 +1,19 @@
+const fs = require('fs');
+const { resolve } = require('path');
 const { hash, compare } = require('bcrypt');
 const { sign } = require('jsonwebtoken');
 const { APP_SECRET, getUserId } = require('../utils');
+
+// create files dir
+fs.access(resolve(__dirname, '../../files'), fs.constants.F_OK, (err) => {
+  if (err) {
+    fs.mkdir(resolve(__dirname, '../../files'), (err) => {
+      if (err) {
+        console.log(err)
+      }
+    });
+  }
+});
 
 const Mutation = {
   signup: async (parent, { email, password }, context) => {
@@ -51,6 +64,19 @@ const Mutation = {
 
   deleteEvent(root, { id }, context) {
     return context.prisma.deleteEvent({ id });
+  },
+
+  uploadImage: async (root, { file }) => {
+    const { filename, mimetype, createReadStream } = await file;
+    const stream = createReadStream();
+
+    const ws = fs.createWriteStream(resolve(__dirname, '../../files', filename), {
+      autoClose: true,
+    });
+
+    stream.pipe(ws);
+
+    return { id: 'NOID', filename, mimetype };
   },
 }
 

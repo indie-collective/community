@@ -1,5 +1,6 @@
 import React from 'react';
-import { pipe, tap } from 'wonka';
+import { print } from 'graphql';
+import { filter, pipe, tap } from 'wonka';
 import {
   createClient,
   cacheExchange,
@@ -12,34 +13,60 @@ import Navigation from '../Navigation';
 
 const testExchange = ({ forward }) => {
   return ops$ => {
-    return pipe(
+    const preFlight$ = pipe(
       ops$,
-      // tap(op => console.log('[Exchange debug]: Incoming operation: ', op)),
-      tap(op => {
-        if (op.operationName === 'mutation' && op.variables && op.variables.file) {
-          op.context.fetchOptions.body = new FormData()
-
-          op.context.fetchOptions.body.append(
-            'operations',
-            JSON.stringify(op)
-          )
-
-          op.context.fetchOptions.body.append(
-            'map',
-            JSON.stringify(
-              { 0: [op.variables.file.path] }
-            )
-          )
-
-          op.context.fetchOptions.body.append(0, op.variables.file)
+      filter(operation => {
+        if (operation.operationName !== 'mutation') {
+          return true;
         }
-      }),
-      tap(op => { console.log(op) }),
-      forward,
-      // tap(result =>
-      //   console.log('[Exchange debug]: Completed operation: ', result)
-      // )
+
+        if (!operation.variables.file) {
+          return true;
+        }
+
+        const { url } = operation.context;
+        const { file } = operation.variables;
+
+        const extraOptions =
+          typeof operation.context.fetchOptions === 'function'
+            ? operation.context.fetchOptions()
+            : operation.context.fetchOptions || {};
+
+        const fetchOptions = {
+          method: 'POST',
+          headers: {
+            ...extraOptions.headers,
+          },
+        };
+
+        fetchOptions.body = new FormData()
+
+        fetchOptions.body.append(
+          'operations',
+          JSON.stringify({
+            query: print(operation.query),
+            variables: Object.assign({}, operation.variables, { file: null }),
+          }),
+        )
+
+        fetchOptions.body.append(
+          'map',
+          JSON.stringify({
+            0: ['variables.file'],
+          })
+        )
+
+        fetchOptions.body.append(0, file, file.name)
+
+        fetch(url, fetchOptions)
+          .then(res => res.json())
+          .then(json => console.log(json));
+
+        return false;
+      })
     );
+
+    return forward(preFlight$);
   };
 }
 

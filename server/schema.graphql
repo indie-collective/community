@@ -10,6 +10,7 @@ type Query {
 }
 
 type Mutation {
+  uploadImage(file: Upload!): File!
   createStructure(
     type: StructureType!
     name: String!
@@ -43,6 +44,12 @@ type AuthPayload {
 input LocationInput {
   country: String!
   city: String!
+}
+
+type File {
+  id: ID!
+  filename: String!
+  mimetype: String!
 }
 
 type User {
