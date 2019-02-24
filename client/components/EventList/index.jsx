@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery, useMutation } from 'urql';
-import { Table } from 'evergreen-ui';
+import { Table, Popover } from 'evergreen-ui';
 import { navigate } from '@reach/router';
 
 const allEvents = `

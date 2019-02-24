@@ -3,6 +3,14 @@ import { Link } from '@reach/router';
 import { useQuery, useMutation } from 'urql';
 import { Table, Popover, Position, TextDropdownButton, Menu, IconButton } from 'evergreen-ui';
 
+const meQuery = `
+  {
+    me {
+      email
+    }
+  }
+`;
+
 const allStructures = `
   {
     allStructures {
@@ -36,6 +44,7 @@ const Order = {
 };
 
 const StructureList = () => {
+  const me = useQuery({ query: meQuery })[0];
   const [res] = useQuery({ query: allStructures });
   const [_, deleteStructure] = useMutation(deleteStructureMutation);
 
@@ -59,27 +68,29 @@ const StructureList = () => {
             <Table.TextCell>{about}</Table.TextCell>
             <Table.TextCell>{location.city}, {location.country}</Table.TextCell>
             <Table.Cell width={48} flex="none">
-              <Popover
-                content={(
-                  <Menu>
-                    <Menu.Group>
-                      <Menu.Item secondaryText="⌘R">Edit…</Menu.Item>
-                    </Menu.Group>
-                    <Menu.Divider />
-                    <Menu.Group>
-                      <Menu.Item
-                        intent="danger"
-                        onSelect={() => deleteStructure({ id })}
-                      >
-                        Delete…
-                      </Menu.Item>
-                    </Menu.Group>
-                  </Menu>
-                )}
-                position={Position.BOTTOM_RIGHT}
-              >
-                <IconButton icon="more" height={24} appearance="minimal" />
-              </Popover>
+              {me.data && me.data.me && me.data.me.email && (
+                <Popover
+                  content={(
+                    <Menu>
+                      <Menu.Group>
+                        <Menu.Item secondaryText="⌘R">Edit…</Menu.Item>
+                      </Menu.Group>
+                      <Menu.Divider />
+                      <Menu.Group>
+                        <Menu.Item
+                          intent="danger"
+                          onSelect={() => deleteStructure({ id })}
+                        >
+                          Delete…
+                        </Menu.Item>
+                      </Menu.Group>
+                    </Menu>
+                  )}
+                  position={Position.BOTTOM_RIGHT}
+                >
+                  <IconButton icon="more" height={24} appearance="minimal" />
+                </Popover>
+              )}
             </Table.Cell>
           </Table.Row>
         ))}
