@@ -9,8 +9,10 @@ import {
 
 import Navigation from '../Navigation';
 
+const host = (location.host.split(':')[0] === 'localhost') ? 'localhost:4000' : location.host;
+
 const client = createClient({
-  url: `http://localhost:4000/graphql`,
+  url: `${location.protocol}//${host}/graphql`,
   exchanges: [
     debugExchange,
     cacheExchange,
