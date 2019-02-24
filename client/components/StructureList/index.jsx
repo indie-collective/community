@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from '@reach/router';
 import { useQuery, useMutation } from 'urql';
-import { Table, Popover, Position, TextDropdownButton, Menu, IconButton } from 'evergreen-ui';
+import { Table, Popover, Position, Menu, IconButton } from 'evergreen-ui';
 
 const meQuery = `
   {

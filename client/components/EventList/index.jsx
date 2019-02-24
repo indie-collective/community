@@ -1,7 +1,15 @@
 import React from 'react';
 import { useQuery, useMutation } from 'urql';
-import { Table, Popover } from 'evergreen-ui';
+import { Table, Popover, Position, Menu, IconButton } from 'evergreen-ui';
 import { navigate } from '@reach/router';
+
+const meQuery = `
+  {
+    me {
+      email
+    }
+  }
+`;
 
 const allEvents = `
   {
@@ -33,6 +41,7 @@ const deleteEventMutation = `
 `;
 
 const EventList = () => {
+  const me = useQuery({ query: meQuery })[0];
   const [res] = useQuery({ query: allEvents });
   const [_, deleteEvent] = useMutation(deleteEventMutation);
 
@@ -54,27 +63,29 @@ const EventList = () => {
             <Table.TextCell>{new Date(startAt).toLocaleDateString()} - {new Date(endAt).toLocaleDateString()}</Table.TextCell>
             <Table.TextCell>{location.city}, {location.country}</Table.TextCell>
             <Table.Cell width={48} flex="none">
-              <Popover
-                content={(
-                  <Menu>
-                    <Menu.Group>
-                      <Menu.Item secondaryText="⌘R">Edit…</Menu.Item>
-                    </Menu.Group>
-                    <Menu.Divider />
-                    <Menu.Group>
-                      <Menu.Item
-                        intent="danger"
-                        onSelect={() => deleteEvent({ id })}
-                      >
-                        Delete…
-                      </Menu.Item>
-                    </Menu.Group>
-                  </Menu>
-                )}
-                position={Position.BOTTOM_RIGHT}
-              >
-                <IconButton icon="more" height={24} appearance="minimal" />
-              </Popover>
+              {me.data && me.data.me && me.data.me.email && (
+                <Popover
+                  content={(
+                    <Menu>
+                      <Menu.Group>
+                        <Menu.Item secondaryText="⌘R">Edit…</Menu.Item>
+                      </Menu.Group>
+                      <Menu.Divider />
+                      <Menu.Group>
+                        <Menu.Item
+                          intent="danger"
+                          onSelect={() => deleteEvent({ id })}
+                        >
+                          Delete…
+                        </Menu.Item>
+                      </Menu.Group>
+                    </Menu>
+                  )}
+                  position={Position.BOTTOM_RIGHT}
+                >
+                  <IconButton icon="more" height={24} appearance="minimal" />
+                </Popover>
+              )}
             </Table.Cell>
           </Table.Row>
         ))}
