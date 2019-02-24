@@ -16,6 +16,7 @@ type Mutation {
     about: String!
     location: LocationInput!
   ): Structure
+  deleteStructure(id: ID!): Structure
   createEvent(
     name: String!
     about:String!
@@ -23,6 +24,7 @@ type Mutation {
     endAt: DateTime!
     location: LocationInput!
   ): Event
+  deleteEvent(id: ID!): Event
   signup(
     email: String!
     password: String!

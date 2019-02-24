@@ -36,13 +36,21 @@ const Mutation = {
   createStructure(root, { type, name, about, location }, context) {
     return context.prisma.createStructure(
       { type, name, about, location: { create: location } },
-    )
+    );
+  },
+
+  deleteStructure(root, { id }, context) {
+    return context.prisma.deleteStructure({ id });
   },
 
   createEvent(root, { name, about, startAt, endAt, location }, context) {
     return context.prisma.createEvent(
       { name, about, startAt, endAt, location: { create: location } },
-    )
+    );
+  },
+
+  deleteEvent(root, { id }, context) {
+    return context.prisma.deleteEvent({ id });
   },
 }
 

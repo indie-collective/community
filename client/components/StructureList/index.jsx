@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from '@reach/router';
-import { useQuery } from 'urql';
-import { Table, Popover, Position, TextDropdownButton, Menu } from 'evergreen-ui';
+import { useQuery, useMutation } from 'urql';
+import { Table, Popover, Position, TextDropdownButton, Menu, IconButton } from 'evergreen-ui';
 
 const allStructures = `
   {
@@ -18,6 +18,17 @@ const allStructures = `
   }
 `;
 
+const deleteStructureMutation = `
+  mutation deleteStructure ($id: ID!) {
+    deleteStructure(id: $id) {
+      id
+      type
+      name
+      about
+    }
+  }
+`;
+
 const Order = {
   NONE: 'NONE',
   ASC: 'ASC',
@@ -25,55 +36,51 @@ const Order = {
 };
 
 const StructureList = () => {
-  const [ res ] = useQuery({ query: allStructures });
+  const [res] = useQuery({ query: allStructures });
+  const [_, deleteStructure] = useMutation(deleteStructureMutation);
 
   return (
     <Table>
       <Table.Head>
         <Table.TextHeaderCell>Type</Table.TextHeaderCell>
-        <Table.SearchHeaderCell
-          onChange={value => console.log(value)}
-          placeholder="Search by name…"
-        />
+        <Table.TextHeaderCell>Name</Table.TextHeaderCell>
         <Table.TextHeaderCell>About</Table.TextHeaderCell>
-        <Table.HeaderCell>
-          <Popover
-            position={Position.BOTTOM_LEFT}
-            content={({ close }) => (
-              <Menu>
-                <Menu.OptionsGroup
-                  title="Order"
-                  options={[
-                    { label: 'Ascending', value: Order.ASC },
-                    { label: 'Descending', value: Order.DESC }
-                  ]}
-                  selected={null}
-                  onChange={value => {
-                    console.log(value);
-                    close()
-                  }}
-                />
-              </Menu>
-            )}
-          >
-            <TextDropdownButton
-              icon="caret-down"
-            >
-              Location
-            </TextDropdownButton>
-          </Popover>
-        </Table.HeaderCell>
+        <Table.TextHeaderCell>Location</Table.TextHeaderCell>
+        <Table.HeaderCell width={48} flex="none" />
       </Table.Head>
   
       <Table.Body>
         {!res.fetching && res.data && res.data.allStructures.map(({ id, type, name, about, location }) => (
-          <Table.Row key={name}>
+          <Table.Row key={id}>
             <Table.TextCell>{type}</Table.TextCell>
             <Table.TextCell>
               <Link to={`/structure/${id}`}>{name}</Link>
             </Table.TextCell>
             <Table.TextCell>{about}</Table.TextCell>
             <Table.TextCell>{location.city}, {location.country}</Table.TextCell>
+            <Table.Cell width={48} flex="none">
+              <Popover
+                content={(
+                  <Menu>
+                    <Menu.Group>
+                      <Menu.Item secondaryText="⌘R">Edit…</Menu.Item>
+                    </Menu.Group>
+                    <Menu.Divider />
+                    <Menu.Group>
+                      <Menu.Item
+                        intent="danger"
+                        onSelect={() => deleteStructure({ id })}
+                      >
+                        Delete…
+                      </Menu.Item>
+                    </Menu.Group>
+                  </Menu>
+                )}
+                position={Position.BOTTOM_RIGHT}
+              >
+                <IconButton icon="more" height={24} appearance="minimal" />
+              </Popover>
+            </Table.Cell>
           </Table.Row>
         ))}
       </Table.Body>

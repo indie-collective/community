@@ -16,7 +16,9 @@ const permissions = shield({
   Mutation: {
     signup: rules.isAuthenticatedUser,
     createStructure: rules.isAuthenticatedUser,
+    deleteStructure: rules.isAuthenticatedUser,
     createEvent: rules.isAuthenticatedUser,
+    deleteEvent: rules.isAuthenticatedUser
   },
 });
 
