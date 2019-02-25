@@ -3,19 +3,11 @@ import { useMutation } from 'urql';
 
 import Dropzone from '../Dropzone';
 
-const uploadImageMutation = `
-  mutation uploadFile($file: Upload!) {
-    uploadImage(file: $file) {
-      id
-      filename
-      mimetype
-    }
-  }
-`;
+import uploadImageMutation from '../../gql/uploadImage';
 
 const ImageUploader = () => {
-  const [res, uploadImage] = useMutation(uploadImageMutation);
   const [images, setImages] = useState([]);
+  const uploadImage = useMutation(uploadImageMutation)[1];
 
   const reader = new FileReader();
 

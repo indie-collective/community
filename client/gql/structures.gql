@@ -1,0 +1,12 @@
+{
+  allStructures {
+    id
+    type
+    name
+    about
+    location {
+      city
+      country
+    }
+  }
+}

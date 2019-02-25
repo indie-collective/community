@@ -1,0 +1,13 @@
+{
+  allEvents {
+    id
+    name
+    about
+    location {
+      city
+      country
+    }
+    startAt
+    endAt
+  }
+}

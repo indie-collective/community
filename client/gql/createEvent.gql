@@ -1,0 +1,28 @@
+mutation(
+  $name: String!
+  $about: String!
+  $startAt: DateTime!
+  $endAt: DateTime!
+  $country: String!
+  $city: String!
+) {
+  createEvent(
+    name: $name
+    about: $about
+    startAt: $startAt
+    endAt: $endAt
+    location: {
+      country: $country
+      city: $city
+    }
+  ) {
+    name
+    about
+    startAt
+    endAt
+    location {
+      country
+      city
+    }
+  }
+}

@@ -3,39 +3,9 @@ import { Link } from '@reach/router';
 import { useQuery, useMutation } from 'urql';
 import { Table, Popover, Position, Menu, IconButton } from 'evergreen-ui';
 
-const meQuery = `
-  {
-    me {
-      email
-    }
-  }
-`;
-
-const allStructures = `
-  {
-    allStructures {
-      id
-      type
-      name
-      about
-      location {
-        city
-        country
-      }
-    }
-  }
-`;
-
-const deleteStructureMutation = `
-  mutation deleteStructure ($id: ID!) {
-    deleteStructure(id: $id) {
-      id
-      type
-      name
-      about
-    }
-  }
-`;
+import meQuery from '../../gql/me';
+import structuresQuery from '../../gql/structures';
+import deleteStructureMutation from '../../gql/deleteStructure';
 
 const Order = {
   NONE: 'NONE',
@@ -45,8 +15,8 @@ const Order = {
 
 const StructureList = () => {
   const me = useQuery({ query: meQuery })[0];
-  const [res] = useQuery({ query: allStructures });
-  const [_, deleteStructure] = useMutation(deleteStructureMutation);
+  const [structures] = useQuery({ query: structuresQuery });
+  const deleteStructure = useMutation(deleteStructureMutation)[1];
 
   return (
     <Table>
@@ -59,7 +29,7 @@ const StructureList = () => {
       </Table.Head>
   
       <Table.Body>
-        {!res.fetching && res.data && res.data.allStructures.map(({ id, type, name, about, location }) => (
+        {!structures.fetching && structures.data && structures.data.allStructures.map(({ id, type, name, about, location }) => (
           <Table.Row key={id}>
             <Table.TextCell>{type}</Table.TextCell>
             <Table.TextCell>

@@ -3,47 +3,14 @@ import { useQuery, useMutation } from 'urql';
 import { Table, Popover, Position, Menu, IconButton } from 'evergreen-ui';
 import { navigate } from '@reach/router';
 
-const meQuery = `
-  {
-    me {
-      email
-    }
-  }
-`;
-
-const allEvents = `
-  {
-    allEvents {
-      id
-      name
-      about
-      location {
-        city
-        country
-      }
-      # until the model changes
-      startAt
-      endAt
-    }
-  }
-`;
-
-const deleteEventMutation = `
-  mutation deleteEvent ($id: ID!) {
-    deleteEvent(id: $id) {
-      id
-      name
-      about
-      startAt
-      endAt
-    }
-  }
-`;
+import meQuery from '../../gql/me';
+import eventsQuery from '../../gql/events';
+import deleteEventMutation from '../../gql/deleteEvent';
 
 const EventList = () => {
   const me = useQuery({ query: meQuery })[0];
-  const [res] = useQuery({ query: allEvents });
-  const [_, deleteEvent] = useMutation(deleteEventMutation);
+  const [events] = useQuery({ query: eventsQuery });
+  const deleteEvent = useMutation(deleteEventMutation)[1];
 
   return (
     <Table>
@@ -56,7 +23,7 @@ const EventList = () => {
       </Table.Head>
   
       <Table.Body>
-        {!res.fetching && res.data && res.data.allEvents.map(({ id, name, about, startAt, endAt, location }) => (
+        {!events.fetching && events.data && events.data.allEvents.map(({ id, name, about, startAt, endAt, location }) => (
           <Table.Row key={name} isSelectable onSelect={() => navigate(`/events/${id}`)}>
             <Table.TextCell>{name}</Table.TextCell>
             <Table.TextCell>{about}</Table.TextCell>

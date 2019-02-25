@@ -12,36 +12,7 @@ import {
 
 import { countryOptions } from '../StructureDialog/countries';
 
-const createEventMutation = `
-  mutation(
-    $name: String!
-    $about: String!
-    $startAt: DateTime!
-    $endAt: DateTime!
-    $country: String!
-    $city: String!
-  ) {
-    createEvent(
-      name: $name
-      about: $about
-      startAt: $startAt
-      endAt: $endAt
-      location: {
-        country: $country
-        city: $city
-      }
-    ) {
-      name
-      about
-      startAt
-      endAt
-      location {
-        country
-        city
-      }
-    }
-  }
-`
+import createEventMutation from '../../gql/createEvent';
 
 const EventDialog = ({ visible, onClose }) => {
   const [name, setName] = useState('');

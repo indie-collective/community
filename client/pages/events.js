@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { Heading, Pane, Card, Button } from 'evergreen-ui';
+import { useQuery } from 'urql';
 
 import App from '../components/App';
 import EventList from '../components/EventList';
 import EventDialog from '../components/EventDialog';
 
+import meQuery from '../gql/me';
+
 const EventsPage = ({children}) => {
+  const me = useQuery({ query: meQuery })[0];
   const [isDialogVisible, setDialogVisible] = useState(false);
 
   return (
@@ -15,14 +19,16 @@ const EventsPage = ({children}) => {
         <Card marginBottom={30} border="default">
           <EventList />
         </Card>
-        <Button
-          appearance="primary"
-          intent="success"
-          iconBefore="add"
-          onClick={() => setDialogVisible(true)}
-        >
-          Add Event
-        </Button>
+        {me.data && me.data.me && me.data.me.email && (
+          <Button
+            appearance="primary"
+            intent="success"
+            iconBefore="add"
+            onClick={() => setDialogVisible(true)}
+          >
+            Add Event
+          </Button>
+        )}
       </Pane>
 
       <EventDialog

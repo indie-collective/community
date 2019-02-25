@@ -16,8 +16,6 @@ import PeoplePage from './pages/people';
 import StructurePage from './pages/structure';
 import EventDialog from './pages/event';
 
-import Navigation from './components/Navigation';
-
 import fileExchange from './fileExchange';
 
 const host = (location.host.split(':')[0] === 'localhost') ? 'localhost:4000' : location.host;

@@ -7,38 +7,15 @@ import {
   toaster,
 } from 'evergreen-ui';
 
-const loginMutation = `
-  mutation(
-    $email: String!
-    $password: String!
-  ) {
-    login(
-      email: $email
-      password: $password
-    ) {
-      token
-      user {
-        email
-      }
-    }
-  }
-`;
-
-const meQuery = `
-  {
-    me {
-      email
-    }
-  }
-`;
-
+import meQuery from '../../gql/me';
+import loginMutation from '../../gql/login';
 
 const LoginDialog = ({ visible, onClose }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
 
   const login = useMutation(loginMutation)[1];
-  const [me, getMe] = useQuery({ query: meQuery, requestPolicy: 'network-only' });
+  const getMe = useQuery({ query: meQuery, requestPolicy: 'network-only' })[1];
 
   return (
     <Dialog
