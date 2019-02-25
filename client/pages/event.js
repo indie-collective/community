@@ -1,41 +1,34 @@
 import React from 'react';
-import { Heading, Pane, Paragraph, Dialog } from 'evergreen-ui';
-import { Query } from 'urql';
+import { Heading, Pane, Paragraph, Spinner } from 'evergreen-ui';
+import { useQuery } from 'urql';
 
 import App from '../components/App';
 
-const eventQuery = `
-  query getEvent($id: ID!) {
-    event(id: $id) {
-      id
-      name
-      about
-      startAt
-      endAt
-      location {
-        city
-        country
-      }
-    }
-  }
-`;
+import eventQuery from '../gql/event';
 
-const EventDialog = ({ id, navigate }) => (
-  <Query query={eventQuery} variables={{ id }}>
-    {({ loaded, data }) => {
-      return loaded && (
-        <Dialog title={data.event.name} isShown onCloseComplete={() => navigate('/events')} hasFooter={false}>
-          <Pane maxWidth={800} margin="auto">
-            <Heading size={600}>{data.event.location.city}, {data.event.location.country}</Heading>
-            <Heading size={200}>{new Date(data.event.startAt).toLocaleDateString()} - {new Date(data.event.endAt).toLocaleDateString()}</Heading>
-            <Paragraph>
-              {data.event.about}
-            </Paragraph>
-          </Pane>
-        </Dialog>
-      );
-    }}
-  </Query>
-);  
+const EventDialog = ({ id, navigate }) => {
+  const [event] = useQuery({ query: eventQuery, variables: { id }});
+
+  if (!event.data) {
+    return (
+      <App>
+        <Spinner size={24} />
+      </App>
+    );
+  }
+
+  return (
+    <App>
+      <Pane maxWidth={800} margin="auto">
+        <Heading size={800}>{event.data.event.name}</Heading>
+        <Heading size={600}>{event.data.event.location.city}, {event.data.event.location.country}</Heading>
+        <Heading size={200}>{new Date(event.data.event.startAt).toLocaleDateString()} - {new Date(event.data.event.endAt).toLocaleDateString()}</Heading>
+        <Paragraph>
+          {event.data.event.about}
+        </Paragraph>
+      </Pane>
+    </App>
+  );  
+}
 
 export default EventDialog;

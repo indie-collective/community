@@ -1,0 +1,13 @@
+query getEvent($id: ID!) {
+  event(id: $id) {
+    id
+    name
+    about
+    startAt
+    endAt
+    location {
+      city
+      country
+    }
+  }
+}

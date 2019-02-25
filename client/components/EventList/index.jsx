@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery, useMutation } from 'urql';
 import { Table, Popover, Position, Menu, IconButton } from 'evergreen-ui';
-import { navigate } from '@reach/router';
+import { Link } from '@reach/router';
 
 import meQuery from '../../gql/me';
 import eventsQuery from '../../gql/events';
@@ -16,7 +16,6 @@ const EventList = () => {
     <Table>
       <Table.Head>
         <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-        <Table.TextHeaderCell>About</Table.TextHeaderCell>
         <Table.TextHeaderCell>Schedule</Table.TextHeaderCell>
         <Table.TextHeaderCell>Location</Table.TextHeaderCell>
         <Table.HeaderCell width={48} flex="none" />
@@ -24,9 +23,10 @@ const EventList = () => {
   
       <Table.Body>
         {!events.fetching && events.data && events.data.allEvents.map(({ id, name, about, startAt, endAt, location }) => (
-          <Table.Row key={name} isSelectable onSelect={() => navigate(`/events/${id}`)}>
-            <Table.TextCell>{name}</Table.TextCell>
-            <Table.TextCell>{about}</Table.TextCell>
+          <Table.Row key={id}>
+            <Table.TextCell>
+              <Link to={`/events/${id}`}>{name}</Link>
+            </Table.TextCell>
             <Table.TextCell>{new Date(startAt).toLocaleDateString()} - {new Date(endAt).toLocaleDateString()}</Table.TextCell>
             <Table.TextCell>{location.city}, {location.country}</Table.TextCell>
             <Table.Cell width={48} flex="none">

@@ -1,0 +1,12 @@
+query getStructure($id: ID!) {
+  structure(id: $id) {
+    id
+    type
+    name
+    about
+    location {
+      city
+      country
+    }
+  }
+}

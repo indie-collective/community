@@ -9,12 +9,15 @@ import {
 } from 'urql';
 
 import StructuresPage from './pages/structures';
+import StructurePage from './pages/structure';
+import StructureEditPage from './pages/structureEdit';
+
 import EventsPage from './pages/events';
+import EventPage from './pages/event';
+import EventEditPage from './pages/eventEdit';
+
 import GamesPage from './pages/games';
 import PeoplePage from './pages/people';
-
-import StructurePage from './pages/structure';
-import EventDialog from './pages/event';
 
 import fileExchange from './fileExchange';
 
@@ -43,13 +46,17 @@ render(
   <Provider value={client}>
     <Router>
       <Redirect from="/" to="/structures" />
+
       <StructuresPage path="/structures" />
-      <EventsPage path="/events">
-        <EventDialog path=":id" />
-      </EventsPage>
+      <StructurePage path="/structures/:id" />
+      <StructureEditPage path="/structures/create" />
+
+      <EventsPage path="/events" />
+      <EventPage path="/events/:id" />
+      <EventEditPage path="/events/create" />
+
       <GamesPage path="/games" />
       <PeoplePage path="/people" />
-      <StructurePage path="/structure/:id" />
     </Router>
   </Provider>,
   document.getElementById('root')

@@ -21,9 +21,8 @@ const StructureList = () => {
   return (
     <Table>
       <Table.Head>
-        <Table.TextHeaderCell>Type</Table.TextHeaderCell>
         <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-        <Table.TextHeaderCell>About</Table.TextHeaderCell>
+        <Table.TextHeaderCell>Type</Table.TextHeaderCell>
         <Table.TextHeaderCell>Location</Table.TextHeaderCell>
         <Table.HeaderCell width={48} flex="none" />
       </Table.Head>
@@ -31,11 +30,10 @@ const StructureList = () => {
       <Table.Body>
         {!structures.fetching && structures.data && structures.data.allStructures.map(({ id, type, name, about, location }) => (
           <Table.Row key={id}>
-            <Table.TextCell>{type}</Table.TextCell>
             <Table.TextCell>
-              <Link to={`/structure/${id}`}>{name}</Link>
+              <Link to={`/structures/${id}`}>{name}</Link>
             </Table.TextCell>
-            <Table.TextCell>{about}</Table.TextCell>
+            <Table.TextCell>{type}</Table.TextCell>
             <Table.TextCell>{location.city}, {location.country}</Table.TextCell>
             <Table.Cell width={48} flex="none">
               {me.data && me.data.me && me.data.me.email && (

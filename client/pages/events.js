@@ -4,7 +4,7 @@ import { useQuery } from 'urql';
 
 import App from '../components/App';
 import EventList from '../components/EventList';
-import EventDialog from '../components/EventDialog';
+import EventForm from '../components/EventForm';
 
 import meQuery from '../gql/me';
 
@@ -31,7 +31,7 @@ const EventsPage = ({children}) => {
         )}
       </Pane>
 
-      <EventDialog
+      <EventForm
         visible={isDialogVisible}
         onClose={() => setDialogVisible(false)}
       />

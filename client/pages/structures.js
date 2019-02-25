@@ -4,7 +4,7 @@ import { useQuery } from 'urql';
 
 import App from '../components/App';
 import StructureList from '../components/StructureList';
-import StructureDialog from '../components/StructureDialog';
+import StructureForm from '../components/StructureForm';
 
 import meQuery from '../gql/me';
 
@@ -31,7 +31,7 @@ const StructuresPage = () => {
         )}
       </Pane>
 
-      <StructureDialog
+      <StructureForm
         visible={isDialogVisible}
         onClose={() => setDialogVisible(false)}
       />
