@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
-import { useMutation } from 'urql';
+import React, { useState, useRef } from 'react';
+import { IconButton } from 'evergreen-ui';
 
 import Dropzone from '../Dropzone';
 
-import uploadImageMutation from '../../gql/uploadImage';
-
-const ImageUploader = () => {
+const ImageUploader = ({ children, onImage }) => {
   const [images, setImages] = useState([]);
-  const uploadImage = useMutation(uploadImageMutation)[1];
+  const fileInput = useRef(null);
 
   const reader = new FileReader();
 
@@ -20,14 +18,12 @@ const ImageUploader = () => {
 
   const handleFile = (file) => {
     reader.readAsDataURL(file);
-    uploadImage({ file })
-      .then(data => {
-        console.log(data);
-      });
+    onImage(file);
   };
 
   return (
-    <div>
+    <Dropzone onFile={handleFile}>
+      {children}
       {images.map(({ url, loaded }) => (
         <img
           src={url}
@@ -40,8 +36,20 @@ const ImageUploader = () => {
           }}
         />
       ))}
-      <Dropzone onFile={handleFile} />
-    </div>
+      <IconButton
+        appearance="minimal"
+        icon="plus"
+        width={100}
+        height={100}
+        onClick={() => fileInput.current.click()}
+      />
+      <input
+        type="file"
+        onChange={() => handleFile(fileInput.current.files[0])}
+        ref={fileInput}
+        style={{ display: 'none' }}
+      />
+    </Dropzone>
   );
 }
 

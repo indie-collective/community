@@ -3,29 +3,17 @@ scalar DateTime
 
 type Query {
   me: User
+
   allStructures: [Structure!]
   allEvents: [Event!]
+
   structure(id: ID!): Structure
   event(id: ID!): Event
+  location(id: ID!): Location
+  country(name: String!): [Location!]
 }
 
 type Mutation {
-  uploadImage(file: Upload!): File!
-  createStructure(
-    type: StructureType!
-    name: String!
-    about: String!
-    location: LocationInput!
-  ): Structure
-  deleteStructure(id: ID!): Structure
-  createEvent(
-    name: String!
-    about:String!
-    startAt: DateTime!
-    endAt: DateTime!
-    location: LocationInput!
-  ): Event
-  deleteEvent(id: ID!): Event
   signup(
     email: String!
     password: String!
@@ -34,6 +22,25 @@ type Mutation {
     email: String!
     password: String!
   ): AuthPayload!
+
+  createStructure(
+    type: StructureType!
+    name: String!
+    about: String!
+    location: LocationInput!
+  ): Structure
+  deleteStructure(id: ID!): Structure
+  addImageToStructure(id: ID! file: Upload!): Event!
+
+  createEvent(
+    name: String!
+    about:String!
+    startAt: DateTime!
+    endAt: DateTime!
+    location: LocationInput!
+  ): Event
+  deleteEvent(id: ID!): Event
+  addImageToEvent(id: ID! file: Upload!): Event!
 }
 
 type AuthPayload {
@@ -44,12 +51,6 @@ type AuthPayload {
 input LocationInput {
   country: String!
   city: String!
-}
-
-type File {
-  id: ID!
-  filename: String!
-  mimetype: String!
 }
 
 type User {
@@ -86,7 +87,7 @@ type Structure {
   name: String!
   about: String!
   location: Location!
-  people: [User!]
+  people: [Person!]
   structures: [Structure!]
   images: [Image!]
   games: [Game!]
@@ -100,7 +101,7 @@ type Game {
   releasedAt: DateTime
   name: String!
   about: String!
-  authors: [User!]
+  authors: [Person!]
   structures: [Structure!]
   images: [Image!]
   events: [Event!]
@@ -116,7 +117,7 @@ type Event {
   about: String!
   location: Location
   images: [Image!]
-  authors: [User!]
+  authors: [Person!]
   structures: [Structure!]
   games: [Game!]
 }
@@ -125,11 +126,11 @@ type Image {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  filename: String!
   mimetype: String!
 }
 
 type Location {
+  id: ID!
   country: String!
   city: String!
   latitude: Float

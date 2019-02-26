@@ -57,8 +57,8 @@ type Event {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
-  startAt: DateTime! @rename(oldName: "start")
-  endAt: DateTime! @rename(oldName: "end")
+  startAt: DateTime!
+  endAt: DateTime!
   name: String!
   about: String!
   location: Location
@@ -72,11 +72,11 @@ type Image {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
-  filename: String!
   mimetype: String!
 }
 
 type Location {
+  id: ID! @unique
   country: String!
   city: String!
   latitude: Float

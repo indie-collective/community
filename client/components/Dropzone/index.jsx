@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Dropzone = ({ onFile }) => {
+const Dropzone = ({ children, onFile }) => {
   const [dragOver, setDragOver] = useState(false);
 
   const onDragOver = (evt) => {
@@ -33,12 +33,11 @@ const Dropzone = ({ onFile }) => {
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       style={{
-        border: '1px solid silver',
-        padding: '1em',
-        borderWidth: dragOver ? 3 : 1,
+        borderRadius: 3,
+        backgroundColor: dragOver ? 'yellow' : 'transparent',
       }}
     >
-      Drop files here
+      {children}
     </div>
   );
 }

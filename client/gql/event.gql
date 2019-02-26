@@ -9,5 +9,8 @@ query getEvent($id: ID!) {
       city
       country
     }
+    images {
+      id
+    }
   }
 }

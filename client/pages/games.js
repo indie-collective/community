@@ -8,7 +8,6 @@ const GamesPage = () => (
   <App>
     <Pane maxWidth={800} margin="auto">
       <Heading size={800} marginBottom={30}>Games</Heading>
-      <ImageUploader />
     </Pane>
   </App>
 );

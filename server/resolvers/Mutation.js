@@ -15,6 +15,21 @@ fs.access(resolve(__dirname, '../../files'), fs.constants.F_OK, (err) => {
   }
 });
 
+const storeFile = (stream, id) => {
+  const path = resolve(__dirname, '../../files', id);
+
+  const ws = fs.createWriteStream(path, {
+    autoClose: true,
+  });
+
+  return new Promise((resolve, reject) =>
+    stream
+      .pipe(ws)
+      .on('finish', resolve)
+      .on('error', reject)
+  );
+}
+
 const Mutation = {
   signup: async (parent, { email, password }, context) => {
     const hashedPassword = await hash(password, 10);
@@ -56,6 +71,28 @@ const Mutation = {
     return context.prisma.deleteStructure({ id });
   },
 
+  addImageToEvent: async (root, { id, file }, context) => {
+    const { mimetype, createReadStream } = await file;
+    const stream = createReadStream();
+
+    const image = await context.prisma.createImage({ mimetype });
+
+    await storeFile(stream, id);
+
+    return context.prisma.updateStructure({
+      data: {
+        images: {
+          connect: {
+            id: image.id,
+          },
+        },
+      },
+      where: {
+        id,
+      },
+    });
+  },
+
   createEvent(root, { name, about, startAt, endAt, location }, context) {
     return context.prisma.createEvent(
       { name, about, startAt, endAt, location: { create: location } },
@@ -66,17 +103,30 @@ const Mutation = {
     return context.prisma.deleteEvent({ id });
   },
 
-  uploadImage: async (root, { file }) => {
-    const { filename, mimetype, createReadStream } = await file;
+  addImageToEvent: async (root, { id, file }, context) => {
+    const { mimetype, createReadStream } = await file;
     const stream = createReadStream();
 
-    const ws = fs.createWriteStream(resolve(__dirname, '../../files', filename), {
+    const image = await context.prisma.createImage({ mimetype });
+
+    const ws = fs.createWriteStream(resolve(__dirname, '../../files', image.id), {
       autoClose: true,
     });
 
     stream.pipe(ws);
 
-    return { id: 'NOID', filename, mimetype };
+    return context.prisma.updateEvent({
+      data: {
+        images: {
+          connect: {
+            id: image.id,
+          },
+        },
+      },
+      where: {
+        id,
+      },
+    });
   },
 }
 
