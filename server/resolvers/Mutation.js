@@ -93,9 +93,16 @@ const Mutation = {
     });
   },
 
-  createEvent(root, { name, about, startAt, endAt, location }, context) {
+  createEvent(root, { name, about, startAt, endAt, location, structuresId }, context) {
     return context.prisma.createEvent(
-      { name, about, startAt, endAt, location: { create: location } },
+      {
+        name,
+        about,
+        startAt,
+        endAt,
+        location: { create: location },
+        structures: structuresId && { set: structuresId },
+      },
     );
   },
 

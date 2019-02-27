@@ -14,12 +14,14 @@ import {
 import { countryOptions } from '../countries';
 
 import createEventMutation from '../../gql/createEvent';
+import StructureSelect from '../StructureSelect';
 
 const EventDialog = ({ visible, onClose }) => {
   const [name, setName] = useState('');
   const [about, setAbout] = useState('');
   const [startAt, setStartAt] = useState(new Date());
   const [endAt, setEndAt] = useState(new Date());
+  const [structures, setStructures] = useState([]);
   const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
 
@@ -59,6 +61,18 @@ const EventDialog = ({ visible, onClose }) => {
         />
         <br />
         <br />
+        <Label
+          htmlFor="structures"
+          marginBottom={4}
+          display="block"
+        >
+          Who is organizing it?
+        </Label>
+        <StructureSelect
+          selected={structures}
+          onChange={(elements) => setStructures(elements)}
+        />
+
         <Pane display="flex">
           <FormField
             labelFor="startAtDate"
@@ -83,7 +97,6 @@ const EventDialog = ({ visible, onClose }) => {
               value={startAt.toJSON().match(/T(\d{2}:\d{2})/)[1]}
               type="time"
               onChange={(e) => {
-                console.log(e.target.value)
                 setStartAt(new Date(startAt.toJSON().split('T')[0] + 'T' + e.target.value + ':00.000Z'));
               }}
             />
