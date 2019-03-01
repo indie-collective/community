@@ -34,10 +34,11 @@ type Mutation {
 
   createEvent(
     name: String!
-    about:String!
+    about: String!
     startAt: DateTime!
     endAt: DateTime!
     location: LocationInput!
+    structuresId: [ID!]
   ): Event
   deleteEvent(id: ID!): Event
   addImageToEvent(id: ID! file: Upload!): Event!

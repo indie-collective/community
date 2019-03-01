@@ -46,6 +46,7 @@ const EventDialog = ({ id }) => {
 
         <Pane display="flex" alignItems="baseline">
           <Heading size={900} flex="1">{event.data.event.name}</Heading>
+          <Heading size={200}>{event.data.event.structures.map(({name}) => name).join(', ')}</Heading>
           <Heading size={600} flex="1" textAlign="right">
             {event.data.event.location.city}, {event.data.event.location.country}
           </Heading>

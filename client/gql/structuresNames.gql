@@ -1,0 +1,6 @@
+{
+  allStructures {
+    id
+    name
+  }
+}

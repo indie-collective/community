@@ -12,5 +12,9 @@ query getEvent($id: ID!) {
     images {
       id
     }
+    structures {
+      id
+      name
+    }
   }
 }
