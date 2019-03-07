@@ -36,7 +36,7 @@ const StructureDialog = ({ visible, onClose }) => {
       isShown={visible}
       title="Add structure"
       onConfirm={() => {
-        executeMutation({ type, name, about, country, city })
+        createStructure({ type, name, about, country, city })
           .then(() => {
             onClose();
           });
