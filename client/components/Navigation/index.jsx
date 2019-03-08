@@ -34,7 +34,7 @@ const Navigation = () => {
       <Logo />
 
       <TabNavigation style={{ marginLeft: 10 }}>
-        {['structures', 'events', 'games', 'people'].map(tab => (
+        {['structures', 'events'].map(tab => (
           <Tab
             key={tab}
             id={tab}
