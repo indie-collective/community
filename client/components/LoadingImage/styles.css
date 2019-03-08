@@ -1,0 +1,13 @@
+.loading {
+  border-radius: 3px;
+  animation: background-pulse .6s alternate infinite;
+}
+
+@keyframes background-pulse {
+  0% {
+    background-color: #e5e5e5;
+  }
+  100% {
+    background-color: #eee;
+  }
+}

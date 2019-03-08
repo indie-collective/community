@@ -4,6 +4,7 @@ import { useQuery, useMutation } from 'urql';
 
 import App from '../components/App';
 import ImageUploader from '../components/ImageUploader';
+import LoadingImage from '../components/LoadingImage';
 
 import eventQuery from '../gql/event';
 
@@ -67,7 +68,7 @@ const EventDialog = ({ id }) => {
         >
           {event.data.event.images.map(({ id }) => (
             <Pane key={id} margin={10} display="inline-block">
-              <img src={`http://localhost:5000/${id}`} height={100} />
+              <LoadingImage src={`http://localhost:5000/${id}`} height={100} />
             </Pane>
           ))}
         </ImageUploader>
