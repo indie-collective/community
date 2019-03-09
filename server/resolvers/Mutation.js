@@ -1,22 +1,18 @@
 const fs = require('fs');
 const { resolve } = require('path');
+const mkdirp = require('mkdirp');
 const { hash, compare } = require('bcrypt');
 const { sign } = require('jsonwebtoken');
 const { APP_SECRET, getUserId } = require('../utils');
 
-// create files dir
-fs.access(resolve(__dirname, '../../files'), fs.constants.F_OK, (err) => {
-  if (err) {
-    fs.mkdir(resolve(__dirname, '../../files'), (err) => {
-      if (err) {
-        console.log(err)
-      }
-    });
-  }
+// create files/images dir
+mkdirp(resolve(__dirname, '../../static/images'), (err) => {
+  if (err) console.error(err);
+  process.exit();
 });
 
-const storeFile = (stream, id) => {
-  const path = resolve(__dirname, '../../files', id);
+const storeImage = (stream, id) => {
+  const path = resolve(__dirname, '../../static/images', id);
 
   const ws = fs.createWriteStream(path, {
     autoClose: true,
@@ -71,13 +67,13 @@ const Mutation = {
     return context.prisma.deleteStructure({ id });
   },
 
-  addImageToEvent: async (root, { id, file }, context) => {
+  addImageToStructure: async (root, { id, file }, context) => {
     const { mimetype, createReadStream } = await file;
     const stream = createReadStream();
 
     const image = await context.prisma.createImage({ mimetype });
 
-    await storeFile(stream, id);
+    await storeImage(stream, id);
 
     return context.prisma.updateStructure({
       data: {
@@ -116,11 +112,7 @@ const Mutation = {
 
     const image = await context.prisma.createImage({ mimetype });
 
-    const ws = fs.createWriteStream(resolve(__dirname, '../../files', image.id), {
-      autoClose: true,
-    });
-
-    stream.pipe(ws);
+    await storeImage(stream, id);
 
     return context.prisma.updateEvent({
       data: {
