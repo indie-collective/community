@@ -68,7 +68,7 @@ const EventDialog = ({ id }) => {
         >
           {event.data.event.images.map(({ id }) => (
             <Pane key={id} margin={10} display="inline-block">
-              <LoadingImage src={`http://localhost:5000/${id}`} height={100} />
+              <LoadingImage src={`${location.protocol}//${location.host}/images/${id}`} height={100} />
             </Pane>
           ))}
         </ImageUploader>
