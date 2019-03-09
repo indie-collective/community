@@ -7,8 +7,10 @@ const { APP_SECRET, getUserId } = require('../utils');
 
 // create files/images dir
 mkdirp(resolve(__dirname, '../../static/images'), (err) => {
-  if (err) console.error(err);
-  process.exit();
+  if (err) {
+    console.error(err);
+    process.exit();
+  }
 });
 
 const storeImage = (stream, id) => {
