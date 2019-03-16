@@ -127,6 +127,8 @@ type Image {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
+  width: Int
+  height: Int
   mimetype: String!
 }
 

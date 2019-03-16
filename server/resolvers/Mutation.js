@@ -1,8 +1,10 @@
-const fs = require('fs');
+const { createWriteStream } = require('fs');
 const { resolve } = require('path');
 const mkdirp = require('mkdirp');
+const sizeOf = require('image-size');
 const { hash, compare } = require('bcrypt');
 const { sign } = require('jsonwebtoken');
+
 const { APP_SECRET, getUserId } = require('../utils');
 
 // create files/images dir
@@ -13,19 +15,46 @@ mkdirp(resolve(__dirname, '../../static/images'), (err) => {
   }
 });
 
-const storeImage = (stream, id) => {
-  const path = resolve(__dirname, '../../static/images', id);
+const allowedMimes = [
+  'image/gif',
+  'image/jpeg',
+  'image/png',
+];
 
-  const ws = fs.createWriteStream(path, {
-    autoClose: true,
-  });
+const storeImage = async (stream, name) => {
+  const path = resolve(__dirname, '../../static/images', name);
 
   return new Promise((resolve, reject) =>
     stream
-      .pipe(ws)
-      .on('finish', resolve)
+      .pipe(createWriteStream(path))
+      .on('finish', () => resolve({ path }))
       .on('error', reject)
   );
+}
+
+const processUpload = async (upload, context) => {
+  const { mimetype, createReadStream } = await upload;
+  const stream = createReadStream();
+
+  if (!allowedMimes.includes(mimetype)) {
+    throw new Error(`Files of mimetype ${mimetype} are not currently accepted`);
+  }
+
+  const image = await context.prisma.createImage({ mimetype });
+  const extension = mimetype.split('/')[1];
+  const name = `${image.id}.${extension}`;
+  
+  const { path } = await storeImage(stream, name);
+  const { width, height } = sizeOf(path);
+  
+  return await context.prisma.updateImage({
+    data: {
+      width, height,
+    },
+    where: {
+      id: image.id,
+    },
+  });
 }
 
 const Mutation = {
@@ -69,13 +98,8 @@ const Mutation = {
     return context.prisma.deleteStructure({ id });
   },
 
-  addImageToStructure: async (root, { id, file }, context) => {
-    const { mimetype, createReadStream } = await file;
-    const stream = createReadStream();
-
-    const image = await context.prisma.createImage({ mimetype });
-
-    await storeImage(stream, id);
+  async addImageToStructure(root, { id, file }, context) {
+    const image = await processUpload(file, context);
 
     return context.prisma.updateStructure({
       data: {
@@ -108,15 +132,31 @@ const Mutation = {
     return context.prisma.deleteEvent({ id });
   },
 
-  addImageToEvent: async (root, { id, file }, context) => {
+  async addImageToEvent(root, { id, file }, context) {
     const { mimetype, createReadStream } = await file;
     const stream = createReadStream();
-
+  
+    if (!allowedMimes.includes(mimetype)) {
+      throw new Error(`Files of mimetype ${mimetype} are not currently accepted`);
+    }
+  
     const image = await context.prisma.createImage({ mimetype });
-
-    await storeImage(stream, id);
-
-    return context.prisma.updateEvent({
+    const extension = mimetype.split('/')[1];
+    const name = `${image.id}.${extension}`;
+    
+    await storeImage(stream, name)
+    const { width, height } = sizeOf(resolve(__dirname, '../../static/images', name));
+    
+    await context.prisma.updateImage({
+      data: {
+        width, height,
+      },
+      where: {
+        id: image.id,
+      },
+    });
+  
+    return await context.prisma.updateEvent({
       data: {
         images: {
           connect: {

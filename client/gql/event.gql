@@ -11,6 +11,7 @@ query getEvent($id: ID!) {
     }
     images {
       id
+      mimetype
     }
     structures {
       id

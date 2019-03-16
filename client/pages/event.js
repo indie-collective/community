@@ -66,9 +66,9 @@ const EventDialog = ({ id }) => {
             });
           }}
         >
-          {event.data.event.images.map(({ id }) => (
+          {event.data.event.images.map(({ id, mimetype }) => (
             <Pane key={id} margin={10} display="inline-block">
-              <LoadingImage src={`${location.protocol}//${location.host}/images/${id}`} height={100} />
+              <LoadingImage src={`${location.protocol}//${location.host}/images/${id}.${mimetype.split('/')[1]}`} height={100} />
             </Pane>
           ))}
         </ImageUploader>

@@ -72,6 +72,8 @@ type Image {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
+  width: Int
+  height: Int
   mimetype: String!
 }
 
