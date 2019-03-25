@@ -1,175 +1,106 @@
 import React, { useState } from 'react';
-import { useMutation } from 'urql';
-import {
-  Dialog,
-  Pane,
-  TextInput,
-  Label,
-  FormField,
-  TextInputField,
-  Textarea,
-  Autocomplete,
-} from 'evergreen-ui';
+import PropTypes from 'prop-types';
+import { Form, Button } from 'react-bootstrap';
 
-import { countryOptions } from '../countries';
+import StructureSelect from 'components/CountrySelect';
+import CountrySelect from 'components/CountrySelect';
 
-import createEventMutation from '../../gql/createEvent';
-import StructureSelect from '../StructureSelect';
+const propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
 
-const EventDialog = ({ visible, onClose }) => {
+const EventForm = ({ onSubmit }) => {
   const [name, setName] = useState('');
   const [about, setAbout] = useState('');
   const [startAt, setStartAt] = useState(new Date());
   const [endAt, setEndAt] = useState(new Date());
-  const [structures, setStructures] = useState([]);
+  const [structure, setStructure] = useState('');
   const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
 
-  const createEvent = useMutation(createEventMutation)[1];
-
   return (
-    <Dialog
-      isShown={visible}
-      title="Add event"
-      onConfirm={() => {
-        createEvent({ name, about, startAt: startAt.toJSON(), endAt: endAt.toJSON(), country, city })
-          .then(() => {
-            onClose();
-          });
+    <Form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit({ name, about, startAt, endAt, structures, country, city });
       }}
-      confirmLabel="Add event"
     >
-      <Pane>
-        <TextInputField
-          label="What is this event called?"
-          placeholder="Name"
+      <Form.Group controlId="event.name">
+        <Form.Label>Name</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Enter name"
           value={name}
           onChange={e => setName(e.target.value)}
         />
-        <Label
-          htmlFor="about"
-          marginBottom={4}
-          display="block"
-        >
-          Tell us a bit more…
-        </Label>
-        <Textarea
-          id="about"
-          placeholder="Now, this is a story all about how my life got flipped-turned upside down…"
+        <Form.Text className="text-muted">
+          What is this event called?
+        </Form.Text>
+      </Form.Group>
+
+      <Form.Group controlId="event.about">
+        <Form.Label>About</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows="3"
           value={about}
           onChange={e => setAbout(e.target.value)}
         />
-        <br />
-        <br />
-        <Label
-          htmlFor="structures"
-          marginBottom={4}
-          display="block"
-        >
-          Who is organizing it?
-        </Label>
-        <StructureSelect
-          selected={structures}
-          onChange={(elements) => setStructures(elements)}
+      </Form.Group>
+
+      <Form.Group controlId="event.structures">
+        <Form.Label>Who is organizing?</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Enter structure"
+          value={structure}
+          onChange={e => setStructure(e.target.value)}
         />
+      </Form.Group>
 
-        <Pane display="flex">
-          <FormField
-            labelFor="startAtDate"
-            label="Starts at…"
-          >
-            <input
-              id="startAtDate"
-              value={startAt.toJSON().split('T')[0]}
-              type="date"
-              min={startAt.toJSON().split('T')[0]}
-              onChange={(e) => {
-                const newDate = new Date(e.target.value + 'T' + startAt.toJSON().split('T')[1]);
-                setStartAt(newDate);
-                
-                if (startAt > endAt) {
-                  setEndAt(newDate);
-                }
-              }}
-            />
-            <input
-              id="startAtTime"
-              value={startAt.toJSON().match(/T(\d{2}:\d{2})/)[1]}
-              type="time"
-              onChange={(e) => {
-                setStartAt(new Date(startAt.toJSON().split('T')[0] + 'T' + e.target.value + ':00.000Z'));
-              }}
-            />
-          </FormField>
-          <FormField
-            marginLeft={15}
-            labelFor="endAtDate"
-            label="Until…"
-            isRequired
-          >
-            <input
-              id="endAtDate"
-              value={endAt.toJSON().split('T')[0]}
-              type="date"
-              min={endAt.toJSON().split('T')[0]}
-              required
-              onChange={(e) => {
-                setEndAt(new Date(e.target.value + 'T' + endAt.toJSON().split('T')[1]));
-              }}
-            />
-            <input
-              id="endAtTime"
-              value={endAt.toJSON().match(/T(\d{2}:\d{2})/)[1]}
-              type="time"
-              required
-              onChange={(e) => {
-                setEndAt(new Date(endAt.toJSON().split('T')[0] + 'T' + e.target.value));
-              }}
-            />
-          </FormField>
-        </Pane>
-        <br />
+      <Form.Group controlId="event.start">
+        <Form.Label>Start</Form.Label>
+        <Form.Control
+          type="date"
+          value={startAt.toJSON().split('T')[0]}
+          onChange={(e) => {
+            const newDate = new Date(e.target.value + 'T' + startAt.toJSON().split('T')[1]);
+            setStartAt(newDate);
+            
+            if (startAt > endAt) {
+              setEndAt(newDate);
+            }
+          }}
+        />
+      </Form.Group>
 
-        <Label
-          htmlFor="country"
-          marginBottom={4}
-          display="block"
-        >
-          Where in the world…?
-        </Label>
-        <Pane display="flex">
-          <Autocomplete
-            id="country"
-            label="country"
-            items={countryOptions.map(d => d.text)}
-            value={country}
-            onChange={value => setCountry(value)}
-          >
-            {(props) => {
-              const { getInputProps, getRef, inputValue, openMenu } = props
-              return (
-                <TextInput
-                  placeholder="Country"
-                  value={inputValue}
-                  innerRef={getRef}
-                  {...getInputProps({
-                    onFocus: () => {
-                      openMenu()
-                    }
-                  })}
-                />
-              )
-            }}
-          </Autocomplete>
-          <TextInput
-            placeholder="City"
-            value={city}
-            onChange={e => setCity(e.target.value)}
-          />
-        </Pane>
-      </Pane>
-    </Dialog>
+      <Form.Group controlId="event.country">
+        <Form.Label>Country</Form.Label>
+        <CountrySelect
+          value={country}
+          onChange={(event, { newValue, method }) => {
+            setCountry(newValue);
+          }}
+        />
+      </Form.Group>
+
+      <Form.Group controlId="event.city">
+        <Form.Label>City</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Enter name"
+          value={city}
+          onChange={e => setCity(e.target.value)}
+        />
+      </Form.Group>
+
+      <Button variant="primary" type="submit">
+        Create event
+      </Button>
+    </Form>
   );
 }
 
-export default EventDialog;
+EventForm.propTypes = propTypes;
+
+export default EventForm;
