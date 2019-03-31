@@ -2,7 +2,9 @@ import { configure, addDecorator } from '@storybook/react';
 // import { withInfo } from '@storybook/addon-info';
 // import '@storybook/addon-console';
 
-const req = require.context('../client/components', true, /\.stories\.js$/);
+const req = require.context('../client/components', true, /\.stories\.jsx?$/);
+
+console.log(req.keys());
 
 function loadStories() {
   req.keys().forEach(filename => req(filename));
