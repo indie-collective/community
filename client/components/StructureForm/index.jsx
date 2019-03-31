@@ -11,9 +11,9 @@ import {
   Autocomplete,
 } from 'evergreen-ui';
 
-import { countryOptions } from '../countries';
+import { countryOptions } from 'components/CountrySelect/countries';
 
-import createStructureMutation from '../../gql/createStructure';
+import createStructureMutation from 'gql/createStructure.gql';
 
 const structureTypes = [
   { label: 'studio', value: 'STUDIO' },

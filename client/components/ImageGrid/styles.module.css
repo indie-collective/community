@@ -1,0 +1,82 @@
+.SingleImageGrid {
+  padding: 10px;
+}
+
+.SingleImageGrid > img {
+  width: 100%;
+}
+
+.TwoImageGrid {
+  display: grid;
+  padding: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  grid-auto-flow: column;
+  justify-items: stretch;
+  align-items: stretch;
+}
+
+.ThreeImageGrid {
+  display: grid;
+  padding: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  grid-auto-flow: column;
+  justify-items: stretch;
+  align-items: stretch;
+}
+
+.ThreeImageGrid img:first-child {
+  grid-column: 1 / 3;
+  grid-row: 1 / 3;
+}
+
+.FourImageGrid {
+  display: grid;
+  padding: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  justify-items: stretch;
+  align-items: stretch;
+}
+
+.FiveImageGrid {
+  display: grid;
+  padding: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  grid-auto-flow: column;
+  justify-items: stretch;
+  align-items: stretch;
+}
+
+.FiveImageGrid img:first-child {
+  grid-column: 1 / 3;
+  grid-row: 1 / 3;
+}
+
+.MoreImageGrid {
+  display: grid;
+  padding: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(auto-fill, 1fr);
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  grid-auto-flow: column;
+  justify-items: stretch;
+  align-items: stretch;
+}
+
+.MoreImageGrid img:first-child {
+  grid-column: 1 / 3;
+  grid-row: 1 / 3;
+}
+
+.MoreImageGrid img:nth-child(6) {
+  grid-column: 3 / 5;
+  grid-row: 3 / 5;
+}

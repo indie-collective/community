@@ -1,0 +1,23 @@
+:global(.react-autosuggest__container) {
+  max-width: 300px; 
+}
+
+:global(.react-autosuggest__suggestions-list) {
+  list-style-type: none;
+  padding: 0;
+  border: 1px solid silver;
+  border-top: none;
+  border-radius: 0 0 5px 5px;
+}
+
+:global(.react-autosuggest__suggestions-list) li {
+  padding: 5px;
+}
+
+:global(.react-autosuggest__input) {
+  width: 100%;
+}
+
+:global(.react-autosuggest__suggestion--highlighted) {
+  background: aliceblue;
+}

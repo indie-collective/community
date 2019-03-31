@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 
 import countries from './countries';
+import styles from './styles.css';
 
 function escapeRegexCharacters(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -33,6 +34,7 @@ function renderSuggestion(suggestion) {
 const propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  className: 'form-control',
 };
 
 const CountrySelect = ({ value, onChange }) => {
