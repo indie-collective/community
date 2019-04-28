@@ -1,6 +1,5 @@
 import React from 'react';
 import { arrayOf, shape, string } from 'prop-types';
-import { Container, Image } from 'react-bootstrap';
 
 import styles from './styles.module.css';
 
@@ -24,11 +23,11 @@ const defaultProps = {
 };
 
 const ImageGrid = ({ images }) => (
-  <Container className={gridClasses[images.length] || styles.MoreImageGrid}>
+  <div className={gridClasses[images.length] || styles.MoreImageGrid}>
     {images.map(({ url }) => (
-      <Image src={url} fluid rounded />
+      <img key={url} className={styles.Image} src={url} />
     ))}
-  </Container>
+  </div>
 );
 
 ImageGrid.propTypes = propTypes;

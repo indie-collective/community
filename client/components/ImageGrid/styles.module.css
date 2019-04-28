@@ -1,3 +1,7 @@
+.Image {
+  border-radius: 3px;
+}
+
 .SingleImageGrid {
   padding: 10px;
 }

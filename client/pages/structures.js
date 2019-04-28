@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Heading, Button, Pane, Card } from 'evergreen-ui';
 import { useQuery } from 'urql';
 
-import App from '../components/App';
-import StructureList from '../components/StructureList';
-import StructureForm from '../components/StructureForm';
+import App from 'components/App';
+import StructureList from 'components/StructureList';
+import StructureForm from 'components/StructureForm';
 
-import meQuery from '../gql/me';
+import meQuery from '/gql/me';
 
 const StructuresPage = () => {
   const me = useQuery({ query: meQuery })[0];

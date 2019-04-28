@@ -1,7 +1,7 @@
 import React from 'react';
 import { Heading, Pane } from 'evergreen-ui';
 
-import App from '../components/App';
+import App from 'components/App';
 
 const PeoplePage = () => (
   <App>

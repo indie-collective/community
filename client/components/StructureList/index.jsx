@@ -1,11 +1,11 @@
 import React from 'react';
-import { Link } from '@reach/router';
 import { useQuery, useMutation } from 'urql';
-import { Table, Popover, Position, Menu, IconButton } from 'evergreen-ui';
+import { Table, Popover, Position, Menu, IconButton, Spinner } from 'evergreen-ui';
+import { Link } from '@reach/router';
 
-import meQuery from '../../gql/me';
-import structuresQuery from '../../gql/structures';
-import deleteStructureMutation from '../../gql/deleteStructure';
+import meQuery from '/gql/me';
+import structuresQuery from '/gql/structures';
+import deleteStructureMutation from '/gql/deleteStructure';
 
 const Order = {
   NONE: 'NONE',
@@ -18,6 +18,12 @@ const StructureList = () => {
   const [structures] = useQuery({ query: structuresQuery });
   const deleteStructure = useMutation(deleteStructureMutation)[1];
 
+  const data = structures.data ? structures.data.allStructures : [];
+
+  if (structures.fetching || structures.loading) {
+    return <Spinner />
+  }
+
   return (
     <Table>
       <Table.Head>
@@ -28,7 +34,7 @@ const StructureList = () => {
       </Table.Head>
   
       <Table.Body>
-        {!structures.fetching && structures.data && structures.data.allStructures.map(({ id, type, name, about, location }) => (
+        {!structures.fetching && structures.data && data.map(({ id, type, name, about, location }) => (
           <Table.Row key={id}>
             <Table.TextCell>
               <Link to={`/structures/${id}`}>{name}</Link>

@@ -1,105 +1,190 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Button } from 'react-bootstrap';
+import { Formik } from 'formik';
+import * as yup from 'yup';
 
-import StructureSelect from 'components/CountrySelect';
-import CountrySelect from 'components/CountrySelect';
+// import StructureSelect from 'components/CountrySelect';
+// import CountrySelect from 'components/CountrySelect';
+
+const eventSchema = yup.object().shape({
+  name: yup.string()
+    .required(),
+  about: yup.string()
+    .required(),
+  startAt: yup.date()
+    .required(),
+  endAt: yup.date()
+    .required(),
+  structure: yup.string()
+    .required(),
+  country: yup.string()
+    .required(),
+  city: yup.string()
+    .required(),
+});
 
 const propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
-const EventForm = ({ onSubmit }) => {
-  const [name, setName] = useState('');
-  const [about, setAbout] = useState('');
-  const [startAt, setStartAt] = useState(new Date());
-  const [endAt, setEndAt] = useState(new Date());
-  const [structure, setStructure] = useState('');
-  const [country, setCountry] = useState('');
-  const [city, setCity] = useState('');
+const EventForm = ({ onSubmit }) => (
+  <Formik
+    initialValues={{
+      name: '',
+      about: '',
+      startAt: new Date(),
+      endAt: new Date(),
+      structure: '',
+      country: '',
+      city: '',
+    }}
+    validateSchema={eventSchema}
+    onSubmit={(values, { setSubmitting }) => {
+      onSubmit(values);
+      setSubmitting(false);
+    }}
+  >
+    {({
+      values,
+      errors,
+      touched,
+      handleChange,
+      handleBlur,
+      handleSubmit,
+      isSubmitting,
+    }) => (
+      <form onSubmit={handleSubmit}>
+        <div className="field">
+          <label className="label">Name</label>
+          <div className="control">
+            <input
+              className={`input ${errors.name && touched.name && is-danger}`}
+              type="string"
+              name="name"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.name}
+            />
+          </div>
+          {errors.name && touched.name && (
+            <p className="help is-danger">{errors.name}</p>
+          )}
+        </div>
 
-  return (
-    <Form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit({ name, about, startAt, endAt, structures, country, city });
-      }}
-    >
-      <Form.Group controlId="event.name">
-        <Form.Label>Name</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter name"
-          value={name}
-          onChange={e => setName(e.target.value)}
-        />
-        <Form.Text className="text-muted">
-          What is this event called?
-        </Form.Text>
-      </Form.Group>
+        <div className="field">
+          <label className="label">About</label>
+          <div className="control">
+            <textarea
+              className={`textarea ${errors.about && touched.about && is-danger}`}
+              name="about"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.about}
+            />
+          </div>
+          {errors.about && touched.about && (
+            <p className="help is-danger">{errors.about}</p>
+          )}
+        </div>
 
-      <Form.Group controlId="event.about">
-        <Form.Label>About</Form.Label>
-        <Form.Control
-          as="textarea"
-          rows="3"
-          value={about}
-          onChange={e => setAbout(e.target.value)}
-        />
-      </Form.Group>
+        <div className="field">
+          <label className="label">Structure</label>
+          <div className="control">
+            <input
+              className={`input ${errors.structure && touched.structure && is-danger}`}
+              type="string"
+              name="structure"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.structure}
+            />
+          </div>
+          {errors.structure && touched.structure && (
+            <p className="help is-danger">{errors.structure}</p>
+          )}
+        </div>
 
-      <Form.Group controlId="event.structures">
-        <Form.Label>Who is organizing?</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter structure"
-          value={structure}
-          onChange={e => setStructure(e.target.value)}
-        />
-      </Form.Group>
+        <div className="field">
+          <label className="label">Start</label>
+          <div className="control">
+            <input
+              className={`input ${errors.startAt && touched.startAt && is-danger}`}
+              type="date"
+              name="startAt"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.startAt}
+            />
+          </div>
+          {errors.startAt && touched.startAt && (
+            <p className="help is-danger">{errors.startAt}</p>
+          )}
+        </div>
 
-      <Form.Group controlId="event.start">
-        <Form.Label>Start</Form.Label>
-        <Form.Control
-          type="date"
-          value={startAt.toJSON().split('T')[0]}
-          onChange={(e) => {
-            const newDate = new Date(e.target.value + 'T' + startAt.toJSON().split('T')[1]);
-            setStartAt(newDate);
-            
-            if (startAt > endAt) {
-              setEndAt(newDate);
-            }
-          }}
-        />
-      </Form.Group>
+        <div className="field">
+          <label className="label">End</label>
+          <div className="control">
+            <input
+              className={`input ${errors.endAt && touched.endAt && is-danger}`}
+              type="date"
+              name="startAt"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.endAt}
+            />
+          </div>
+          {errors.endAt && touched.endAt && (
+            <p className="help is-danger">{errors.endAt}</p>
+          )}
+        </div>
 
-      <Form.Group controlId="event.country">
-        <Form.Label>Country</Form.Label>
-        <CountrySelect
-          value={country}
-          onChange={(event, { newValue, method }) => {
-            setCountry(newValue);
-          }}
-        />
-      </Form.Group>
+        <div className="field">
+          <label className="label">Country</label>
+          <div className="control">
+            <input
+              className={`input ${errors.country && touched.country && is-danger}`}
+              type="string"
+              name="country"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.country}
+            />
+          </div>
+          {errors.country && touched.country && (
+            <p className="help is-danger">{errors.country}</p>
+          )}
+        </div>
 
-      <Form.Group controlId="event.city">
-        <Form.Label>City</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter name"
-          value={city}
-          onChange={e => setCity(e.target.value)}
-        />
-      </Form.Group>
+        <div className="field">
+          <label className="label">City</label>
+          <div className="control">
+            <input
+              className={`input ${errors.city && touched.city && is-danger}`}
+              type="string"
+              name="city"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.city}
+            />
+          </div>
+          {errors.city && touched.city && (
+            <p className="help is-danger">{errors.city}</p>
+          )}
+        </div>
 
-      <Button variant="primary" type="submit">
-        Create event
-      </Button>
-    </Form>
-  );
-}
+        <div class="control">
+          <button
+            class="button is-primary"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            Create event
+          </button>
+        </div>
+      </form>
+    )}
+  </Formik>
+);
 
 EventForm.propTypes = propTypes;
 

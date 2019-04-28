@@ -2,9 +2,9 @@ import React from 'react';
 import { Heading, Pane, Paragraph, Spinner } from 'evergreen-ui';
 import { useQuery } from 'urql';
 
-import App from '../components/App';
+import App from 'components/App';
 
-import structureQuery from '../gql/structure';
+import structureQuery from '/gql/structure';
 
 const StructurePage = ({ id }) => {
   const [structure] = useQuery({ query: structureQuery, variables: { id } });

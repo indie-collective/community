@@ -6,5 +6,7 @@ import EventForm from '.';
 
 storiesOf('Organisms/EventForm', module)
   .add('default', () => (
-    <EventForm onSubmit={action('onSubmit')} />
+    <div style={{ width: 500, padding: 15 }}>
+      <EventForm onSubmit={action('onSubmit')} />
+    </div>
   ));

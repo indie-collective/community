@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { IconButton } from 'evergreen-ui';
 
-import Dropzone from '../Dropzone';
+import Dropzone from 'components/Dropzone';
 
 const ImageUploader = ({ children, onImage }) => {
   const [images, setImages] = useState([]);

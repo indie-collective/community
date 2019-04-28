@@ -2,9 +2,40 @@ import React from 'react';
 import { useQuery } from 'urql';
 import { SelectMenu, Button } from 'evergreen-ui';
 
-import structuresQuery from '../../gql/structuresNames';
+import structuresQuery from 'gql/structuresNames.gql';
 
-const StructureSelect = ({ children, selected, onChange }) => {
+// function escapeRegexCharacters(str) {
+//   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// }
+
+// function getSuggestions(value) {
+//   const escapedValue = escapeRegexCharacters(value.trim());
+  
+//   if (escapedValue === '') {
+//     return [];
+//   }
+
+//   const regex = new RegExp('^' + escapedValue, 'i');
+
+//   return countries.filter(d => regex.test(d.text));
+// }
+
+function getSuggestionValue(suggestion) {
+  return suggestion.text;
+}
+
+function renderSuggestion(suggestion) {
+  return (
+    <span>{suggestion.text}</span>
+  );
+}
+
+const propTypes = {
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
+const StructureSelect = ({ selected = [], onChange }) => {
   const [structures] = useQuery({ query: structuresQuery });
 
   if (structures.fetching || !structures.data) {

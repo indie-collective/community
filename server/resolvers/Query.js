@@ -3,6 +3,7 @@ const { getUserId } = require('../utils');
 const Query = {
   me: (parent, args, context) => {
     const userId = getUserId(context)
+    if (!userId) return null;
     return context.prisma.user({ id: userId })
   },
 
@@ -20,6 +21,14 @@ const Query = {
 
   event(root, { id }, context) {
     return context.prisma.event({ id })
+  },
+
+  location(root, { id }, context) {
+    return context.prisma.location({ id })
+  },
+
+  country(root, { name }, context) {
+    return context.prisma.locations({ where: { country: name } })
   },
 };
 

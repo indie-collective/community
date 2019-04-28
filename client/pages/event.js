@@ -2,11 +2,11 @@ import React from 'react';
 import { Heading, Pane, Paragraph, Spinner, Small } from 'evergreen-ui';
 import { useQuery, useMutation } from 'urql';
 
-import App from '../components/App';
-import ImageUploader from '../components/ImageUploader';
-import LoadingImage from '../components/LoadingImage';
+import App from 'components/App';
+import ImageUploader from 'components/ImageUploader';
+import LoadingImage from 'components/LoadingImage';
 
-import eventQuery from '../gql/event';
+import eventQuery from '/gql/event';
 
 const addImageMutation = `
   mutation ($id: ID! $file: Upload!) {
@@ -20,6 +20,8 @@ const addImageMutation = `
     }    
   }
 `;
+
+const imageHost = location.hostname === 'localhost' ? 'localhost:4000' : location.host;
 
 const EventDialog = ({ id }) => {
   const [event] = useQuery({ query: eventQuery, variables: { id }});
@@ -68,7 +70,7 @@ const EventDialog = ({ id }) => {
         >
           {event.data.event.images.map(({ id, mimetype }) => (
             <Pane key={id} margin={10} display="inline-block">
-              <LoadingImage src={`${location.protocol}//${location.host}/images/${id}.${mimetype.split('/')[1]}`} height={100} />
+              <LoadingImage src={`${location.protocol}//${imageHost}/images/${id}.${mimetype.split('/')[1]}`} height={100} />
             </Pane>
           ))}
         </ImageUploader>

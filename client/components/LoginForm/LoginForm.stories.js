@@ -1,10 +1,12 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-// import { text } from '@storybook/addon-knobs';
+import { action } from '@storybook/addon-actions';
 
 import LoginForm from '.';
 
 storiesOf('Organisms/LoginForm', module)
   .add('default', () => (
-    <LoginForm />
+    <div style={{ width: 500, padding: 15 }}>
+      <LoginForm onSubmit={action('onSubmit')} />
+    </div>
   ));
