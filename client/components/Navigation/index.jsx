@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { useQuery } from 'urql';
-import { Container, Navbar, Nav, Button } from 'react-bootstrap';
+import { Link } from '@reach/router'
 
 import Logo from 'components/Logo';
 import LoginDialog from 'components/LoginDialog';
@@ -15,70 +15,44 @@ const meQuery = `
 `;
 
 const Navigation = () => {
-  const [loginVisible, setLoginVisible] = useState(false);
-  const [me, getMe] = useQuery({ query: meQuery, requestPolicy: 'network-only' });
+  const token = localStorage.getItem('token');
   const { location, navigate } = useLocation();
 
   return (
-    <Container>
-      <Navbar>
-        <Navbar.Brand href="#home">
-          <Logo />
-        </Navbar.Brand>
-        <Navbar.Collapse>
-          <Nav>
-            <Nav.Item>
-              <Nav.Link
-                active={`/structures` === location.pathname}
-                onClick={() => navigate(`/structures`)}
-              >
-                Structures
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link
-                active={`/events` === location.pathname}
-                onClick={() => navigate(`/events`)}
-              >
-                Events
-              </Nav.Link>
-            </Nav.Item>
-          </Nav>
-        </Navbar.Collapse>
-        <form className="form-inline my-2 my-lg-0">
-          {me.fetching ? (
-            <div className="spinner-grow spinner-grow-sm" role="status">
-              <span className="sr-only">Loading…</span>
-            </div>
-          ) : (
-            (me.data && me.data.me && me.data.me.email) ? (
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={() => {
-                  localStorage.removeItem('token');
-                  getMe();
-                  toaster.success(
-                    'Successfully logged out.'
-                    )
-                  }}
-                  >
-                Logout
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                variant="success"
-                onClick={() => setLoginVisible(true)}
-              >
-                Login
-              </Button>
-            )
-          )}
-          <LoginDialog visible={loginVisible} onClose={() => setLoginVisible(false)}/>
-        </form>
-      </Navbar>
-    </Container>
+    <nav className="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <Logo />
+      </div>
+
+      <div class="navbar-menu">
+        <Link
+          class={`navbar-item is-tab ${'/structures' === location.pathname && 'is-active'}`}
+          to="/structures"
+        >
+          Structures
+        </Link>
+        <Link
+          class={`navbar-item is-tab ${'/events' === location.pathname && 'is-active'}`}
+          to="/events"
+        >
+          Events
+        </Link>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+            <a class="button is-primary">
+              <strong>Sign up</strong>
+            </a>
+            <a class="button is-light">
+              Log in
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </nav>
   );
 }
 
