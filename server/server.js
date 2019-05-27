@@ -6,6 +6,8 @@ const { graphqlUploadExpress } = require('graphql-upload');
 const PostGraphileUploadFieldPlugin = require('postgraphile-plugin-upload-field');
 const PgManyToManyPlugin = require("@graphile-contrib/pg-many-to-many");
 
+const { jwtSecret } = require('./config.json');
+
 const app = express();
 
 const UPLOAD_DIR_NAME = 'uploads';
@@ -21,6 +23,8 @@ app.use(
     graphiql: true,
     enableCors: true,
     appendPlugins: [PostGraphileUploadFieldPlugin, PgManyToManyPlugin],
+    jwtSecret,
+    jwtPgTypeIdentifier: 'indieco_private.jwt_token',
     graphileBuildOptions: {
       uploadFieldDefinitions: [
         {

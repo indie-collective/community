@@ -277,7 +277,8 @@ create trigger person_updated_at before update
 create table indieco_private.person_account (
   person_id        integer primary key references indieco.person(id) on delete cascade,
   email            text not null unique check (email ~* '^.+@.+\..+$'),
-  password_hash    text not null
+  password_hash    text not null,
+  is_admin         boolean not null default false
 );
 
 comment on table indieco_private.person_account is 'Private information about a person’s account.';
@@ -320,16 +321,25 @@ grant indieco_anonymous to indieco_postgraphile;
 create role indieco_person;
 grant indieco_person to indieco_postgraphile;
 
-create type indieco.jwt_token as (
+create type indieco_private.jwt_token as (
   role text,
-  person_id integer
+  exp integer,
+  person_id integer,
+  is_admin boolean,
+  email varchar
 );
 
 create function indieco.authenticate(
   email text,
   password text
-) returns indieco.jwt_token as $$
-  select ('indieco_person', person_id)::indieco.jwt_token
+) returns indieco_private.jwt_token as $$
+  select (
+    'indieco_person',
+    extract(epoch from now() + interval '7 days'),
+    person_id,
+    is_admin,
+    email
+  )::indieco_private.jwt_token
     from indieco_private.person_account
     where 
       person_account.email = $1 
