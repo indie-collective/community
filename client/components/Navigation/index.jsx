@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { useQuery } from 'urql';
-import { Link } from '@reach/router'
+import React, { useState } from "react";
+import { getWorkingPath, A } from 'hookrouter';
 
-import Logo from 'components/Logo';
-import LoginDialog from 'components/LoginDialog';
-import useLocation from '/hooks/useLocation';
+import Logo from "components/Logo";
+// import LoginDialog from 'components/LoginDialog';
+import useLocation from "/hooks/useLocation";
 
 const meQuery = `
   {
@@ -15,45 +14,66 @@ const meQuery = `
 `;
 
 const Navigation = () => {
-  const token = localStorage.getItem('token');
-  const { location, navigate } = useLocation();
+  const workingPath = getWorkingPath();
 
   return (
     <nav className="navbar" role="navigation" aria-label="main navigation">
-      <div class="navbar-brand">
-        <Logo />
+      <div className="navbar-brand">
+        <A href="/" className="navbar-item">
+          <Logo />
+        </A>
+
+        <a
+          role="button"
+          className="navbar-burger burger"
+          aria-label="menu"
+          aria-expanded="true"
+          data-target="navbarBasicExample"
+        >
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+        </a>
       </div>
 
-      <div class="navbar-menu">
-        <Link
-          class={`navbar-item is-tab ${'/structures' === location.pathname && 'is-active'}`}
-          to="/structures"
-        >
-          Structures
-        </Link>
-        <Link
-          class={`navbar-item is-tab ${'/events' === location.pathname && 'is-active'}`}
-          to="/events"
-        >
-          Events
-        </Link>
-      </div>
+      <div className="navbar-menu">
+        <div className="navbar-start">
+          <A
+            href="/games"
+            className={`navbar-item is-tab ${('/games' ===
+              workingPath) && 'is-active'}`}
+          >
+            Games
+          </A>
+          <A
+            href="/entities"
+            className={`navbar-item is-tab ${('/entities' ===
+              workingPath) && 'is-active'}`}
+          >
+            Entities
+          </A>
+          <A
+            href="/events"
+            className={`navbar-item is-tab ${('/events' ===
+              workingPath) && 'is-active'}`}
+          >
+            Events
+          </A>
+        </div>
 
-      <div class="navbar-end">
-        <div class="navbar-item">
-          <div class="buttons">
-            <a class="button is-primary">
-              <strong>Sign up</strong>
-            </a>
-            <a class="button is-light">
-              Log in
-            </a>
+        <div className="navbar-end">
+          <div className="navbar-item">
+            <div className="buttons">
+              <a className="button is-primary">
+                <strong>Sign up</strong>
+              </a>
+              <a className="button is-light">Log in</a>
+            </div>
           </div>
         </div>
       </div>
-
     </nav>
   );
-}
+};
 
 export default Navigation;
