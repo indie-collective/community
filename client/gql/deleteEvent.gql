@@ -1,9 +1,0 @@
-mutation deleteEvent ($id: ID!) {
-  deleteEvent(id: $id) {
-    id
-    name
-    about
-    startAt
-    endAt
-  }
-}

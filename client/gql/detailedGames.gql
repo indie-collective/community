@@ -1,0 +1,53 @@
+query games {
+  allGames {
+    nodes {
+      id
+      name
+      about
+      site
+      createdAt
+
+      people(first: 5) {
+        totalCount
+        nodes {
+          firstName
+          lastName
+          about
+          createdAt
+        }
+      }
+
+      entities(first: 5) {
+        totalCount
+        nodes {
+          type
+          name
+          about
+        }
+      }
+
+      images(first: 5) {
+        totalCount
+        nodes {
+          imageFile
+          createdAt
+        }
+      }
+
+      tags {
+        totalCount
+        nodes {
+          id
+          name
+        }
+      }
+
+      events(first: 5, orderBy: STARTS_AT_DESC) {
+        totalCount
+        nodes {
+          id
+        }
+      }
+    }
+  }
+}

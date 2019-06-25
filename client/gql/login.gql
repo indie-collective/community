@@ -1,14 +1,8 @@
-mutation(
-  $email: String!
-  $password: String!
-) {
-  login(
+mutation signin($email: String! $password: String!) {
+  authenticate(input: {
     email: $email
     password: $password
-  ) {
-    token
-    user {
-      email
-    }
+  }) {
+    jwtToken
   }
 }

@@ -1,8 +1,0 @@
-mutation deleteStructure ($id: ID!) {
-  deleteStructure(id: $id) {
-    id
-    type
-    name
-    about
-  }
-}

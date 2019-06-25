@@ -1,0 +1,11 @@
+query games {
+  allGames {
+    totalCount
+    nodes {
+      id
+      name
+      about
+      site
+    }
+  }
+}
