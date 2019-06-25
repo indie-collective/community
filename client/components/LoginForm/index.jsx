@@ -18,8 +18,8 @@ const propTypes = {
 const LoginForm = ({ onSubmit }) => (
   <Formik
     initialValues={{
-      email: '',
-      password: '',
+      email: undefined,
+      password: undefined,
     }}
     validateSchema={signupSchema}
     onSubmit={(values, { setSubmitting }) => {

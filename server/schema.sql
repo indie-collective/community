@@ -175,7 +175,7 @@ create table indieco.game_entity (
 );
 
 comment on constraint game_entity_game_id_fkey on indieco.game_entity is E'@manyToManyFieldName games';
-comment on constraint game_entity_entity_id_fkey on indieco.game_entity is E'@manyToManyFieldName entites';
+comment on constraint game_entity_entity_id_fkey on indieco.game_entity is E'@manyToManyFieldName entities';
 
 create table indieco.game_image (
   game_id          int constraint game_image_game_id_fkey references indieco.game(id),
