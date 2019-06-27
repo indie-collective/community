@@ -1,0 +1,33 @@
+query gameById($id: Int!) {
+  gameById(id: $id) {
+    id
+    name
+    about
+    site
+    createdAt
+
+    people {
+      totalCount
+    }
+
+    entities {
+      totalCount
+    }
+
+    images {
+      totalCount
+    }
+
+    tags {
+      totalCount
+      nodes {
+        id
+        name
+      }
+    }
+
+    events {
+      totalCount
+    }
+  }
+}
