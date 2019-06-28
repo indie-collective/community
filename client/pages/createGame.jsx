@@ -7,7 +7,7 @@ import DebugTable from '../components/DebugTable';
 import gamesQuery from '../gql/games';
 import createGame from '../gql/createGame';
 
-const Home = () => {
+const CreateGame = () => {
   const allGames = useQuery({
     query: gamesQuery,
   })[0];
@@ -27,4 +27,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default CreateGame;
