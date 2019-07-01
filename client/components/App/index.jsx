@@ -28,23 +28,23 @@ const routes = {
   '/': () => <HomePage />,
 
   '/games': () => <GamesPage />,
-  '/game/:id': ({id}) => <GamePage id={Number.parseInt(id)} />,
   '/game/create': () => <CreateGame />,
+  '/game/:id': ({ id }) => <GamePage id={Number.parseInt(id)} />,
 
   '/entities': () => <EntitiesPage />,
-  '/entities/:id': ({id}) => <EntityPage id={Number.parseInt(id)} />,
   '/entities/create': () => <CreateEntity />,
-  
+  '/entities/:id': ({ id }) => <EntityPage id={Number.parseInt(id)} />,
+
   '/people': () => <PeoplePage />,
-  '/person/:id': ({id}) => <PersonPage id={Number.parseInt(id)} />,
   '/person/create': () => <CreatePerson />,
-  
+  '/person/:id': ({ id }) => <PersonPage id={Number.parseInt(id)} />,
+
   '/events': () => <EventsPage />,
-  '/event/:id': ({id}) => <EventPage id={Number.parseInt(id)} />,
   '/event/create': () => <CreateEvent />,
+  '/event/:id': ({ id }) => <EventPage id={Number.parseInt(id)} />,
 
   '/tags': () => <TagsPage />,
-  '/tag/:id': ({id}) => <TagPage id={Number.parseInt(id)} />
+  '/tag/:id': ({ id }) => <TagPage id={Number.parseInt(id)} />,
 };
 
 const App = () => {
