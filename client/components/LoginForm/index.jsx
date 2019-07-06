@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 
-const signupSchema = yup.object().shape({
+const loginSchema = yup.object().shape({
   email: yup.string()
     .email()
     .required(),
@@ -21,7 +21,7 @@ const LoginForm = ({ onSubmit }) => (
       email: undefined,
       password: undefined,
     }}
-    validateSchema={signupSchema}
+    validateSchema={loginSchema}
     onSubmit={(values, { setSubmitting }) => {
       onSubmit(values);
       setSubmitting(false);
@@ -83,7 +83,7 @@ const LoginForm = ({ onSubmit }) => (
             type="submit"
             disabled={isSubmitting}
           >
-            Submit
+            Login
           </button>
         </div>
       </form>
