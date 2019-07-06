@@ -3,7 +3,6 @@ import { useQuery } from 'urql';
 import { A } from 'hookrouter';
 
 import detailedGames from '../gql/detailedGames';
-import DebugTable from '../components/DebugTable';
 import Spinner from '../components/Spinner';
 
 const Home = () => {
@@ -34,11 +33,6 @@ const Home = () => {
       )) : (
         <Spinner />
       )}
-
-      <DebugTable
-        keys={['name', 'about', 'site']}
-        data={games.data ? games.data.allGames.nodes : []}
-      />
     </div>
   );
 };
