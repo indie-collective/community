@@ -1,175 +1,191 @@
 import React, { useState } from 'react';
-import { useMutation } from 'urql';
-import {
-  Dialog,
-  Pane,
-  TextInput,
-  Label,
-  FormField,
-  TextInputField,
-  Textarea,
-  Autocomplete,
-} from 'evergreen-ui';
+import PropTypes from 'prop-types';
+import { Formik } from 'formik';
+import * as yup from 'yup';
 
-import { countryOptions } from '../countries';
+// import StructureSelect from 'components/CountrySelect';
+// import CountrySelect from 'components/CountrySelect';
 
-import createEventMutation from '../../gql/createEvent';
-import StructureSelect from '../StructureSelect';
+const eventSchema = yup.object().shape({
+  name: yup.string()
+    .required(),
+  about: yup.string()
+    .required(),
+  startAt: yup.date()
+    .required(),
+  endAt: yup.date()
+    .required(),
+  structure: yup.string()
+    .required(),
+  country: yup.string()
+    .required(),
+  city: yup.string()
+    .required(),
+});
 
-const EventDialog = ({ visible, onClose }) => {
-  const [name, setName] = useState('');
-  const [about, setAbout] = useState('');
-  const [startAt, setStartAt] = useState(new Date());
-  const [endAt, setEndAt] = useState(new Date());
-  const [structures, setStructures] = useState([]);
-  const [country, setCountry] = useState('');
-  const [city, setCity] = useState('');
+const propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
 
-  const createEvent = useMutation(createEventMutation)[1];
-
-  return (
-    <Dialog
-      isShown={visible}
-      title="Add event"
-      onConfirm={() => {
-        createEvent({ name, about, startAt: startAt.toJSON(), endAt: endAt.toJSON(), country, city })
-          .then(() => {
-            onClose();
-          });
-      }}
-      confirmLabel="Add event"
-    >
-      <Pane>
-        <TextInputField
-          label="What is this event called?"
-          placeholder="Name"
-          value={name}
-          onChange={e => setName(e.target.value)}
-        />
-        <Label
-          htmlFor="about"
-          marginBottom={4}
-          display="block"
-        >
-          Tell us a bit more…
-        </Label>
-        <Textarea
-          id="about"
-          placeholder="Now, this is a story all about how my life got flipped-turned upside down…"
-          value={about}
-          onChange={e => setAbout(e.target.value)}
-        />
-        <br />
-        <br />
-        <Label
-          htmlFor="structures"
-          marginBottom={4}
-          display="block"
-        >
-          Who is organizing it?
-        </Label>
-        <StructureSelect
-          selected={structures}
-          onChange={(elements) => setStructures(elements)}
-        />
-
-        <Pane display="flex">
-          <FormField
-            labelFor="startAtDate"
-            label="Starts at…"
-          >
+const EventForm = ({ onSubmit }) => (
+  <Formik
+    initialValues={{
+      name: '',
+      about: '',
+      startAt: new Date(),
+      endAt: new Date(),
+      structure: '',
+      country: '',
+      city: '',
+    }}
+    validateSchema={eventSchema}
+    onSubmit={(values, { setSubmitting }) => {
+      onSubmit(values);
+      setSubmitting(false);
+    }}
+  >
+    {({
+      values,
+      errors,
+      touched,
+      handleChange,
+      handleBlur,
+      handleSubmit,
+      isSubmitting,
+    }) => (
+      <form onSubmit={handleSubmit}>
+        <div className="field">
+          <label className="label">Name</label>
+          <div className="control">
             <input
-              id="startAtDate"
-              value={startAt.toJSON().split('T')[0]}
+              className={`input ${errors.name && touched.name && is-danger}`}
+              type="string"
+              name="name"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.name}
+            />
+          </div>
+          {errors.name && touched.name && (
+            <p className="help is-danger">{errors.name}</p>
+          )}
+        </div>
+
+        <div className="field">
+          <label className="label">About</label>
+          <div className="control">
+            <textarea
+              className={`textarea ${errors.about && touched.about && is-danger}`}
+              name="about"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.about}
+            />
+          </div>
+          {errors.about && touched.about && (
+            <p className="help is-danger">{errors.about}</p>
+          )}
+        </div>
+
+        <div className="field">
+          <label className="label">Structure</label>
+          <div className="control">
+            <input
+              className={`input ${errors.structure && touched.structure && is-danger}`}
+              type="string"
+              name="structure"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.structure}
+            />
+          </div>
+          {errors.structure && touched.structure && (
+            <p className="help is-danger">{errors.structure}</p>
+          )}
+        </div>
+
+        <div className="field">
+          <label className="label">Start</label>
+          <div className="control">
+            <input
+              className={`input ${errors.startAt && touched.startAt && is-danger}`}
               type="date"
-              min={startAt.toJSON().split('T')[0]}
-              onChange={(e) => {
-                const newDate = new Date(e.target.value + 'T' + startAt.toJSON().split('T')[1]);
-                setStartAt(newDate);
-                
-                if (startAt > endAt) {
-                  setEndAt(newDate);
-                }
-              }}
+              name="startAt"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.startAt}
             />
+          </div>
+          {errors.startAt && touched.startAt && (
+            <p className="help is-danger">{errors.startAt}</p>
+          )}
+        </div>
+
+        <div className="field">
+          <label className="label">End</label>
+          <div className="control">
             <input
-              id="startAtTime"
-              value={startAt.toJSON().match(/T(\d{2}:\d{2})/)[1]}
-              type="time"
-              onChange={(e) => {
-                setStartAt(new Date(startAt.toJSON().split('T')[0] + 'T' + e.target.value + ':00.000Z'));
-              }}
-            />
-          </FormField>
-          <FormField
-            marginLeft={15}
-            labelFor="endAtDate"
-            label="Until…"
-            isRequired
-          >
-            <input
-              id="endAtDate"
-              value={endAt.toJSON().split('T')[0]}
+              className={`input ${errors.endAt && touched.endAt && is-danger}`}
               type="date"
-              min={endAt.toJSON().split('T')[0]}
-              required
-              onChange={(e) => {
-                setEndAt(new Date(e.target.value + 'T' + endAt.toJSON().split('T')[1]));
-              }}
+              name="startAt"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.endAt}
             />
+          </div>
+          {errors.endAt && touched.endAt && (
+            <p className="help is-danger">{errors.endAt}</p>
+          )}
+        </div>
+
+        <div className="field">
+          <label className="label">Country</label>
+          <div className="control">
             <input
-              id="endAtTime"
-              value={endAt.toJSON().match(/T(\d{2}:\d{2})/)[1]}
-              type="time"
-              required
-              onChange={(e) => {
-                setEndAt(new Date(endAt.toJSON().split('T')[0] + 'T' + e.target.value));
-              }}
+              className={`input ${errors.country && touched.country && is-danger}`}
+              type="string"
+              name="country"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.country}
             />
-          </FormField>
-        </Pane>
-        <br />
+          </div>
+          {errors.country && touched.country && (
+            <p className="help is-danger">{errors.country}</p>
+          )}
+        </div>
 
-        <Label
-          htmlFor="country"
-          marginBottom={4}
-          display="block"
-        >
-          Where in the world…?
-        </Label>
-        <Pane display="flex">
-          <Autocomplete
-            id="country"
-            label="country"
-            items={countryOptions.map(d => d.text)}
-            value={country}
-            onChange={value => setCountry(value)}
+        <div className="field">
+          <label className="label">City</label>
+          <div className="control">
+            <input
+              className={`input ${errors.city && touched.city && is-danger}`}
+              type="string"
+              name="city"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.city}
+            />
+          </div>
+          {errors.city && touched.city && (
+            <p className="help is-danger">{errors.city}</p>
+          )}
+        </div>
+
+        <div class="control">
+          <button
+            class="button is-primary"
+            type="submit"
+            disabled={isSubmitting}
           >
-            {(props) => {
-              const { getInputProps, getRef, inputValue, openMenu } = props
-              return (
-                <TextInput
-                  placeholder="Country"
-                  value={inputValue}
-                  innerRef={getRef}
-                  {...getInputProps({
-                    onFocus: () => {
-                      openMenu()
-                    }
-                  })}
-                />
-              )
-            }}
-          </Autocomplete>
-          <TextInput
-            placeholder="City"
-            value={city}
-            onChange={e => setCity(e.target.value)}
-          />
-        </Pane>
-      </Pane>
-    </Dialog>
-  );
-}
+            Create event
+          </button>
+        </div>
+      </form>
+    )}
+  </Formik>
+);
 
-export default EventDialog;
+EventForm.propTypes = propTypes;
+
+export default EventForm;

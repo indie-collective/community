@@ -1,9 +1,0 @@
-endpoint: http://localhost:4466
-datamodel: datamodel.prisma
-secret: verse-noblemen-potable-icon
-generate:
-  - generator: javascript-client
-    output: ../server/generated/prisma-client/
-hooks:
-  post-deploy:
-    - prisma generate

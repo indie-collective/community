@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "start": "node server",
+    "schema": "psql -f schema.sql",
+    "drop": "psql -f schema-drop.sql",
+    "data": "psql -f data.sql"
+  },
+  "dependencies": {
+    "@graphile-contrib/pg-many-to-many": "^1.0.0-beta.5",
+    "express": "^4.16.4",
+    "graphql-upload": "^8.0.6",
+    "postgraphile": "^4.4.0",
+    "postgraphile-plugin-upload-field": "^1.0.0-alpha.8"
+  }
+}

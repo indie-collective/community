@@ -1,14 +1,18 @@
 import React from 'react';
+import { useRoutes } from 'hookrouter';
 
-import Navigation from '../Navigation';
+import routes from '../../routes';
+import Navigation from '/components/Navigation';
 
-const App = ({ children }) => (
-  <div>
-    <Navigation />
-    <div style={{ paddingTop: 90 }}>
-      {children}
+const App = () => {
+  const routeResult = useRoutes(routes);
+
+  return (
+    <div className="container">
+      <Navigation />
+      {routeResult || <h1>404</h1>}
     </div>
-  </div>
-);
+  );
+};
 
 export default App;

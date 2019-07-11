@@ -1,0 +1,11 @@
+mutation createGame($name: String!, $about: String!, $site: String!) {
+  createGame(input: { game: { name: $name, about: $about, site: $site } }) {
+    game {
+      id
+      name
+      about
+      site
+      createdAt
+    }
+  }
+}

@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { useQuery } from 'urql';
-import { Pane, TabNavigation, Tab, Button, Spinner, toaster } from "evergreen-ui";
+import { getWorkingPath, A } from 'hookrouter';
 
-import Logo from '../Logo';
-import LoginDialog from '../LoginDialog';
-import useLocation from '../../hooks/useLocation';
+import Logo from "components/Logo";
+// import LoginDialog from 'components/LoginDialog';
+import useLocation from "/hooks/useLocation";
 
 const meQuery = `
   {
@@ -15,70 +14,66 @@ const meQuery = `
 `;
 
 const Navigation = () => {
-  const [loginVisible, setLoginVisible] = useState(false);
-  const [me, getMe] = useQuery({ query: meQuery, requestPolicy: 'network-only' });
-  const { location, navigate } = useLocation();
+  const workingPath = getWorkingPath();
 
   return (
-    <Pane
-      display="flex"
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      alignItems="center"
-      padding={10}
-      maxWidth={820}
-      margin="auto"
-    >
-      <Logo />
+    <nav className="navbar" role="navigation" aria-label="main navigation">
+      <div className="navbar-brand">
+        <A href="/" className="navbar-item">
+          <Logo />
+        </A>
 
-      <TabNavigation style={{ marginLeft: 10 }}>
-        {['structures', 'events'].map(tab => (
-          <Tab
-            key={tab}
-            id={tab}
-            isSelected={`/${tab}` === location.pathname}
-            onSelect={() => navigate(`/${tab}`)}
-            style={{ textTransform: 'capitalize' }}
+        <a
+          role="button"
+          className="navbar-burger burger"
+          aria-label="menu"
+          aria-expanded="true"
+          data-target="navbarBasicExample"
+        >
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+        </a>
+      </div>
+
+      <div className="navbar-menu">
+        <div className="navbar-start">
+          <A
+            href="/games"
+            className={`navbar-item is-tab ${('/games' ===
+              workingPath) && 'is-active'}`}
           >
-            {tab}
-          </Tab>
-        ))}
-      </TabNavigation>
-
-      <div style={{ flex: 'auto' }} />
-
-      {me.fetching ? (
-        <Spinner size={24} />
-      ) : (
-        (me.data && me.data.me && me.data.me.email) ? (
-          <Button
-            appearance="primary"
-            intent="danger"
-            onClick={() => {
-              localStorage.removeItem('token');
-              getMe();
-              toaster.success(
-                'Successfully logged out.'
-              )
-            }}
+            Games
+          </A>
+          <A
+            href="/entities"
+            className={`navbar-item is-tab ${('/entities' ===
+              workingPath) && 'is-active'}`}
           >
-            Logout
-          </Button>
-        ) : (
-          <Button
-            appearance="primary"
-            onClick={() => setLoginVisible(true)}
+            Entities
+          </A>
+          <A
+            href="/events"
+            className={`navbar-item is-tab ${('/events' ===
+              workingPath) && 'is-active'}`}
           >
-            Login
-          </Button>
-        )
-      )}
+            Events
+          </A>
+        </div>
 
-      <LoginDialog visible={loginVisible} onClose={() => setLoginVisible(false)}/>
-    </Pane>
+        <div className="navbar-end">
+          <div className="navbar-item">
+            <div className="buttons">
+              <a className="button is-primary">
+                <strong>Sign up</strong>
+              </a>
+              <a className="button is-light">Log in</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
   );
-}
+};
 
 export default Navigation;

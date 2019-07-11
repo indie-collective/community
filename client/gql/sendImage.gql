@@ -1,0 +1,9 @@
+mutation sendImage($file: Upload) {
+  createImage(input: { image: { imageFile: $file } }) {
+    image {
+      id
+      createdAt
+      imageFile
+    }
+  }
+}
