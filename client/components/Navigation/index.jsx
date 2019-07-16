@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { getWorkingPath, A } from 'hookrouter';
 
-import Logo from "components/Logo";
-// import LoginDialog from 'components/LoginDialog';
-import useLocation from "/hooks/useLocation";
+import Logo from 'components/Logo';
 
 const meQuery = `
   {
@@ -40,22 +38,22 @@ const Navigation = () => {
         <div className="navbar-start">
           <A
             href="/games"
-            className={`navbar-item is-tab ${('/games' ===
-              workingPath) && 'is-active'}`}
+            className={`navbar-item is-tab ${'/games' === workingPath &&
+              'is-active'}`}
           >
             Games
           </A>
           <A
             href="/entities"
-            className={`navbar-item is-tab ${('/entities' ===
-              workingPath) && 'is-active'}`}
+            className={`navbar-item is-tab ${'/entities' === workingPath &&
+              'is-active'}`}
           >
             Entities
           </A>
           <A
             href="/events"
-            className={`navbar-item is-tab ${('/events' ===
-              workingPath) && 'is-active'}`}
+            className={`navbar-item is-tab ${'/events' === workingPath &&
+              'is-active'}`}
           >
             Events
           </A>
@@ -64,10 +62,12 @@ const Navigation = () => {
         <div className="navbar-end">
           <div className="navbar-item">
             <div className="buttons">
-              <a className="button is-primary">
+              <A href="/signup" className="button is-primary">
                 <strong>Sign up</strong>
-              </a>
-              <a className="button is-light">Log in</a>
+              </A>
+              <A href="/login" className="button is-light">
+                Log in
+              </A>
             </div>
           </div>
         </div>
