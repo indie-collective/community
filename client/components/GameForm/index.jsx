@@ -9,7 +9,7 @@ const GameSchema = Yup.object().shape({
     .max(50, "Too Long!")
     .required("Required"),
   about: Yup.string()
-    .min(50, "Too Short!")
+    .min(10, "Too Short!")
     .max(500, "Too Long!")
     .required("Required"),
   site: Yup.string().url("Invalid url")
@@ -66,7 +66,7 @@ const GameForm = ({ name, about, site, onSubmit }) => (
             <div className="field">
               <p className="control">
                 <input
-                  className="input is-normal"
+                  className="input is-large"
                   name="name"
                   type="text"
                   onChange={handleChange}
@@ -114,7 +114,7 @@ const GameForm = ({ name, about, site, onSubmit }) => (
                 <input
                   className="input is-normal"
                   name="site"
-                  type="text"
+                  type="url"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.site}
