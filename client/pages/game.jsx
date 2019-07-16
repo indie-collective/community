@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from 'urql';
 import { A } from 'hookrouter';
@@ -13,6 +13,8 @@ const propTypes = {
 
 const Game = ({ id }) => {
   const game = useQuery({ query: gameQuery, variables: { id } })[0];
+
+  const [dialogVisible, setDialogVisible] = useState(false);
 
   if (!game.data) {
     return <Spinner />;
@@ -33,12 +35,16 @@ const Game = ({ id }) => {
   return (
     <div>
       <section className="hero">
-        <div className="hero-body">
+        <div className="hero-body is-primary">
           <div className="container">
             <h1 className="title">{name}</h1>
             <h2 className="subtitle">
               <a href={site}>{site}</a>
             </h2>
+
+            <article className="message is-dark">
+              <div className="message-body">{about}</div>
+            </article>
 
             <div className="hero-foot">
               <div
@@ -46,7 +52,7 @@ const Game = ({ id }) => {
                 style={{ textTransform: 'capitalize' }}
               >
                 {tags.nodes.map(tag => (
-                  <A class="tag is-link" href={`/tag/${tag.id}`}>
+                  <A className="tag is-link" href={`/tag/${tag.id}`}>
                     {tag.name}
                   </A>
                 ))}
@@ -86,6 +92,28 @@ const Game = ({ id }) => {
             <article className="tile is-child notification is-danger">
               <p className="title">Events</p>
               <p className="subtitle">{events.totalCount} events</p>
+
+              <button
+                className="button is-light"
+                onClick={() => setDialogVisible(true)}
+              >
+                Add
+              </button>
+
+              <div className={dialogVisible ? 'modal is-active' : 'modal'}>
+                <div className="modal-background" />
+                <div className="modal-card">
+                  <header className="modal-card-head">
+                    <p className="modal-card-title">Modal title</p>
+                    <button className="delete" aria-label="close" />
+                  </header>
+                  <section className="modal-card-body">Test</section>
+                  <footer className="modal-card-foot">
+                    <button className="button is-success">Save changes</button>
+                    <button className="button">Cancel</button>
+                  </footer>
+                </div>
+              </div>
             </article>
           </div>
         </div>
