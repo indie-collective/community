@@ -41,6 +41,7 @@
     "file-loader": "^3.0.1",
     "jest": "^24.8.0",
     "parcel-bundler": "^1.11.0",
+    "prettier": "^1.18.2",
     "react-scripts": "^3.0.0",
     "react-test-renderer": "^16.8.6",
     "style-loader": "^0.23.1"
@@ -48,5 +49,20 @@
   "alias": {
     "components": "./client/components",
     "gql": "./client/gql"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,css,json,md,jsx}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.js,*.jsx": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }
