@@ -3,7 +3,8 @@
     "start": "node server",
     "schema": "psql -f schema.sql",
     "drop": "psql -f schema-drop.sql",
-    "data": "psql -f data.sql"
+    "populate": "psql -f data.sql",
+    "dump": "pg_dump --schema=indieco --schema=indieco_private --data-only > data.sql"
   },
   "dependencies": {
     "@graphile-contrib/pg-many-to-many": "^1.0.0-beta.5",
