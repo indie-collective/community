@@ -15,7 +15,7 @@ const propTypes = {
 
 const SearchBar = ({ results, loading, onSelect, onSearch }) => {
   return (
-    <div className="dropdown is-active" style={{ display: 'flex' }}>
+    <div className="dropdown is-active">
       <div
         className={`control is-expanded ${loading ? 'is-loading' : ''}`}
         style={{ flex: 1 }}

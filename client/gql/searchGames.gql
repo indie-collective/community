@@ -1,0 +1,10 @@
+query searchGames($str: String!) {
+  searchGames(search: $str) {
+    totalCount
+    nodes {
+      id
+      name
+      about
+    }
+  }
+}
