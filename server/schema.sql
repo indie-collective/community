@@ -238,15 +238,110 @@ begin
 end;
 $$ language plpgsql;
 
+alter table indieco.person add column updated_at timestamptz default now();
+
 create trigger person_updated_at before update
   on indieco.person
   for each row
   execute procedure indieco_private.set_updated_at();
 
--- create trigger post_updated_at before update
---   on indieco.post
---   for each row
---   execute procedure indieco_private.set_updated_at();
+alter table indieco.location add column updated_at timestamptz default now();
+
+create trigger location_updated_at before update
+  on indieco.location
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.image add column updated_at timestamptz default now();
+
+create trigger image_updated_at before update
+  on indieco.image
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.tag add column updated_at timestamptz default now();
+
+create trigger tag_updated_at before update
+  on indieco.tag
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.entity add column updated_at timestamptz default now();
+
+create trigger entity_updated_at before update
+  on indieco.entity
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.game add column updated_at timestamptz default now();
+
+create trigger game_updated_at before update
+  on indieco.game
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.event add column updated_at timestamptz default now();
+
+create trigger event_updated_at before update
+  on indieco.event
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.entity_member add column updated_at timestamptz default now();
+
+create trigger entity_member_updated_at before update
+  on indieco.entity_member
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.entity_image add column updated_at timestamptz default now();
+
+create trigger entity_image_updated_at before update
+  on indieco.entity_image
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.entity_event add column updated_at timestamptz default now();
+
+create trigger entity_event_updated_at before update
+  on indieco.entity_event
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.game_author add column updated_at timestamptz default now();
+
+create trigger game_author_updated_at before update
+  on indieco.game_author
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.game_entity add column updated_at timestamptz default now();
+
+create trigger game_entity_updated_at before update
+  on indieco.game_entity
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.game_image add column updated_at timestamptz default now();
+
+create trigger game_image_updated_at before update
+  on indieco.game_image
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.game_tag add column updated_at timestamptz default now();
+
+create trigger game_tag_updated_at before update
+  on indieco.game_tag
+  for each row
+  execute procedure indieco_private.set_updated_at();
+
+alter table indieco.game_event add column updated_at timestamptz default now();
+
+create trigger game_event_updated_at before update
+  on indieco.game_event
+  for each row
+  execute procedure indieco_private.set_updated_at();
 
 
 -----------------
