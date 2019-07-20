@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 
 import CountrySelect from '.';
 
-storiesOf('Organisms/CountrySelect', module)
+storiesOf('CountrySelect', module)
   .add('default', () => (
     <CountrySelect value="fr" onChange={action('onchange')} />
   ));

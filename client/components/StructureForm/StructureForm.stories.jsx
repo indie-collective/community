@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 
 import StructureForm from '.';
 
-storiesOf('Organisms/StructureForm', module)
+storiesOf('StructureForm', module)
   .add('default', () => (
     <StructureForm onSubmit={action('onSubmit')} />
   ));

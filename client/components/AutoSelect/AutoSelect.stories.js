@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 
 import AutoSelect from '.';
 
-storiesOf('Organisms/AutoSelect', module)
+storiesOf('AutoSelect', module)
   .add('default', () => (
     <div style={{ width: 300, padding: 15 }}>
       <AutoSelect onSubmit={action('onSubmit')} />

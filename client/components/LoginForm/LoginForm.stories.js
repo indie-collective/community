@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 
 import LoginForm from '.';
 
-storiesOf('Organisms/LoginForm', module)
+storiesOf('LoginForm', module)
   .add('default', () => (
     <div style={{ width: 500, padding: 15 }}>
       <LoginForm onSubmit={action('onSubmit')} />

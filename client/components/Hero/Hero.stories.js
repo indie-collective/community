@@ -9,7 +9,7 @@ const game = {
   tagline: 'This is the game tagline which quickly describes the game.'
 };
 
-storiesOf('Organisms/Hero', module)
+storiesOf('Hero', module)
   .add('default', () => (
     <Hero
       title={text('title', game.title)}

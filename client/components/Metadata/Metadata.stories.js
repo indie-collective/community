@@ -9,7 +9,7 @@ const data = {
   'Release date': new Date,
 };
 
-storiesOf('Organisms/Metadata', module)
+storiesOf('Metadata', module)
   .add('default', () => (
     <Metadata data={data} />
   ));
