@@ -219,41 +219,19 @@ $$ language sql stable;
 
 comment on function indieco.person_full_name(indieco.person) is 'A person’s full name which is a concatenation of their first and last name.';
 
--- create function indieco.post_summary(
---   post indieco.post,
---   length int default 50,
---   omission text default '…'
--- ) returns text as $$
---   select case
---     when post.body is null then null
---     else substr(post.body, 0, length) || omission
---   end
--- $$ language sql stable;
 
--- comment on function indieco.post_summary(indieco.post, int, text) is 'A truncated version of the body for summaries.';
+create function indieco.search_games(search text) returns setof indieco.game as $$
+  select game.*
+  from indieco.game as game
+  where game.name ilike ('%' || search || '%')
+  or game.about ilike ('%' || search || '%')
+$$ language sql stable;
 
--- create function indieco.person_latest_post(person indieco.person) returns indieco.post as $$
---   select post.*
---   from indieco.post as post
---   where post.author_id = person.id
---   order by created_at desc
---   limit 1
--- $$ language sql stable;
+comment on function indieco.search_games(text) is 'Returns games containing a given search term.';
 
--- comment on function indieco.person_latest_post(indieco.person) is 'Gets the latest post written by the person.';
 
--- create function indieco.search_posts(search text) returns setof indieco.post as $$
---   select post.*
---   from indieco.post as post
---   where post.headline ilike ('%' || search || '%') or post.body ilike ('%' || search || '%')
--- $$ language sql stable;
-
--- comment on function indieco.search_posts(text) is 'Returns posts containing a given search term.';
-
--- alter table indieco.person add column updated_at timestamptz default now();
--- alter table indieco.post add column updated_at timestamptz default now();
-
-create function indieco_private.set_updated_at() returns trigger as $$
+create function indieco_private.set_updated_at()
+returns trigger as $$
 begin
   new.updated_at := current_timestamp;
   return new;
