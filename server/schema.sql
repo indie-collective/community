@@ -75,7 +75,7 @@ create table indieco.entity (
   type             indieco.entity_type,
   name             text not null check (char_length(name) < 80),
   about            text,
-  location_id      integer not null references indieco.location(id),
+  location_id      integer references indieco.location(id),
   created_at       timestamptz default now()
 );
 
@@ -130,7 +130,7 @@ comment on column indieco.event.created_at is 'The time this event was created.'
 create table indieco.entity_member (
   entity_id        int constraint team_member_entity_id_fkey references indieco.entity(id),
   person_id        int constraint team_member_person_id_fkey references indieco.person(id),
-  created_at       timestamptz not null,
+  created_at       timestamptz default now(),
   primary key (entity_id, person_id)
 );
 
@@ -140,7 +140,7 @@ comment on constraint team_member_person_id_fkey on indieco.entity_member is E'@
 create table indieco.entity_image (
   entity_id        int constraint entity_image_entity_id_fkey references indieco.entity(id),
   image_id         int constraint entity_image_image_id_fkey references indieco.image(id),
-  created_at       timestamptz not null,
+  created_at       timestamptz default now(),
   primary key (entity_id, image_id)
 );
 
@@ -150,7 +150,7 @@ comment on constraint entity_image_image_id_fkey on indieco.entity_image is E'@m
 create table indieco.entity_event (
   entity_id        int constraint entity_event_entity_id_fkey references indieco.entity(id),
   event_id         int constraint entity_event_event_id_fkey references indieco.event(id),
-  created_at       timestamptz not null,
+  created_at       timestamptz default now(),
   primary key (entity_id, event_id)
 );
 
@@ -160,7 +160,7 @@ comment on constraint entity_event_event_id_fkey on indieco.entity_event is E'@m
 create table indieco.game_author (
   game_id          int constraint game_author_game_id_fkey references indieco.game(id),
   person_id        int constraint game_author_person_id_fkey references indieco.person(id),
-  created_at       timestamptz not null,
+  created_at       timestamptz default now(),
   primary key (game_id, person_id)
 );
 
@@ -170,7 +170,7 @@ comment on constraint game_author_person_id_fkey on indieco.game_author is E'@ma
 create table indieco.game_entity (
   game_id          int constraint game_entity_game_id_fkey references indieco.game(id),
   entity_id        int constraint game_entity_entity_id_fkey references indieco.entity(id),
-  created_at       timestamptz not null,
+  created_at       timestamptz default now(),
   primary key (game_id, entity_id)
 );
 
@@ -180,7 +180,7 @@ comment on constraint game_entity_entity_id_fkey on indieco.game_entity is E'@ma
 create table indieco.game_image (
   game_id          int constraint game_image_game_id_fkey references indieco.game(id),
   image_id         int constraint game_image_image_id_fkey references indieco.image(id),
-  created_at       timestamptz not null,
+  created_at       timestamptz default now(),
   primary key (game_id, image_id)
 );
 
@@ -190,7 +190,7 @@ comment on constraint game_image_image_id_fkey on indieco.game_image is E'@manyT
 create table indieco.game_tag (
   game_id          int constraint game_tag_game_id_fkey references indieco.game(id),
   tag_id           int constraint game_tag_tag_id_fkey references indieco.tag(id),
-  created_at       timestamptz not null,
+  created_at       timestamptz default now(),
   primary key (game_id, tag_id)
 );
 
@@ -200,7 +200,7 @@ comment on constraint game_tag_tag_id_fkey on indieco.game_tag is E'@manyToManyF
 create table indieco.game_event (
   game_id          int constraint game_event_game_id_fkey references indieco.game(id),
   event_id         int constraint game_event_event_id_fkey references indieco.event(id),
-  created_at       timestamptz not null,
+  created_at       timestamptz default now(),
   primary key (game_id, event_id)
 );
 
