@@ -19,7 +19,7 @@ const Home = () => {
         <Spinner />
       ) : (
         <Masonry>
-          {games.data.allGames.nodes.map(game => (
+          {games.data.games.nodes.map(game => (
             <div className="card">
               <div className="card-content">
                 <p className="title">

@@ -1,4 +1,4 @@
-query gameById($id: Int!) {
+query game($id: Int!) {
   game(id: $id) {
     id
     name

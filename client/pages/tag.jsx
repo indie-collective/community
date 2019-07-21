@@ -7,7 +7,7 @@ import Spinner from '../components/Spinner';
 
 const tagQuery = `
   query tagbyId($id: Int!) {
-    tagById(id: $id) {
+    tag(id: $id) {
       id
       name
       games {
@@ -42,9 +42,9 @@ const Tag = ({ id }) => {
 
   return (
     <div>
-      <h1>Tag: {tag.data.tagById.name}</h1>
+      <h1>Tag: {tag.data.tag.name}</h1>
 
-      {tag.data.tagById.games.nodes.map(game => (
+      {tag.data.tag.games.nodes.map(game => (
         <div key={game.id}>
           <h2>
             <A href={`/game/${game.id}`}>{game.name}</A>

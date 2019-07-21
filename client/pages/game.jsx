@@ -31,7 +31,7 @@ const Game = ({ id }) => {
     images,
     tags,
     events,
-  } = game.data.gameById;
+  } = game.data.game;
 
   return (
     <section>

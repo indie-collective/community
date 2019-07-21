@@ -3,23 +3,23 @@ import { useQuery } from 'urql';
 
 const statsQuery = `
   {
-    allGames {
+    games {
       totalCount
     }
 
-    allEntities {
+    entities {
       totalCount
     }
     
-    allEvents {
+    events {
       totalCount
     }
     
-    allPeople {
+    people {
       totalCount
     }
     
-    allTags {
+    tags {
       totalCount
     }
   } 
@@ -39,7 +39,7 @@ const Home = () => {
               <div>
                 <p className="heading">Games</p>
                 <p className="title">
-                  {stats.data && stats.data.allGames.totalCount}
+                  {stats.data && stats.data.games.totalCount}
                 </p>
               </div>
             </div>
@@ -48,7 +48,7 @@ const Home = () => {
               <div>
                 <p className="heading">Entities</p>
                 <p className="title">
-                  {stats.data && stats.data.allEntities.totalCount}
+                  {stats.data && stats.data.entities.totalCount}
                 </p>
               </div>
             </div>
@@ -57,7 +57,7 @@ const Home = () => {
               <div>
                 <p className="heading">Tags</p>
                 <p className="title">
-                  {stats.data && stats.data.allTags.totalCount}
+                  {stats.data && stats.data.tags.totalCount}
                 </p>
               </div>
             </div>
@@ -66,7 +66,7 @@ const Home = () => {
               <div>
                 <p className="heading">Events</p>
                 <p className="title">
-                  {stats.data && stats.data.allEvents.totalCount}
+                  {stats.data && stats.data.events.totalCount}
                 </p>
               </div>
             </div>
@@ -75,7 +75,7 @@ const Home = () => {
               <div>
                 <p className="heading">People</p>
                 <p className="title">
-                  {stats.data && stats.data.allPeople.totalCount}
+                  {stats.data && stats.data.people.totalCount}
                 </p>
               </div>
             </div>
