@@ -1,5 +1,5 @@
 query gameById($id: Int!) {
-  gameById(id: $id) {
+  game(id: $id) {
     id
     name
     about

@@ -1,9 +1,9 @@
 {
   "scripts": {
     "start": "node server",
-    "schema": "psql -f schema.sql",
-    "drop": "psql -f schema-drop.sql",
-    "populate": "psql -f data.sql",
+    "schema": "psql --dbname=indieco -f schema.sql",
+    "drop": "psql --dbname=indieco -f schema-drop.sql",
+    "populate": "psql --dbname=indieco -f data.sql",
     "dump": "pg_dump --schema=indieco --schema=indieco_private --data-only > data.sql"
   },
   "dependencies": {
