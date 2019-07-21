@@ -50,7 +50,7 @@ workflows:
     jobs:
       - build
       - deploy:
-          requires
+          requires:
             - build
           filters:
             branches:
