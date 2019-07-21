@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div
+  className="dropdown is-active"
+>
+  <div
+    className="control is-expanded is-loading"
+    style={
+      Object {
+        "flex": 1,
+      }
+    }
+  >
+    <input
+      className="input is-primary"
+      onChange={[Function]}
+      placeholder="Search"
+      type="text"
+    />
+  </div>
+</div>
+`;
