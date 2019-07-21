@@ -39,10 +39,10 @@ jobs:
     machine:
       enabled: true
     steps:
-      -run:
-        name: Deploy Over SSH
-        command: |
-          ssh $SSH_USER@$SSH_HOST "./deploy_client.sh"
+      - run:
+          name: Deploy Over SSH
+          command: |
+            ssh $SSH_USER@$SSH_HOST "./deploy_client.sh"
 
 workflows:
   version: 2
