@@ -9,7 +9,7 @@ import fileExchange from './fileExchange';
 
 const host =
   location.host.split(':')[0] === 'localhost'
-    ? 'localhost:5000'
+    ? 'localhost:4000'
     : location.host;
 
 const client = createClient({
