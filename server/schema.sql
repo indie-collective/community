@@ -386,13 +386,13 @@ $$ language plpgsql strict security definer;
 
 comment on function indieco.register_person(text, text, text, text) is 'Registers a single user and creates an account in our forum.';
 
-create role indieco_postgraphile login password 'xyz';
+-- create role indieco_postgraphile login password 'xyz';
 
-create role indieco_anonymous;
-grant indieco_anonymous to indieco_postgraphile;
+-- create role indieco_anonymous;
+-- grant indieco_anonymous to indieco_postgraphile;
 
-create role indieco_person;
-grant indieco_person to indieco_postgraphile;
+-- create role indieco_person;
+-- grant indieco_person to indieco_postgraphile;
 
 create type indieco_private.jwt_token as (
   role text,
