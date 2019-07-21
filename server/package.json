@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@graphile-contrib/pg-many-to-many": "^1.0.0-beta.5",
+    "@graphile-contrib/pg-simplify-inflector": "^5.0.0-beta.1",
     "express": "^4.16.4",
     "graphql-upload": "^8.0.6",
     "postgraphile": "^4.4.0",

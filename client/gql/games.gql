@@ -1,5 +1,5 @@
 query games {
-  allGames {
+  games {
     totalCount
     nodes {
       id

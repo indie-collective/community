@@ -3,8 +3,10 @@ const path = require('path');
 const express = require('express');
 const { postgraphile } = require('postgraphile');
 const { graphqlUploadExpress } = require('graphql-upload');
+
 const PostGraphileUploadFieldPlugin = require('postgraphile-plugin-upload-field');
-const PgManyToManyPlugin = require("@graphile-contrib/pg-many-to-many");
+const PgManyToManyPlugin = require('@graphile-contrib/pg-many-to-many');
+const PgSimplifyInflector = require('@graphile-contrib/pg-simplify-inflector');
 
 const { jwtSecret } = require('./config.json');
 
@@ -22,18 +24,21 @@ app.use(
   postgraphile('postgres://localhost:5432/', 'indieco', {
     graphiql: true,
     enableCors: true,
-    appendPlugins: [PostGraphileUploadFieldPlugin, PgManyToManyPlugin],
+    appendPlugins: [
+      PostGraphileUploadFieldPlugin,
+      PgManyToManyPlugin,
+      PgSimplifyInflector,
+    ],
     jwtSecret,
     jwtPgTypeIdentifier: 'indieco_private.jwt_token',
     graphileBuildOptions: {
       uploadFieldDefinitions: [
         {
-          match: ({ schema, table, column, tags }) =>
-            column === 'image_file',
-          resolve: resolveUpload
-        }
-      ]
-    }
+          match: ({ schema, table, column, tags }) => column === 'image_file',
+          resolve: resolveUpload,
+        },
+      ],
+    },
   })
 );
 
