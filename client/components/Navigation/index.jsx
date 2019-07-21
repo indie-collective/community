@@ -68,31 +68,41 @@ const Navigation = () => {
       </div>
 
       <div className="navbar-menu">
-        <div className="navbar-start">
-          <div className="navbar-item is-expanded">
-            <SearchBar
-              results={searchResults}
-              loading={search.fetching}
-              onSearch={str => setSearchString(str)}
-              onSelect={id => {
-                navigate(`/game/${id}`);
-                setSearchResults([]);
-              }}
-            />
-          </div>
+        <div className="navbar-start"></div>
+        <div className="navbar-item is-expanded">
+          <SearchBar
+            results={searchResults}
+            loading={search.fetching}
+            onSearch={str => setSearchString(str)}
+            onSelect={id => {
+              navigate(`/game/${id}`);
+              setSearchResults([]);
+            }}
+          />
         </div>
 
         <div className="navbar-end">
           <div className="navbar-item">
-            <div className="buttons">
-              <A href="/signup" className="button is-primary">
-                <strong>Sign up</strong>
-              </A>
-              <A href="/login" className="button is-light">
-                Log in
-              </A>
+            <div className="tabs is-toggle">
+              <ul>
+                <li className="is-active">
+                  <A href="/games">Games</A>
+                </li>
+                <li>
+                  <A href="/events">Events</A>
+                </li>
+                <li>
+                  <A href="/entities">Entities</A>
+                </li>
+              </ul>
             </div>
           </div>
+
+          <span className="navbar-item">
+            <a className="button is-success">
+              <span>Connect</span>
+            </a>
+          </span>
         </div>
       </div>
     </nav>

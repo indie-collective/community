@@ -21,7 +21,7 @@ const SearchBar = ({ results, loading, onSelect, onSearch }) => {
         style={{ flex: 1 }}
       >
         <input
-          className="input is-rounded"
+          className="input is-primary"
           type="text"
           placeholder="Search"
           onChange={e => {
