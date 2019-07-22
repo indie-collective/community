@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { A, navigate } from 'hookrouter';
+import { A, navigate, usePath } from 'hookrouter';
 import { useQuery } from 'urql';
 
 import Logo from 'components/Logo';
@@ -8,6 +8,10 @@ import SearchBar from '../SearchBar';
 import searchGames from 'gql/searchGames';
 
 const Navigation = () => {
+  const path = usePath(true);
+
+  const [menuActive, setMenuActive] = useState(false);
+
   const [searchString, setSearchString] = useState();
   const [searchResults, setSearchResults] = useState();
 
@@ -60,6 +64,7 @@ const Navigation = () => {
           aria-label="menu"
           aria-expanded="true"
           data-target="navbarBasicExample"
+          onClick={() => setMenuActive(!menuActive)}
         >
           <span aria-hidden="true" />
           <span aria-hidden="true" />
@@ -67,7 +72,7 @@ const Navigation = () => {
         </a>
       </div>
 
-      <div className="navbar-menu">
+      <div className={menuActive ? 'navbar-menu is-active' : 'navbar-menu'}>
         <div className="navbar-start"></div>
         <div className="navbar-item is-expanded">
           <SearchBar
@@ -85,13 +90,13 @@ const Navigation = () => {
           <div className="navbar-item">
             <div className="tabs is-toggle">
               <ul>
-                <li className="is-active">
+                <li className={path === '/games' ? 'is-active' : ''}>
                   <A href="/games">Games</A>
                 </li>
-                <li>
+                <li className={path === '/events' ? 'is-active' : ''}>
                   <A href="/events">Events</A>
                 </li>
-                <li>
+                <li className={path === '/entities' ? 'is-active' : ''}>
                   <A href="/entities">Entities</A>
                 </li>
               </ul>
