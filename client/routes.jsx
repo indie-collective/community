@@ -29,22 +29,22 @@ export default {
 
   '/games': () => <GamesPage />,
   '/game/create': () => <CreateGame />,
-  '/game/:id': ({ id }) => <GamePage id={Number.parseInt(id)} />,
+  '/game/:id': ({ id }) => <GamePage id={id} />,
 
   '/entities': () => <EntitiesPage />,
   '/entities/create': () => <CreateEntity />,
-  '/entities/:id': ({ id }) => <EntityPage id={Number.parseInt(id)} />,
+  '/entities/:id': ({ id }) => <EntityPage id={id} />,
 
   '/people': () => <PeoplePage />,
   '/person/create': () => <CreatePerson />,
-  '/person/:id': ({ id }) => <PersonPage id={Number.parseInt(id)} />,
+  '/person/:id': ({ id }) => <PersonPage id={id} />,
 
   '/events': () => <EventsPage />,
   '/event/create': () => <CreateEvent />,
-  '/event/:id': ({ id }) => <EventPage id={Number.parseInt(id)} />,
+  '/event/:id': ({ id }) => <EventPage id={id} />,
 
   '/tags': () => <TagsPage />,
-  '/tag/:id': ({ id }) => <TagPage id={Number.parseInt(id)} />,
+  '/tag/:id': ({ id }) => <TagPage id={id} />,
 
   '/login': () => <LoginPage />,
   '/signup': () => <SignupPage />,

@@ -6,7 +6,7 @@ import { A } from 'hookrouter';
 import Spinner from '../components/Spinner';
 
 const tagQuery = `
-  query tagbyId($id: Int!) {
+  query tagbyId($id: UUID!) {
     tag(id: $id) {
       id
       name
