@@ -1,5 +1,6 @@
-query games {
-  games {
+query detailedGames($tags: [String]) {
+  games(filter: { tagList: { contains: $tags }}) {
+    totalCount
     nodes {
       id
       name
@@ -26,7 +27,7 @@ query games {
         }
       }
 
-      images(first: 5) {
+      images(first: 5, orderBy: CREATED_AT_DESC) {
         totalCount
         nodes {
           imageFile

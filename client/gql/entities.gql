@@ -1,0 +1,30 @@
+query entities {
+  entities {
+    totalCount
+    nodes {
+      id
+      type
+      name
+      about
+
+      location {
+        city
+        country
+        latitude
+        longitude
+      }
+
+      people {
+        totalCount
+      }
+
+      images {
+        totalCount
+      }
+
+      events {
+        totalCount
+      }
+    }
+  }
+}

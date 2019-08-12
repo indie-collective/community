@@ -1,0 +1,24 @@
+query event($id: UUID!) {
+  event(id: $id) {
+    id
+    name
+    about
+    site
+
+    startsAt
+    endsAt
+    
+    location {
+      latitude
+      longitude
+    }
+
+    entities {
+      totalCount
+    }
+
+    games {
+      totalCount
+    }
+  }
+}

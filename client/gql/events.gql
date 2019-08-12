@@ -1,0 +1,29 @@
+query events {
+  events(orderBy: STARTS_AT_DESC) {
+    totalCount
+    nodes {
+      id
+      name
+      about
+      site
+      startsAt
+      endsAt
+      
+      location {
+        id
+        country
+        city
+        latitude
+        longitude
+      }
+      
+      entities {
+        totalCount
+      }
+      
+      games {
+        totalCount
+      }
+    }
+  }
+}
