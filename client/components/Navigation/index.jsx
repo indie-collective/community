@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { A, navigate, usePath } from 'hookrouter';
 import { useQuery } from 'urql';
 
 import Logo from 'components/Logo';
 import SearchBar from '../SearchBar';
 
+import CurrentPersonContext from '../CurrentPersonContext';
+
 import searchGames from 'gql/searchGames';
 
 const Navigation = () => {
+  const currentPerson = useContext(CurrentPersonContext);
   const path = usePath(true);
 
   const [menuActive, setMenuActive] = useState(false);
@@ -104,9 +107,21 @@ const Navigation = () => {
           </div>
 
           <span className="navbar-item">
-            <a className="button is-success">
-              <span>Connect</span>
-            </a>
+            {!!currentPerson ? (
+              <button
+                className="button is-danger"
+                onClick={() => {
+                  localStorage.removeItem('jwt');
+                  navigate('/');
+                }}
+              >
+                Disconnect
+              </button>
+            ) : (
+              <A href="/login" className="button is-success">
+                Connect
+              </A>
+            )}
           </span>
         </div>
       </div>

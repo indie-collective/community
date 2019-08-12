@@ -16,10 +16,10 @@ const client = createClient({
   url: `${location.protocol}//${host}/graphql`,
   exchanges: [cacheExchange, fileExchange, fetchExchange],
   fetchOptions() {
-    if (localStorage.getItem('token') !== null) {
+    if (localStorage.getItem('jwt') !== null) {
       return {
         headers: {
-          authorization: `Bearer ${localStorage.getItem('token')}`,
+          authorization: `Bearer ${localStorage.getItem('jwt')}`,
         },
       };
     }
