@@ -7,6 +7,7 @@ const { graphqlUploadExpress } = require('graphql-upload');
 const PostGraphileUploadFieldPlugin = require('postgraphile-plugin-upload-field');
 const PgManyToManyPlugin = require('@graphile-contrib/pg-many-to-many');
 const PgSimplifyInflector = require('@graphile-contrib/pg-simplify-inflector');
+const ConnectionFilterPlugin = require('postgraphile-plugin-connection-filter');
 
 const { jwtSecret } = require('./config.json');
 
@@ -15,19 +16,21 @@ const app = express();
 const UPLOAD_DIR_NAME = 'uploads';
 
 // Serve uploads as static resources
-app.use(`/${UPLOAD_DIR_NAME}`, express.static(path.resolve(UPLOAD_DIR_NAME)));
+app.use('/files', express.static(path.resolve(UPLOAD_DIR_NAME)));
 
 // Attach multipart request handling middleware
 app.use(graphqlUploadExpress());
 
 app.use(
-  postgraphile('postgres://localhost:5432/', 'indieco', {
+  postgraphile('postgres://localhost:5432/indieco', 'indieco', {
     graphiql: true,
+    watchPg: true,
     enableCors: true,
     appendPlugins: [
       PostGraphileUploadFieldPlugin,
       PgManyToManyPlugin,
       PgSimplifyInflector,
+      ConnectionFilterPlugin,
     ],
     jwtSecret,
     jwtPgTypeIdentifier: 'indieco_private.jwt_token',

@@ -746,6 +746,11 @@ postgraphile-core@4.4.0:
     graphile-build "4.4.0"
     graphile-build-pg "4.4.0"
 
+postgraphile-plugin-connection-filter@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/postgraphile-plugin-connection-filter/-/postgraphile-plugin-connection-filter-1.1.2.tgz#bf0213017a25bcd7d3713d1f7bb5fc3e6cfe5b18"
+  integrity sha512-Pwtmsa3W+GxD6l4CFKR8EGGarNpSx+gBTgNIT1q2fQITnVPtRl9UMMMxKGRbF19Iqciv/QqV0vBQS9VkRmP6Cw==
+
 postgraphile-plugin-upload-field@^1.0.0-alpha.8:
   version "1.0.0-alpha.8"
   resolved "https://registry.yarnpkg.com/postgraphile-plugin-upload-field/-/postgraphile-plugin-upload-field-1.0.0-alpha.8.tgz#282c8ff2f963c2d1461222be37a67da222975b4d"

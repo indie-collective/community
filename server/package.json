@@ -4,7 +4,7 @@
     "schema": "psql --dbname=indieco -f schema.sql",
     "drop": "psql --dbname=indieco -f schema-drop.sql",
     "populate": "psql --dbname=indieco -f data.sql",
-    "dump": "pg_dump --schema=indieco --schema=indieco_private --data-only > data.sql"
+    "dump": "pg_dump --dbname=indieco --schema=indieco --schema=indieco_private --data-only > data.sql"
   },
   "dependencies": {
     "@graphile-contrib/pg-many-to-many": "^1.0.0-beta.5",
@@ -12,6 +12,7 @@
     "express": "^4.16.4",
     "graphql-upload": "^8.0.6",
     "postgraphile": "^4.4.0",
+    "postgraphile-plugin-connection-filter": "^1.1.2",
     "postgraphile-plugin-upload-field": "^1.0.0-alpha.8"
   }
 }
