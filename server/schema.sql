@@ -4,12 +4,15 @@ begin;
 create schema indieco;
 create schema indieco_private;
 
+create extension if not exists "pgcrypto";
+create extension if not exists "uuid-ossp";
+
 
 ---------
 -- types
 
 create type indieco.entity_type as enum (
-  'company',
+  'studio',
   'association',
   'organisation'
 );
@@ -19,7 +22,7 @@ create type indieco.entity_type as enum (
 -- tables
 
 create table indieco.person (
-  id               serial primary key,
+  id               uuid primary key default uuid_generate_v4(),
   first_name       text not null check (char_length(first_name) < 80),
   last_name        text check (char_length(last_name) < 80),
   about            text,
@@ -34,7 +37,7 @@ comment on column indieco.person.about is 'A short description of the user, writ
 comment on column indieco.person.created_at is 'The time this person was created.';
 
 create table indieco.location (
-  id               serial primary key,
+  id               uuid primary key default uuid_generate_v4(),
   country          text not null check (char_length(country) < 80),
   city             text not null check (char_length(city) < 80),
   latitude         float,
@@ -49,7 +52,7 @@ comment on column indieco.location.latitude is 'The location latitude.';
 comment on column indieco.location.longitude is 'The location longitude.';
 
 create table indieco.image (
-  id               serial primary key,
+  id               uuid primary key default uuid_generate_v4(),
   image_file       text,
   created_at       timestamptz default now()
 );
@@ -60,8 +63,8 @@ comment on column indieco.image.image_file is 'The image file.';
 comment on column indieco.image.created_at is 'The time this image was created.';
 
 create table indieco.tag (
-  id               serial primary key,
-  name             text not null check (char_length(name) < 30),
+  id               uuid primary key default uuid_generate_v4(),
+  name             varchar (30) not null check (char_length(name) < 30),
   created_at       timestamptz default now()
 );
 
@@ -71,11 +74,11 @@ comment on column indieco.tag.name is 'The tag name.';
 comment on column indieco.tag.created_at is 'The time this tag was created.';
 
 create table indieco.entity (
-  id               serial primary key,
+  id               uuid primary key default uuid_generate_v4(),
   type             indieco.entity_type,
   name             text not null check (char_length(name) < 80),
   about            text,
-  location_id      integer references indieco.location(id),
+  location_id      uuid references indieco.location(id),
   created_at       timestamptz default now()
 );
 
@@ -88,10 +91,11 @@ comment on column indieco.entity.location_id is 'The location of the entity.';
 comment on column indieco.entity.created_at is 'The time this entity was created.';
 
 create table indieco.game (
-  id               serial primary key,
+  id               uuid primary key default uuid_generate_v4(),
   name             text not null check (char_length(name) < 80),
   about            text,
   site             text check (char_length(name) < 512),
+  tag_list          varchar (30) [],
   created_at       timestamptz default now()
 );
 
@@ -100,13 +104,14 @@ comment on column indieco.game.id is 'The primary unique identifier for the game
 comment on column indieco.game.name is 'The game name.';
 comment on column indieco.game.about is 'A short description of the game.';
 comment on column indieco.game.site is 'The website of the game.';
+comment on column indieco.game.tag_list is 'A convience list of tags for the game.';
 comment on column indieco.game.created_at is 'The time this game was created.';
 
 create table indieco.event (
-  id               serial primary key,
+  id               uuid primary key default uuid_generate_v4(),
   name             text not null check (char_length(name) < 80),
   about            text,
-  location_id      integer not null references indieco.location(id),
+  location_id      uuid not null references indieco.location(id),
   site             text check (char_length(name) < 512),
   starts_at        timestamptz not null,
   ends_at          timestamptz not null,
@@ -128,8 +133,8 @@ comment on column indieco.event.created_at is 'The time this event was created.'
 -- relations
 
 create table indieco.entity_member (
-  entity_id        int constraint team_member_entity_id_fkey references indieco.entity(id),
-  person_id        int constraint team_member_person_id_fkey references indieco.person(id),
+  entity_id        uuid constraint team_member_entity_id_fkey references indieco.entity(id),
+  person_id        uuid constraint team_member_person_id_fkey references indieco.person(id),
   created_at       timestamptz default now(),
   primary key (entity_id, person_id)
 );
@@ -138,8 +143,8 @@ comment on constraint team_member_entity_id_fkey on indieco.entity_member is E'@
 comment on constraint team_member_person_id_fkey on indieco.entity_member is E'@manyToManyFieldName people';
 
 create table indieco.entity_image (
-  entity_id        int constraint entity_image_entity_id_fkey references indieco.entity(id),
-  image_id         int constraint entity_image_image_id_fkey references indieco.image(id),
+  entity_id        uuid constraint entity_image_entity_id_fkey references indieco.entity(id),
+  image_id         uuid constraint entity_image_image_id_fkey references indieco.image(id),
   created_at       timestamptz default now(),
   primary key (entity_id, image_id)
 );
@@ -148,8 +153,8 @@ comment on constraint entity_image_entity_id_fkey on indieco.entity_image is E'@
 comment on constraint entity_image_image_id_fkey on indieco.entity_image is E'@manyToManyFieldName images';
 
 create table indieco.entity_event (
-  entity_id        int constraint entity_event_entity_id_fkey references indieco.entity(id),
-  event_id         int constraint entity_event_event_id_fkey references indieco.event(id),
+  entity_id        uuid constraint entity_event_entity_id_fkey references indieco.entity(id),
+  event_id         uuid constraint entity_event_event_id_fkey references indieco.event(id),
   created_at       timestamptz default now(),
   primary key (entity_id, event_id)
 );
@@ -158,8 +163,8 @@ comment on constraint entity_event_entity_id_fkey on indieco.entity_event is E'@
 comment on constraint entity_event_event_id_fkey on indieco.entity_event is E'@manyToManyFieldName events';
 
 create table indieco.game_author (
-  game_id          int constraint game_author_game_id_fkey references indieco.game(id),
-  person_id        int constraint game_author_person_id_fkey references indieco.person(id),
+  game_id          uuid constraint game_author_game_id_fkey references indieco.game(id),
+  person_id        uuid constraint game_author_person_id_fkey references indieco.person(id),
   created_at       timestamptz default now(),
   primary key (game_id, person_id)
 );
@@ -168,8 +173,8 @@ comment on constraint game_author_game_id_fkey on indieco.game_author is E'@many
 comment on constraint game_author_person_id_fkey on indieco.game_author is E'@manyToManyFieldName people';
 
 create table indieco.game_entity (
-  game_id          int constraint game_entity_game_id_fkey references indieco.game(id),
-  entity_id        int constraint game_entity_entity_id_fkey references indieco.entity(id),
+  game_id          uuid constraint game_entity_game_id_fkey references indieco.game(id),
+  entity_id        uuid constraint game_entity_entity_id_fkey references indieco.entity(id),
   created_at       timestamptz default now(),
   primary key (game_id, entity_id)
 );
@@ -178,8 +183,8 @@ comment on constraint game_entity_game_id_fkey on indieco.game_entity is E'@many
 comment on constraint game_entity_entity_id_fkey on indieco.game_entity is E'@manyToManyFieldName entities';
 
 create table indieco.game_image (
-  game_id          int constraint game_image_game_id_fkey references indieco.game(id),
-  image_id         int constraint game_image_image_id_fkey references indieco.image(id),
+  game_id          uuid constraint game_image_game_id_fkey references indieco.game(id),
+  image_id         uuid constraint game_image_image_id_fkey references indieco.image(id),
   created_at       timestamptz default now(),
   primary key (game_id, image_id)
 );
@@ -188,8 +193,8 @@ comment on constraint game_image_game_id_fkey on indieco.game_image is E'@manyTo
 comment on constraint game_image_image_id_fkey on indieco.game_image is E'@manyToManyFieldName images';
 
 create table indieco.game_tag (
-  game_id          int constraint game_tag_game_id_fkey references indieco.game(id),
-  tag_id           int constraint game_tag_tag_id_fkey references indieco.tag(id),
+  game_id          uuid constraint game_tag_game_id_fkey references indieco.game(id),
+  tag_id           uuid constraint game_tag_tag_id_fkey references indieco.tag(id),
   created_at       timestamptz default now(),
   primary key (game_id, tag_id)
 );
@@ -198,8 +203,9 @@ comment on constraint game_tag_game_id_fkey on indieco.game_tag is E'@manyToMany
 comment on constraint game_tag_tag_id_fkey on indieco.game_tag is E'@manyToManyFieldName tags';
 
 create table indieco.game_event (
-  game_id          int constraint game_event_game_id_fkey references indieco.game(id),
-  event_id         int constraint game_event_event_id_fkey references indieco.event(id),
+  game_id          uuid constraint game_event_game_id_fkey references indieco.game(id),
+  event_id         uuid constraint game_event_event_id_fkey references indieco.event(id),
+  tags             varchar(100) [],
   created_at       timestamptz default now(),
   primary key (game_id, event_id)
 );
@@ -213,14 +219,29 @@ comment on constraint game_event_event_id_fkey on indieco.game_event is E'@manyT
 
 alter default privileges revoke execute on functions from public;
 
-create function indieco.person_full_name(person indieco.person) returns text as $$
+create function indieco.person_full_name(person indieco.person) 
+returns text as $$
   select person.first_name || ' ' || person.last_name
 $$ language sql stable;
 
 comment on function indieco.person_full_name(indieco.person) is 'A person’s full name which is a concatenation of their first and last name.';
 
+create function indieco.top_tags()
+returns table(key text, value bigint) as $$
+  select
+    indieco.tag.name as key,
+    count(*) as value
+  from indieco.game_tag
+  inner join indieco.tag on indieco.tag.id = indieco.game_tag.tag_id
+  group by tag.name
+  order by value desc
+  limit 10
+$$ language sql stable;
 
-create function indieco.search_games(search text) returns setof indieco.game as $$
+comment on function indieco.top_tags() is 'Returns top 10 tags.';
+
+create function indieco.search_games(search text)
+returns setof indieco.game as $$
   select game.*
   from indieco.game as game
   where game.name ilike ('%' || search || '%')
@@ -348,7 +369,7 @@ create trigger game_event_updated_at before update
 -- private tables
 
 create table indieco_private.person_account (
-  person_id        integer primary key references indieco.person(id) on delete cascade,
+  person_id        uuid primary key references indieco.person(id) on delete cascade,
   email            text not null unique check (email ~* '^.+@.+\..+$'),
   password_hash    text not null,
   is_admin         boolean not null default false
@@ -359,10 +380,9 @@ comment on column indieco_private.person_account.person_id is 'The id of the per
 comment on column indieco_private.person_account.email is 'The email address of the person.';
 comment on column indieco_private.person_account.password_hash is 'An opaque hash of the person’s password.';
 
+
 -------------------------
 -- registration functions
-
-create extension if not exists "pgcrypto";
 
 create function indieco.register_person(
   first_name text,
@@ -388,16 +408,16 @@ comment on function indieco.register_person(text, text, text, text) is 'Register
 
 -- create role indieco_postgraphile login password 'xyz';
 
--- create role indieco_anonymous;
+create role indieco_anonymous;
 -- grant indieco_anonymous to indieco_postgraphile;
 
--- create role indieco_person;
+create role indieco_person;
 -- grant indieco_person to indieco_postgraphile;
 
 create type indieco_private.jwt_token as (
   role text,
   exp integer,
-  person_id integer,
+  person_id uuid,
   is_admin boolean,
   email varchar
 );
@@ -424,7 +444,7 @@ comment on function indieco.authenticate(text, text) is 'Creates a JWT token tha
 create function indieco.current_person() returns indieco.person as $$
   select *
   from indieco.person
-  where id = current_setting('jwt.claims.person_id', true)::integer
+  where id = current_setting('jwt.claims.person_id', true)::uuid
 $$ language sql stable;
 
 comment on function indieco.current_person() is 'Gets the person who was identified by our JWT.';
@@ -450,14 +470,49 @@ grant usage on schema indieco to indieco_anonymous, indieco_person;
 grant select on table indieco.person to indieco_anonymous, indieco_person;
 grant update, delete on table indieco.person to indieco_person;
 
--- grant select on table indieco.post to indieco_anonymous, indieco_person;
--- grant insert, update, delete on table indieco.post to indieco_person;
--- grant usage on sequence indieco.post_id_seq to indieco_person;
+grant select on table indieco.game to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.game to indieco_person;
 
--- grant execute on function indieco.person_full_name(indieco.person) to indieco_anonymous, indieco_person;
--- grant execute on function indieco.post_summary(indieco.post, integer, text) to indieco_anonymous, indieco_person;
--- grant execute on function indieco.person_latest_post(indieco.person) to indieco_anonymous, indieco_person;
--- grant execute on function indieco.search_posts(text) to indieco_anonymous, indieco_person;
+grant select on table indieco.location to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.location to indieco_person;
+
+grant select on table indieco.event to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.event to indieco_person;
+
+grant select on table indieco.entity to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.entity to indieco_person;
+
+grant select on table indieco.tag to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.tag to indieco_person;
+
+grant select on table indieco.image to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.image to indieco_person;
+
+grant select on table indieco.entity_member to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.entity_member to indieco_person;
+
+grant select on table indieco.entity_image to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.entity_image to indieco_person;
+
+grant select on table indieco.entity_event to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.entity_event to indieco_person;
+
+grant select on table indieco.game_author to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.game_author to indieco_person;
+
+grant select on table indieco.game_entity to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.game_entity to indieco_person;
+
+grant select on table indieco.game_image to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.game_image to indieco_person;
+
+grant select on table indieco.game_tag to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.game_tag to indieco_person;
+
+grant select on table indieco.game_event to indieco_anonymous, indieco_person;
+grant insert, update, delete on table indieco.game_event to indieco_person;
+
+grant execute on function indieco.person_full_name(indieco.person) to indieco_anonymous, indieco_person;
 grant execute on function indieco.authenticate(text, text) to indieco_anonymous, indieco_person;
 grant execute on function indieco.current_person() to indieco_anonymous, indieco_person;
 grant execute on function indieco.change_password(text, text) to indieco_person;
@@ -465,19 +520,15 @@ grant execute on function indieco.change_password(text, text) to indieco_person;
 grant execute on function indieco.register_person(text, text, text, text) to indieco_anonymous;
 
 alter table indieco.person enable row level security;
--- alter table indieco.post enable row level security;
 
 create policy select_person on indieco.person for select
   using (true);
 
--- create policy select_post on indieco.post for select
---   using (true);
-
 create policy update_person on indieco.person for update to indieco_person
-  using (id = current_setting('jwt.claims.person_id', true)::integer);
+  using (id = current_setting('jwt.claims.person_id', true)::uuid);
 
 create policy delete_person on indieco.person for delete to indieco_person
-  using (id = current_setting('jwt.claims.person_id', true)::integer);
+  using (id = current_setting('jwt.claims.person_id', true)::uuid);
 
 -- create policy insert_post on indieco.post for insert to indieco_person
 --   with check (author_id = current_setting('jwt.claims.person_id', true)::integer);
