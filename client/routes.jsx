@@ -32,8 +32,8 @@ export default {
   '/game/:id': ({ id }) => <GamePage id={id} />,
 
   '/entities': () => <EntitiesPage />,
-  '/entities/create': () => <CreateEntity />,
-  '/entities/:id': ({ id }) => <EntityPage id={id} />,
+  '/entity/create': () => <CreateEntity />,
+  '/entity/:id': ({ id }) => <EntityPage id={id} />,
 
   '/people': () => <PeoplePage />,
   '/person/create': () => <CreatePerson />,

@@ -9,15 +9,15 @@ import Spinner from '../components/Spinner';
 import gameQuery from '../gql/gameById';
 
 const propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
 };
 
 const Game = ({ id }) => {
-  const game = useQuery({ query: gameQuery, variables: { id } })[0];
+  const res = useQuery({ query: gameQuery, variables: { id } })[0];
 
   const [dialogVisible, setDialogVisible] = useState(false);
 
-  if (!game.data) {
+  if (!res.data) {
     return <Spinner />;
   }
 
@@ -31,7 +31,7 @@ const Game = ({ id }) => {
     images,
     tags,
     events,
-  } = game.data.game;
+  } = res.data.game;
 
   return (
     <section>
@@ -60,7 +60,7 @@ const Game = ({ id }) => {
 
             <div className="tags" style={{ textTransform: 'capitalize' }}>
               {tags.nodes.map(tag => (
-                <A className="tag is-link" href={`/tag/${tag.id}`}>
+                <A key={tag.id} className="tag is-link" href={`/tag/${tag.id}`}>
                   {tag.name}
                 </A>
               ))}
@@ -86,7 +86,7 @@ const Game = ({ id }) => {
         }}
       >
         <motion.article
-          className="tile is-child notification is-warning"
+          className="tile is-child notification is-info"
           variants={{
             hidden: { opacity: 0, scale: 0.9 },
             visible: {
@@ -123,7 +123,7 @@ const Game = ({ id }) => {
         </motion.article>
 
         <motion.article
-          className="tile is-child notification is-danger"
+          className="tile is-child notification is-warning"
           variants={{
             hidden: { opacity: 0, scale: 0.9 },
             visible: {

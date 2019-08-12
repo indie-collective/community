@@ -30,7 +30,7 @@ const tagQuery = `
 `;
 
 const propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
 };
 
 const Tag = ({ id }) => {
@@ -49,10 +49,11 @@ const Tag = ({ id }) => {
           <h2>
             <A href={`/game/${game.id}`}>{game.name}</A>
           </h2>
+
           <div className="tags" style={{ marginBottom: 10 }}>
-            {game.tags.nodes.map(t => (
-              <A href={`/tag/${t.id}`} className="tag is-link">
-                {t.name}
+            {game.tags.nodes.map(tag => (
+              <A key={tag.id} href={`/tag/${tag.id}`} className="tag is-link">
+                {tag.name}
               </A>
             ))}
           </div>
