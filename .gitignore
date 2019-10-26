@@ -7,3 +7,4 @@ static
 tmp-resolvers
 generated
 .cache
+.next
