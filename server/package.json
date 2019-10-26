@@ -11,6 +11,7 @@
     "@graphile-contrib/pg-simplify-inflector": "^5.0.0-beta.1",
     "express": "^4.16.4",
     "graphql-upload": "^8.0.6",
+    "jimp": "^0.6.4",
     "postgraphile": "^4.4.0",
     "postgraphile-plugin-connection-filter": "^1.1.2",
     "postgraphile-plugin-upload-field": "^1.0.0-alpha.8"

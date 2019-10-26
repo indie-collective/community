@@ -53,13 +53,13 @@ comment on column indieco.location.longitude is 'The location longitude.';
 
 create table indieco.image (
   id               uuid primary key default uuid_generate_v4(),
-  image_file       text,
+  image_file       jsonb,
   created_at       timestamptz default now()
 );
 
 comment on table indieco.image is 'An image.';
 comment on column indieco.image.id is 'The primary unique identifier for the image.';
-comment on column indieco.image.image_file is 'The image file.';
+comment on column indieco.image.image_file is 'The image file data.';
 comment on column indieco.image.created_at is 'The time this image was created.';
 
 create table indieco.tag (

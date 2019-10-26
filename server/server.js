@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const { postgraphile } = require('postgraphile');
 const { graphqlUploadExpress } = require('graphql-upload');
+const jimp = require('jimp');
 
 const PostGraphileUploadFieldPlugin = require('postgraphile-plugin-upload-field');
 const PgManyToManyPlugin = require('@graphile-contrib/pg-many-to-many');
@@ -11,12 +12,14 @@ const ConnectionFilterPlugin = require('postgraphile-plugin-connection-filter');
 
 const { jwtSecret } = require('./config.json');
 
+const production = process.env.NODE_ENV === 'production';
+
 const app = express();
 
 const UPLOAD_DIR_NAME = 'uploads';
 
 // Serve uploads as static resources
-app.use('/files', express.static(path.resolve(UPLOAD_DIR_NAME)));
+app.use('/images', express.static(path.resolve(UPLOAD_DIR_NAME)));
 
 // Attach multipart request handling middleware
 app.use(graphqlUploadExpress());
@@ -26,6 +29,7 @@ app.use(
     graphiql: true,
     watchPg: true,
     enableCors: true,
+    disableQueryLog: true,
     appendPlugins: [
       PostGraphileUploadFieldPlugin,
       PgManyToManyPlugin,
@@ -37,7 +41,9 @@ app.use(
     graphileBuildOptions: {
       uploadFieldDefinitions: [
         {
-          match: ({ schema, table, column, tags }) => column === 'image_file',
+          match: ({ schema, table, column, tags }) => {
+            return column === 'image_file';
+          },
           resolve: resolveUpload,
         },
       ],
@@ -50,28 +56,41 @@ app.listen(4000, () => {
 });
 
 async function resolveUpload(upload) {
-  const { filename, mimetype, encoding, createReadStream } = upload;
+  const { filename, createReadStream } = upload;
   const stream = createReadStream();
-  // Save file to the local filesystem
-  const { id, filepath } = await saveLocal({ stream, filename });
-  // Return metadata to save it to Postgres
-  return filepath;
+
+  const localFilename = await saveLocal({ stream, filename });
+  const image = await jimp.read(
+    path.join(process.cwd(), UPLOAD_DIR_NAME, localFilename)
+  );
+  const { width, height } = image.bitmap;
+
+  await image.resize(jimp.AUTO, 400);
+  await image.writeAsync(
+    path.join(process.cwd(), UPLOAD_DIR_NAME, `thumb_${localFilename}`)
+  );
+
+  return {
+    name: localFilename,
+    width,
+    height,
+    thumb_width: image.bitmap.width,
+    thumb_height: image.bitmap.height,
+  };
 }
 
 function saveLocal({ stream, filename }) {
   const timestamp = new Date().toISOString().replace(/\D/g, '');
-  const id = `${timestamp}_${filename}`;
-  const filepath = path.join(UPLOAD_DIR_NAME, id);
-  const fsPath = path.join(process.cwd(), filepath);
+  const localFilename = `${timestamp}.${filename.split('.').pop()}`;
+  const fsPath = path.join(process.cwd(), UPLOAD_DIR_NAME, localFilename);
+
   return new Promise((resolve, reject) =>
     stream
       .on('error', error => {
-        if (stream.truncated)
-          // Delete the truncated file
-          fs.unlinkSync(fsPath);
+        if (stream.truncated) fs.unlinkSync(fsPath);
         reject(error);
       })
-      .on('end', () => resolve({ id, filepath }))
+      .on('end', () => resolve(localFilename))
       .pipe(fs.createWriteStream(fsPath))
   );
 }
