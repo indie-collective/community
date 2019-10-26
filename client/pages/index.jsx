@@ -1,17 +1,11 @@
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
-import {
-  Box,
-  Text,
-  Spinner,
-  Heading,
-  Badge,
-  Stack,
-} from '@chakra-ui/core';
+import { Box, Text, Spinner, Heading, Stack } from '@chakra-ui/core';
 import { format } from 'date-fns';
 
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
+import OrgCard from '../components/OrgCard';
 
 const query = gql`
   {
@@ -106,39 +100,14 @@ const Home = () => {
             gridColumnGap={3}
             gridRowGap={3}
           >
-            {data.entities.nodes.map(({ name, type, people, games }) => (
-              <Box border="1px solid silver" rounded={5} padding={2}>
-                <Box d="flex" alignItems="baseline">
-                  <Badge
-                    rounded="full"
-                    px="2"
-                    variantColor="teal"
-                    textAlign="right"
-                  >
-                    {type}
-                  </Badge>
-                </Box>
-
-                <Box
-                  mt="1"
-                  fontWeight="semibold"
-                  as="h4"
-                  lineHeight="tight"
-                  isTruncated
-                >
-                  {name}
-                </Box>
-
-                <Box
-                  color="gray.500"
-                  fontWeight="semibold"
-                  letterSpacing="wide"
-                  fontSize="xs"
-                  textTransform="uppercase"
-                >
-                  {people.totalCount} people &bull; {games.totalCount} games
-                </Box>
-              </Box>
+            {data.entities.nodes.map(({ id, name, type, people, games }) => (
+              <OrgCard
+                id={id}
+                name={name}
+                type={type}
+                people={people}
+                games={games}
+              />
             ))}
           </Box>
         )}
