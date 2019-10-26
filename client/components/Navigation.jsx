@@ -88,10 +88,6 @@ const Navigation = () => {
         </Link>
       </ButtonGroup>
 
-      <Box flex="auto" p="10px">
-        <SearchBar />
-      </Box>
-
       <ButtonGroup p="10px" display="none">
         <Button variantColor="red" variant="ghost">
           Login
