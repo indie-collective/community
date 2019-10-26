@@ -4,10 +4,11 @@ import { useQuery } from '@apollo/react-hooks';
 import { Spinner } from '@chakra-ui/core';
 
 import Navigation from '../components/Navigation';
+import OrgCard from '../components/OrgCard';
 
 const entitiesQuery = gql`
   {
-    entities(first: 10) {
+    entities(first: 100) {
       nodes {
         id
         name
@@ -43,14 +44,14 @@ export default () => {
       {loading ? (
         <Spinner />
       ) : (
-        data.entities.nodes.map(({ id, name, about, type }) => (
-          <tr key={id}>
-            <td>
-              <Link href={`/org/${id}`}>{name}</Link>
-            </td>
-            <td>{about}</td>
-            <td>{type}</td>
-          </tr>
+        data.entities.nodes.map(({ id, name, type, people, games }) => (
+          <OrgCard
+            id={id}
+            name={name}
+            type={type}
+            people={people}
+            games={games}
+          />
         ))
       )}
     </div>
