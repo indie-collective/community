@@ -25,7 +25,7 @@ export default class MyApp extends App {
         <ThemeProvider>
           <ColorModeProvider value="light">
             <CSSReset />
-            <Main maxWidth="740px">
+            <Main maxWidth="1280px">
               <Component {...pageProps} />
             </Main>
           </ColorModeProvider>
