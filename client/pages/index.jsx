@@ -1,11 +1,11 @@
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
-import { Box, Text, Spinner, Heading, Stack } from '@chakra-ui/core';
-import { format } from 'date-fns';
+import { Box, Spinner, Heading, Stack } from '@chakra-ui/core';
 
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
+import EventCard from '../components/EventCard';
 
 const query = gql`
   {
@@ -153,31 +153,16 @@ const Home = () => {
                 </Heading>
                 <Stack spacing={2}>
                   {values.map(
-                    ({ name, startsAt, endsAt, games, entities, location }) => (
-                      <Box border="1px solid silver" rounded={5} padding={2}>
-                        <Box
-                          mt="1"
-                          fontWeight="semibold"
-                          as="h4"
-                          lineHeight="tight"
-                          isTruncated
-                        >
-                          {name}
-                        </Box>
-
-                        <Box
-                          color="gray.500"
-                          fontWeight="semibold"
-                          letterSpacing="wide"
-                          fontSize="xs"
-                          textTransform="uppercase"
-                        >
-                          {games.totalCount} games &bull; {entities.totalCount}{' '}
-                          orgs
-                        </Box>
-
-                        <Text>{format(Date.parse(startsAt), 'do MMM')}</Text>
-                      </Box>
+                    ({ id, name, startsAt, endsAt, games, entities, location }) => (
+                      <EventCard
+                        key={id}
+                        name={name}
+                        startsAt={startsAt}
+                        endsAt={endsAt}
+                        games={games}
+                        entities={entities}
+                        location={location}
+                      />
                     )
                   )}
                 </Stack>
