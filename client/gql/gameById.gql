@@ -16,6 +16,10 @@ query game($id: UUID!) {
 
     images {
       totalCount
+      nodes {
+        createdAt
+        imageFile
+      }
     }
 
     tags {

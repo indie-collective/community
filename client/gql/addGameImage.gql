@@ -1,0 +1,10 @@
+mutation addGameImage($imageId: UUID!, $gameId: UUID!) {
+  createGameImage(
+    input: { gameImage: { imageId: $imageId, gameId: $gameId } }
+  ) {
+    gameImage {
+      nodeId
+      gameId
+    }
+  }
+}

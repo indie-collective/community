@@ -1,0 +1,13 @@
+{
+  games {
+    totalCount
+  }
+  
+  entities {
+    totalCount
+  }
+  
+  events {
+    totalCount
+  }
+}

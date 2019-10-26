@@ -1,54 +1,64 @@
-import React from 'react';
-import { useQuery } from 'urql';
-import { A } from 'hookrouter';
+import Link from 'next/link';
+import { gql } from 'apollo-boost';
+import { useQuery } from '@apollo/react-hooks';
+import { Box, Spinner } from '@chakra-ui/core';
 
-import eventsQuery from '../gql/events';
-import Spinner from '../components/Spinner';
+import Navigation from '../components/Navigation';
 
-const Events = () => {
-  const res = useQuery({
-    query: eventsQuery,
-  })[0];
+const eventsQuery = gql`
+  {
+    events(first: 10) {
+      nodes {
+        id
+        name
+        about
+        site
+        startsAt
+        endsAt
+
+        location {
+          id
+          country
+          city
+          latitude
+          longitude
+        }
+
+        entities {
+          totalCount
+        }
+
+        games {
+          totalCount
+        }
+      }
+    }
+  }
+`;
+
+export default () => {
+  const { loading, error, data } = useQuery(eventsQuery);
 
   return (
     <div>
-      <section className="hero is-warning is-bold">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">
-              Events
-            </h1>
-            <h2 className="subtitle">
-              There are currently {res.data ? res.data.events.totalCount : '?'} events registered.
-            </h2>
-          </div>
-        </div>
-      </section>
-
-      <section className="section" style={{ paddingTop: '1.5em' }}>
-        {!res.data ? (
-          <Spinner />
-        ) : (
-          res.data.events.nodes.map(event => (
-            <div key={event.id} className="level">
-              <div className="level-left">
-                <div className="level-item">
-                  <div className="title is-5">
-                    <A href={`/event/${event.id}`}>{event.name}</A>
-                  </div>
-                </div>
-              </div>
-              <div className="level-right">
-                <div className="level-item">
-                  <div>{event.startsAt} - {event.endsAt}</div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </section>
+      <Navigation />
+      {loading ? (
+        <Spinner />
+      ) : (
+        data.events.nodes.map(({ id, name, about, site, startsAt, endsAt }) => (
+          <tr key={id}>
+            <td>
+              <Box color="blue" textDecoration="underline">
+                <Link href={`/event/${id}`}>{name}</Link>
+              </Box>
+            </td>
+            <td>{about}</td>
+            <td>{site}</td>
+            <td>{startsAt}</td>
+            <td>{endsAt}</td>
+          </tr>
+        ))
+      )}
     </div>
   );
 };
-
-export default Events;
