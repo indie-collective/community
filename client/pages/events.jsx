@@ -1,7 +1,6 @@
-import Link from 'next/link';
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
-import { Box, Spinner } from '@chakra-ui/core';
+import { Spinner } from '@chakra-ui/core';
 
 import Navigation from '../components/Navigation';
 import EventCard from '../components/EventCard';
@@ -49,6 +48,7 @@ export default () => {
         data.events.nodes.map(({ id, name, games, entities, location, startsAt, endsAt }) => (
           <EventCard
             key={id}
+            id={id}
             name={name}
             startsAt={startsAt}
             endsAt={endsAt}

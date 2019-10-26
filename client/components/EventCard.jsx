@@ -1,11 +1,12 @@
 import React from 'react';
+import Link from 'next/link';
 import { Box, Text } from '@chakra-ui/core';
 import { format } from 'date-fns';
 
-const EventCard = ({ name, games, entities, startsAt }) => (
+const EventCard = ({ id, name, games, entities, startsAt }) => (
   <Box border="1px solid silver" rounded={5} padding={2}>
     <Box mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-      {name}
+      <Link href={`/event/${id}`}>{name}</Link>
     </Box>
 
     <Box

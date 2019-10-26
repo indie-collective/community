@@ -102,6 +102,7 @@ const Home = () => {
           >
             {data.entities.nodes.map(({ id, name, type, people, games }) => (
               <OrgCard
+                key={id}
                 id={id}
                 name={name}
                 type={type}
@@ -153,9 +154,18 @@ const Home = () => {
                 </Heading>
                 <Stack spacing={2}>
                   {values.map(
-                    ({ id, name, startsAt, endsAt, games, entities, location }) => (
+                    ({
+                      id,
+                      name,
+                      startsAt,
+                      endsAt,
+                      games,
+                      entities,
+                      location,
+                    }) => (
                       <EventCard
                         key={id}
+                        id={id}
                         name={name}
                         startsAt={startsAt}
                         endsAt={endsAt}
