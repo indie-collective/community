@@ -1,10 +1,12 @@
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
 import { useRouter } from 'next/router';
-import { Spinner } from '@chakra-ui/core';
+import { Box, Heading, Text, Spinner } from '@chakra-ui/core';
 import Error from 'next/error';
 
 import Navigation from '../../components/Navigation';
+import GameCard from '../../components/GameCard';
+import OrgCard from '../../components/OrgCard';
 
 const eventQuery = gql`
   query event($id: UUID!) {
@@ -26,10 +28,23 @@ const eventQuery = gql`
 
       entities {
         totalCount
+        nodes {
+          id
+          name
+        }
       }
 
       games {
         totalCount
+        nodes {
+          id
+          name
+          images {
+            nodes {
+              id
+            }
+          }
+        }
       }
     }
   }
@@ -52,11 +67,66 @@ const Event = () => {
     return <Error statusCode={404} />;
   }
 
+  if (loading) {
+    return <Spinner />;
+  }
+
+  const {
+    name,
+    about,
+    site,
+    startsAt,
+    endsAt,
+    location,
+    entities,
+    games,
+  } = data.event;
+
   return (
     <div>
       <Navigation />
 
-      <pre>{JSON.stringify(data, false, 2)}</pre>
+      <Box mb={5}>
+        <Heading>{name}</Heading>
+        <Text fontSize="lg">
+          <a href={site}>{site}</a>
+        </Text>
+        <Text fontSize="md" mt={3}>
+          {about}
+        </Text>
+      </Box>
+
+      <Box mb={8}>
+        <Heading size="md" mb={2}>
+          Games
+        </Heading>
+        <Box
+          display="grid"
+          gridTemplateColumns="33% 33% 33%"
+          gridColumnGap={3}
+          gridRowGap={3}
+        >
+          {games.nodes.map(({ id, name, images }) => (
+            <GameCard key={id} id={id} name={name} images={images.nodes} />
+          ))}
+        </Box>
+      </Box>
+
+      <Box>
+        <Heading size="md" mb={2}>
+          Orgs
+        </Heading>
+        <Box
+          display="grid"
+          gridTemplateColumns="33% 33% 33%"
+          gridColumnGap={3}
+          gridRowGap={3}
+        >
+          {entities.nodes.map(({ id, name, images }) => (
+            <OrgCard key={id} id={id} name={name} images={images.nodes} />
+          ))}
+        </Box>
+      </Box>
     </div>
   );
 };
