@@ -1,10 +1,11 @@
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
 import { useRouter } from 'next/router';
-import { Spinner } from '@chakra-ui/core';
+import { Box, Text, Heading, Spinner } from '@chakra-ui/core';
 import Error from 'next/error';
 
 import Navigation from '../../components/Navigation';
+import GameCard from '../../components/GameCard';
 
 const orgQuery = gql`
   query org($id: UUID!) {
@@ -20,10 +21,17 @@ const orgQuery = gql`
 
       games {
         totalCount
-      }
-
-      images {
-        totalCount
+        nodes {
+          id
+          name
+          about
+          site
+          images {
+            nodes {
+              id
+            }
+          }
+        }
       }
 
       events {
@@ -50,11 +58,43 @@ const Org = () => {
     return <Error statusCode={404} />;
   }
 
+  if (loading) {
+    return <Spinner />;
+  }
+
+  const { name, about, games } = data.entity;
+
   return (
     <div>
       <Navigation />
 
-      <pre>{JSON.stringify(data, false, 2)}</pre>
+      <Box mb={5}>
+        <Heading>{name}</Heading>
+        <Text fontSize="md" mt={3}>
+          {about}
+        </Text>
+      </Box>
+
+      <Box>
+        <Heading size="md" mb={2}>
+          Games
+        </Heading>
+        <Box
+          display="grid"
+          gridTemplateColumns="33% 33% 33%"
+          gridColumnGap={3}
+          gridRowGap={3}
+        >
+          {games.nodes.map(({ id, name, images }) => (
+            <GameCard
+              key={id}
+              id={id}
+              name={name}
+              images={images.nodes}
+            />
+          ))}
+        </Box>
+      </Box>
     </div>
   );
 };
