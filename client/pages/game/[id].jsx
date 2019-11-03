@@ -75,7 +75,7 @@ const Game = () => {
     <div>
       <Navigation />
 
-      <Box mb={5}>
+      <Box mb={5} pl={5} pr={5}>
         <Heading>{name}</Heading>
         <Text fontSize="lg">
           <a href={site}>{site}</a>
@@ -85,7 +85,7 @@ const Game = () => {
         </Text>
       </Box>
 
-      <Box>
+      <Box pl={5} pr={5}>
         <Heading size="md" mb={2}>
           Authors
         </Heading>

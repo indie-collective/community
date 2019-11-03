@@ -1,14 +1,15 @@
-import App from "next/app";
+import App from 'next/app';
+import { AnimatePresence } from 'framer-motion';
 import {
   Box,
   ColorModeProvider,
   CSSReset,
-  ThemeProvider
-} from "@chakra-ui/core";
+  ThemeProvider,
+} from '@chakra-ui/core';
 
 import fetch from 'node-fetch';
 import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from "@apollo/react-hooks";
+import { ApolloProvider } from '@apollo/react-hooks';
 
 const client = new ApolloClient({
   uri: 'http://localhost:4000/graphql',
@@ -26,7 +27,9 @@ export default class MyApp extends App {
           <ColorModeProvider value="light">
             <CSSReset />
             <Main maxWidth="1280px">
-              <Component {...pageProps} />
+              <AnimatePresence exitBeforeEnter>
+                <Component {...pageProps} />
+              </AnimatePresence>
             </Main>
           </ColorModeProvider>
         </ThemeProvider>
