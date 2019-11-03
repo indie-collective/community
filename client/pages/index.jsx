@@ -61,7 +61,7 @@ const Home = () => {
   const { loading, error, data } = useQuery(query);
 
   return (
-    <div>
+    <Box pr={2}>
       <Navigation />
 
       <Box p={2} mb={5}>
@@ -123,6 +123,7 @@ const Home = () => {
         ) : (
           <Box
             p={2}
+            pr={8}
             display="grid"
             gridTemplateColumns="25% 25% 25% 25%"
             gridColumnGap={3}
@@ -163,16 +164,18 @@ const Home = () => {
                       entities,
                       location,
                     }) => (
-                      <EventCard
-                        key={id}
-                        id={id}
-                        name={name}
-                        startsAt={startsAt}
-                        endsAt={endsAt}
-                        games={games}
-                        entities={entities}
-                        location={location}
-                      />
+                      <Box>
+                        <EventCard
+                          key={id}
+                          id={id}
+                          name={name}
+                          startsAt={startsAt}
+                          endsAt={endsAt}
+                          games={games}
+                          entities={entities}
+                          location={location}
+                        />
+                      </Box>
                     )
                   )}
                 </Stack>
@@ -181,7 +184,7 @@ const Home = () => {
           </Box>
         )}
       </Box>
-    </div>
+    </Box>
   );
 };
 
