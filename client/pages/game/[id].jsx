@@ -53,7 +53,6 @@ const Game = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  console.log(id);
   const validId = uuidRegex.test(id);
 
   const { loading, error, data } = useQuery(gameQuery, {
@@ -61,11 +60,11 @@ const Game = () => {
     skip: !validId,
   });
 
-  if (!validId) {
+  if ((id !== undefined && !validId) || error) {
     return <Error statusCode={404} />;
   }
 
-  if (loading) {
+  if (loading || !validId) {
     return <Spinner />;
   }
 

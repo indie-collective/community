@@ -63,11 +63,11 @@ const Event = () => {
     skip: !validId,
   });
 
-  if (!validId) {
+  if ((id !== undefined && !validId) || error) {
     return <Error statusCode={404} />;
   }
 
-  if (loading) {
+  if (loading || !validId) {
     return <Spinner />;
   }
 
