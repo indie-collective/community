@@ -1,54 +1,97 @@
-import React from 'react';
-import { useQuery } from 'urql';
-import { A } from 'hookrouter';
+import { gql } from 'apollo-boost';
+import { useQuery } from '@apollo/react-hooks';
+import { Box, Stack, Spinner } from '@chakra-ui/core';
+import { motion } from 'framer-motion';
 
-import eventsQuery from '../gql/events';
-import Spinner from '../components/Spinner';
+import Navigation from '../components/Navigation';
+import EventCard from '../components/EventCard';
 
-const Events = () => {
-  const res = useQuery({
-    query: eventsQuery,
-  })[0];
+const eventsQuery = gql`
+  {
+    events(first: 10) {
+      nodes {
+        id
+        name
+        about
+        site
+        startsAt
+        endsAt
+
+        location {
+          id
+          country
+          city
+          latitude
+          longitude
+        }
+
+        entities {
+          totalCount
+        }
+
+        games {
+          totalCount
+        }
+      }
+    }
+  }
+`;
+
+const eventVariants = {
+  initial: { scale: 0.96, y: 30, opacity: 0 },
+  enter: {
+    scale: 1,
+    y: 0,
+    opacity: 1,
+    transition: { duration: 0.5, ease: [0.48, 0.15, 0.25, 0.96] },
+  },
+  exit: {
+    scale: 0.6,
+    y: 100,
+    opacity: 0,
+    transition: { duration: 0.2, ease: [0.48, 0.15, 0.25, 0.96] },
+  },
+};
+
+export default () => {
+  const { loading, error, data } = useQuery(eventsQuery);
 
   return (
     <div>
-      <section className="hero is-warning is-bold">
-        <div className="hero-body">
-          <div className="container">
-            <h1 className="title">
-              Events
-            </h1>
-            <h2 className="subtitle">
-              There are currently {res.data ? res.data.events.totalCount : '?'} events registered.
-            </h2>
-          </div>
-        </div>
-      </section>
-
-      <section className="section" style={{ paddingTop: '1.5em' }}>
-        {!res.data ? (
-          <Spinner />
-        ) : (
-          res.data.events.nodes.map(event => (
-            <div key={event.id} className="level">
-              <div className="level-left">
-                <div className="level-item">
-                  <div className="title is-5">
-                    <A href={`/event/${event.id}`}>{event.name}</A>
-                  </div>
-                </div>
-              </div>
-              <div className="level-right">
-                <div className="level-item">
-                  <div>{event.startsAt} - {event.endsAt}</div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </section>
+      <Navigation />
+      {loading ? (
+        <Spinner />
+      ) : (
+        <Box mt={3} pl={5} pr={5}>
+          <motion.div
+            initial="initial"
+            animate="enter"
+            exit="exit"
+            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+          >
+            <Stack spacing={3}>
+              {data.events.nodes.map(
+                ({ id, name, games, entities, location, startsAt, endsAt }) => (
+                  <Box>
+                    <motion.div variants={eventVariants}>
+                      <EventCard
+                        key={id}
+                        id={id}
+                        name={name}
+                        startsAt={startsAt}
+                        endsAt={endsAt}
+                        games={games}
+                        entities={entities}
+                        location={location}
+                      />
+                    </motion.div>
+                  </Box>
+                )
+              )}
+            </Stack>
+          </motion.div>
+        </Box>
+      )}
     </div>
   );
 };
-
-export default Events;

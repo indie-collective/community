@@ -1,32 +1,42 @@
+import Link from 'next/link';
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
-import { Box, Spinner, Stack } from '@chakra-ui/core';
+import { Box, Stack, Spinner } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 
 import Navigation from '../components/Navigation';
-import GameCard from '../components/GameCard';
+import OrgCard from '../components/OrgCard';
 
-const gamesQuery = gql`
+const entitiesQuery = gql`
   {
-    games(first: 10) {
+    entities(first: 100) {
       nodes {
         id
         name
         about
-        site
+        type
+
+        people {
+          totalCount
+        }
+
+        games {
+          totalCount
+        }
 
         images {
-          nodes {
-            id
-            imageFile
-          }
+          totalCount
+        }
+
+        events {
+          totalCount
         }
       }
     }
   }
 `;
 
-const gameVariants = {
+const orgVariants = {
   initial: { scale: 0.96, y: 30, opacity: 0 },
   enter: {
     scale: 1,
@@ -43,7 +53,7 @@ const gameVariants = {
 };
 
 export default () => {
-  const { loading, error, data } = useQuery(gamesQuery);
+  const { loading, error, data } = useQuery(entitiesQuery);
 
   return (
     <div>
@@ -58,18 +68,16 @@ export default () => {
             exit="exit"
             variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
           >
-            <Stack spacing={5}>
-              {data.games.nodes.map(({ id, name, about, site, images }) => (
+            <Stack spacing={3}>
+              {data.entities.nodes.map(({ id, name, type, people, games }) => (
                 <Box>
-                  <motion.div variants={gameVariants}>
-                    <GameCard
-                      key={id}
-                      width="45em"
+                  <motion.div variants={orgVariants}>
+                    <OrgCard
                       id={id}
                       name={name}
-                      about={about}
-                      site={site}
-                      images={images}
+                      type={type}
+                      people={people}
+                      games={games}
                     />
                   </motion.div>
                 </Box>
