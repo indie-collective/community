@@ -7,7 +7,7 @@ import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 
-import homeQuery from '../gql/homeQuery';
+import homeQuery from '../gql/homeQuery.gql';
 
 const Home = () => {
   const { loading, error, data } = useQuery(homeQuery);

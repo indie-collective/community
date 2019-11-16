@@ -9,12 +9,21 @@ module.exports = {
             context: '',
             outputPath: 'static',
             publicPath: '_next/static',
-            name: '[path][name].[hash].[ext]'
-          }
-        }
-      ]
-    })
+            name: '[path][name].[hash].[ext]',
+          },
+        },
+      ],
+    });
 
-    return config
-  }
-}
+    config.module.rules.push({
+      test: /\.gql$/,
+      use: [
+        {
+          loader: 'webpack-graphql-loader',
+        },
+      ],
+    });
+
+    return config;
+  },
+};

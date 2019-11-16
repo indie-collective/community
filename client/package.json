@@ -21,6 +21,7 @@
     "react-dom": "^16.9.0"
   },
   "devDependencies": {
-    "file-loader": "^4.2.0"
+    "file-loader": "^4.2.0",
+    "webpack-graphql-loader": "^1.0.2"
   }
 }
