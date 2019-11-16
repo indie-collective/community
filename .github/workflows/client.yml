@@ -1,14 +1,14 @@
 name: Client CI
 
-on:
+on: 
   push:
     paths: 
-      - 'client/*'
+      - './client/*'
 
 jobs:
   build:
 
-    runs-on: [linux]
+    runs-on: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -18,7 +18,7 @@ jobs:
       with:
         node-version: 12.x
 
-    - name: npm install, build, and test
+    - name: install and build
       working-directory: ./client
       env:
         CI: true
