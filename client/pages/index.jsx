@@ -7,58 +7,10 @@ import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 
-const query = gql`
-  {
-    games(last: 5, orderBy: CREATED_AT_DESC) {
-      nodes {
-        id
-        name
-        images {
-          nodes {
-            id
-            imageFile
-          }
-        }
-      }
-    }
-
-    entities(last: 10, orderBy: CREATED_AT_DESC) {
-      nodes {
-        id
-        name
-        type
-        people {
-          totalCount
-        }
-        games {
-          totalCount
-        }
-      }
-    }
-
-    events(last: 10, orderBy: STARTS_AT_DESC) {
-      nodes {
-        id
-        name
-        startsAt
-        endsAt
-        entities {
-          totalCount
-        }
-        games {
-          totalCount
-        }
-        location {
-          country
-          city
-        }
-      }
-    }
-  }
-`;
+import homeQuery from '../gql/homeQuery';
 
 const Home = () => {
-  const { loading, error, data } = useQuery(query);
+  const { loading, error, data } = useQuery(homeQuery);
 
   return (
     <Box pr={2}>
