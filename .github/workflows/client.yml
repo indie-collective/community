@@ -1,11 +1,14 @@
 name: Node CI
 
-on: [push]
+on:
+  push:
+    paths: 
+      - 'client/*'
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: [linux]
 
     steps:
     - uses: actions/checkout@v1
@@ -17,9 +20,8 @@ jobs:
 
     - name: npm install, build, and test
       working-directory: ./client
+      env:
+        CI: true
       run: |
         yarn
         yarn build
-        yarn test
-      env:
-        CI: true
