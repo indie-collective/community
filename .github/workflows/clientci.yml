@@ -4,7 +4,6 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -24,3 +23,14 @@ jobs:
         yarn build
       env:
         CI: true
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH Commands
+        uses: appleboy/ssh-action@v0.0.2
+        with:
+          host: community.indieco.xyz
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: ./deploy_client.sh
