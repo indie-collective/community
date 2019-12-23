@@ -10,7 +10,7 @@ import EventCard from '../components/EventCard';
 import homeQuery from '../gql/homeQuery.gql';
 
 const Home = () => {
-  const { loading, error, data } = useQuery(homeQuery);
+  const { loading, error, data } = useQuery(gql(homeQuery));
 
   return (
     <Box pr={2}>
