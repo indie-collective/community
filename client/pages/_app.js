@@ -11,14 +11,15 @@ import fetch from 'node-fetch';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from '@apollo/react-hooks';
 
-const client = new ApolloClient({
-  uri: `http://${
-    location.hostname === 'localhost'
-      ? 'localhost:4000'
-      : 'community.indieco.xyz'
-  }/graphql`,
-  fetch,
-});
+function createClient () {
+  const hostname = process !== undefined ? 'localhost' : location.hostname;
+  return new ApolloClient({
+    uri: `http://${
+      hostname === 'localhost' ? 'localhost:4000' : 'community.indieco.xyz'
+    }/graphql`,
+    fetch,
+  });
+}
 
 const Main = props => <Box as="main" mx="auto" mb="3rem" {...props} />;
 
@@ -26,7 +27,7 @@ export default class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
     return (
-      <ApolloProvider client={client}>
+      <ApolloProvider client={createClient()}>
         <ThemeProvider>
           <ColorModeProvider value="light">
             <CSSReset />
