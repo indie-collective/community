@@ -30,7 +30,7 @@ jobs:
       - name: SSH Commands
         uses: appleboy/ssh-action@v0.0.2
         with:
-          host: ${{ secrets.HOST }}
+          host: community.indieco.xyz
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: ./deploy_client.sh
