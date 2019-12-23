@@ -12,7 +12,8 @@ import {
   MenuList,
   MenuItem,
 } from '@chakra-ui/core';
-import { useRouter } from 'next/dist/client/router';
+import { useRouter } from 'next/router';
+import Logo from './Logo';
 
 const CategoryMenu = () => (
   <Menu>
@@ -44,19 +45,14 @@ const Navigation = () => {
   const { pathname } = useRouter();
 
   return (
-    <Flex>
+    <Flex p="10px">
       <Link href="/">
-        <Button
-          variantColor="green"
-          variant="ghost"
-          m="10px"
-          isActive={pathname === '/'}
-        >
-          IndieCo
-        </Button>
+        <a>
+          <Logo />
+        </a>
       </Link>
 
-      <ButtonGroup p="10px">
+      <ButtonGroup>
         <Link href="/games">
           <Button
             variantColor="blue"
