@@ -26,8 +26,8 @@ jobs:
     - name: SSH Deploy
       uses: maddox/actions/ssh@master
       env:
-        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        PRIVATE_KEY: ${{ secrets.KEY }}
         HOST: ${{ secrets.HOST }}
-        USER: ${{ secrets.USER }}
+        USER: ${{ secrets.USERNAME }}
       with:
         args: ./deploy_client.sh
