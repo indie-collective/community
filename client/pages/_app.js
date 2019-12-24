@@ -13,10 +13,12 @@ import { ApolloProvider } from '@apollo/react-hooks';
 
 const isProduction = process && process.env.NODE_ENV === 'production';
 
+const graphqlUrl = isProduction
+  ? 'https://community.indieco.xyz/graphql'
+  : 'http://localhost:4000/graphql';
+
 const client = new ApolloClient({
-  uri: `http://${
-    isProduction ? 'community.indieco.xyz' : 'localhost:4000'
-  }/graphql`,
+  uri: graphqlUrl,
   fetch,
 });
 
