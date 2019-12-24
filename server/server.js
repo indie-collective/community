@@ -12,7 +12,15 @@ const ConnectionFilterPlugin = require('postgraphile-plugin-connection-filter');
 
 const { jwtSecret } = require('./config.json');
 
-const production = process.env.NODE_ENV === 'production';
+require('dotenv').config();
+
+const DB_USER = process.env.DB_USER;
+const DB_PASS = process.env.DB_PASS;
+
+const DB_URL =
+  DB_USER && DB_PASS
+    ? `postgres://${DB_USER}:${DB_PASS}@localhost:5432/indieco`
+    : 'postgres://localhost:5432/indieco';
 
 const app = express();
 
@@ -25,7 +33,7 @@ app.use('/images', express.static(path.resolve(UPLOAD_DIR_NAME)));
 app.use(graphqlUploadExpress());
 
 app.use(
-  postgraphile('postgres://localhost:5432/indieco', 'indieco', {
+  postgraphile(DB_URL, 'indieco', {
     graphiql: true,
     watchPg: true,
     enableCors: true,
