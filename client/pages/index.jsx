@@ -18,7 +18,7 @@ const Home = () => {
 
       <Box p={2} mb={5}>
         <Heading as="h3" size="md" ml={4} mt={3} mb={1}>
-          Recently added games
+          Games
         </Heading>
         {loading ? (
           <Spinner />
@@ -40,7 +40,7 @@ const Home = () => {
 
       <Box p={2} mb={5}>
         <Heading as="h3" size="md" ml={4} mb={1}>
-          Recently added orgs
+          Orgs
         </Heading>
         {loading ? (
           <Spinner />
@@ -68,7 +68,7 @@ const Home = () => {
 
       <Box p={2}>
         <Heading as="h3" size="md" ml={4} mb={1}>
-          Recently added events
+          Events
         </Heading>
         {loading ? (
           <Spinner />

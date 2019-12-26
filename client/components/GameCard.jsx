@@ -14,16 +14,8 @@ const GameCard = ({ id, images, name }) => (
       minWidth="100%"
       rounded="md"
     />
+
     <Box p={2} pb={1} grid>
-      <Text
-        fontWeight="bold"
-        textTransform="uppercase"
-        fontSize="sm"
-        letterSpacing="wide"
-        color="teal.600"
-      >
-        Game
-      </Text>
       <Link href={`/game/${id}`}>{name}</Link>
     </Box>
   </Box>

@@ -52,12 +52,15 @@ const Navigation = () => {
         </a>
       </Link>
 
+      <Box flex="auto" />
+
       <ButtonGroup>
         <Link href="/games">
           <Button
             variantColor="blue"
             variant="ghost"
             isActive={pathname === '/games'}
+            mr={2}
           >
             Games
           </Button>
@@ -68,6 +71,7 @@ const Navigation = () => {
             variantColor="blue"
             variant="ghost"
             isActive={pathname === '/orgs'}
+            mr={2}
           >
             Orgs
           </Button>
