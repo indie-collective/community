@@ -34,9 +34,9 @@ app.use(graphqlUploadExpress());
 
 app.use(
   postgraphile(DB_URL, 'indieco', {
-    graphiql: true,
-    watchPg: true,
-    enableCors: true,
+    graphiql: !(DB_USER && DB_PASS),
+    watchPg: !(DB_USER && DB_PASS),
+    enableCors: !(DB_USER && DB_PASS),
     disableQueryLog: true,
     appendPlugins: [
       PostGraphileUploadFieldPlugin,
