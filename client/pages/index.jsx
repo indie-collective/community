@@ -16,13 +16,10 @@ const Home = () => {
     <Box pr={2}>
       <Navigation />
 
-      <Box p={2} mb={5}>
-        <Heading as="h3" size="md" ml={4} mt={3} mb={1}>
-          Games
-        </Heading>
-        {loading ? (
-          <Spinner />
-        ) : (
+      {loading ? (
+        <Spinner />
+      ) : (
+        <Box p={2} mb={5}>
           <Box
             p={2}
             display="grid"
@@ -35,16 +32,7 @@ const Home = () => {
                 <GameCard key={id} id={id} name={name} images={images} />
               ))}
           </Box>
-        )}
-      </Box>
 
-      <Box p={2} mb={5}>
-        <Heading as="h3" size="md" ml={4} mb={1}>
-          Orgs
-        </Heading>
-        {loading ? (
-          <Spinner />
-        ) : (
           <Box
             p={2}
             display="grid"
@@ -63,16 +51,7 @@ const Home = () => {
               />
             ))}
           </Box>
-        )}
-      </Box>
 
-      <Box p={2}>
-        <Heading as="h3" size="md" ml={4} mb={1}>
-          Events
-        </Heading>
-        {loading ? (
-          <Spinner />
-        ) : (
           <Box
             p={2}
             pr={8}
@@ -134,8 +113,8 @@ const Home = () => {
               </Box>
             ))}
           </Box>
-        )}
-      </Box>
+        </Box>
+      )}
     </Box>
   );
 };
