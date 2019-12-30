@@ -1,108 +1,54 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Formik } from 'formik';
+import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
-
 import {
   FormControl,
   FormLabel,
+  Input,
   FormErrorMessage,
-  FormHelperText
-} from "@chakra-ui/core";
+  Button,
+} from '@chakra-ui/core';
 
-
-const signupSchema = yup.object().shape({
-  email: yup.string()
+const validationSchema = yup.object().shape({
+  email: yup
+    .string()
     .email()
     .required(),
-  password: yup.string()
-    .required(),
+  password: yup.string().required(),
 });
 
 const propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
-const SignupForm = ({ onSubmit }) => (
-  <Formik
-    initialValues={{
-      email: undefined,
-      password: undefined,
-    }}
-    validateSchema={signupSchema}
-    onSubmit={(values, { setSubmitting }) => {
-      onSubmit(values);
-      setSubmitting(false);
-    }}
-    render={props => (
-      <form onSubmit={props.handleSubmit}>
-        
-      </form>
-    )}
-  >
-    {({
-      values,
-      errors,
-      touched,
-      handleChange,
-      handleBlur,
-      handleSubmit,
-      isSubmitting,
-    }) => (
-      <form onSubmit={handleSubmit}>
-        <div className="field">
-          <label className="label">Email</label>
-          <div className="control has-icons-left">
-            <input
-              className={`input ${errors.email && touched.email && is-danger}`}
-              type="email"
-              name="email"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.email}
-            />
-            <span className="icon is-small is-left">
-              <i className="fa fa-envelope"></i>
-            </span>
-          </div>
-          {errors.email && touched.email && (
-            <p className="help is-danger">{errors.email}</p>
-          )}
-        </div>
-        
-        <div className="field">
-          <label className="label">Password</label>
-          <div className="control has-icons-left">
-            <input
-              className={`input ${errors.password && touched.password && is-danger}`}
-              type="password"
-              name="password"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.password}
-            />
-            <span className="icon is-small is-left">
-              <i className="fa fa-lock"></i>
-            </span>
-          </div>
-          {errors.password && touched.password && (
-            <p className="help is-danger">{errors.password}</p>
-          )}
-        </div>
-        
-        <div className="control">
-          <button
-            className="button is-primary"
-            type="submit"
-            disabled={isSubmitting}
-          >
-            Sign up
-          </button>
-        </div>
-      </form>
-    )}
-  </Formik>
-);
+const SignupForm = ({ onSubmit }) => {
+  const { handleSubmit, register, errors } = useForm({
+    validationSchema,
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <FormControl mb={5} isInvalid={errors.email} isRequired>
+        <FormLabel htmlFor="email">Email</FormLabel>
+        <Input name="email" ref={register} />
+        <FormErrorMessage>
+          {errors.email && errors.email.message}
+        </FormErrorMessage>
+      </FormControl>
+
+      <FormControl mb={5} isInvalid={errors.password} isRequired>
+        <FormLabel htmlFor="password">Password</FormLabel>
+        <Input name="password" type="password" ref={register} />
+        <FormErrorMessage>
+          {errors.password && errors.password.message}
+        </FormErrorMessage>
+      </FormControl>
+
+      <Button type="submit">Submit</Button>
+    </form>
+  );
+};
 
 SignupForm.propTypes = propTypes;
 

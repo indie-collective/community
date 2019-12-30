@@ -18,7 +18,9 @@
     "next": "^9.0.5",
     "node-fetch": "^2.6.0",
     "react": "^16.9.0",
-    "react-dom": "^16.9.0"
+    "react-dom": "^16.9.0",
+    "react-hook-form": "^4.3.0",
+    "yup": "^0.28.0"
   },
   "devDependencies": {
     "file-loader": "^4.2.0",
