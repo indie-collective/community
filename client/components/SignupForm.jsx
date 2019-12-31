@@ -11,6 +11,12 @@ import {
 } from '@chakra-ui/core';
 
 const validationSchema = yup.object().shape({
+  firstName: yup
+    .string()
+    .required(),
+  lastName: yup
+    .string()
+    .required(),
   email: yup
     .string()
     .email()
@@ -33,6 +39,22 @@ const SignupForm = ({ onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      <FormControl mb={5} isInvalid={errors.firstName} isRequired>
+        <FormLabel htmlFor="firstName">First name</FormLabel>
+        <Input name="firstName" ref={register} />
+        <FormErrorMessage>
+          {errors.firstName && errors.firstName.message}
+        </FormErrorMessage>
+      </FormControl>
+
+      <FormControl mb={5} isInvalid={errors.lastName} isRequired>
+        <FormLabel htmlFor="lastName">Last name</FormLabel>
+        <Input name="lastName" ref={register} />
+        <FormErrorMessage>
+          {errors.lastName && errors.lastName.message}
+        </FormErrorMessage>
+      </FormControl>
+
       <FormControl mb={5} isInvalid={errors.email} isRequired>
         <FormLabel htmlFor="email">Email</FormLabel>
         <Input name="email" ref={register} />
