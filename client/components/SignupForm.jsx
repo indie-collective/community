@@ -16,6 +16,10 @@ const validationSchema = yup.object().shape({
     .email()
     .required(),
   password: yup.string().required(),
+  passwordConfirmation: yup
+    .string()
+    .required()
+    .oneOf([yup.ref('password'), null], 'Passwords must match'),
 });
 
 const propTypes = {
@@ -45,7 +49,17 @@ const SignupForm = ({ onSubmit }) => {
         </FormErrorMessage>
       </FormControl>
 
-      <Button type="submit">Submit</Button>
+      <FormControl mb={5} isInvalid={errors.passwordConfirmation} isRequired>
+        <FormLabel htmlFor="password2">Password confirmation</FormLabel>
+        <Input name="passwordConfirmation" type="password" ref={register} />
+        <FormErrorMessage>
+          {errors.passwordConfirmation && errors.passwordConfirmation.message}
+        </FormErrorMessage>
+      </FormControl>
+
+      <Button type="submit" mt={3} variantColor="green">
+        Sign Up
+      </Button>
     </form>
   );
 };
