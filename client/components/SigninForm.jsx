@@ -19,10 +19,11 @@ const validationSchema = yup.object().shape({
 });
 
 const propTypes = {
+  loading: PropTypes.bool.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
 
-const SigninForm = ({ onSubmit }) => {
+const SigninForm = ({ loading, onSubmit }) => {
   const { handleSubmit, register, errors } = useForm({
     validationSchema,
   });
@@ -45,7 +46,13 @@ const SigninForm = ({ onSubmit }) => {
         </FormErrorMessage>
       </FormControl>
 
-      <Button type="submit" mt={3} variantColor="green">
+      <Button
+        type="submit"
+        mt={3}
+        variantColor="green"
+        isDisabled={loading}
+        isLoading={loading}
+      >
         Sign In
       </Button>
     </form>

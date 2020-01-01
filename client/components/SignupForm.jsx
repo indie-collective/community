@@ -11,12 +11,8 @@ import {
 } from '@chakra-ui/core';
 
 const validationSchema = yup.object().shape({
-  firstName: yup
-    .string()
-    .required(),
-  lastName: yup
-    .string()
-    .required(),
+  firstName: yup.string().required(),
+  lastName: yup.string().required(),
   email: yup
     .string()
     .email()
@@ -29,10 +25,11 @@ const validationSchema = yup.object().shape({
 });
 
 const propTypes = {
+  loading: PropTypes.bool.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
 
-const SignupForm = ({ onSubmit }) => {
+const SignupForm = ({ loading, onSubmit }) => {
   const { handleSubmit, register, errors } = useForm({
     validationSchema,
   });
@@ -79,7 +76,13 @@ const SignupForm = ({ onSubmit }) => {
         </FormErrorMessage>
       </FormControl>
 
-      <Button type="submit" mt={3} variantColor="green">
+      <Button
+        type="submit"
+        mt={3}
+        variantColor="green"
+        isDisabled={loading}
+        isLoading={loading}
+      >
         Sign Up
       </Button>
     </form>
