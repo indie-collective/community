@@ -1,5 +1,13 @@
-import { Box, Flex, Tabs, TabList, Tab } from '@chakra-ui/core';
+import {
+  Box,
+  Flex,
+  Tabs,
+  TabList,
+  Tab,
+  Link,
+} from '@chakra-ui/core';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
 
 import Logo from './Logo';
 
@@ -13,8 +21,12 @@ const Navigation = () => {
   const { pathname, push } = useRouter();
 
   return (
-    <Flex pl={5} pt={5} alignItems="end">
-      <Logo />
+    <Flex pl={5} pr={2} pt={5} alignItems="center">
+      <Link href="/">
+        <NextLink>
+          <Logo />
+        </NextLink>
+      </Link>
 
       <Box flex="auto" />
 
