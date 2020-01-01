@@ -1,6 +1,7 @@
 import { Box, Heading } from '@chakra-ui/core';
 import { gql } from 'apollo-boost';
 import { useMutation } from '@apollo/react-hooks';
+import Router from 'next/router'
 
 import SigninForm from '../components/SigninForm';
 
@@ -13,7 +14,12 @@ const signinMutation = gql`
 `;
 
 export default () => {
-  const [signin, { data, loading }] = useMutation(signinMutation);
+  const [signin, { data, loading, error }] = useMutation(signinMutation);
+
+  if (!loading && !error && data) {
+    localStorage.setItem('token', data.authenticate.jwtToken);
+    Router.push('/');
+  }
 
   return (
     <Box width={500} margin="40px auto">
