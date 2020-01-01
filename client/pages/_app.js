@@ -20,6 +20,16 @@ const graphqlUrl = isProduction
 const client = new ApolloClient({
   uri: graphqlUrl,
   fetch,
+  request: operation => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      operation.setContext({
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+    }
+  },
 });
 
 const Main = props => <Box as="main" mx="auto" mb="3rem" {...props} />;
