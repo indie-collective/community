@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 
 import Logo from './Logo';
+import AvatarButton from './AvatarButton';
 
 const tabs = [
   { label: 'Games', url: '/games' },
@@ -41,6 +42,8 @@ const Navigation = () => {
           ))}
         </TabList>
       </Tabs>
+
+      <AvatarButton />
     </Flex>
   );
 };
