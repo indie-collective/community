@@ -16,7 +16,7 @@ const signinMutation = gql`
 export default () => {
   const [signin, { data, loading, error }] = useMutation(signinMutation);
 
-  if (!loading && !error && data) {
+  if (!loading && !error && data && data.authenticate.jwtToken !== null) {
     localStorage.setItem('token', data.authenticate.jwtToken);
     Router.push('/');
   }
