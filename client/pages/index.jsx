@@ -17,7 +17,14 @@ const Home = () => {
       <Navigation />
 
       {loading ? (
-        <Spinner />
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          height="100%"
+        >
+          <Spinner size="lg" />
+        </Box>
       ) : (
         <Box p={2} mb={5}>
           <Box

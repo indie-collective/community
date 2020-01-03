@@ -58,8 +58,16 @@ export default () => {
   return (
     <div>
       <Navigation />
+  
       {loading ? (
-        <Spinner />
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          height="100%"
+        >
+          <Spinner size="lg" />
+        </Box>
       ) : (
         <Box mt={3} pl={5} pr={5}>
           <motion.div
