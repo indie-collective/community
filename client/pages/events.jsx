@@ -1,37 +1,45 @@
 import { gql } from 'apollo-boost';
+import NextLink from 'next/link';
 import { useQuery } from '@apollo/react-hooks';
-import { Box, Stack, Spinner } from '@chakra-ui/core';
+import { Link, Button, Box, Stack, Spinner, Heading } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 
 import Navigation from '../components/Navigation';
 import EventCard from '../components/EventCard';
+import { useMemo } from 'react';
 
 const eventsQuery = gql`
-  {
-    events(first: 10) {
+  fragment EventSummary on Event {
+    id
+    name
+    about
+    site
+    startsAt
+    endsAt
+    location {
+      id
+      country
+      city
+      latitude
+      longitude
+    }
+    entities {
+      totalCount
+    }
+    games {
+      totalCount
+    }
+  }
+
+  query getEvents($now: Datetime!) {
+    events(filter: {endsAt: {greaterThanOrEqualTo: $now}}, first: 5, orderBy: STARTS_AT_ASC) {
       nodes {
-        id
-        name
-        about
-        site
-        startsAt
-        endsAt
-
-        location {
-          id
-          country
-          city
-          latitude
-          longitude
-        }
-
-        entities {
-          totalCount
-        }
-
-        games {
-          totalCount
-        }
+        ...EventSummary
+      }
+    }
+    pastEvents: events(filter: {endsAt: {lessThan: $now}}, first: 5, orderBy: STARTS_AT_DESC) {
+      nodes {
+        ...EventSummary
       }
     }
   }
@@ -54,7 +62,8 @@ const eventVariants = {
 };
 
 export default () => {
-  const { loading, error, data } = useQuery(eventsQuery);
+  const now = useMemo(() => new Date(), []);
+  const {data, error, loading} = useQuery(eventsQuery, {variables: {now}});
 
   return (
     <div>
@@ -70,35 +79,73 @@ export default () => {
           <Spinner size="lg" />
         </Box>
       ) : (
-        <Box mt={3} pl={5} pr={5}>
-          <motion.div
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-          >
-            <Stack spacing={3}>
-              {data.events.nodes.map(
-                ({ id, name, games, entities, location, startsAt, endsAt }) => (
+        <>
+          <Heading>Upcoming events</Heading>
+          <Box mt={3} pl={5} pr={5}>
+            <motion.div
+              initial="initial"
+              animate="enter"
+              exit="exit"
+              variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+            >
+              <Stack spacing={3}>
+                {data.events.nodes.length > 0 ? data.events.nodes.map(
+                  ({ id, name, games, entities, location, startsAt, endsAt }) => (
+                    <Box>
+                      <motion.div variants={eventVariants}>
+                        <EventCard
+                          key={id}
+                          id={id}
+                          name={name}
+                          startsAt={startsAt}
+                          endsAt={endsAt}
+                          games={games}
+                          entities={entities}
+                          location={location}
+                        />
+                      </motion.div>
+                    </Box>
+                  )
+                ) : (
                   <Box>
-                    <motion.div variants={eventVariants}>
-                      <EventCard
-                        key={id}
-                        id={id}
-                        name={name}
-                        startsAt={startsAt}
-                        endsAt={endsAt}
-                        games={games}
-                        entities={entities}
-                        location={location}
-                      />
-                    </motion.div>
+                    There are no events currently planned. <Link as={NextLink} href="/events/add">Add one ?</Link>
                   </Box>
-                )
-              )}
-            </Stack>
-          </motion.div>
-        </Box>
+                )}
+              </Stack>
+            </motion.div>
+          </Box>
+
+          <Heading>Past events</Heading>
+          <Box mt={3} pl={5} pr={5}>
+            <motion.div
+              initial="initial"
+              animate="enter"
+              exit="exit"
+              variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+            >
+              <Stack spacing={3}>
+                {data.pastEvents.nodes.map(
+                  ({ id, name, games, entities, location, startsAt, endsAt }) => (
+                    <Box>
+                      <motion.div variants={eventVariants}>
+                        <EventCard
+                          key={id}
+                          id={id}
+                          name={name}
+                          startsAt={startsAt}
+                          endsAt={endsAt}
+                          games={games}
+                          entities={entities}
+                          location={location}
+                        />
+                      </motion.div>
+                    </Box>
+                  )
+                )}
+              </Stack>
+            </motion.div>
+          </Box>
+        </>
       )}
     </div>
   );
