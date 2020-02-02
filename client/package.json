@@ -17,6 +17,7 @@
     "graphql": "^14.5.6",
     "next": "^9.0.5",
     "node-fetch": "^2.6.0",
+    "places.js": "^1.17.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-hook-form": "^4.3.0",
