@@ -16,7 +16,9 @@ const GameCard = ({ id, images, name }) => (
     />
 
     <Box p={2} pb={1} grid>
-      <Link href={`/game/${id}`}>{name}</Link>
+      <Link href="/game/[id]" as={`/game/${id}`}>
+        <a>{name}</a>
+      </Link>
     </Box>
   </Box>
 );

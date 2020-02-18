@@ -6,7 +6,9 @@ import { format } from 'date-fns';
 const EventCard = ({ id, name, games, entities, startsAt }) => (
   <Box border="1px solid silver" rounded={5} padding={2}>
     <Box mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-      <Link href={`/event/${id}`}>{name}</Link>
+      <Link href="/event/[id]" as={`/event/${id}`}>
+        <a>{name}</a>
+      </Link>
     </Box>
 
     <Box

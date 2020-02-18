@@ -1,7 +1,8 @@
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { Box, Spinner, Heading, Stack } from '@chakra-ui/core';
 
+import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
@@ -126,4 +127,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default withApollo()(Home);

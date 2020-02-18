@@ -1,9 +1,9 @@
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
-import { useRouter } from 'next/router';
 import { Spinner, Box, Heading, Text } from '@chakra-ui/core';
 import Error from 'next/error';
 
+import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
 import OrgCard from '../../components/OrgCard';
 
@@ -49,10 +49,7 @@ const gameQuery = gql`
 
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-const Game = () => {
-  const router = useRouter();
-  const { id } = router.query;
-
+const Game = ({id}) => {
   const validId = uuidRegex.test(id);
 
   const { loading, error, data } = useQuery(gameQuery, {
@@ -96,6 +93,7 @@ const Game = () => {
         >
           {entities.nodes.map(({ id, name, type, people, games }) => (
             <OrgCard
+              key={id}
               id={id}
               name={name}
               type={type}
@@ -109,4 +107,12 @@ const Game = () => {
   );
 };
 
-export default Game;
+Game.getInitialProps = async (context) => {
+  const { id } = context.query;
+
+  return {
+    id,
+  };
+};
+
+export default withApollo({ssr: true})(Game);

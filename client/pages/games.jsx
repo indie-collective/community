@@ -1,8 +1,9 @@
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { Box, Spinner, Stack } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 
+import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 
@@ -42,7 +43,7 @@ const gameVariants = {
   },
 };
 
-export default () => {
+const Games = () => {
   const { loading, error, data } = useQuery(gamesQuery);
 
   return (
@@ -88,3 +89,5 @@ export default () => {
     </div>
   );
 };
+
+export default withApollo({ssr: true})(Games);

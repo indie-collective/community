@@ -1,8 +1,9 @@
 import { Box, Heading } from '@chakra-ui/core';
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 import { useMutation } from '@apollo/react-hooks';
 import { useState } from 'react';
 
+import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
 import EventForm from '../../components/EventForm';
 import { useRouter } from 'next/router';
@@ -55,7 +56,7 @@ const createLocationMutation = gql`
 
 const locationKey = (country, region, city) => `${country}:${region}:${city}`;
 
-export default () => {
+const CreateEvent = () => {
   const router = useRouter();
 
   const [createLocation] = useMutation(createLocationMutation);
@@ -127,3 +128,5 @@ export default () => {
     </div>
   );
 };
+
+export default withApollo()(CreateEvent);

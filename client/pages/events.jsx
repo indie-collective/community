@@ -1,9 +1,10 @@
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 import NextLink from 'next/link';
 import { useQuery } from '@apollo/react-hooks';
 import { Button, Box, Stack, Spinner, Heading, Text } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 
+import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import EventCard from '../components/EventCard';
 import { useMemo } from 'react';
@@ -69,7 +70,7 @@ const eventVariants = {
   },
 };
 
-export default () => {
+const Events = () => {
   const now = useMemo(() => new Date(), []);
   const { data, error, loading } = useQuery(eventsQuery, {
     variables: { now },
@@ -188,3 +189,5 @@ export default () => {
     </div>
   );
 };
+
+export default withApollo()(Events);

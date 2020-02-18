@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { Box, Stack, Spinner } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 
+import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import OrgCard from '../components/OrgCard';
 
@@ -52,7 +53,7 @@ const orgVariants = {
   },
 };
 
-export default () => {
+const Orgs = () => {
   const { loading, error, data } = useQuery(entitiesQuery);
 
   return (
@@ -97,3 +98,5 @@ export default () => {
     </div>
   );
 };
+
+export default withApollo({ssr: true})(Orgs);

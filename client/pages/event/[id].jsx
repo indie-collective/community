@@ -1,9 +1,9 @@
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
-import { useRouter } from 'next/router';
 import { Box, Heading, Text, Spinner } from '@chakra-ui/core';
 import Error from 'next/error';
 
+import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
 import GameCard from '../../components/GameCard';
 import OrgCard from '../../components/OrgCard';
@@ -52,10 +52,7 @@ const eventQuery = gql`
 
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-const Event = () => {
-  const router = useRouter();
-  const { id } = router.query;
-
+const Event = ({id}) => {
   const validId = uuidRegex.test(id);
 
   const { loading, error, data } = useQuery(eventQuery, {
@@ -131,4 +128,12 @@ const Event = () => {
   );
 };
 
-export default Event;
+Event.getInitialProps = async (context) => {
+  const { id } = context.query;
+
+  return {
+    id,
+  };
+};
+
+export default withApollo({ssr: true})(Event);

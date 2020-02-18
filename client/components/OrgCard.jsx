@@ -9,7 +9,9 @@ const OrgCard = ({ id, type, name, people, games }) => (
     </Badge>
 
     <Box fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-      <Link href={`/org/${id}`}>{name}</Link>
+      <Link href="/org/[id]" as={`/org/${id}`}>
+        <a>{name}</a>
+      </Link>
     </Box>
 
     <Box

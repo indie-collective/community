@@ -1,6 +1,6 @@
 import { IconButton, Avatar } from '@chakra-ui/core';
 import { useQuery } from '@apollo/react-hooks';
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 import NextLink from 'next/link';
 
 const currentPerson = gql`

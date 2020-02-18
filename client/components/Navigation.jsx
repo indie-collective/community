@@ -4,10 +4,9 @@ import {
   Tabs,
   TabList,
   Tab,
-  Link,
 } from '@chakra-ui/core';
 import { useRouter } from 'next/router';
-import NextLink from 'next/link';
+import Link from 'next/link';
 
 import Logo from './Logo';
 import AvatarButton from './AvatarButton';
@@ -24,9 +23,7 @@ const Navigation = () => {
   return (
     <Flex pl={5} pr={2} pt={5} alignItems="center">
       <Link href="/">
-        <NextLink>
-          <Logo />
-        </NextLink>
+        <a><Logo /></a>
       </Link>
 
       <Box flex="auto" />
@@ -38,7 +35,7 @@ const Navigation = () => {
       >
         <TabList>
           {tabs.map(tab => (
-            <Tab key={tab.index}>{tab.label}</Tab>
+            <Tab key={tab.url}>{tab.label}</Tab>
           ))}
         </TabList>
       </Tabs>
