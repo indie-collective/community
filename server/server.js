@@ -4,6 +4,7 @@ const express = require('express');
 const { postgraphile } = require('postgraphile');
 const { graphqlUploadExpress } = require('graphql-upload');
 const jimp = require('jimp');
+const expressPlayground = require('graphql-playground-middleware-express').default
 
 const PostGraphileUploadFieldPlugin = require('postgraphile-plugin-upload-field');
 const PgManyToManyPlugin = require('@graphile-contrib/pg-many-to-many');
@@ -58,6 +59,10 @@ app.use(
     },
   })
 );
+
+if (!(DB_USER && DB_PASS)) {
+  app.get('/playground', expressPlayground({ endpoint: '/graphql' }))
+}
 
 app.listen(4000, () => {
   console.log('Server listening on port 4000');

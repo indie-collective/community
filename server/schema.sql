@@ -445,7 +445,7 @@ comment on function indieco.authenticate(text, text) is 'Creates a JWT token tha
 create function indieco.current_person() returns indieco.person as $$
   select *
   from indieco.person
-  where id = current_setting('jwt.claims.person_id', true)::uuid
+  where id = nullif(current_setting('jwt.claims.person_id', true), '')::uuid
 $$ language sql stable;
 
 comment on function indieco.current_person() is 'Gets the person who was identified by our JWT.';
