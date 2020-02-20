@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { useMutation } from '@apollo/react-hooks';
 import { Box, Heading, Text, Button, Link as ChakraLink } from '@chakra-ui/core';
 import Link from 'next/link';
+import Head from 'next/head';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
@@ -37,6 +38,10 @@ const SignUp = () => {
   if (!loading && !error && data) {
     return (
       <Box>
+        <Head>
+          <title>Sign Up</title>
+        </Head>
+
         <Navigation />
 
         <Box maxWidth={500} margin="40px auto">

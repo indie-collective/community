@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import { useMutation } from '@apollo/react-hooks';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import Head from 'next/head';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
@@ -22,6 +23,10 @@ const SignIn = () => {
 
   return (
     <Box>
+      <Head>
+        <title>Sign In</title>
+      </Head>
+
       <Navigation />
 
       <Box width={500} margin="40px auto">

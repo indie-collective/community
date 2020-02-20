@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { Box, Text, Heading, Spinner } from '@chakra-ui/core';
 import Error from 'next/error';
+import Head from 'next/head';
 
 import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
@@ -63,6 +64,10 @@ const Org = ({id}) => {
 
   return (
     <div>
+      <Head>
+        <title>{name} - Organizations</title>
+      </Head>
+
       <Navigation />
 
       <Box mb={5} pl={5} pr={5}>

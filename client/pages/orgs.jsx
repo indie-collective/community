@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { Box, Stack, Spinner } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
+import Head from 'next/head';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
@@ -58,6 +59,10 @@ const Orgs = () => {
 
   return (
     <div>
+      <Head>
+        <title>Organizations</title>
+      </Head>
+
       <Navigation />
   
       {loading ? (

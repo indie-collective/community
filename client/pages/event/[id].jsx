@@ -87,6 +87,10 @@ const Event = ({id}) => {
 
   return (
     <div>
+      <Head>
+        <title>{name} - Events</title>
+      </Head>
+
       <Navigation />
 
       <Grid templateColumns="2fr 1fr" gap={6} mt={10}>

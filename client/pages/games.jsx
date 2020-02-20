@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { Box, Spinner, Stack } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
+import Head from 'next/head';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
@@ -48,7 +49,12 @@ const Games = () => {
 
   return (
     <div>
+      <Head>
+        <title>Games</title>
+      </Head>
+
       <Navigation />
+
       {loading ? (
         <Box
           display="flex"

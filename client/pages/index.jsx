@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { Box, Spinner, Heading, Stack } from '@chakra-ui/core';
+import Head from 'next/head';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
@@ -15,6 +16,10 @@ const Home = () => {
 
   return (
     <Box pr={2}>
+      <Head>
+        <title>Indie Collective - Community powered video game data</title>
+      </Head>
+
       <Navigation />
 
       {loading ? (

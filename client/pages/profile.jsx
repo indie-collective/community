@@ -3,6 +3,7 @@ import { useQuery, useApolloClient } from '@apollo/react-hooks';
 import { Avatar, Box, Heading, Text, Spinner, Button, Stack } from '@chakra-ui/core';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import Head from 'next/head';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
@@ -42,6 +43,10 @@ const Profile = ({id}) => {
 
   return (
     <div>
+      <Head>
+        <title>Profile</title>
+      </Head>
+
       <Navigation />
 
       <Box width={500} margin="40px auto">
@@ -66,9 +71,9 @@ const Profile = ({id}) => {
         </Stack>
 
         <Stack align="center">
-          <Button variant="link" onClick={e => {
-            localStorage.clear();
-            apolloClient.resetStore();
+          <Button variant="link" onClick={async e => {
+            document.cookies = '';
+            await apolloClient.resetStore();
 
             push('/');
           }}>

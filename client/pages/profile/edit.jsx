@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import { Box, Heading, Text, Spinner, Stack } from '@chakra-ui/core';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 
 import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
@@ -72,6 +73,10 @@ const Profile = ({}) => {
 
   return (
     <div>
+      <Head>
+        <title>Edit profile</title>
+      </Head>
+
       <Navigation />
 
       <Box width={500} margin="40px auto">

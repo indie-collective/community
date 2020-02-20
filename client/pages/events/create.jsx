@@ -2,11 +2,12 @@ import { Box, Heading } from '@chakra-ui/core';
 import gql from 'graphql-tag';
 import { useMutation } from '@apollo/react-hooks';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
+import Head from 'next/head';
 
 import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
 import EventForm from '../../components/EventForm';
-import { useRouter } from 'next/router';
 
 const createEventMutation = gql`
   mutation createEvent(
@@ -119,6 +120,10 @@ const CreateEvent = () => {
 
   return (
     <div>
+      <Head>
+        <title>Create a new event</title>
+      </Head>
+
       <Navigation />
 
       <Box maxW="32rem">

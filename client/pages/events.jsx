@@ -3,6 +3,7 @@ import NextLink from 'next/link';
 import { useQuery } from '@apollo/react-hooks';
 import { Button, Box, Stack, Spinner, Heading, Text } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
+import Head from 'next/head';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
@@ -78,6 +79,10 @@ const Events = () => {
 
   return (
     <div>
+      <Head>
+        <title>Events</title>
+      </Head>
+
       <Navigation />
 
       {loading ? (

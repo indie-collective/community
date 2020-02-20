@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { Spinner, Box, Heading, Text } from '@chakra-ui/core';
 import Error from 'next/error';
+import Head from 'next/head';
 
 import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
@@ -69,6 +70,10 @@ const Game = ({id}) => {
 
   return (
     <div>
+      <Head>
+        <title>{name} - Games</title>
+      </Head>
+
       <Navigation />
 
       <Box mb={5} pl={5} pr={5}>
