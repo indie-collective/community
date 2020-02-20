@@ -112,7 +112,8 @@ create table indieco.event (
   id               uuid primary key default uuid_generate_v4(),
   name             text not null check (char_length(name) < 80),
   about            text,
-  location_id      uuid not null references indieco.location(id),
+  cover_id         uuid references indieco.image(id) on delete cascade,
+  location_id      uuid references indieco.location(id),
   site             text check (char_length(name) < 512),
   starts_at        timestamptz not null,
   ends_at          timestamptz not null,
@@ -123,6 +124,7 @@ comment on table indieco.event is 'An event.';
 comment on column indieco.event.id is 'The primary unique identifier for the event.';
 comment on column indieco.event.name is 'The event name.';
 comment on column indieco.event.about is 'A short description of the event.';
+comment on column indieco.event.cover_id is 'The image cover of the event.';
 comment on column indieco.event.location_id is 'The location of the event.';
 comment on column indieco.event.site is 'The website of the event.';
 comment on column indieco.event.starts_at is 'The start time of the event.';

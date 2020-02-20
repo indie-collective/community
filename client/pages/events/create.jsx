@@ -1,27 +1,29 @@
-import { Box, Heading } from '@chakra-ui/core';
+import { Box, Heading, Stack } from '@chakra-ui/core';
 import gql from 'graphql-tag';
 import { useMutation } from '@apollo/react-hooks';
-import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
 import { withApollo } from '../../lib/apollo';
+import uploadImageMutation from '../../gql/sendImage.gql';
 import Navigation from '../../components/Navigation';
 import EventForm from '../../components/EventForm';
 
 const createEventMutation = gql`
   mutation createEvent(
     $name: String!
-    $about: String
-    $locationId: UUID!
     $startsAt: Datetime!
     $endsAt: Datetime!
+    $coverId: UUID
+    $about: String
+    $locationId: UUID
   ) {
     createEvent(
       input: {
         event: {
           name: $name
           about: $about
+          coverId: $coverId
           locationId: $locationId
           startsAt: $startsAt
           endsAt: $endsAt
@@ -55,67 +57,63 @@ const createLocationMutation = gql`
   }
 `;
 
-const locationKey = (country, region, city) => `${country}:${region}:${city}`;
-
 const CreateEvent = () => {
-  const router = useRouter();
+  const { push } = useRouter();
 
-  const [createLocation] = useMutation(createLocationMutation);
-  const [createEvent] = useMutation(createEventMutation);
+  const [uploadImage] = useMutation(gql(uploadImageMutation));
+  const [createLocation, { loading: loadingLocation }] = useMutation(
+    createLocationMutation
+  );
+  const [createEvent, { loading }] = useMutation(createEventMutation);
 
-  const [locationId, setLocationId] = useState();
-  const [currentLocationKey, setLocationKey] = useState();
-
-  function handleFormSubmit({
+  async function handleFormSubmit({
     name,
     about,
     start,
     end,
+    cover: coverFiles,
     country,
     region,
     city,
   }) {
-    console.log(name, about, start, end, country, region, city);
-    if (
-      !locationId ||
-      currentLocationKey !== locationKey(country, region, city)
-    ) {
-      createLocation({
+    let coverId;
+
+    if (coverFiles[0]) {
+      const response = await uploadImage({
+        variables: {
+          file: coverFiles[0],
+        },
+      });
+
+      coverId = response.data.createImage.image.id;
+    }
+
+    let locationId;
+
+    if (!locationId && country && region && city) {
+      const response = await createLocation({
         variables: {
           country,
           region,
           city,
         },
-      })
-        .then(response => {
-          setLocationId(response.data.createLocation.location.id);
-          setLocationKey(locationKey(country, region, city));
-
-          createEvent({
-            variables: {
-              locationId: response.data.createLocation.location.id,
-              name,
-              about,
-              startsAt: start,
-              endsAt: end,
-            },
-          }).then(eventResponse => {
-            router.push(`/event/${eventResponse.data.createEvent.event.id}`);
-          });
-        });
-    } else {
-      createEvent({
-        variables: {
-          name,
-          about,
-          locationId,
-          startsAt: start,
-          endsAt: end,
-        },
-      }).then(eventResponse => {
-        router.push(`/event/${eventResponse.data.createEvent.event.id}`);
       });
+
+      locationId = response.data.createLocation.location.id;
     }
+
+    const response = await createEvent({
+      variables: {
+        name,
+        startsAt: start,
+        endsAt: end,
+        coverId,
+        about,
+        locationId,
+      },
+    });
+
+    push(`/event/${response.data.createEvent.event.id}`);
   }
 
   return (
@@ -126,9 +124,21 @@ const CreateEvent = () => {
 
       <Navigation />
 
-      <Box maxW="32rem">
-        <Heading mb={4}>Create event</Heading>
-        <EventForm onSubmit={handleFormSubmit} />
+      <Box width={500} margin="40px auto">
+        <Heading mb={5}>Create event</Heading>
+
+        <Stack
+          border="1px solid #eee"
+          mb={10}
+          p={3}
+          borderRadius={5}
+          align="stretch"
+        >
+          <EventForm
+            onSubmit={handleFormSubmit}
+            loading={loading || loadingLocation}
+          />
+        </Stack>
       </Box>
     </div>
   );
