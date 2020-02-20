@@ -81,7 +81,7 @@ const Profile = ({id}) => {
 };
 
 Profile.getInitialProps = async (ctx) => {
-  const {currentPerson} = await ctx.apolloClient.query({
+  const {data} = await ctx.apolloClient.query({
     query: gql`
       query isLoggedIn {
         currentPerson {
@@ -91,7 +91,7 @@ Profile.getInitialProps = async (ctx) => {
     `,
   });
 
-  if (!currentPerson && ctx.res) {
+  if (!data.currentPerson && ctx.res) {
     ctx.res.writeHead(302, { Location: '/signin' })
     ctx.res.end()
   }

@@ -6,6 +6,7 @@ import Link from 'next/link';
 const currentPerson = gql`
   {
     currentPerson {
+      id
       firstName
       lastName
       fullName

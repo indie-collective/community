@@ -16,19 +16,23 @@ export default function createApolloClient(initialState, ctx) {
   // use it to extract auth headers (ctx.req) or similar.
 
   const request = async (operation) => {
-    let authorization;
+    let cookies;
 
-    if (ctx) {
-      authorization = ctx.req.authorization;
+    // JWT is in cookie for SSR
+    if (ctx && ctx.req.headers.cookie) {
+      cookies = ctx.req.headers.cookie;
     }
-    else if (localStorage.getItem('token')) {
-      authorization = `Bearer ${localStorage.getItem('token')}`;
+    else if (typeof window !== 'undefined') {
+      cookies = document.cookie;
     }
 
-    if (authorization) {
+    if (/token=([^;]+)/.test(cookies)) {
+      // TODO: probably not so secure
+      const [, token] = cookies.match(/token=([^;]+)/);
+
       operation.setContext({
         headers: {
-          authorization,
+          authorization: `Bearer ${token}`,
         },
       });
     }
