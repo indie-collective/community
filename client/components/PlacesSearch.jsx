@@ -1,41 +1,46 @@
-import React, { useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
-
-const Places = typeof window !== 'undefined' && require('places.js');
+import React from 'react';
+import AlgoliaPlaces from './AlgoliaPlaces';
+import { Input } from '@chakra-ui/core';
 
 const propTypes = {
-  onSubmit: PropTypes.func,
+  ...AlgoliaPlaces.propTypes,
+  options: {
+    ...AlgoliaPlaces.propTypes.options,
+    appId: undefined,
+    apiKey: undefined,
+  },
 };
 
 const defaultProps = {
-  onSubmit() {},
+  ...AlgoliaPlaces.defaultProps,
+  placeholder: "Write an address here",
 };
 
-const CityInput = ({ onSubmit }) => {
-  const input = useRef();
-
-  useEffect(() => {
-    const places = Places({
-      container: input.current,
-      options: {
-        type: 'city',
-      },
-    });
-
-    places.on('change', console.log);
-
-    console.log(places);
-  }, []);
+const PlacesSearch = ({ options, value, ...rest }) => {
 
   return (
-    <div>
-      <input type="text" aria-label="City" ref={input} />
-    </div>
+    <>
+      <style jsx global>{`
+        /* sounds like the reset file makes all SVG block, messing with Algolia's style */
+        .ap-suggestion svg, .ap-footer svg {
+          display: inline;
+        }
+      `}</style>
+      <AlgoliaPlaces
+        as={Input}
+        options={{
+          appId: 'pl24HLO3LZ8C',
+          apiKey: 'd578bc1dce14bf17d571df4e5b6a5a03',
+          language: 'en',
+          ...options,
+        }}
+        {...rest}
+      />
+    </>
   );
 };
 
-CityInput.propTypes = propTypes;
-CityInput.defaultProps = defaultProps;
+PlacesSearch.propTypes = propTypes;
+PlacesSearch.defaultProps = defaultProps;
 
-export default CityInput;
-// export default React.memo(CityInput, () => false);
+export default PlacesSearch;

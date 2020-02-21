@@ -11,7 +11,7 @@ query events {
       
       location {
         id
-        country
+        countryCode
         city
         latitude
         longitude

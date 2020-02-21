@@ -20,7 +20,7 @@ const eventsQuery = gql`
     endsAt
     location {
       id
-      country
+      countryCode
       city
       latitude
       longitude

@@ -43,15 +43,33 @@ const createEventMutation = gql`
 `;
 
 const createLocationMutation = gql`
-  mutation createLocation($country: String!, $region: String!, $city: String!) {
+  mutation createLocation(
+    $street: String
+    $city: String!
+    $region: String!
+    $countryCode: String!
+    $latitude: Float!
+    $longitude: Float!
+  ) {
     createLocation(
-      input: { location: { country: $country, region: $region, city: $city } }
+      input: {
+        location: {
+          street: $street
+          city: $city
+          region: $region
+          countryCode: $countryCode
+          latitude: $latitude
+          longitude: $longitude
+        }
+      }
     ) {
       location {
         id
-        country
+        countryCode
         region
         city
+        latitude
+        longitude
       }
     }
   }
@@ -71,10 +89,8 @@ const CreateEvent = () => {
     about,
     start,
     end,
+    location,
     cover: coverFiles,
-    country,
-    region,
-    city,
   }) {
     let coverId;
 
@@ -90,12 +106,27 @@ const CreateEvent = () => {
 
     let locationId;
 
-    if (!locationId && country && region && city) {
+    if (location) {
+      let variables;
+
+      if (location.type === 'city') {
+        variables = {
+          city: location.name,
+        };
+      } else {
+        variables = {
+          street: location.name,
+          city: location.city,
+        };
+      }
+
       const response = await createLocation({
         variables: {
-          country,
-          region,
-          city,
+          ...variables,
+          region: location.administrative,
+          countryCode: location.countryCode.toUpperCase(),
+          latitude: location.latlng.lat,
+          longitude: location.latlng.lng,
         },
       });
 

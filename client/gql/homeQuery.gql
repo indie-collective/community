@@ -39,7 +39,7 @@
         totalCount
       }
       location {
-        country
+        countryCode
         city
       }
     }

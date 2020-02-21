@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { useState } from 'react';
 import {
   AspectRatioBox,
   Image,
@@ -27,7 +28,6 @@ import Navigation from '../../components/Navigation';
 import GameCard from '../../components/GameCard';
 import OrgCard from '../../components/OrgCard';
 import EventCard from '../../components/EventCard';
-import { useState } from 'react';
 
 const eventQuery = gql`
   query event($id: UUID!) {
@@ -44,8 +44,10 @@ const eventQuery = gql`
 
       location {
         id
-        country
+        street
         city
+        region
+        countryCode
         latitude
         longitude
       }
@@ -142,7 +144,9 @@ const Event = ({ id }) => {
                 background="#ff0000aa"
                 color="white"
               >
-                {new Date().toLocaleString(undefined, { month: 'short' })}
+                {new Date(startsAt).toLocaleString(undefined, {
+                  month: 'short',
+                })}
               </Box>
               <Text
                 fontWeight="bold"
@@ -150,7 +154,9 @@ const Event = ({ id }) => {
                 height="60px"
                 lineHeight={1.4}
               >
-                {new Date(startsAt).getDay()}
+                {new Date(startsAt).toLocaleString(undefined, {
+                  day: 'numeric',
+                })}
               </Text>
             </Box>
           </Box>
@@ -181,7 +187,12 @@ const Event = ({ id }) => {
                 )}
               </Text>
               <Heading>{name}</Heading>
-              <Text>11 rue du Manoir de Sévigné, Rennes, France</Text>
+              {location && (
+                <Text>
+                  {location.street}, {location.city}, {location.region},{' '}
+                  {location.countryCode}
+                </Text>
+              )}
 
               <Button
                 gridColumn="2 / 3"

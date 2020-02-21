@@ -38,17 +38,20 @@ comment on column indieco.person.created_at is 'The time this person was created
 
 create table indieco.location (
   id               uuid primary key default uuid_generate_v4(),
-  country          text not null check (char_length(country) < 80),
-  region           text not null check (char_length(region) < 80),
+  street           text check (char_length(country) < 80),
   city             text not null check (char_length(city) < 80),
+  region           text not null check (char_length(region) < 80),
+  country_code      char(2) not null check (upper(country_code) = country_code),
   latitude         float,
   longitude        float
 );
 
 comment on table indieco.location is 'A location.';
 comment on column indieco.location.id is 'The primary unique identifier for the location.';
-comment on column indieco.location.country is 'The location country.';
+comment on column indieco.location.street is 'The location.';
 comment on column indieco.location.city is 'The location city.';
+comment on column indieco.location.region is 'The location region.';
+comment on column indieco.location.country_code is 'The location country ISO code.';
 comment on column indieco.location.latitude is 'The location latitude.';
 comment on column indieco.location.longitude is 'The location longitude.';
 
