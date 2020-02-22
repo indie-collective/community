@@ -420,7 +420,7 @@ create role indieco_anonymous;
 create role indieco_person;
 -- grant indieco_person to indieco_postgraphile;
 
-create type indieco_private.jwt_token as (
+create type indieco.jwt_token as (
   role text,
   exp integer,
   person_id uuid,
@@ -431,14 +431,14 @@ create type indieco_private.jwt_token as (
 create function indieco.authenticate(
   email text,
   password text
-) returns indieco_private.jwt_token as $$
+) returns indieco.jwt_token as $$
   select (
     'indieco_person',
     extract(epoch from now() + interval '7 days'),
     person_id,
     is_admin,
     email
-  )::indieco_private.jwt_token
+  )::indieco.jwt_token
     from indieco_private.person_account
     where 
       person_account.email = $1 
@@ -522,6 +522,7 @@ grant execute on function indieco.person_full_name(indieco.person) to indieco_an
 grant execute on function indieco.authenticate(text, text) to indieco_anonymous, indieco_person;
 grant execute on function indieco.current_person() to indieco_anonymous, indieco_person;
 grant execute on function indieco.change_password(text, text) to indieco_person;
+grant execute on function uuid_generate_v4() to indieco_person;
 
 grant execute on function indieco.register_person(text, text, text, text) to indieco_anonymous;
 

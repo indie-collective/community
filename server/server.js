@@ -46,7 +46,8 @@ app.use(
       ConnectionFilterPlugin,
     ],
     jwtSecret,
-    jwtPgTypeIdentifier: 'indieco_private.jwt_token',
+    jwtPgTypeIdentifier: 'indieco.jwt_token',
+    pgDefaultRole: 'indieco_anonymous',
     graphileBuildOptions: {
       uploadFieldDefinitions: [
         {
