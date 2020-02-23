@@ -2,7 +2,7 @@ import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloLink, Observable } from 'apollo-link';
 import { onError } from 'apollo-link-error';
-import { HttpLink } from 'apollo-link-http';
+import { createUploadLink } from 'apollo-upload-client';
 import fetch from 'isomorphic-unfetch'
 
 const isProduction = process && process.env.NODE_ENV === 'production';
@@ -71,7 +71,7 @@ export default function createApolloClient(initialState, ctx) {
         if (networkError) console.log(`[Network error]: ${networkError}`);
       }),
       requestLink,
-      new HttpLink({
+      createUploadLink({
         uri: graphqlUrl,
         credentials: 'same-origin',
         fetch,
