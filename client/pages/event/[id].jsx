@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useState } from 'react';
 import {
   AspectRatioBox,
@@ -12,10 +12,6 @@ import {
   Text,
   Spinner,
   Stack,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
   AvatarGroup,
   Avatar,
   Button,
@@ -162,7 +158,7 @@ const Event = ({ id }) => {
           </Box>
 
           <Box mb={5} border="1px solid #eee" borderRadius="0 0 5px 5px">
-            <Grid gridTemplateColumns="1fr 150px" padding={2}>
+            <Grid gridTemplateColumns="1fr 200px" padding={2}>
               <Text
                 textTransform="uppercase"
                 as="time"
@@ -173,38 +169,55 @@ const Event = ({ id }) => {
                   day: 'numeric',
                   month: 'short',
                   hour: 'numeric',
-                })}
-                {new Date(startsAt).getDay() !== new Date(endsAt).getDay() && (
-                  <>
-                    {' '}
-                    -{' '}
-                    {new Date(endsAt).toLocaleString(undefined, {
-                      day: 'numeric',
-                      month: 'short',
-                      hour: 'numeric',
-                    })}
-                  </>
+                  minute: 'numeric',
+                })}{' '}
+                -{' '}
+                {new Date(endsAt).toLocaleString(
+                  undefined,
+                  new Date(startsAt).getDay() === new Date(endsAt).getDay()
+                    ? {
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      }
+                    : {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      }
                 )}
               </Text>
               <Heading>{name}</Heading>
               {location && (
                 <Text>
-                  {location.street}, {location.city}, {location.region},{' '}
-                  {location.countryCode}
+                  {location.street && `${location.street}, `}
+                  {location.city}, {location.region}, {location.countryCode}
                 </Text>
               )}
 
-              <Button
+              <Stack
                 gridColumn="2 / 3"
                 gridRow="1 / 3"
-                variant={isGoing ? 'solid' : 'outline'}
-                variantColor="teal"
-                leftIcon={isGoing && 'check'}
-                onClick={() => setIsGoing(!isGoing)}
-                size="sm"
+                justifySelf="end"
+                isInline
+                spacing={2}
+                shouldWrapChildren
               >
-                {isGoing ? 'Going!' : 'Interested?'}
-              </Button>
+                {<Link href="/event/[id]/edit" as={`/event/${id}/edit`}>
+                  <Button leftIcon="edit" size="sm" variantColor="teal">Edit</Button>
+                </Link>}
+
+                <Button
+                  variant={isGoing ? 'solid' : 'outline'}
+                  variantColor="teal"
+                  leftIcon={isGoing ? 'check' : null}
+                  onClick={() => setIsGoing(!isGoing)}
+                  size="sm"
+                  minWidth={100}
+                >
+                  {isGoing ? 'Going!' : 'Interested?'}
+                </Button>
+              </Stack>
 
               <Box
                 textAlign="right"
@@ -243,10 +256,14 @@ const Event = ({ id }) => {
                 borderRadius="0 0 5px 5px"
               >
                 <Map
-                  defaultWidth="1200px"
-                  defaultHeight="150px"
+                  provider={(x, y, z, dpr) => {
+                    const retina = typeof dpr !== 'undefined' ? dpr >= 2 : (typeof window !== 'undefined' && window.devicePixelRatio >= 2)
+                    return `https://${'abc'.charAt(Math.floor(Math.random() * 3))}.tile.openstreetmap.org/${z}/${x}/${y}${retina ? '@2x' : ''}.png`
+                  }}
+                  defaultWidth={1200}
+                  defaultHeight={150}
                   center={[location.latitude, location.longitude]}
-                  zoom={16}
+                  zoom={location.street ? 16 : 11}
                   mouseEvents={false}
                   touchEvents={false}
                 ></Map>

@@ -7,7 +7,7 @@ const Places = (typeof window !== 'undefined') && require('places.js');
 
 export default class AlgoliaPlaces extends React.Component {
   static propTypes = {
-    as: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+    as: PropTypes.elementType,
     /** Placeholder for input field. */
     placeholder: PropTypes.string,
     /** Reference setter for Places object. */
@@ -93,6 +93,11 @@ export default class AlgoliaPlaces extends React.Component {
 
     this.autocompleteListeners
       .forEach(({ prop, eventName }) => this.autocomplete.on(eventName, this.props[prop]));
+
+    const l = this.props.defaultValue;
+    if (l) {
+      this.autocomplete.setVal(`${l.name ? l.name + ', ' : ''}${l.city}, ${l.administrative}, ${l.countryCode}`);
+    }
   }
 
   shouldComponentUpdate() {

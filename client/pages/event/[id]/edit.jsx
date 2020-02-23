@@ -1,26 +1,54 @@
-import { Box, Heading, Stack } from '@chakra-ui/core';
+import { Box, Heading, Stack, Spinner } from '@chakra-ui/core';
 import gql from 'graphql-tag';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, useQuery } from '@apollo/react-hooks';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
-import { withApollo } from '../../lib/apollo';
-import uploadImageMutation from '../../gql/sendImage.gql';
-import Navigation from '../../components/Navigation';
-import EventForm from '../../components/EventForm';
+import { withApollo } from '../../../lib/apollo';
+import uploadImageMutation from '../../../gql/sendImage.gql';
+import Navigation from '../../../components/Navigation';
+import EventForm from '../../../components/EventForm';
 
-const createEventMutation = gql`
+const getEventQuery = gql`
+  query getEvent($id: UUID!) {
+    event(id: $id) {
+      id
+      name
+      cover {
+        imageFile
+      }
+      about
+      site
+      startsAt
+      endsAt
+
+      location {
+        id
+        street
+        city
+        region
+        countryCode
+        latitude
+        longitude
+      }
+    }
+  }
+`;
+
+const updateEventMutation = gql`
   mutation createEvent(
-    $name: String!
-    $startsAt: Datetime!
-    $endsAt: Datetime!
+    $id: UUID!
+    $name: String
+    $startsAt: Datetime
+    $endsAt: Datetime
     $coverId: UUID
     $about: String
     $locationId: UUID
   ) {
-    createEvent(
+    updateEvent(
       input: {
-        event: {
+        id: $id
+        patch: {
           name: $name
           about: $about
           coverId: $coverId
@@ -75,14 +103,29 @@ const createLocationMutation = gql`
   }
 `;
 
-const CreateEvent = () => {
+const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+
+const EditEvent = ({id}) => {
+  const validId = uuidRegex.test(id);
   const { push } = useRouter();
 
+  const { loading, error, data } = useQuery(getEventQuery, {
+    variables: { id },
+    skip: !validId,
+  });
   const [uploadImage, {loading: loadingCover}] = useMutation(gql(uploadImageMutation));
   const [createLocation, { loading: loadingLocation }] = useMutation(
     createLocationMutation
   );
-  const [createEvent, { loading }] = useMutation(createEventMutation);
+  const [updateEvent, { loading: loadingUpdate }] = useMutation(updateEventMutation);
+
+  if ((id !== undefined && !validId) || error) {
+    return <Error statusCode={404} />;
+  }
+
+  if (loading || !validId) {
+    return <Spinner />;
+  }
 
   async function handleFormSubmit({
     name,
@@ -133,8 +176,9 @@ const CreateEvent = () => {
       locationId = response.data.createLocation.location.id;
     }
 
-    const response = await createEvent({
+    const response = await updateEvent({
       variables: {
+        id,
         name,
         startsAt: start,
         endsAt: end,
@@ -144,19 +188,19 @@ const CreateEvent = () => {
       },
     });
 
-    push(`/event/${response.data.createEvent.event.id}`);
+    push(`/event/${response.data.updateEvent.event.id}`);
   }
 
   return (
     <div>
       <Head>
-        <title>Create a new event</title>
+        <title>Update event</title>
       </Head>
 
       <Navigation />
 
       <Box width={500} margin="40px auto">
-        <Heading mb={5}>Create event</Heading>
+        <Heading mb={5}>Update event</Heading>
 
         <Stack
           border="1px solid #eee"
@@ -166,8 +210,9 @@ const CreateEvent = () => {
           align="stretch"
         >
           <EventForm
+            defaultData={data && data.event}
             onSubmit={handleFormSubmit}
-            loading={loading || loadingLocation || loadingCover}
+            loading={loadingUpdate || loadingLocation || loadingCover}
           />
         </Stack>
       </Box>
@@ -175,4 +220,12 @@ const CreateEvent = () => {
   );
 };
 
-export default withApollo()(CreateEvent);
+EditEvent.getInitialProps = async context => {
+  const { id } = context.query;
+
+  return {
+    id,
+  };
+};
+
+export default withApollo({ ssr: true })(EditEvent);

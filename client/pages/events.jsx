@@ -96,6 +96,16 @@ const Events = () => {
         </Box>
       ) : (
         <Box>
+          <NextLink href="/events/create">
+            <Button
+              size="lg"
+              variantColor="green"
+              mt="24px"
+              rightIcon="add"
+            >
+              Add event
+            </Button>
+          </NextLink>
           <Heading mb={4}>Upcoming events</Heading>
           <Box mt={3} pl={5} pr={5}>
             <motion.div
@@ -135,16 +145,6 @@ const Events = () => {
                 ) : (
                   <Box>
                     <Text fontSize="xl">No upcoming events yet :(</Text>
-                    <NextLink href="/events/create">
-                      <Button
-                        size="lg"
-                        variantColor="green"
-                        mt="24px"
-                        rightIcon="add"
-                      >
-                        Add event
-                      </Button>
-                    </NextLink>
                   </Box>
                 )}
               </Stack>

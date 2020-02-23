@@ -38,7 +38,7 @@ comment on column indieco.person.created_at is 'The time this person was created
 
 create table indieco.location (
   id               uuid primary key default uuid_generate_v4(),
-  street           text check (char_length(country) < 80),
+  street           text check (char_length(street) < 80),
   city             text not null check (char_length(city) < 80),
   region           text not null check (char_length(region) < 80),
   country_code      char(2) not null check (upper(country_code) = country_code),

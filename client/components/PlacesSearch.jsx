@@ -1,19 +1,22 @@
 import React from 'react';
-import AlgoliaPlaces from './AlgoliaPlaces';
+import PropTypes from 'prop-types';
 import { Input } from '@chakra-ui/core';
+
+import AlgoliaPlaces from './AlgoliaPlaces';
 
 const propTypes = {
   ...AlgoliaPlaces.propTypes,
-  options: {
+  options: PropTypes.shape({
     ...AlgoliaPlaces.propTypes.options,
     appId: undefined,
     apiKey: undefined,
-  },
+  }),
 };
 
 const defaultProps = {
   ...AlgoliaPlaces.defaultProps,
   placeholder: "Write an address here",
+  options: {},
 };
 
 const PlacesSearch = ({ options, value, ...rest }) => {
@@ -34,6 +37,7 @@ const PlacesSearch = ({ options, value, ...rest }) => {
           language: 'en',
           ...options,
         }}
+        defaultValue={value}
         {...rest}
       />
     </>
