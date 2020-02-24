@@ -149,31 +149,15 @@ const EditEvent = ({id}) => {
 
     let locationId;
 
-    if (location) {
-      let variables;
-
-      if (location.type === 'city') {
-        variables = {
-          city: location.name,
-        };
-      } else {
-        variables = {
-          street: location.name,
-          city: location.city,
-        };
-      }
-
+    if (location && !location.id) {
       const response = await createLocation({
-        variables: {
-          ...variables,
-          region: location.administrative,
-          countryCode: location.countryCode.toUpperCase(),
-          latitude: location.latlng.lat,
-          longitude: location.latlng.lng,
-        },
+        variables: location,
       });
 
       locationId = response.data.createLocation.location.id;
+    }
+    else {
+      locationId = location.id;
     }
 
     const response = await updateEvent({

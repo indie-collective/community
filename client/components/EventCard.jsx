@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import Link from 'next/link';
 import {
   Box,
@@ -10,7 +10,7 @@ import {
   useColorMode,
 } from '@chakra-ui/core';
 
-const EventCard = ({
+const EventCard = forwardRef(({
   id,
   name,
   cover,
@@ -19,11 +19,12 @@ const EventCard = ({
   entities,
   startsAt,
   onClick,
-}) => {
+}, ref) => {
   const { colorMode } = useColorMode();
 
   return (
     <PseudoBox
+      ref={ref}
       onClick={onClick}
       _hover={{
         backgroundColor: colorMode === 'dark' ? 'gray.700' : 'gray.50',
@@ -78,6 +79,6 @@ const EventCard = ({
       </Box>
     </PseudoBox>
   );
-};
+});
 
 export default EventCard;

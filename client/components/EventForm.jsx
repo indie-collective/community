@@ -52,6 +52,7 @@ const propTypes = {
     name: PropTypes.string,
     about: PropTypes.string,
     location: PropTypes.shape({
+      id: PropTypes.string,
       street: PropTypes.string,
       city: PropTypes.string.isRequired,
       region: PropTypes.string.isRequired,
@@ -69,16 +70,6 @@ const defaultProps = {
   defaultData: {},
 };
 
-const zoomLevels = {
-  address: 16,
-  city: 11,
-  country: 5,
-  busStop: 17,
-  trainStation: 17,
-  townhall: 16,
-  airport: 12,
-};
-
 const OSMServer = 'abc'.charAt(Math.floor(Math.random() * 3));
 
 const EventForm = ({ defaultData, onSubmit, loading }) => {
@@ -93,19 +84,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         ? new Date(startsAt).toISOString().slice(0, -8)
         : undefined,
       end: endsAt ? new Date(endsAt).toISOString().slice(0, -8) : undefined,
-      location: l
-        ? {
-            name: l.street,
-            city: l.city,
-            administrative: l.region,
-            countryCode: l.countryCode,
-            type: l.street ? 'address' : 'city',
-            latlng: {
-              lat: l.latitude,
-              lng: l.longitude,
-            },
-          }
-        : undefined,
+      location: l,
       about,
     },
   });
@@ -115,6 +94,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
   return (
     <Grid
       as="form"
+      enctype="multipart/form-data"
       onSubmit={handleSubmit(onSubmit)}
       gridTemplateColumns="1fr 1fr"
       gap={5}
@@ -165,9 +145,6 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
           control={control}
           name="location"
           placeholder="Where is the party?"
-          onChange={([{ suggestion }]) => {
-            return { value: suggestion };
-          }}
           onClear={() => setValue('location', null)}
         />
         <FormErrorMessage>
@@ -195,8 +172,8 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
               }}
               defaultWidth={800}
               defaultHeight={100}
-              center={[location.latlng.lat, location.latlng.lng]}
-              zoom={zoomLevels[location.type]}
+              center={[location.latitude, location.longitude]}
+              zoom={location.street ? 16 : 11}
               mouseEvents={false}
               touchEvents={false}
             ></Map>
@@ -244,7 +221,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
             const [file] = e.target.files;
 
             if (file) {
-              setCover(window.URL.createObjectURL(file));
+              setCover({ url: window.URL.createObjectURL(file) });
             }
           }}
           accept="image/*"
@@ -264,7 +241,14 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         </FormErrorMessage>
       </FormControl>
 
-      <Button gridColumn="1 / 3" variantColor="teal" mt={3} type="submit">
+      <Button
+        gridColumn="1 / 3"
+        variantColor="teal"
+        mt={3}
+        type="submit"
+        isLoading={loading}
+        isDisabled={loading}
+      >
         Submit
       </Button>
     </Grid>

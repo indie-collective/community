@@ -19,7 +19,7 @@ const defaultProps = {
   options: {},
 };
 
-const PlacesSearch = ({ options, value, ...rest }) => {
+const PlacesSearch = ({ onChange, options, value: l, ...rest }) => {
 
   return (
     <>
@@ -37,7 +37,32 @@ const PlacesSearch = ({ options, value, ...rest }) => {
           language: 'en',
           ...options,
         }}
-        defaultValue={value}
+        defaultValue={l && `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${l.countryCode}`}
+        onChange={({ suggestion }) => {
+          const {name, city, administrative, countryCode, latlng} = suggestion;
+
+          if (suggestion.type === 'city') {
+            onChange({
+              id: null,
+              city: suggestion.name,
+              region: administrative,
+              countryCode: countryCode.toUpperCase(),
+              latitude: latlng.lat,
+              longitude: latlng.lng,
+            });
+            return;
+          }
+
+          onChange({
+            id: null,
+            street: name,
+            city,
+            region: administrative,
+            countryCode: countryCode.toUpperCase(),
+            latitude: latlng.lat,
+            longitude: latlng.lng,
+          });
+        }}
         {...rest}
       />
     </>

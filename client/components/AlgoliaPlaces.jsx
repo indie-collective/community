@@ -94,9 +94,8 @@ export default class AlgoliaPlaces extends React.Component {
     this.autocompleteListeners
       .forEach(({ prop, eventName }) => this.autocomplete.on(eventName, this.props[prop]));
 
-    const l = this.props.defaultValue;
-    if (l) {
-      this.autocomplete.setVal(`${l.name ? l.name + ', ' : ''}${l.city}, ${l.administrative}, ${l.countryCode}`);
+    if (this.props.defaultValue) {
+      this.autocomplete.setVal(this.props.defaultValue);
     }
   }
 
