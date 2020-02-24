@@ -83,7 +83,7 @@ const Profile = ({}) => {
         <Heading mb={5}>Profile</Heading>
 
         <Stack
-          border="1px solid #eee"
+          borderWidth="1px"
           mb={10}
           p={3}
           borderRadius={5}

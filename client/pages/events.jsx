@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import NextLink from 'next/link';
 import { useQuery } from '@apollo/react-hooks';
-import { Button, Box, Stack, Spinner, Heading, Text } from '@chakra-ui/core';
+import { Button, Box, Spinner, Heading, Text, Grid } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 
@@ -9,6 +9,7 @@ import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import EventCard from '../components/EventCard';
 import { useMemo } from 'react';
+import Link from 'next/link';
 
 const eventsQuery = gql`
   fragment EventSummary on Event {
@@ -18,6 +19,9 @@ const eventsQuery = gql`
     site
     startsAt
     endsAt
+    cover {
+      thumbnail_url
+    }
     location {
       id
       countryCode
@@ -36,7 +40,7 @@ const eventsQuery = gql`
   query getEvents($now: Datetime!) {
     events(
       filter: { endsAt: { greaterThanOrEqualTo: $now } }
-      first: 5
+      first: 3
       orderBy: STARTS_AT_ASC
     ) {
       nodes {
@@ -95,100 +99,110 @@ const Events = () => {
           <Spinner size="lg" />
         </Box>
       ) : (
-        <Box>
-          <NextLink href="/events/create">
-            <Button
-              size="lg"
-              variantColor="green"
-              mt="24px"
-              rightIcon="add"
-            >
-              Add event
-            </Button>
-          </NextLink>
-          <Heading mb={4}>Upcoming events</Heading>
-          <Box mt={3} pl={5} pr={5}>
-            <motion.div
-              initial="initial"
-              animate="enter"
-              exit="exit"
-              variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-            >
-              <Stack spacing={3}>
-                {data.events.nodes.length > 0 ? (
-                  data.events.nodes.map(
-                    ({
-                      id,
-                      name,
-                      games,
-                      entities,
-                      location,
-                      startsAt,
-                      endsAt,
-                    }) => (
-                      <Box>
-                        <motion.div variants={eventVariants}>
-                          <EventCard
-                            key={id}
-                            id={id}
-                            name={name}
-                            startsAt={startsAt}
-                            endsAt={endsAt}
-                            games={games}
-                            entities={entities}
-                            location={location}
-                          />
-                        </motion.div>
-                      </Box>
-                    )
-                  )
-                ) : (
-                  <Box>
-                    <Text fontSize="xl">No upcoming events yet :(</Text>
-                  </Box>
-                )}
-              </Stack>
-            </motion.div>
-          </Box>
-
-          <Heading mb={4}>Past events</Heading>
-          <Box mt={3} pl={5} pr={5}>
-            <motion.div
-              initial="initial"
-              animate="enter"
-              exit="exit"
-              variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-            >
-              <Stack spacing={3}>
-                {data.pastEvents.nodes.map(
+        <Box p={5}>
+          <Heading mb={4} mt={5}>
+            Upcoming events
+          </Heading>
+          <motion.div
+            initial="initial"
+            animate="enter"
+            exit="exit"
+            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+          >
+            <Grid gap={3} templateColumns="repeat(3, 1fr)">
+              {data.events.nodes.length > 0 ? (
+                data.events.nodes.map(
                   ({
                     id,
                     name,
+                    cover,
                     games,
                     entities,
                     location,
                     startsAt,
                     endsAt,
                   }) => (
-                    <Box>
+                    <Box minW={0}>
                       <motion.div variants={eventVariants}>
+                        <Link key={id} href="/event/[id]" as={`/event/${id}`}>
+                          <EventCard
+                            key={id}
+                            id={id}
+                            name={name}
+                            cover={cover}
+                            startsAt={startsAt}
+                            endsAt={endsAt}
+                            games={games}
+                            entities={entities}
+                            location={location}
+                          />
+                        </Link>
+                      </motion.div>
+                    </Box>
+                  )
+                )
+              ) : (
+                <Box>
+                  <Text fontSize="xl">No upcoming events yet :(</Text>
+                </Box>
+              )}
+            </Grid>
+          </motion.div>
+
+          <NextLink href="/events/create">
+            <Button
+              display="block"
+              m="auto"
+              mt={10}
+              size="lg"
+              variantColor="teal"
+              leftIcon="add"
+            >
+              Add an event
+            </Button>
+          </NextLink>
+
+          <Heading mb={4} mt={5}>
+            Past events
+          </Heading>
+          <motion.div
+            initial="initial"
+            animate="enter"
+            exit="exit"
+            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+          >
+            <Grid gap={3} templateColumns="repeat(4, 1fr)">
+              {data.pastEvents.nodes.map(
+                ({
+                  id,
+                  name,
+                  cover,
+                  games,
+                  entities,
+                  location,
+                  startsAt,
+                  endsAt,
+                }) => (
+                  <Box minW={0}>
+                    <motion.div variants={eventVariants}>
+                      <Link key={id} href="/event/[id]" as={`/event/${id}`}>
                         <EventCard
-                          key={id}
                           id={id}
                           name={name}
+                          cover={cover}
                           startsAt={startsAt}
                           endsAt={endsAt}
                           games={games}
                           entities={entities}
                           location={location}
                         />
-                      </motion.div>
-                    </Box>
-                  )
-                )}
-              </Stack>
-            </motion.div>
-          </Box>
+                      </Link>
+                    </motion.div>
+                  </Box>
+                )
+              )}
+            </Grid>
+          </motion.div>
         </Box>
       )}
     </div>

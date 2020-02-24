@@ -15,7 +15,7 @@ const getEventQuery = gql`
       id
       name
       cover {
-        imageFile
+        url
       }
       about
       site
@@ -203,7 +203,7 @@ const EditEvent = ({id}) => {
         <Heading mb={5}>Update event</Heading>
 
         <Stack
-          border="1px solid #eee"
+          borderWidth="1px"
           mb={10}
           p={3}
           borderRadius={5}

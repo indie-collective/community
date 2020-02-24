@@ -7,6 +7,7 @@ const jimp = require('jimp');
 const expressPlayground = require('graphql-playground-middleware-express').default
 
 const PostGraphileUploadFieldPlugin = require('postgraphile-plugin-upload-field');
+const PostGraphileDerivedFieldPlugin = require('postgraphile-plugin-derived-field');
 const PgManyToManyPlugin = require('@graphile-contrib/pg-many-to-many');
 const PgSimplifyInflector = require('@graphile-contrib/pg-simplify-inflector');
 const ConnectionFilterPlugin = require('postgraphile-plugin-connection-filter');
@@ -15,20 +16,22 @@ const { jwtSecret } = require('./config.json');
 
 require('dotenv').config();
 
-const DB_USER = process.env.DB_USER;
-const DB_PASS = process.env.DB_PASS;
+const {DB_USER, DB_PASS} = process.env;
 
 const DB_URL =
   DB_USER && DB_PASS
     ? `postgres://${DB_USER}:${DB_PASS}@localhost:5432/indieco`
     : 'postgres://localhost:5432/indieco';
 
+const thisServerUrl = isDev ? 'http://localhost:4000' : 'https://community.indieco.xyz';
+
 const app = express();
 
 const UPLOAD_DIR_NAME = 'uploads';
+const IMAGES_PATH = '/images';
 
 // Serve uploads as static resources
-app.use('/images', express.static(path.resolve(UPLOAD_DIR_NAME)));
+app.use(IMAGES_PATH, express.static(path.resolve(UPLOAD_DIR_NAME)));
 
 // Attach multipart request handling middleware
 app.use(graphqlUploadExpress());
@@ -41,6 +44,7 @@ app.use(
     disableQueryLog: true,
     appendPlugins: [
       PostGraphileUploadFieldPlugin,
+      PostGraphileDerivedFieldPlugin,
       PgManyToManyPlugin,
       PgSimplifyInflector,
       ConnectionFilterPlugin,
@@ -56,6 +60,30 @@ app.use(
           },
           resolve: resolveUpload,
         },
+      ],
+      derivedFieldDefinitions: [
+        {
+          identifiers: [{
+            columns: 'image_file',
+          }],
+          inflect: fieldName => 'url',
+          resolve: image => {
+            if (image) {
+              return `${thisServerUrl}${IMAGES_PATH}/${image.name}`;
+            }
+          },
+        },
+        {
+          identifiers: [{
+            columns: 'image_file',
+          }],
+          inflect: fieldName => 'thumbnail_url',
+          resolve: image => {
+            if (image) {
+              return `${thisServerUrl}${IMAGES_PATH}/thumb_${image.name}`;
+            }
+          },
+        }
       ],
     },
   })

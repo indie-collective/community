@@ -17,6 +17,7 @@
     "jimp": "^0.6.4",
     "postgraphile": "^4.4.0",
     "postgraphile-plugin-connection-filter": "^1.1.2",
+    "postgraphile-plugin-derived-field": "^1.0.0-alpha.7",
     "postgraphile-plugin-upload-field": "^1.0.0-alpha.8"
   }
 }

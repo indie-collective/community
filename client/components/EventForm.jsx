@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
@@ -82,26 +82,30 @@ const zoomLevels = {
 const OSMServer = 'abc'.charAt(Math.floor(Math.random() * 3));
 
 const EventForm = ({ defaultData, onSubmit, loading }) => {
-  const {name, startsAt, endsAt, location: l = {}, about} = defaultData;
+  const { name, startsAt, endsAt, location: l, about } = defaultData;
   const coverRef = useRef();
   const [cover, setCover] = useState(defaultData.cover);
   const { handleSubmit, register, errors, control, watch, setValue } = useForm({
     validationSchema,
     defaultValues: {
       name,
-      start: startsAt ? new Date(startsAt).toISOString().slice(0, -8) : undefined,
+      start: startsAt
+        ? new Date(startsAt).toISOString().slice(0, -8)
+        : undefined,
       end: endsAt ? new Date(endsAt).toISOString().slice(0, -8) : undefined,
-      location: l ? {
-        name: l.street,
-        city: l.city,
-        administrative: l.region,
-        countryCode: l.countryCode,
-        type: l.street ? 'address' : 'city',
-        latlng: {
-          lat: l.latitude,
-          lng: l.longitude,
-        }
-      } : undefined,
+      location: l
+        ? {
+            name: l.street,
+            city: l.city,
+            administrative: l.region,
+            countryCode: l.countryCode,
+            type: l.street ? 'address' : 'city',
+            latlng: {
+              lat: l.latitude,
+              lng: l.longitude,
+            },
+          }
+        : undefined,
       about,
     },
   });
@@ -180,8 +184,14 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
           >
             <Map
               provider={(x, y, z, dpr) => {
-                const retina = typeof dpr !== 'undefined' ? dpr >= 2 : (typeof window !== 'undefined' && window.devicePixelRatio >= 2)
-                return `https://${OSMServer}.tile.openstreetmap.org/${z}/${x}/${y}${retina ? '@2x' : ''}.png`
+                const retina =
+                  typeof dpr !== 'undefined'
+                    ? dpr >= 2
+                    : typeof window !== 'undefined' &&
+                      window.devicePixelRatio >= 2;
+                return `https://${OSMServer}.tile.openstreetmap.org/${z}/${x}/${y}${
+                  retina ? '@2x' : ''
+                }.png`;
               }}
               defaultWidth={800}
               defaultHeight={100}
@@ -202,7 +212,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
             <Image
               size="100%"
               objectFit="cover"
-              src={cover}
+              src={cover && cover.url}
               alt="Event cover"
               fallbackSrc="https://via.placeholder.com/800x300?text=Event cover"
               borderRadius={5}
@@ -254,7 +264,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         </FormErrorMessage>
       </FormControl>
 
-      <Button gridColumn="1 / 3" variantColor="teal" type="submit">
+      <Button gridColumn="1 / 3" variantColor="teal" mt={3} type="submit">
         Submit
       </Button>
     </Grid>

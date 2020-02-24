@@ -78,7 +78,9 @@ const createLocationMutation = gql`
 const CreateEvent = () => {
   const { push } = useRouter();
 
-  const [uploadImage, {loading: loadingCover}] = useMutation(gql(uploadImageMutation));
+  const [uploadImage, { loading: loadingCover }] = useMutation(
+    gql(uploadImageMutation)
+  );
   const [createLocation, { loading: loadingLocation }] = useMutation(
     createLocationMutation
   );
@@ -158,13 +160,7 @@ const CreateEvent = () => {
       <Box width={500} margin="40px auto">
         <Heading mb={5}>Create event</Heading>
 
-        <Stack
-          border="1px solid #eee"
-          mb={10}
-          p={3}
-          borderRadius={5}
-          align="stretch"
-        >
+        <Stack borderWidth="1px" mb={10} p={3} borderRadius={5} align="stretch">
           <EventForm
             onSubmit={handleFormSubmit}
             loading={loading || loadingLocation || loadingCover}

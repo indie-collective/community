@@ -31,7 +31,7 @@ const eventQuery = gql`
       id
       name
       cover {
-        imageFile
+        url
       }
       about
       site
@@ -119,7 +119,7 @@ const Event = ({ id }) => {
               <Image
                 size="100%"
                 objectFit="cover"
-                src={cover && cover.imageFile}
+                src={cover && cover.url}
                 alt="Event cover"
                 fallbackSrc="https://via.placeholder.com/800x300?text=Event cover"
               />
@@ -157,7 +157,12 @@ const Event = ({ id }) => {
             </Box>
           </Box>
 
-          <Box mb={5} border="1px solid #eee" borderRadius="0 0 5px 5px">
+          <Box
+            mb={5}
+            borderWidth="1px"
+            roundedBottom={5}
+            minHeight={!location && '100px'}
+          >
             <Grid gridTemplateColumns="1fr 200px" padding={2}>
               <Text
                 textTransform="uppercase"
@@ -187,7 +192,7 @@ const Event = ({ id }) => {
                       }
                 )}
               </Text>
-              <Heading>{name}</Heading>
+              <Heading gridRow={!location && '3'}>{name}</Heading>
               {location && (
                 <Text>
                   {location.street && `${location.street}, `}
@@ -203,9 +208,13 @@ const Event = ({ id }) => {
                 spacing={2}
                 shouldWrapChildren
               >
-                {<Link href="/event/[id]/edit" as={`/event/${id}/edit`}>
-                  <Button leftIcon="edit" size="sm" variantColor="teal">Edit</Button>
-                </Link>}
+                {
+                  <Link href="/event/[id]/edit" as={`/event/${id}/edit`}>
+                    <Button leftIcon="edit" size="sm" variantColor="teal">
+                      Edit
+                    </Button>
+                  </Link>
+                }
 
                 <Button
                   variant={isGoing ? 'solid' : 'outline'}
@@ -257,8 +266,16 @@ const Event = ({ id }) => {
               >
                 <Map
                   provider={(x, y, z, dpr) => {
-                    const retina = typeof dpr !== 'undefined' ? dpr >= 2 : (typeof window !== 'undefined' && window.devicePixelRatio >= 2)
-                    return `https://${'abc'.charAt(Math.floor(Math.random() * 3))}.tile.openstreetmap.org/${z}/${x}/${y}${retina ? '@2x' : ''}.png`
+                    const retina =
+                      typeof dpr !== 'undefined'
+                        ? dpr >= 2
+                        : typeof window !== 'undefined' &&
+                          window.devicePixelRatio >= 2;
+                    return `https://${'abc'.charAt(
+                      Math.floor(Math.random() * 3)
+                    )}.tile.openstreetmap.org/${z}/${x}/${y}${
+                      retina ? '@2x' : ''
+                    }.png`;
                   }}
                   defaultWidth={1200}
                   defaultHeight={150}
@@ -272,7 +289,7 @@ const Event = ({ id }) => {
           </Box>
 
           {about && (
-            <Box mb={5} border="1px solid #eee" borderRadius={5} padding={2}>
+            <Box mb={5} borderWidth="1px" borderRadius={5} padding={2}>
               <Heading as="h3" fontSize="2xl">
                 Description
               </Heading>

@@ -1250,6 +1250,11 @@ postgraphile-plugin-connection-filter@^1.1.2:
   resolved "https://registry.yarnpkg.com/postgraphile-plugin-connection-filter/-/postgraphile-plugin-connection-filter-1.1.3.tgz#e33214948f16c0c8331e4f145adfc9860d593d72"
   integrity sha512-QWn2lDQ3d8M0iiQVZtozIcJmL3b2A3L6DnMD2e8EOOVqxxAy9Kt3b7k4a+bH46rz4Eh6NuDtHWb0PZnxx41kVg==
 
+postgraphile-plugin-derived-field@^1.0.0-alpha.7:
+  version "1.0.0-alpha.7"
+  resolved "https://registry.yarnpkg.com/postgraphile-plugin-derived-field/-/postgraphile-plugin-derived-field-1.0.0-alpha.7.tgz#65e0150c5869fc73e25ab71b7d9ec1b5d677e6b7"
+  integrity sha512-kLhtUFOBvjgLhnVPTojVzvs3E3UN44fO4s/izZZ0cxvnEGwQSFVzQWgTiq6SBvJCAhH+pWCW83jomj4hzYI3Rw==
+
 postgraphile-plugin-upload-field@^1.0.0-alpha.8:
   version "1.0.0-alpha.9"
   resolved "https://registry.yarnpkg.com/postgraphile-plugin-upload-field/-/postgraphile-plugin-upload-field-1.0.0-alpha.9.tgz#c08149bc4a72d455a7c08fde41a9b373442e1f96"

@@ -112,9 +112,11 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
       </FormControl>
 
       <Button
+        display="block"
+        width="100%"
         type="submit"
         mt={3}
-        variantColor="green"
+        variantColor="teal"
         isDisabled={loading}
         isLoading={loading}
       >
