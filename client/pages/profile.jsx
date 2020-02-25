@@ -26,6 +26,9 @@ const profileQuery = gql`
       id
       fullName
       about
+      avatar {
+        url
+      }
       createdAt
     }
   }
@@ -48,7 +51,7 @@ const Profile = ({ id }) => {
     return;
   }
 
-  const { fullName, about, createdAt } = data.currentPerson;
+  const { fullName, about, avatar, createdAt } = data.currentPerson;
 
   return (
     <div>
@@ -76,7 +79,7 @@ const Profile = ({ id }) => {
             </Link>
           </Box>
 
-          <Avatar size="2xl" name={fullName} margin="1rem" />
+          <Avatar size="2xl" name={fullName} margin="1rem" src={avatar && avatar.url} />
 
           <Heading>{fullName}</Heading>
 

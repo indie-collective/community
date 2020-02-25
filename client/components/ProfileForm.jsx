@@ -49,7 +49,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <FormControl mb={5} textAlign="center">
         <FormLabel htmlFor="avatar">
-          <Avatar size="2xl" margin="1rem" src={avatar}>
+          <Avatar size="2xl" margin="1rem" src={avatar && avatar.url}>
             <AvatarBadge size="1em" bg="white">
               <IconButton
                 aria-label="Edit avatar"
@@ -75,7 +75,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
             const [file] = e.target.files;
 
             if (file) {
-              setAvatar(window.URL.createObjectURL(file));
+              setAvatar({url: window.URL.createObjectURL(file)});
             }
           }}
           accept="image/*"

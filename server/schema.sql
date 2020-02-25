@@ -25,6 +25,7 @@ create table indieco.person (
   id               uuid primary key default uuid_generate_v4(),
   first_name       text not null check (char_length(first_name) < 80),
   last_name        text check (char_length(last_name) < 80),
+  avatar_id        uuid references indieco.image(id),
   about            text,
   created_at       timestamptz default now()
 );
@@ -33,6 +34,7 @@ comment on table indieco.person is 'A user of the site.';
 comment on column indieco.person.id is 'The primary unique identifier for the person.';
 comment on column indieco.person.first_name is 'The person’s first name.';
 comment on column indieco.person.last_name is 'The person’s last name.';
+comment on column indieco.person.avatar_id is 'The person’s avatar.';
 comment on column indieco.person.about is 'A short description of the user, written by the user.';
 comment on column indieco.person.created_at is 'The time this person was created.';
 
@@ -41,7 +43,7 @@ create table indieco.location (
   street           text check (char_length(street) < 80),
   city             text not null check (char_length(city) < 80),
   region           text not null check (char_length(region) < 80),
-  country_code      char(2) not null check (upper(country_code) = country_code),
+  country_code     char(2) not null check (upper(country_code) = country_code),
   latitude         float,
   longitude        float
 );

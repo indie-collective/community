@@ -7,6 +7,7 @@ import Head from 'next/head';
 import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
 import ProfileForm from '../../components/ProfileForm';
+import uploadImageMutation from '../../gql/sendImage.gql';
 
 const profileQuery = gql`
   query profile {
@@ -14,6 +15,9 @@ const profileQuery = gql`
       id
       firstName
       lastName
+      avatar {
+        url
+      }
       about
     }
   }
@@ -24,18 +28,27 @@ const updateProfileMutation = gql`
     $id: UUID!
     $firstName: String!
     $lastName: String
+    $avatarId: UUID
     $about: String
   ) {
     updatePerson(
       input: {
         id: $id
-        patch: { firstName: $firstName, lastName: $lastName, about: $about }
+        patch: {
+          firstName: $firstName
+          lastName: $lastName
+          avatarId: $avatarId
+          about: $about
+        }
       }
     ) {
       person {
         id
         firstName
         lastName
+        avatar {
+          url
+        }
         about
       }
     }
@@ -46,6 +59,7 @@ const Profile = ({}) => {
   const { loading, error, data } = useQuery(profileQuery, {
     variables: {},
   });
+  const [uploadImage, {loading: loadingCover}] = useMutation(gql(uploadImageMutation));
   const [updateProfile] = useMutation(updateProfileMutation);
   const { push } = useRouter();
 
@@ -58,12 +72,25 @@ const Profile = ({}) => {
     return;
   }
 
-  const handleFormSubmit = async ({ avatar, firstName, lastName, about }) => {
+  const handleFormSubmit = async ({ firstName, lastName, avatar: avatarFiles, about }) => {
+    let avatarId;
+
+    if (avatarFiles[0]) {
+      const response = await uploadImage({
+        variables: {
+          file: avatarFiles[0],
+        },
+      });
+
+      avatarId = response.data.createImage.image.id;
+    }
+
     await updateProfile({
       variables: {
         id: data.currentPerson.id,
         firstName,
         lastName,
+        avatarId,
         about,
       },
     });
@@ -82,13 +109,7 @@ const Profile = ({}) => {
       <Box width={500} margin="40px auto">
         <Heading mb={5}>Profile</Heading>
 
-        <Stack
-          borderWidth="1px"
-          mb={10}
-          p={3}
-          borderRadius={5}
-          align="stretch"
-        >
+        <Stack borderWidth="1px" mb={10} p={3} borderRadius={5} align="stretch">
           <ProfileForm
             defaultData={data.currentPerson}
             onSubmit={handleFormSubmit}

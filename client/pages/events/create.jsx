@@ -34,6 +34,10 @@ const createEventMutation = gql`
         id
         name
         about
+        cover {
+          url
+          thumb_url
+        }
         locationId
         startsAt
         endsAt
