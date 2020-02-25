@@ -234,6 +234,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
           name="about"
           resize="vertical"
           placeholder="What is it about?"
+          whiteSpace="pre-wrap"
           ref={register}
         />
         <FormErrorMessage>

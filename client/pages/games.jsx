@@ -72,13 +72,13 @@ const Games = () => {
             exit="exit"
             variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
           >
-            <Stack spacing={5}>
+            <Stack spacing={5} isInline>
               {data.games.nodes.map(({ id, name, about, site, images }) => (
                 <Box>
                   <motion.div variants={gameVariants}>
                     <GameCard
                       key={id}
-                      width="45em"
+                      width="15em"
                       id={id}
                       name={name}
                       about={about}

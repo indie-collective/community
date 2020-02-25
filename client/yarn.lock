@@ -1826,7 +1826,7 @@ aproba@^1.1.1:
   resolved "https://registry.yarnpkg.com/aproba/-/aproba-1.2.0.tgz#6802e6264efd18c790a1b0d517f0f2627bf2c94a"
   integrity sha512-Y9J6ZjXtoYh8RnXVCMOU/ttDmk1aBjunq9vO0ta5x85WDQiQfUF9sIPBITdbiiIVcBo03Hi3jMxigBtsddlXRw==
 
-argparse@^1.0.7:
+argparse@^1.0.10, argparse@^1.0.7:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/argparse/-/argparse-1.0.10.tgz#bcd6791ea5ae09725e17e5ad988134cd40b3d911"
   integrity sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==
@@ -1953,6 +1953,13 @@ autodll-webpack-plugin@0.4.2:
     tapable "^1.0.0"
     webpack-merge "^4.1.0"
     webpack-sources "^1.0.1"
+
+autolinker@^3.11.0:
+  version "3.12.0"
+  resolved "https://registry.yarnpkg.com/autolinker/-/autolinker-3.12.0.tgz#1184397c85828041975a3b3135032b7b931966c6"
+  integrity sha512-iQAz75LAZ0dmlaMaIXX0Z+X4yuI6gxONZ14h0YTO0j/3d9DltyD+qkbINpocVZ8oCjMSJUdBeRfrXzGf/zvGZQ==
+  dependencies:
+    tslib "^1.9.3"
 
 autoprefixer@^9.6.1:
   version "9.7.4"
@@ -6181,7 +6188,7 @@ react-style-singleton@^1.1.0:
     invariant "^2.2.4"
     tslib "^1.0.0"
 
-react@^16.9.0:
+react@^16.3.0, react@^16.9.0:
   version "16.12.0"
   resolved "https://registry.yarnpkg.com/react/-/react-16.12.0.tgz#0c0a9c6a142429e3614834d5a778e18aa78a0b83"
   integrity sha512-fglqy3k5E+81pA8s+7K0/T3DBCF0ZDOher1elBFzF7O6arXJgzyu/FW+COxFvAWXJoJN9KIZbT2LXlukwphYTA==
@@ -6315,6 +6322,21 @@ regjsparser@^0.6.0:
   integrity sha512-8uZvYbnfAtEm9Ab8NTb3hdLwL4g/LQzEYP7Xs27T96abJCCE2d6r3cPZPQEsLKy0vRSGVNG+/zVGtLr86HQduA==
   dependencies:
     jsesc "~0.5.0"
+
+remarkable-react@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/remarkable-react/-/remarkable-react-1.4.1.tgz#d9d69930ed526a8296861a6649c94355eee7add8"
+  integrity sha512-V5GEcsM1Uw6qghaGJAaH1Od1aV+W8XDq3Bd6w78qfCefncNy3d2zL2UCx2Un4aeXkz2dR5P4wLc0+cPJJ5wvGA==
+  dependencies:
+    react "^16.3.0"
+
+remarkable@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/remarkable/-/remarkable-2.0.0.tgz#795f965bede8300362ce51a716edc322d9e7a4ca"
+  integrity sha512-3gvKFAgL4xmmVRKAMNm6UzDo/rO2gPVkZrWagp6AXEA4JvCcMcRx9aapYbb7AJAmLLvi/u06+EhzqoS7ha9qOg==
+  dependencies:
+    argparse "^1.0.10"
+    autolinker "^3.11.0"
 
 remove-trailing-separator@^1.0.1:
   version "1.1.0"

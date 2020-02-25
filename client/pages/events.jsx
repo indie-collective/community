@@ -49,7 +49,7 @@ const eventsQuery = gql`
     }
     pastEvents: events(
       filter: { endsAt: { lessThan: $now } }
-      first: 5
+      first: 20
       orderBy: STARTS_AT_DESC
     ) {
       nodes {

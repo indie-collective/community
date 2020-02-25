@@ -103,6 +103,8 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
         <Textarea
           placeholder="What's your life like..."
           name="about"
+          resize="vertical"
+          whiteSpace="pre-wrap"
           defaultValue={about}
           ref={register}
         />

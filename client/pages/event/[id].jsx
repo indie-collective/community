@@ -24,6 +24,7 @@ import Navigation from '../../components/Navigation';
 import GameCard from '../../components/GameCard';
 import OrgCard from '../../components/OrgCard';
 import EventCard from '../../components/EventCard';
+import Markdown from '../../components/Markdown';
 
 const eventQuery = gql`
   query event($id: UUID!) {
@@ -112,7 +113,7 @@ const Event = ({ id }) => {
 
       <Navigation />
 
-      <Grid templateColumns="2fr 1fr" gap={6} mt={10}>
+      <Grid templateColumns="3fr 1fr" gap={10} mt={10} padding={5}>
         <Box flex={2}>
           <Box position="relative">
             <AspectRatioBox ratio={3}>
@@ -293,7 +294,7 @@ const Event = ({ id }) => {
               <Heading as="h3" fontSize="2xl">
                 Description
               </Heading>
-              <Text>{about}</Text>
+              <Markdown value={about} />
             </Box>
           )}
 
@@ -338,7 +339,7 @@ const Event = ({ id }) => {
 
         <Box>
           <Heading>Related events</Heading>
-          <Stack>
+          <Stack mt={5} spacing={5} shouldWrapChildren>
             {relatedEvents.length > 0 ? (
               relatedEvents.map(event => <EventCard {...event} />)
             ) : (

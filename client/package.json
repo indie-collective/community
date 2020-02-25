@@ -30,6 +30,8 @@
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-hook-form": "^4.3.0",
+    "remarkable": "^2.0.0",
+    "remarkable-react": "^1.4.1",
     "yup": "^0.28.0"
   },
   "devDependencies": {
