@@ -102,6 +102,7 @@ const Home = () => {
                     ({
                       id,
                       name,
+                      cover,
                       startsAt,
                       endsAt,
                       games,
@@ -113,6 +114,7 @@ const Home = () => {
                           key={id}
                           id={id}
                           name={name}
+                          cover={cover}
                           startsAt={startsAt}
                           endsAt={endsAt}
                           games={games}

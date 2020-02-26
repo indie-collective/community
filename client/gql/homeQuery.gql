@@ -30,6 +30,9 @@
     nodes {
       id
       name
+      cover {
+        thumbnail_url
+      }
       startsAt
       endsAt
       entities {
