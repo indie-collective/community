@@ -32,6 +32,7 @@ const eventQuery = gql`
       id
       name
       cover {
+        thumbnail_url
         url
       }
       about
@@ -75,7 +76,7 @@ const eventQuery = gql`
 
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-const Event = ({ id }) => {
+const Event = ({ id, host }) => {
   const validId = uuidRegex.test(id);
 
   const [isGoing, setIsGoing] = useState(false);
@@ -105,10 +106,34 @@ const Event = ({ id }) => {
     cover,
   } = data.event;
 
+  let description = `Event on ${new Date(startsAt).toLocaleString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    hour: 'numeric',
+    minute: 'numeric',
+  })}`
+
+  if (location) {
+    const l = location;
+
+    description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${l.countryCode}`;
+  }
+
   return (
     <div>
       <Head>
         <title>{name} - Events</title>
+
+        <meta property="og:title" content={name} />
+        <meta property="og:description" content={`${description}.`} />
+        <meta property="og:url" content={`https://${host}/event/${id}`} />
+        {cover && <meta property="og:image" content={cover.thumbnail_url} />}
+
+        <meta name="twitter:card" content={cover ? 'summary_large_image' : 'summary'} />
+        <meta name="twitter:site" content="@IndieColle" />
+        <meta name="twitter:title" content={name} />
+        <meta name="twitter:description" content={`${description}.`} />
+        {cover && <meta name="twitter:image" content={cover.thumbnail_url} />}
       </Head>
 
       <Navigation />
@@ -355,8 +380,16 @@ const Event = ({ id }) => {
 Event.getInitialProps = async context => {
   const { id } = context.query;
 
+  if (context.req) {
+    return {
+      id,
+      host: context.req.headers.host,
+    }
+  }
+
   return {
     id,
+    host: window.location.hostname,
   };
 };
 
