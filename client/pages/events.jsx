@@ -117,7 +117,7 @@ const Events = () => {
             exit="exit"
             variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
           >
-            <Grid gap={3} templateColumns="repeat(3, 1fr)">
+            <Grid gap={3} templateColumns={["1fr", "1fr", "repeat(2, 1fr)", "repeat(3, 1fr)"]}>
               {data.events.nodes.length > 0 ? (
                 data.events.nodes.map(
                   ({
@@ -179,7 +179,7 @@ const Events = () => {
             exit="exit"
             variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
           >
-            <Grid gap={3} templateColumns="repeat(4, 1fr)">
+            <Grid gap={3} templateColumns={["repeat(2, 1fr)", "repeat(2, 1fr)", "repeat(3, 1fr)", "repeat(4, 1fr)"]}>
               {data.pastEvents.nodes.map(
                 ({
                   id,

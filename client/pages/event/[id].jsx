@@ -111,12 +111,14 @@ const Event = ({ id, host }) => {
     month: 'short',
     hour: 'numeric',
     minute: 'numeric',
-  })}`
+  })}`;
 
   if (location) {
     const l = location;
 
-    description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${l.countryCode}`;
+    description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${
+      l.region
+    }, ${l.countryCode}`;
   }
 
   return (
@@ -129,7 +131,10 @@ const Event = ({ id, host }) => {
         <meta property="og:url" content={`https://${host}/event/${id}`} />
         {cover && <meta property="og:image" content={cover.thumbnail_url} />}
 
-        <meta name="twitter:card" content={cover ? 'summary_large_image' : 'summary'} />
+        <meta
+          name="twitter:card"
+          content={cover ? 'summary_large_image' : 'summary'}
+        />
         <meta name="twitter:site" content="@IndieColle" />
         <meta name="twitter:title" content={name} />
         <meta name="twitter:description" content={`${description}.`} />
@@ -138,8 +143,13 @@ const Event = ({ id, host }) => {
 
       <Navigation />
 
-      <Grid templateColumns="3fr 1fr" gap={10} mt={10} padding={5}>
-        <Box flex={2}>
+      <Grid
+        templateColumns={['1fr', '1fr', '3fr 1fr']}
+        gap={[5, 5, 10]}
+        mt={[5, 2, 5]}
+        padding={[0, 5]}
+      >
+        <Box>
           <Box position="relative">
             <AspectRatioBox ratio={3}>
               <Image
@@ -152,17 +162,18 @@ const Event = ({ id, host }) => {
             </AspectRatioBox>
 
             <Box
-              width="80px"
+              width={["50px", "65px", "80px"]}
               position="absolute"
               right={2}
               bottom={3}
               textAlign="center"
-              borderRadius={10}
+              borderRadius={[5, 8, 10]}
               background="#ffffffaa"
             >
               <Box
+                fontSize={["xs", "sm", "md"]}
                 fontWeight="bold"
-                borderRadius="10px 10px 0 0"
+                roundedTop={[5, 8, 10]}
                 background="#ff0000aa"
                 color="white"
               >
@@ -172,8 +183,8 @@ const Event = ({ id, host }) => {
               </Box>
               <Text
                 fontWeight="bold"
-                fontSize="2.5rem"
-                height="60px"
+                fontSize={["2xl", "3xl", "4xl"]}
+                height={["35px", "45px", "60px"]}
                 lineHeight={1.4}
               >
                 {new Date(startsAt).toLocaleString(undefined, {
@@ -185,12 +196,30 @@ const Event = ({ id, host }) => {
 
           <Box
             mb={5}
-            borderWidth="1px"
+            borderWidth={['', '1px']}
             roundedBottom={5}
             minHeight={!location && '100px'}
           >
-            <Grid gridTemplateColumns="1fr 200px" padding={2}>
+            <Grid
+              gridTemplateColumns={['1fr', '1fr auto auto']}
+              columnGap={2}
+              padding={2}
+            >
+              <Link href="/event/[id]/edit" as={`/event/${id}/edit`}>
+                <Button
+                  gridRow={['', '1']}
+                  gridColumn={['', '2 / span 1']}
+                  mb={[2, '0']}
+                  leftIcon="edit"
+                  size="sm"
+                  variantColor="teal"
+                >
+                  Edit
+                </Button>
+              </Link>
+
               <Text
+                gridColumn="1"
                 textTransform="uppercase"
                 as="time"
                 datetime={startsAt}
@@ -218,47 +247,59 @@ const Event = ({ id, host }) => {
                       }
                 )}
               </Text>
-              <Heading gridRow={!location && '3'}>{name}</Heading>
+
+              <Heading gridColumn="1" gridRow={['', !location && '3']}>
+                {name}
+              </Heading>
+
               {location && (
-                <Text>
+                <Text gridColumn="1">
                   {location.street && `${location.street}, `}
                   {location.city}, {location.region}, {location.countryCode}
                 </Text>
               )}
 
-              <Stack
-                gridColumn="2 / 3"
-                gridRow="1 / 3"
-                justifySelf="end"
-                isInline
-                spacing={2}
-                shouldWrapChildren
-              >
-                {
-                  <Link href="/event/[id]/edit" as={`/event/${id}/edit`}>
-                    <Button leftIcon="edit" size="sm" variantColor="teal">
-                      Edit
-                    </Button>
-                  </Link>
-                }
-
-                <Button
-                  variant={isGoing ? 'solid' : 'outline'}
-                  variantColor="teal"
-                  leftIcon={isGoing ? 'check' : null}
-                  onClick={() => setIsGoing(!isGoing)}
-                  size="sm"
-                  minWidth={100}
+              {location && location.longitude && location.latitude && (
+                <Box
+                  gridColumn={[1, '1 / span 3']}
+                  height={['80px', '150px']}
+                  overflow="hidden"
+                  roundedBottom={[0, 5]}
+                  marginX={-2}
+                  mb={[2, -2]}
+                  mt={[2]}
                 >
-                  {isGoing ? 'Going!' : 'Interested?'}
-                </Button>
-              </Stack>
+                  <Map
+                    provider={(x, y, z, dpr) => {
+                      const retina =
+                        typeof dpr !== 'undefined'
+                          ? dpr >= 2
+                          : typeof window !== 'undefined' &&
+                            window.devicePixelRatio >= 2;
+                      return `https://${'abc'.charAt(
+                        Math.floor(Math.random() * 3)
+                      )}.tile.openstreetmap.org/${z}/${x}/${y}${
+                        retina ? '@2x' : ''
+                      }.png`;
+                    }}
+                    defaultWidth={1200}
+                    defaultHeight={150}
+                    center={[location.latitude, location.longitude]}
+                    zoom={location.street ? 16 : 11}
+                    mouseEvents={false}
+                    touchEvents={false}
+                  ></Map>
+                </Box>
+              )}
 
               <Box
                 textAlign="right"
-                gridColumn="2 / 3"
-                gridRow="2 / 4"
-                alignSelf="end"
+                pt={2}
+                gridColumn={['', '2 / 4']}
+                gridRow={['', '2 / span 2']}
+                alignSelf={['', 'end']}
+                display={['flex', 'block']}
+                flexDirection={['row-reverse', '']}
               >
                 <AvatarGroup size="xs" max={3} justify="end">
                   <Avatar
@@ -281,41 +322,31 @@ const Event = ({ id, host }) => {
                 </AvatarGroup>
                 <Text>10 people going</Text>
               </Box>
-            </Grid>
 
-            {location && location.longitude && location.latitude && (
-              <Box
-                width="100%"
-                height="150px"
-                overflow="hidden"
-                borderRadius="0 0 5px 5px"
+              <Button
+                mt={[2, '0']}
+                gridRow={['', '1']}
+                gridColumn={['', '3']}
+                variant={isGoing ? 'solid' : 'outline'}
+                variantColor="teal"
+                leftIcon={isGoing ? 'check' : null}
+                onClick={() => setIsGoing(!isGoing)}
+                size="sm"
+                minWidth={100}
               >
-                <Map
-                  provider={(x, y, z, dpr) => {
-                    const retina =
-                      typeof dpr !== 'undefined'
-                        ? dpr >= 2
-                        : typeof window !== 'undefined' &&
-                          window.devicePixelRatio >= 2;
-                    return `https://${'abc'.charAt(
-                      Math.floor(Math.random() * 3)
-                    )}.tile.openstreetmap.org/${z}/${x}/${y}${
-                      retina ? '@2x' : ''
-                    }.png`;
-                  }}
-                  defaultWidth={1200}
-                  defaultHeight={150}
-                  center={[location.latitude, location.longitude]}
-                  zoom={location.street ? 16 : 11}
-                  mouseEvents={false}
-                  touchEvents={false}
-                ></Map>
-              </Box>
-            )}
+                {isGoing ? 'Going!' : 'Interested?'}
+              </Button>
+            </Grid>
           </Box>
 
           {about && (
-            <Box mb={5} borderWidth="1px" borderRadius={5} padding={2}>
+            <Box
+              m={[2, 0]}
+              mb={5}
+              borderWidth="1px"
+              borderRadius={5}
+              padding={2}
+            >
               <Heading as="h3" fontSize="2xl">
                 Description
               </Heading>
@@ -324,7 +355,7 @@ const Event = ({ id, host }) => {
           )}
 
           {games.nodes.length > 0 && (
-            <Box mb={5}>
+            <Box m={[2, 0]} mb={5}>
               <Heading size="md" mb={2}>
                 Games
               </Heading>
@@ -362,15 +393,23 @@ const Event = ({ id, host }) => {
           )}
         </Box>
 
-        <Box>
+        <Box m={[2, 0]}>
           <Heading>Related events</Heading>
-          <Stack mt={5} spacing={5} shouldWrapChildren>
+          <Grid
+            mt={[2, 2, 5]}
+            gap={5}
+            gridTemplateColumns={['1fr', '1fr 1fr', '1fr']}
+          >
             {relatedEvents.length > 0 ? (
-              relatedEvents.map(event => <EventCard {...event} />)
+              relatedEvents.map(event => (
+                <Box key={event.id}>
+                  <EventCard {...event} />
+                </Box>
+              ))
             ) : (
               <Text>No related events.</Text>
             )}
-          </Stack>
+          </Grid>
         </Box>
       </Grid>
     </div>
@@ -384,7 +423,7 @@ Event.getInitialProps = async context => {
     return {
       id,
       host: context.req.headers.host,
-    }
+    };
   }
 
   return {

@@ -45,7 +45,7 @@ const EventCard = forwardRef(({
       </AspectRatioBox>
 
       <Box borderWidth="1px" roundedBottom={5} padding={2}>
-        <Text textTransform="uppercase" whiteSpace="nowrap">
+        <Text textTransform="uppercase" whiteSpace="nowrap" isTruncated>
           <Text as="time" datetime={startsAt}>
             {new Date(startsAt).toLocaleString(undefined, {
               day: 'numeric',

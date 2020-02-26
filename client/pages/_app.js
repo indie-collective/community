@@ -14,7 +14,7 @@ export default class MyApp extends App {
     const { Component, pageProps } = this.props;
     return (
       <ThemeProvider>
-        <ColorModeProvider value="light">
+        <ColorModeProvider>
           <CSSReset />
           <Main maxWidth="1280px">
             <AnimatePresence exitBeforeEnter>
