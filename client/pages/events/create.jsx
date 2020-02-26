@@ -36,7 +36,7 @@ const createEventMutation = gql`
         about
         cover {
           url
-          thumb_url
+          thumbnail_url
         }
         locationId
         startsAt
