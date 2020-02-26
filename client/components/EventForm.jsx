@@ -18,6 +18,7 @@ import {
 import Map from 'pigeon-maps';
 
 import PlacesSearch from './PlacesSearch';
+import { format } from 'date-fns';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
@@ -81,9 +82,9 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
     defaultValues: {
       name,
       start: startsAt
-        ? new Date(startsAt).toISOString().slice(0, -8)
+        ? format(new Date(startsAt), "yyyy-MM-dd'T'HH:mm")
         : undefined,
-      end: endsAt ? new Date(endsAt).toISOString().slice(0, -8) : undefined,
+      end: endsAt ? format(new Date(endsAt), "yyyy-MM-dd'T'HH:mm") : undefined,
       location: l,
       about,
     },

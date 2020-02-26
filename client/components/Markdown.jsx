@@ -41,7 +41,6 @@ const Li = props => <ListItem {...props} />;
 
 const md = new Remarkable().use(linkify);
 md.block.ruler.disable([ 'code', 'fences', 'table', 'footnote', 'heading', 'lheading', 'htmlblock' ]);
-console.log(md)
 md.renderer = new RemarkableReactRenderer({
   components: {
     a: A,

@@ -26,6 +26,7 @@ const EventCard = forwardRef(({
     <PseudoBox
       ref={ref}
       onClick={onClick}
+      boxShadow="0 1px 2px rgba(0, 0, 0, 0.1)"
       _hover={{
         backgroundColor: colorMode === 'dark' ? 'gray.700' : 'gray.50',
         cursor: 'pointer',
