@@ -63,7 +63,7 @@ const RelatedEvents = ({eventId, tokens}) => {
     >
       {data.events.nodes.length > 0 ? (
         data.events.nodes.map(event => (
-          <Box key={event.id}>
+          <Box key={event.id} overflow="hidden">
             <EventCard {...event} />
           </Box>
         ))
