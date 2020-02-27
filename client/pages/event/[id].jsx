@@ -11,7 +11,6 @@ import {
   Heading,
   Text,
   Spinner,
-  Stack,
   AvatarGroup,
   Avatar,
   Button,
@@ -25,6 +24,7 @@ import GameCard from '../../components/GameCard';
 import OrgCard from '../../components/OrgCard';
 import EventCard from '../../components/EventCard';
 import Markdown from '../../components/Markdown';
+import RelatedEvents from '../../components/RelatedEvents';
 
 const eventQuery = gql`
   query event($id: UUID!) {
@@ -84,7 +84,6 @@ const Event = ({ id, host }) => {
     variables: { id },
     skip: !validId,
   });
-  const relatedEvents = [];
 
   if ((id !== undefined && !validId) || error) {
     return <Error statusCode={404} />;
@@ -395,21 +394,8 @@ const Event = ({ id, host }) => {
 
         <Box m={[2, 0]}>
           <Heading>Related events</Heading>
-          <Grid
-            mt={[2, 2, 5]}
-            gap={5}
-            gridTemplateColumns={['1fr', '1fr 1fr', '1fr']}
-          >
-            {relatedEvents.length > 0 ? (
-              relatedEvents.map(event => (
-                <Box key={event.id}>
-                  <EventCard {...event} />
-                </Box>
-              ))
-            ) : (
-              <Text>No related events.</Text>
-            )}
-          </Grid>
+
+          <RelatedEvents eventId={id} tokens={name.split(' ').filter(s => s.length > 3)} />
         </Box>
       </Grid>
     </div>
