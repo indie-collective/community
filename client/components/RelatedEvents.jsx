@@ -1,6 +1,7 @@
 import { useQuery } from "@apollo/react-hooks";
 import { Spinner, Grid, Box, Text } from "@chakra-ui/core";
 import gql from "graphql-tag";
+import Link from "next/link";
 
 import EventCard from "./EventCard";
 
@@ -63,8 +64,10 @@ const RelatedEvents = ({eventId, tokens}) => {
     >
       {data.events.nodes.length > 0 ? (
         data.events.nodes.map(event => (
-          <Box key={event.id} overflow="hidden">
-            <EventCard {...event} />
+          <Box key={event.id} minW={0}>
+            <Link key={event.id} href="/event/[id]" as={`/event/${event.id}`}>
+              <EventCard {...event} />
+            </Link>
           </Box>
         ))
       ) : (
