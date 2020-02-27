@@ -26,6 +26,7 @@ import EventCard from '../../components/EventCard';
 import Markdown from '../../components/Markdown';
 import RelatedEvents from '../../components/RelatedEvents';
 import usePlaceholder from '../../hooks/usePlaceholder';
+import DateLabel from '../../components/DateLabel';
 
 const eventQuery = gql`
   query event($id: UUID!) {
@@ -162,37 +163,12 @@ const Event = ({ id, host }) => {
               />
             </AspectRatioBox>
 
-            <Box
-              width={["50px", "65px", "80px"]}
+            <DateLabel
               position="absolute"
               right={2}
               bottom={3}
-              textAlign="center"
-              borderRadius={[5, 8, 10]}
-              background="#ffffffaa"
-            >
-              <Box
-                fontSize={["xs", "sm", "md"]}
-                fontWeight="bold"
-                roundedTop={[5, 8, 10]}
-                background="#ff0000aa"
-                color="white"
-              >
-                {new Date(startsAt).toLocaleString(undefined, {
-                  month: 'short',
-                })}
-              </Box>
-              <Text
-                fontWeight="bold"
-                fontSize={["2xl", "3xl", "4xl"]}
-                height={["35px", "45px", "60px"]}
-                lineHeight={1.4}
-              >
-                {new Date(startsAt).toLocaleString(undefined, {
-                  day: 'numeric',
-                })}
-              </Text>
-            </Box>
+              value={new Date(startsAt)}
+            />
           </Box>
 
           <Box
