@@ -39,7 +39,7 @@ const SignIn = () => {
           </Link>
         </Box>
 
-        <Box border="1px solid #eee" mb={10} p={3} borderRadius={5}>
+        <Box borderWidth="1px" mb={10} p={3} borderRadius={5}>
           <SigninForm
             onSubmit={async (variables) => {
               const {data} = await signin({ variables });

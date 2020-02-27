@@ -49,7 +49,7 @@ const SigninForm = ({ loading, onSubmit }) => {
       <Button
         type="submit"
         mt={3}
-        variantColor="green"
+        variantColor="teal"
         isDisabled={loading}
         isLoading={loading}
       >

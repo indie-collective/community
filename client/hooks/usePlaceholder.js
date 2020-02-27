@@ -7,8 +7,8 @@ export default function usePlaceholder() {
   const {colorMode} = useColorMode();
 
   if (colorMode === 'dark') {
-    return placeholderDark;
+    return '/' + placeholderDark;
   }
 
-  return placeholderLight;
+  return '/' + placeholderLight;
 }
