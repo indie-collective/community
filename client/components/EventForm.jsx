@@ -19,6 +19,7 @@ import Map from 'pigeon-maps';
 
 import PlacesSearch from './PlacesSearch';
 import { format } from 'date-fns';
+import usePlaceholder from '../hooks/usePlaceholder';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
@@ -74,6 +75,7 @@ const defaultProps = {
 const OSMServer = 'abc'.charAt(Math.floor(Math.random() * 3));
 
 const EventForm = ({ defaultData, onSubmit, loading }) => {
+  const placeholder = usePlaceholder();
   const { name, startsAt, endsAt, location: l, about } = defaultData;
   const coverRef = useRef();
   const [cover, setCover] = useState(defaultData.cover);
@@ -192,7 +194,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
               objectFit="cover"
               src={cover && cover.url}
               alt="Event cover"
-              fallbackSrc="https://via.placeholder.com/800x300?text=Event cover"
+              fallbackSrc={placeholder}
               borderRadius={5}
             />
           </AspectRatioBox>

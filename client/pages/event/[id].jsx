@@ -25,6 +25,7 @@ import OrgCard from '../../components/OrgCard';
 import EventCard from '../../components/EventCard';
 import Markdown from '../../components/Markdown';
 import RelatedEvents from '../../components/RelatedEvents';
+import usePlaceholder from '../../hooks/usePlaceholder';
 
 const eventQuery = gql`
   query event($id: UUID!) {
@@ -79,6 +80,7 @@ const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A
 const Event = ({ id, host }) => {
   const validId = uuidRegex.test(id);
 
+  const placeholder = usePlaceholder();
   const [isGoing, setIsGoing] = useState(false);
   const { loading, error, data } = useQuery(eventQuery, {
     variables: { id },
@@ -156,7 +158,7 @@ const Event = ({ id, host }) => {
                 objectFit="cover"
                 src={cover && cover.url}
                 alt="Event cover"
-                fallbackSrc="https://via.placeholder.com/800x300?text=Event cover"
+                fallbackSrc={placeholder}
               />
             </AspectRatioBox>
 

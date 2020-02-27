@@ -9,6 +9,7 @@ import {
   PseudoBox,
   useColorMode,
 } from '@chakra-ui/core';
+import usePlaceholder from '../hooks/usePlaceholder';
 
 const EventCard = forwardRef(({
   id,
@@ -21,6 +22,7 @@ const EventCard = forwardRef(({
   onClick,
 }, ref) => {
   const { colorMode } = useColorMode();
+  const placeholder = usePlaceholder();
 
   return (
     <PseudoBox
@@ -39,7 +41,7 @@ const EventCard = forwardRef(({
           objectFit="cover"
           src={cover && cover.thumbnail_url}
           alt="Event cover"
-          fallbackSrc="https://via.placeholder.com/800x300?text=Event cover"
+          fallbackSrc={placeholder}
           roundedTop={5}
         />
       </AspectRatioBox>
