@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Input } from '@chakra-ui/core';
+import { Input, useColorMode, useTheme } from '@chakra-ui/core';
 
 import AlgoliaPlaces from './AlgoliaPlaces';
 
@@ -20,6 +20,8 @@ const defaultProps = {
 };
 
 const PlacesSearch = ({ onChange, options, value: l, ...rest }) => {
+  const {colorMode} = useColorMode();
+  const theme = useTheme();
 
   return (
     <>
@@ -27,6 +29,14 @@ const PlacesSearch = ({ onChange, options, value: l, ...rest }) => {
         /* sounds like the reset file makes all SVG block, messing with Algolia's style */
         .ap-suggestion svg, .ap-footer svg {
           display: inline;
+        }
+
+        .ap-dropdown-menu {
+          background-color: ${colorMode === 'dark' ? theme.colors.gray[700] : ''};
+        }
+
+        .ap-cursor {
+          background-color: ${colorMode === 'dark' ? theme.colors.gray[600] : ''};
         }
       `}</style>
       <AlgoliaPlaces
