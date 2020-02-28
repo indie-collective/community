@@ -41,11 +41,13 @@ const SignIn = () => {
 
         <Box borderWidth="1px" mb={10} p={3} borderRadius={5}>
           <SigninForm
-            onSubmit={async (variables) => {
-              const {data} = await signin({ variables });
+            onSubmit={async variables => {
+              const { data } = await signin({ variables });
 
               if (data && data.authenticate.jwtToken !== null) {
-                document.cookie = `token=${data.authenticate.jwtToken}`;
+                document.cookie = `token=${
+                  data.authenticate.jwtToken
+                };max-age=${60 * 60 * 24 * 365}`;
 
                 push('/');
               }

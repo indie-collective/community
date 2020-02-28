@@ -235,6 +235,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         <FormLabel htmlFor="about">About</FormLabel>
         <Textarea
           name="about"
+          minH="15rem"
           resize="vertical"
           placeholder="What is it about?"
           whiteSpace="pre-wrap"

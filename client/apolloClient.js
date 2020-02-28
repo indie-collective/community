@@ -62,7 +62,6 @@ export default function createApolloClient(initialState, ctx) {
     ssrMode: Boolean(ctx),
     link: ApolloLink.from([
       onError(({ operation, graphQLErrors, networkError }) => {
-        console.log(operation)
         if (graphQLErrors)
           graphQLErrors.forEach(({ message, locations, path }) =>
             console.log(

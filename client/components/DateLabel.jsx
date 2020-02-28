@@ -3,8 +3,6 @@ import { useColorMode, Box, Text } from '@chakra-ui/core';
 const DateLabel = ({ value, ...rest }) => {
   const { colorMode } = useColorMode();
 
-  console.log(colorMode)
-
   return (
     <Box
       width={['50px', '65px', '80px']}
