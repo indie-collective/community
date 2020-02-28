@@ -1,16 +1,17 @@
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
-import { Box, Spinner, Stack } from '@chakra-ui/core';
+import { Box, Spinner, Grid, Heading } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
+import Link from 'next/link';
 
 const gamesQuery = gql`
   {
-    games(first: 10) {
+    games(last: 30) {
       nodes {
         id
         name
@@ -20,7 +21,7 @@ const gamesQuery = gql`
         images {
           nodes {
             id
-            imageFile
+            thumbnail_url
           }
         }
       }
@@ -65,30 +66,42 @@ const Games = () => {
           <Spinner size="lg" />
         </Box>
       ) : (
-        <Box mt={3} pl={5} pr={5}>
+        <Box p={5}>
+          <Heading mb={4} mt={5}>
+            Latest games
+          </Heading>
           <motion.div
             initial="initial"
             animate="enter"
             exit="exit"
             variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
           >
-            <Stack spacing={5} isInline>
+            <Grid
+              gap={5}
+              templateColumns={[
+                '1fr',
+                'repeat(2, 1fr)',
+                'repeat(3, 1fr)',
+                'repeat(4, 1fr)',
+              ]}
+            >
               {data.games.nodes.map(({ id, name, about, site, images }) => (
-                <Box>
+                <Box key={id} minW={0}>
                   <motion.div variants={gameVariants}>
-                    <GameCard
-                      key={id}
-                      width="15em"
-                      id={id}
-                      name={name}
-                      about={about}
-                      site={site}
-                      images={images}
-                    />
+                    <Link href="/game/[id]" as={`/game/${id}`}>
+                      <GameCard
+                        key={id}
+                        id={id}
+                        name={name}
+                        about={about}
+                        site={site}
+                        images={images}
+                      />
+                    </Link>
                   </motion.div>
                 </Box>
               ))}
-            </Stack>
+            </Grid>
           </motion.div>
         </Box>
       )}
@@ -96,4 +109,4 @@ const Games = () => {
   );
 };
 
-export default withApollo({ssr: true})(Games);
+export default withApollo({ ssr: true })(Games);

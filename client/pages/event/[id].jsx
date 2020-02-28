@@ -14,6 +14,7 @@ import {
   AvatarGroup,
   Avatar,
   Button,
+  Stack,
 } from '@chakra-ui/core';
 import Map from 'pigeon-maps';
 import Error from 'next/error';
@@ -336,18 +337,18 @@ const Event = ({ id, host }) => {
               <Heading size="md" mb={2}>
                 Games
               </Heading>
-              <Box overflowX="auto">
+              <Stack wrap="wrap" spacing={2} isInline>
                 {games.nodes.map(({ id, name, images }) => (
-                  <Box key={id} display="inline-block" mr={4}>
+                  <Box key={id} mb={2}>
                     <GameCard
-                      key={id}
                       id={id}
                       name={name}
                       images={images.nodes}
+                      isCompact
                     />
                   </Box>
                 ))}
-              </Box>
+              </Stack>
             </Box>
           )}
 
@@ -373,7 +374,10 @@ const Event = ({ id, host }) => {
         <Box m={[2, 0]}>
           <Heading>Related events</Heading>
 
-          <RelatedEvents eventId={id} tokens={name.split(' ').filter(s => s.length > 3)} />
+          <RelatedEvents
+            eventId={id}
+            tokens={name.split(' ').filter(s => s.length > 3)}
+          />
         </Box>
       </Grid>
     </div>

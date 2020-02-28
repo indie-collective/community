@@ -130,9 +130,9 @@ const Events = () => {
                     startsAt,
                     endsAt,
                   }) => (
-                    <Box minW={0}>
+                    <Box key={id} minW={0}>
                       <motion.div variants={eventVariants}>
-                        <Link key={id} href="/event/[id]" as={`/event/${id}`}>
+                        <Link href="/event/[id]" as={`/event/${id}`}>
                           <EventCard
                             key={id}
                             id={id}
