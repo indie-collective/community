@@ -98,7 +98,7 @@ const Profile = ({ id }) => {
             <FormLabel htmlFor="dark-mode">Dark mode</FormLabel>
             <Switch
               id="dark-mode"
-              value={colorMode === 'dark'}
+              isChecked={colorMode === 'dark'}
               onChange={toggleColorMode}
             />
           </Flex>
