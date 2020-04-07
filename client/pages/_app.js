@@ -7,6 +7,8 @@ import {
   ThemeProvider,
 } from '@chakra-ui/core';
 import Head from 'next/head';
+// CSS needed for Carousel component
+import 'slick-carousel/slick/slick.css';
 
 const Main = props => <Box as="main" mx="auto" mb="3rem" {...props} />;
 

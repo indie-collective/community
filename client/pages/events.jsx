@@ -4,14 +4,15 @@ import { useQuery } from '@apollo/react-hooks';
 import { Button, Box, Spinner, Heading, Text, Grid } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
+import React, { useMemo, useCallback, useState} from 'react';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import EventCard from '../components/EventCard';
-import { useMemo } from 'react';
 import Link from 'next/link';
+import Carousel from '../components/Carousel';
 
-const eventsQuery = gql`
+const EVENT_SUMMARY_FRAGMENT = gql`
   fragment EventSummary on Event {
     id
     name
@@ -36,17 +37,12 @@ const eventsQuery = gql`
       totalCount
     }
   }
+`;
 
-  query getEvents($now: Datetime!) {
-    events(
-      filter: { endsAt: { greaterThanOrEqualTo: $now } }
-      first: 3
-      orderBy: STARTS_AT_ASC
-    ) {
-      nodes {
-        ...EventSummary
-      }
-    }
+const getPastEvents = gql`
+  ${EVENT_SUMMARY_FRAGMENT}
+
+  query getPastEvents($now: Datetime!) {
     pastEvents: events(
       filter: { endsAt: { lessThan: $now } }
       first: 20
@@ -54,6 +50,27 @@ const eventsQuery = gql`
     ) {
       nodes {
         ...EventSummary
+      }
+    }
+  }
+`;
+
+const getEvents = gql`
+  ${EVENT_SUMMARY_FRAGMENT}
+
+  query getEvents($now: Datetime!, $cursor: Cursor) {
+    events(
+      filter: { endsAt: { greaterThanOrEqualTo: $now } }
+      first: 6
+      after: $cursor
+      orderBy: STARTS_AT_ASC
+    ) {
+      nodes {
+        ...EventSummary
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }
@@ -77,9 +94,38 @@ const eventVariants = {
 
 const Events = () => {
   const now = useMemo(() => new Date(), []);
-  const { data, error, loading } = useQuery(eventsQuery, {
+  const [loadingMore, setLoadingMore] = useState(false);
+  const { data: dataPasts, loading: loadingPasts } = useQuery(getPastEvents, {
     variables: { now },
   });
+  const { data, fetchMore, loading } = useQuery(getEvents, {
+    variables: { now },
+  });
+
+  const onLoadMore = useCallback(async () => {
+    if (loading || !data.events.pageInfo.hasNextPage) return;
+
+    setLoadingMore(true);
+
+    await fetchMore({
+      variables: {
+        cursor: data.events.pageInfo.endCursor,
+      },
+      updateQuery: (previousResult, { fetchMoreResult }) => {
+        const {nodes, pageInfo} = fetchMoreResult.events;
+
+        return nodes.length ? {
+          events: {
+            __typename: previousResult.events.__typename,
+            nodes: [...previousResult.events.nodes, ...nodes],
+            pageInfo,
+          }
+        } : previousResult;
+      },
+    });
+
+    setLoadingMore(false);
+  }, [loading, data]);
 
   return (
     <div>
@@ -111,13 +157,14 @@ const Events = () => {
           <Heading mb={4} mt={5}>
             Upcoming events
           </Heading>
+
           <motion.div
             initial="initial"
             animate="enter"
             exit="exit"
             variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
           >
-            <Grid gap={3} templateColumns={["1fr", "1fr", "repeat(2, 1fr)", "repeat(3, 1fr)"]}>
+            <Carousel slidesToShow={[1, 2, 3]} onLoadMore={onLoadMore} loadingMore={loadingMore}>
               {data.events.nodes.length > 0 ? (
                 data.events.nodes.map(
                   ({
@@ -130,11 +177,10 @@ const Events = () => {
                     startsAt,
                     endsAt,
                   }) => (
-                    <Box key={id} minW={0}>
+                    <Box key={id} minW={0} pr={3}>
                       <motion.div variants={eventVariants}>
                         <Link href="/event/[id]" as={`/event/${id}`}>
                           <EventCard
-                            key={id}
                             id={id}
                             name={name}
                             cover={cover}
@@ -154,7 +200,7 @@ const Events = () => {
                   <Text fontSize="xl">No upcoming events yet :(</Text>
                 </Box>
               )}
-            </Grid>
+            </Carousel>
           </motion.div>
 
           <NextLink href="/events/create">
@@ -173,44 +219,55 @@ const Events = () => {
           <Heading mb={4} mt={5}>
             Past events
           </Heading>
-          <motion.div
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-          >
-            <Grid gap={3} templateColumns={["repeat(2, 1fr)", "repeat(2, 1fr)", "repeat(3, 1fr)", "repeat(4, 1fr)"]}>
-              {data.pastEvents.nodes.map(
-                ({
-                  id,
-                  name,
-                  cover,
-                  games,
-                  entities,
-                  location,
-                  startsAt,
-                  endsAt,
-                }) => (
-                  <Box minW={0}>
-                    <motion.div variants={eventVariants}>
-                      <Link key={id} href="/event/[id]" as={`/event/${id}`}>
-                        <EventCard
-                          id={id}
-                          name={name}
-                          cover={cover}
-                          startsAt={startsAt}
-                          endsAt={endsAt}
-                          games={games}
-                          entities={entities}
-                          location={location}
-                        />
-                      </Link>
-                    </motion.div>
-                  </Box>
-                )
-              )}
-            </Grid>
-          </motion.div>
+          {loadingPasts ? (
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              height="100%"
+            >
+              <Spinner size="lg" />
+            </Box>
+          ) : (
+            <motion.div
+              initial="initial"
+              animate="enter"
+              exit="exit"
+              variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+            >
+              <Grid gap={3} templateColumns={["repeat(2, 1fr)", "repeat(2, 1fr)", "repeat(3, 1fr)", "repeat(4, 1fr)"]}>
+                {dataPasts.pastEvents.nodes.map(
+                  ({
+                    id,
+                    name,
+                    cover,
+                    games,
+                    entities,
+                    location,
+                    startsAt,
+                    endsAt,
+                  }) => (
+                    <Box minW={0} key={id}>
+                      <motion.div variants={eventVariants}>
+                        <Link key={id} href="/event/[id]" as={`/event/${id}`}>
+                          <EventCard
+                            id={id}
+                            name={name}
+                            cover={cover}
+                            startsAt={startsAt}
+                            endsAt={endsAt}
+                            games={games}
+                            entities={entities}
+                            location={location}
+                          />
+                        </Link>
+                      </motion.div>
+                    </Box>
+                  )
+                )}
+              </Grid>
+            </motion.div>
+          )}
         </Box>
       )}
     </div>
