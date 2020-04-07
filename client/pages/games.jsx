@@ -88,16 +88,13 @@ const Games = () => {
               {data.games.nodes.map(({ id, name, about, site, images }) => (
                 <Box key={id} minW={0}>
                   <motion.div variants={gameVariants}>
-                    <Link href="/game/[id]" as={`/game/${id}`}>
-                      <GameCard
-                        key={id}
-                        id={id}
-                        name={name}
-                        about={about}
-                        site={site}
-                        images={images}
-                      />
-                    </Link>
+                    <GameCard
+                      id={id}
+                      name={name}
+                      about={about}
+                      site={site}
+                      images={images}
+                    />
                   </motion.div>
                 </Box>
               ))}

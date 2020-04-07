@@ -1,15 +1,14 @@
 import gql from 'graphql-tag';
-import NextLink from 'next/link';
 import { useQuery } from '@apollo/react-hooks';
 import { Button, Box, Spinner, Heading, Text, Grid } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 import React, { useMemo, useCallback, useState} from 'react';
+import Link from 'next/link';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import EventCard from '../components/EventCard';
-import Link from 'next/link';
 import Carousel from '../components/Carousel';
 
 const EVENT_SUMMARY_FRAGMENT = gql`
@@ -179,18 +178,16 @@ const Events = () => {
                   }) => (
                     <Box key={id} minW={0} pr={3}>
                       <motion.div variants={eventVariants}>
-                        <Link href="/event/[id]" as={`/event/${id}`}>
-                          <EventCard
-                            id={id}
-                            name={name}
-                            cover={cover}
-                            startsAt={startsAt}
-                            endsAt={endsAt}
-                            games={games}
-                            entities={entities}
-                            location={location}
-                          />
-                        </Link>
+                        <EventCard
+                          id={id}
+                          name={name}
+                          cover={cover}
+                          startsAt={startsAt}
+                          endsAt={endsAt}
+                          games={games}
+                          entities={entities}
+                          location={location}
+                        />
                       </motion.div>
                     </Box>
                   )
@@ -203,7 +200,7 @@ const Events = () => {
             </Carousel>
           </motion.div>
 
-          <NextLink href="/events/create">
+          <Link href="/events/create">
             <Button
               display="block"
               m="auto"
@@ -214,7 +211,7 @@ const Events = () => {
             >
               Add an event
             </Button>
-          </NextLink>
+          </Link>
 
           <Heading mb={4} mt={5}>
             Past events
@@ -249,18 +246,16 @@ const Events = () => {
                   }) => (
                     <Box minW={0} key={id}>
                       <motion.div variants={eventVariants}>
-                        <Link key={id} href="/event/[id]" as={`/event/${id}`}>
-                          <EventCard
-                            id={id}
-                            name={name}
-                            cover={cover}
-                            startsAt={startsAt}
-                            endsAt={endsAt}
-                            games={games}
-                            entities={entities}
-                            location={location}
-                          />
-                        </Link>
+                        <EventCard
+                          id={id}
+                          name={name}
+                          cover={cover}
+                          startsAt={startsAt}
+                          endsAt={endsAt}
+                          games={games}
+                          entities={entities}
+                          location={location}
+                        />
                       </motion.div>
                     </Box>
                   )
