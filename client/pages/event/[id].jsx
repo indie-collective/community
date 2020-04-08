@@ -279,7 +279,7 @@ const Event = ({ id, host }) => {
                 display={['flex', 'block']}
                 flexDirection={['row-reverse', '']}
               >
-                <AvatarGroup size="xs" max={3} justify="end">
+                <AvatarGroup size="xs" max={3} justify="flex-end">
                   <Avatar
                     name="Ryan Florence"
                     src="https://bit.ly/ryan-florence"
