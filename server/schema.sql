@@ -14,7 +14,7 @@ create extension if not exists "uuid-ossp";
 create type indieco.entity_type as enum (
   'studio',
   'association',
-  'organisation'
+  'organization'
 );
 
 

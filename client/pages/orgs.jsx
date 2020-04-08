@@ -1,7 +1,6 @@
-import Link from 'next/link';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
-import { Box, Stack, Spinner } from '@chakra-ui/core';
+import { Box, Spinner, Heading, Grid } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 
@@ -61,10 +60,18 @@ const Orgs = () => {
     <div>
       <Head>
         <title>Organizations</title>
+        <meta name="description" content="Video game related organizations around you and all over the world." />
+        <meta property="og:title" content="Organizations" />
+        <meta property="og:description" content="Video game related organizations around you and all over the world." />
+
+        <meta name="twitter:card" content={'summary'} />
+        <meta name="twitter:site" content="@IndieColle" />
+        <meta name="twitter:title" content="Organizations" />
+        <meta name="twitter:description" content="Video game related organizations around you and all over the world." />
       </Head>
 
       <Navigation />
-  
+
       {loading ? (
         <Box
           display="flex"
@@ -75,16 +82,28 @@ const Orgs = () => {
           <Spinner size="lg" />
         </Box>
       ) : (
-        <Box mt={3} pl={5} pr={5}>
+        <Box p={5}>
+          <Heading mb={4} mt={5}>
+            Latest organizations
+          </Heading>
+
           <motion.div
             initial="initial"
             animate="enter"
             exit="exit"
             variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
           >
-            <Stack spacing={3}>
+            <Grid
+              gap={5}
+              templateColumns={[
+                '1fr',
+                'repeat(2, 1fr)',
+                'repeat(3, 1fr)',
+                'repeat(4, 1fr)',
+              ]}
+            >
               {data.entities.nodes.map(({ id, name, type, people, games }) => (
-                <Box>
+                <Box key={id} minW={0}>
                   <motion.div variants={orgVariants}>
                     <OrgCard
                       id={id}
@@ -96,7 +115,7 @@ const Orgs = () => {
                   </motion.div>
                 </Box>
               ))}
-            </Stack>
+            </Grid>
           </motion.div>
         </Box>
       )}
@@ -104,4 +123,4 @@ const Orgs = () => {
   );
 };
 
-export default withApollo({ssr: true})(Orgs);
+export default withApollo({ ssr: true })(Orgs);
