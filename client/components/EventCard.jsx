@@ -28,25 +28,25 @@ const EventCard = forwardRef(({
       <a>
         <PseudoBox
           ref={ref}
-          boxShadow="0 1px 2px rgba(0, 0, 0, 0.1)"
+          transition="background-color 200ms ease-out"
           _hover={{
             backgroundColor: colorMode === 'dark' ? 'gray.700' : 'gray.50',
             cursor: 'pointer',
           }}
           rounded={5}
         >
-          <AspectRatioBox ratio={3}>
+          <AspectRatioBox ratio={2}>
             <Image
               size="100%"
               objectFit="cover"
               src={cover && cover.thumbnail_url}
               alt="Event cover"
               fallbackSrc={placeholder}
-              roundedTop={5}
+              rounded={5}
             />
           </AspectRatioBox>
 
-          <Box borderWidth="1px" roundedBottom={5} padding={2}>
+          <Box padding={2}>
             <Text textTransform="uppercase" whiteSpace="nowrap" isTruncated>
               <Text as="time" datetime={startsAt}>
                 {new Date(startsAt).toLocaleString(undefined, {
