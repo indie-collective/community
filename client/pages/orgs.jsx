@@ -83,10 +83,6 @@ const Orgs = () => {
         </Box>
       ) : (
         <Box p={5}>
-          <Heading mb={4} mt={5}>
-            Latest organizations
-          </Heading>
-
           <motion.div
             initial="initial"
             animate="enter"
