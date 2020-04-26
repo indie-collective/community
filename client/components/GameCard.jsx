@@ -24,18 +24,22 @@ const GameCard = forwardRef(({ id, images, name, isCompact }, ref) => {
     return (
       <Link href="/game/[id]" as={`/game/${id}`}>
         <a>
-          <Box
+          <PseudoBox
+            rounded={5}
+            transition="background-color 200ms ease-out"
             ref={ref}
-            boxShadow="0 1px 2px rgba(0, 0, 0, 0.1)"
-            borderWidth={1}
-            rounded="md"
             position="relative"
             overflow="hidden"
-          >
+            _hover={{
+              backgroundColor: colorMode === 'dark' ? 'gray.700' : 'gray.50',
+              cursor: 'pointer',
+            }}
+           >
             {images.length > 0 && (
               <Image
                 position="absolute"
                 objectFit="cover"
+                rounded="md"
                 size="100%"
                 src={images[0].thumbnail_url}
                 alt="Game cover"
@@ -51,15 +55,10 @@ const GameCard = forwardRef(({ id, images, name, isCompact }, ref) => {
               zIndex={2}
               backgroundColor={images.length > 0 ? overlayBgColor : ''}
               fontWeight="bold"
-              _hover={{
-                cursor: 'pointer',
-                backgroundColor:
-                  images.length > 0 ? overlayBgColorHover : bgColorHover,
-              }}
             >
               {name}
             </PseudoBox>
-          </Box>
+          </PseudoBox>
         </a>
       </Link>
     );
@@ -84,11 +83,11 @@ const GameCard = forwardRef(({ id, images, name, isCompact }, ref) => {
               src={images.length > 0 && images[0].thumbnail_url}
               alt="Game cover"
               fallbackSrc={placeholder}
-              roundedTop="md"
+              rounded="md"
             />
           </AspectRatioBox>
 
-          <Box borderWidth="1px" roundedBottom={5} padding={2}>
+          <Box padding={2}>
             {name}
           </Box>
         </PseudoBox>

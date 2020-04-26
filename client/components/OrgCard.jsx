@@ -35,38 +35,34 @@ const OrgCard = ({ id, type, logo, name, people, games }) => {
         <PseudoBox
           as={Flex}
           alignItems="center"
-          borderWidth="1px"
-          roundedBottom={5}
-          padding={1}
-          boxShadow="0 1px 2px rgba(0, 0, 0, 0.1)"
+          rounded={5}
+          transition="background-color 200ms ease-out"
           _hover={{
             backgroundColor: colorMode === 'dark' ? 'gray.700' : 'gray.50',
             cursor: 'pointer',
           }}
-          rounded={5}
         >
-          <Box width="45px" mr={2} flexShrink={0} position="relative">
-            <AspectRatioBox ratio={1}>
-              <Image
-                size="100%"
-                objectFit="contain"
-                src={logo && logo.thumbnail_url}
-                alt="Organization cover"
-                fallbackSrc={placeholder}
-                roundedTop={5}
-              />
-            </AspectRatioBox>
+          <Flex direction="column" width="60px" mr={2} flexShrink={0} position="relative">
+            <Image
+              size="60px"
+              objectFit="cover"
+              src={logo && logo.thumbnail_url}
+              alt="Organization cover"
+              fallbackSrc={placeholder}
+              rounded={3}
+            />
 
             <Box
               position="absolute"
-              bottom={0}
+              bottom={-4}
               left={0}
               right={0}
               textAlign="center"
             >
               <DarkMode>
                 <Badge
-                  rounded={2}
+                  width="100%"
+                  rounded={3}
                   variant="solid"
                   variantColor={TYPES_COLORS[type]}
                   fontSize="0.5em"
@@ -75,7 +71,7 @@ const OrgCard = ({ id, type, logo, name, people, games }) => {
                 </Badge>
               </DarkMode>
             </Box>
-          </Box>
+          </Flex>
 
           <Box isTruncated>
             <Heading as="h3" size="xs" isTruncated>
@@ -89,7 +85,7 @@ const OrgCard = ({ id, type, logo, name, people, games }) => {
               fontSize="xs"
               textTransform="uppercase"
             >
-              {people.totalCount} people &bull; {games.totalCount} games
+              {games.totalCount} {games.totalCount === 1 ? 'game' : 'games'}
             </Box>
           </Box>
         </PseudoBox>
