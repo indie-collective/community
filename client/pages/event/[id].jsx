@@ -275,7 +275,7 @@ const Event = ({ id, host }) => {
                 pt={2}
                 gridColumn={['', '2 / 4']}
                 gridRow={['', '2 / span 2']}
-                alignSelf={['', 'end']}
+                alignSelf={['', 'flex-end']}
                 display={['flex', 'block']}
                 flexDirection={['row-reverse', '']}
               >
