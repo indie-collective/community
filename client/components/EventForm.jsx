@@ -28,7 +28,7 @@ const validationSchema = yup.object().shape({
     type: yup
       .string()
       .notOneOf(['country'], 'You need to specify at least a city'),
-  }),
+  }).nullable(),
   start: yup
     .date()
     .default(() => {
