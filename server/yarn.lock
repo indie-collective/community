@@ -2,15 +2,15 @@
 # yarn lockfile v1
 
 
-"@graphile-contrib/pg-many-to-many@^1.0.0-beta.5":
-  version "1.0.0-beta.12"
-  resolved "https://registry.yarnpkg.com/@graphile-contrib/pg-many-to-many/-/pg-many-to-many-1.0.0-beta.12.tgz#ca80221c8c3bbf881a47e6054bab52d841dc0a09"
-  integrity sha512-4k3IPqT84PhKyMFMT+r0nRU+/pEqAYCMgjSBOw5oD3pbi2TxCDdg7+e47QINeFtITiBfKd5uvb+pPzFZsKQMDA==
+"@graphile-contrib/pg-many-to-many@^1.0.0-beta.13":
+  version "1.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@graphile-contrib/pg-many-to-many/-/pg-many-to-many-1.0.0-beta.13.tgz#1093409d541df918fcf1bf72f60e0400b9ea9832"
+  integrity sha512-gmawC6WtCzwDwzL+E2/DJpfiH84430PB5ApbbfcAhB3qLld/pN1RDwZ8XjiWYzxrKIBoRCv9VL8mF7YhI4dkMw==
 
-"@graphile-contrib/pg-simplify-inflector@^5.0.0-beta.1":
-  version "5.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@graphile-contrib/pg-simplify-inflector/-/pg-simplify-inflector-5.0.0-beta.1.tgz#f7e890566d33e8ee6796dab5ec75ff9bca040701"
-  integrity sha512-oE1znqxBgGl6WK7t8sO4okQEqlP+GZ7ZYT4m2EB38GGbT3YuzjHTI8TcxJtDZsLPG3kPvZvB4Uc34Kb0/NGUVQ==
+"@graphile-contrib/pg-simplify-inflector@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@graphile-contrib/pg-simplify-inflector/-/pg-simplify-inflector-6.0.0.tgz#50fd68e10f1f696c57c1642f4b1b3f223024e4f6"
+  integrity sha512-ZT/rgpcTnwkdOhrxwI9Rao96LZu6TTASkbQZy79mu9jEwqTkfOd5Lp5q1S4x1e/hNKLSQF5tnRdabIxBiuC23w==
 
 "@graphile/lru@4.5.0":
   version "4.5.0"
@@ -727,10 +727,10 @@ fresh@0.5.2:
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
   integrity sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
 
-fs-capacitor@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/fs-capacitor/-/fs-capacitor-2.0.4.tgz#5a22e72d40ae5078b4fe64fe4d08c0d3fc88ad3c"
-  integrity sha512-8S4f4WsCryNw2mJJchi46YgB6CR5Ze+4L1h8ewl9tEpL4SJ3ZO+c/bS4BWhB8bK+O3TMqhuZarTitd0S0eh2pA==
+fs-capacitor@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/fs-capacitor/-/fs-capacitor-6.1.0.tgz#457f5868a743fe662caa9bd825be966c3d4641a4"
+  integrity sha512-YsKGCLAB40P3OKeciIa7cKzt7WkY8QT9ETa2wVIG3fQDHW2h3xtRo0770lUIbPrjCr5Sa+zFhixNJ+2xNxaraQ==
 
 global@~4.3.0:
   version "4.3.2"
@@ -740,41 +740,41 @@ global@~4.3.0:
     min-document "^2.19.0"
     process "~0.5.1"
 
-graphile-build-pg@4.5.3:
-  version "4.5.3"
-  resolved "https://registry.yarnpkg.com/graphile-build-pg/-/graphile-build-pg-4.5.3.tgz#13a584fb737b3a638d73cea1cfa4cca88dcf22a4"
-  integrity sha512-Sp3DC/PC9c8+dQkQ6FM5F2TwByWQIMX3TKpxm63SePFJfPdq2Lbl4mOjBxJykYf4Fh094MVAIz4Alz5a1yRBKw==
+graphile-build-pg@4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/graphile-build-pg/-/graphile-build-pg-4.7.0.tgz#6ee86e0623bad433c61812119ac22aa420788841"
+  integrity sha512-dwGV+wUoPbly9RP9WgShs6yPv8A4N/xhdHGFu9sxYn49qkwJaAEdFehgsdCl12ZvJYpe/eDyK/6jR5PQOhJDbw==
   dependencies:
     "@graphile/lru" "4.5.0"
     chalk "^2.4.2"
     debug "^4.1.1"
-    graphile-build "4.5.0"
+    graphile-build "4.7.0"
     graphql-iso-date "^3.6.0"
     jsonwebtoken "^8.5.1"
     lodash ">=4 <5"
     lru-cache ">=4 <5"
-    pg-sql2 "4.5.0"
+    pg-sql2 "4.7.0"
     postgres-interval "^1.2.0"
 
-graphile-build@4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/graphile-build/-/graphile-build-4.5.0.tgz#f7c627c146e051f454c4f19116231e9d8b653e04"
-  integrity sha512-U/1K4nHWp3MGJ7kwTwIYBZnO3ZDlufmHHpdd1t4uFA46OtxdP7RG7KnXyol/XB8hfTfqSVGabaZP8lr+NVyQPA==
+graphile-build@4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/graphile-build/-/graphile-build-4.7.0.tgz#138ebd706f6418dcec08b7301c769267bf242a24"
+  integrity sha512-zoh5KItIj40bZnHLEh1G6zAN6C0hmJkKVYsQUEZUeX4Ex80YoX9eFO8rI7LwMumPASJf4nmjlziksLY1+1cn6g==
   dependencies:
     "@graphile/lru" "4.5.0"
     chalk "^2.4.2"
     debug "^4.1.1"
-    graphql-parse-resolve-info "4.5.0"
+    graphql-parse-resolve-info "4.7.0"
     iterall "^1.2.2"
     lodash ">=4 <5"
     lru-cache "^5.0.0"
     pluralize "^7.0.0"
     semver "^6.0.0"
 
-graphile-utils@4.5.6:
-  version "4.5.6"
-  resolved "https://registry.yarnpkg.com/graphile-utils/-/graphile-utils-4.5.6.tgz#f95f6dcbfc63263a59ad4f2d733311cba7fee725"
-  integrity sha512-Tt4SBVxfS3wbewUhQiN1oXg4KjPVi2a9GOjD8AXWlQfKin25TH2dDRyJRALM/blVuSyBlzn9OqPnvsbM3NqXpQ==
+graphile-utils@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/graphile-utils/-/graphile-utils-4.7.0.tgz#f1b4b77a84741bbcbb69c1f3d2c009bd9c7336f6"
+  integrity sha512-q147Dn4BV7AfujMCSoWf48dqUJUdr2ReLCY9aal7+m2ZthxMlnqhqrbGFvsDz+Vdx/KaZoDbNqEgAmfhE9R0mA==
   dependencies:
     debug "^4.1.1"
     graphql ">=0.9 <0.14 || ^14.0.2"
@@ -784,33 +784,34 @@ graphql-iso-date@^3.6.0:
   resolved "https://registry.yarnpkg.com/graphql-iso-date/-/graphql-iso-date-3.6.1.tgz#bd2d0dc886e0f954cbbbc496bbf1d480b57ffa96"
   integrity sha512-AwFGIuYMJQXOEAgRlJlFL4H1ncFM8n8XmoVDTNypNOZyQ8LFDG2ppMFlsS862BSTCDcSUfHp8PD3/uJhv7t59Q==
 
-graphql-parse-resolve-info@4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/graphql-parse-resolve-info/-/graphql-parse-resolve-info-4.5.0.tgz#cb9bf800c9ce81eebecd86ec62182a7b645d1fad"
-  integrity sha512-51eKipZcj9AQWKLtstAmqys3GmOHUoUwFN/ALe1s4k2his0sP4ASri/ZdqcweLRnno4cDPqp2dcWnJ/Pe2a2rQ==
+graphql-parse-resolve-info@4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/graphql-parse-resolve-info/-/graphql-parse-resolve-info-4.7.0.tgz#0f769684f5430f9d14964fb7dea56fbfaf54953f"
+  integrity sha512-vrfvITs1vQCmzasAnfpzjTnImfo1gSwBijJEo6PF+0ZP3cLgJsmsNBvc9VJaiXxdjShS6sWI4V7HTrlz+UjGGw==
   dependencies:
     debug "^4.1.1"
 
-graphql-playground-html@1.6.12:
-  version "1.6.12"
-  resolved "https://registry.yarnpkg.com/graphql-playground-html/-/graphql-playground-html-1.6.12.tgz#8b3b34ab6013e2c877f0ceaae478fafc8ca91b85"
-  integrity sha512-yOYFwwSMBL0MwufeL8bkrNDgRE7eF/kTHiwrqn9FiR9KLcNIl1xw9l9a+6yIRZM56JReQOHpbQFXTZn1IuSKRg==
+graphql-playground-html@^1.6.19:
+  version "1.6.19"
+  resolved "https://registry.yarnpkg.com/graphql-playground-html/-/graphql-playground-html-1.6.19.tgz#3883ecf5e8c18b3c0f08145b5417b9c01a1f0bef"
+  integrity sha512-cLAqoOlxHbGj/LBpr4l2BE9qXf3g8ShjQqU2daVueITI/3wIkcDQTaQaQp+HWv0uaX0dCsgMCFW/TooLj8yJOg==
 
-graphql-playground-middleware-express@^1.7.12:
-  version "1.7.12"
-  resolved "https://registry.yarnpkg.com/graphql-playground-middleware-express/-/graphql-playground-middleware-express-1.7.12.tgz#de4b2402a02159b2125561fe38eb378b56cf6d99"
-  integrity sha512-17szgonnVSxWVrgblLRHHLjWnMUONfkULIwSunaMvYx8k5oG3yL86cyGCbHuDFUFkyr2swLhdfYl4mDfDXuvOA==
+graphql-playground-middleware-express@^1.7.14:
+  version "1.7.14"
+  resolved "https://registry.yarnpkg.com/graphql-playground-middleware-express/-/graphql-playground-middleware-express-1.7.14.tgz#19ec806c54e3d8c213e1bf00088e9e236f49b258"
+  integrity sha512-EqoAhbRBd7rEEEDFfvECQVmZnC4cOEmRc5goiiZldozt2GZB2UBK3/7p0DAtflg6S1w6SNUR8Tg9cDLjiL1Dew==
   dependencies:
-    graphql-playground-html "1.6.12"
+    graphql-playground-html "^1.6.19"
 
-graphql-upload@^8.0.6:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/graphql-upload/-/graphql-upload-8.1.0.tgz#6d0ab662db5677a68bfb1f2c870ab2544c14939a"
-  integrity sha512-U2OiDI5VxYmzRKw0Z2dmfk0zkqMRaecH9Smh1U277gVgVe9Qn+18xqf4skwr4YJszGIh7iQDZ57+5ygOK9sM/Q==
+graphql-upload@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/graphql-upload/-/graphql-upload-10.0.0.tgz#1020c8ac6208c8cdf9de1f6ad9000eab7467e00f"
+  integrity sha512-8n11qujsqHWT48visvQbqLqAj8o6NCLJ35tGkI/RynhDs7E07TxlswVe4vPZaLiXJeemZA7xrxkMohwP//DOqA==
   dependencies:
     busboy "^0.3.1"
-    fs-capacitor "^2.0.4"
+    fs-capacitor "^6.1.0"
     http-errors "^1.7.3"
+    isobject "^4.0.0"
     object-path "^0.11.4"
 
 "graphql@>=0.9 <0.14 || ^14.0.2", "graphql@^0.6.0 || ^0.7.0 || ^0.8.0-b || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.2":
@@ -883,6 +884,11 @@ isarray@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
   integrity sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=
+
+isobject@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/isobject/-/isobject-4.0.0.tgz#3f1c9155e73b192022a80819bacd0343711697b0"
+  integrity sha512-S/2fF5wH8SJA/kmwr6HYhK/RI/OkhD84k8ntalo0iJjZikgq1XFvR5M8NPT1x5F7fBwCG3qHfnzeP/Vh/ZxCUA==
 
 iterall@^1.0.2, iterall@^1.2.1, iterall@^1.2.2:
   version "1.2.2"
@@ -1155,30 +1161,35 @@ path-to-regexp@0.1.7:
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-0.1.7.tgz#df604178005f522f15eb4490e7247a1bfaa67f8c"
   integrity sha1-32BBeABfUi8V60SQ5yR6G/qmf4w=
 
-pg-connection-string@0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-0.1.3.tgz#da1847b20940e42ee1492beaf65d49d91b245df7"
-  integrity sha1-2hhHsglA5C7hSSvq9l1J2RskXfc=
-
 pg-connection-string@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.1.0.tgz#e07258f280476540b24818ebb5dca29e101ca502"
   integrity sha512-bhlV7Eq09JrRIvo1eKngpwuqKtJnNhZdpdOlvrPrA4dxqXPjxSrbNrfnIDmTpwMyRszrcV4kU5ZA4mMsQUrjdg==
+
+pg-connection-string@^2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.2.2.tgz#fdc2fb2084e655f0b3e6e50c69330f6932df452e"
+  integrity sha512-+hel4DGuSZCjCZwglAuyi+XlodHnKmrbyTw0hVWlmGN2o4AfJDkDo5obAFzblS5M5PFBMx0uDt5Y1QjlNC+tqg==
 
 pg-int8@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/pg-int8/-/pg-int8-1.0.1.tgz#943bd463bf5b71b4170115f80f8efc9a0c0eb78c"
   integrity sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==
 
-pg-pool@^2.0.7:
-  version "2.0.8"
-  resolved "https://registry.yarnpkg.com/pg-pool/-/pg-pool-2.0.8.tgz#f6d8c1727707cebcb1c50d0b1b770e0a031bf831"
-  integrity sha512-UE4H+4PT53RbwYaGxkeVDcMcp1g8EmYo91qeUugijsHwzV/RDpYVRWzmfiDisEQZhVDzyf/GUctNOrh+ZPJCGA==
+pg-pool@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/pg-pool/-/pg-pool-3.2.0.tgz#edde90f21556f83d16c45f1efd696af4afec6f2f"
+  integrity sha512-7BLwDNDEfPFjE9vmZLcJPLFwuDAVGZ5lIZo2MeQfwYG7EPGfdNVis/dz6obI/yKqvQIx2sf6QBKXMLB+y/ftgA==
 
-pg-sql2@4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/pg-sql2/-/pg-sql2-4.5.0.tgz#d1f5f039c5717f8266e340508b1e29e760f5e2ce"
-  integrity sha512-kmqhJgKbOWsVzKjhzsfglZagyrV5fXkrHeY33WdeSsxhegZI1Evpa/lQzG1uQj2ZfLPIePV7RyoaZH8eVHRd3A==
+pg-protocol@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/pg-protocol/-/pg-protocol-1.2.3.tgz#711764fff0584943229eddfe60c0ba0aefabc6ea"
+  integrity sha512-erHFURS0mPmTbq18cn/zNL3Y4IzNCrU4sgCim0qy7zAPe3Vc0rvK5cImJR6lDvIaz3fJU2R1R9FNOlnUtyF10Q==
+
+pg-sql2@4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/pg-sql2/-/pg-sql2-4.7.0.tgz#2e4964bc0d94b8a81e4bc13651379a6436f8e370"
+  integrity sha512-/9YtclLJW7nIehd4RPxCECz9+mOAmQ5tkDRLbefzCxgctkKj31tsF6Xu1+Rwnnv7/hKyzH+ShzOJrxPRF8jEAw==
   dependencies:
     "@graphile/lru" "4.5.0"
     "@types/pg" ">=6 <8"
@@ -1195,15 +1206,16 @@ pg-types@^2.1.0:
     postgres-date "~1.0.4"
     postgres-interval "^1.1.0"
 
-"pg@>=6.1.0 <8":
-  version "7.15.1"
-  resolved "https://registry.yarnpkg.com/pg/-/pg-7.15.1.tgz#a0bac84ebaeb809f3a369fb695ae89b314b08b22"
-  integrity sha512-o293Pxx5bNRpTv3Dh4+IIhPbTw19Bo4zvppLgR+MAV2I7AF3sMr9gPB4JPvBffWb24pDfC+7Ghe6xh2VxVMBpQ==
+"pg@>=6.1.0 <9":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/pg/-/pg-8.2.0.tgz#c569ddfb8b700b695835fcd77f1679d74141a20e"
+  integrity sha512-EQeWKZv7qBTQZQa7EraR61AOi0bpizvlZLvrPdgAGaraX4YI+y40iQnL39XjPMXVnHOOG3jV6kAGtc0WSJn/+A==
   dependencies:
     buffer-writer "2.0.0"
     packet-reader "1.0.0"
-    pg-connection-string "0.1.3"
-    pg-pool "^2.0.7"
+    pg-connection-string "^2.2.2"
+    pg-pool "^3.2.0"
+    pg-protocol "^1.2.3"
     pg-types "^2.1.0"
     pgpass "1.x"
     semver "4.3.2"
@@ -1237,33 +1249,33 @@ pngjs@^3.0.0, pngjs@^3.3.3:
   resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-3.4.0.tgz#99ca7d725965fb655814eaf65f38f12bbdbf555f"
   integrity sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==
 
-postgraphile-core@4.5.3:
-  version "4.5.3"
-  resolved "https://registry.yarnpkg.com/postgraphile-core/-/postgraphile-core-4.5.3.tgz#60e7dfb50b9e958fb0a64a5b6b73091c3992da1e"
-  integrity sha512-DmE9JdQEMMJH0W+FVRGL/pO9zZzanuXE49+V+s2agLNjNlDFRFCNKnlUI2sA0PKTNJXilVAPQFpBifn1t74moA==
+postgraphile-core@4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/postgraphile-core/-/postgraphile-core-4.7.0.tgz#1aa82012f28369515bba7e5ef4dd2d35385b4bce"
+  integrity sha512-8tq/yipRxOCtMRqwUmFC73oiLUv2NmquoUl4pb6o2Fh3+RYsB5U6Jg0sM0KKO0T2TkrutLHbnRFYntnHo0SIwg==
   dependencies:
-    graphile-build "4.5.0"
-    graphile-build-pg "4.5.3"
+    graphile-build "4.7.0"
+    graphile-build-pg "4.7.0"
 
-postgraphile-plugin-connection-filter@^1.1.2:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/postgraphile-plugin-connection-filter/-/postgraphile-plugin-connection-filter-1.1.3.tgz#e33214948f16c0c8331e4f145adfc9860d593d72"
-  integrity sha512-QWn2lDQ3d8M0iiQVZtozIcJmL3b2A3L6DnMD2e8EOOVqxxAy9Kt3b7k4a+bH46rz4Eh6NuDtHWb0PZnxx41kVg==
+postgraphile-plugin-connection-filter@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/postgraphile-plugin-connection-filter/-/postgraphile-plugin-connection-filter-2.0.0.tgz#caec75f8f8913f0a0ef48dcdd393c3e915c5ac3e"
+  integrity sha512-4h1L1c7hyexRVmtWQrHsLvn4Ctm2j4kvn2jY593gfgJMotwEl7/exZ4PDszfgZJW8B4AO4c+HRy3v0TUG3AUpw==
 
 postgraphile-plugin-derived-field@^1.0.0-alpha.7:
   version "1.0.0-alpha.7"
   resolved "https://registry.yarnpkg.com/postgraphile-plugin-derived-field/-/postgraphile-plugin-derived-field-1.0.0-alpha.7.tgz#65e0150c5869fc73e25ab71b7d9ec1b5d677e6b7"
   integrity sha512-kLhtUFOBvjgLhnVPTojVzvs3E3UN44fO4s/izZZ0cxvnEGwQSFVzQWgTiq6SBvJCAhH+pWCW83jomj4hzYI3Rw==
 
-postgraphile-plugin-upload-field@^1.0.0-alpha.8:
-  version "1.0.0-alpha.9"
-  resolved "https://registry.yarnpkg.com/postgraphile-plugin-upload-field/-/postgraphile-plugin-upload-field-1.0.0-alpha.9.tgz#c08149bc4a72d455a7c08fde41a9b373442e1f96"
-  integrity sha512-OqjU5svJK+kLkcwieFez+26ARkhUh4yBZJfQD5AHEiOOi7fgU0qHwQbZ6pdWUpN/Tk0eXE0M5OP5EZks0B0xjQ==
+postgraphile-plugin-upload-field@^1.0.0-alpha.10:
+  version "1.0.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/postgraphile-plugin-upload-field/-/postgraphile-plugin-upload-field-1.0.0-alpha.10.tgz#ab21fdffbc94cf58e8b7b819be6a66b9f6638311"
+  integrity sha512-H9cXSXkYZm0gagBNJoCme1ndEys5322r+TbH6BT+kTXcgKr1JY0t4KcDQBm0vHVFuu+8YmRodwrmGaxzdLieDQ==
 
-postgraphile@^4.4.0:
-  version "4.5.5"
-  resolved "https://registry.yarnpkg.com/postgraphile/-/postgraphile-4.5.5.tgz#06f44f3366162929543b257aca920367ba7a3317"
-  integrity sha512-JjUcZIabf8rMUwBlvDCp2VOciJcrT/AnE4ksOiYDiv//sWj4twt6QR1T7+Zw7+jA8x1DxCKeIdCKCk7EO5H/4Q==
+postgraphile@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/postgraphile/-/postgraphile-4.7.0.tgz#b6ec4ca5762b5d78c5b6c53b29a26fc89a4445e0"
+  integrity sha512-EtXs2laSS7/1N86eQ9uNgO9k1EP7+V9emop+OWbmGqbNGQsYTGPrUG9e3dvdyzuuDPN0+GgMvUzaZRBxpeaAWg==
   dependencies:
     "@graphile/lru" "4.5.0"
     "@types/json5" "^0.0.30"
@@ -1276,17 +1288,17 @@ postgraphile@^4.4.0:
     commander "^2.19.0"
     debug "^4.1.1"
     finalhandler "^1.0.6"
-    graphile-utils "4.5.6"
+    graphile-utils "^4.7.0"
     graphql "^0.6.0 || ^0.7.0 || ^0.8.0-b || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.2"
     http-errors "^1.5.1"
     iterall "^1.0.2"
     json5 "^2.1.1"
     jsonwebtoken "^8.0.0"
     parseurl "^1.3.2"
-    pg ">=6.1.0 <8"
+    pg ">=6.1.0 <9"
     pg-connection-string "^2.0.0"
-    pg-sql2 "4.5.0"
-    postgraphile-core "4.5.3"
+    pg-sql2 "4.7.0"
+    postgraphile-core "4.7.0"
     subscriptions-transport-ws "^0.9.15"
     tslib "^1.5.0"
     ws "^6.1.3"
