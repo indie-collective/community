@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
-import { Box, Spinner, Heading, Grid } from '@chakra-ui/core';
+import { Box, Spinner, Grid, Button } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
+import Link from 'next/link';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
@@ -83,6 +84,19 @@ const Orgs = () => {
         </Box>
       ) : (
         <Box p={5}>
+          <Link href="/orgs/create">
+            <Button
+              display="block"
+              m="auto"
+              mb={10}
+              size="lg"
+              variantColor="teal"
+              leftIcon="add"
+            >
+              Add a organization
+            </Button>
+          </Link>
+
           <motion.div
             initial="initial"
             animate="enter"
