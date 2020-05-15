@@ -110,7 +110,7 @@ const CreateEvent = () => {
       coverId = response.data.createImage.image.id;
     }
 
-    let locationId;
+    let locationId = null;
 
     if (location && !location.id) {
       const response = await createLocation({
@@ -119,7 +119,7 @@ const CreateEvent = () => {
 
       locationId = response.data.createLocation.location.id;
     }
-    else {
+    else if (location) {
       locationId = location.id;
     }
 
