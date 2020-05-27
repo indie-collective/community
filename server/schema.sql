@@ -449,6 +449,20 @@ $$ language sql strict security definer;
 
 comment on function indieco.authenticate(text, text) is 'Creates a JWT token that will securely identify a person and give them certain permissions.';
 
+create function indieco.refresh_token() returns indieco.jwt_token as $$
+  select (
+    'indieco_person',
+    extract(epoch from now() + interval '7 days'),
+    person_id,
+    is_admin,
+    email
+  )::indieco.jwt_token
+    from indieco_private.person_account
+    where person_account.person_id = nullif(current_setting('jwt.claims.person_id', true), '')::uuid
+$$ language sql strict security definer;
+
+comment on function indieco.refresh_token() is 'Creates a new JWT token for an authenticated user.';
+
 create function indieco.current_person() returns indieco.person as $$
   select *
   from indieco.person
@@ -522,6 +536,7 @@ grant insert, update, delete on table indieco.game_event to indieco_person;
 
 grant execute on function indieco.person_full_name(indieco.person) to indieco_anonymous, indieco_person;
 grant execute on function indieco.authenticate(text, text) to indieco_anonymous, indieco_person;
+grant execute on function indieco.refresh_token() to indieco_person;
 grant execute on function indieco.current_person() to indieco_anonymous, indieco_person;
 grant execute on function indieco.change_password(text, text) to indieco_person;
 grant execute on function uuid_generate_v4() to indieco_person;
