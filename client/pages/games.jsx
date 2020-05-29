@@ -6,6 +6,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 
 import { withApollo } from '../lib/apollo';
+import useCurrentPerson from '../hooks/useCurrentPerson';
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 
@@ -46,6 +47,7 @@ const gameVariants = {
 };
 
 const Games = () => {
+  const currentPerson = useCurrentPerson();
   const { loading, error, data } = useQuery(gamesQuery);
 
   return (
@@ -67,18 +69,20 @@ const Games = () => {
         </Box>
       ) : (
         <Box p={5}>
-          <Link href="/games/create">
-            <Button
-              display="block"
-              m="auto"
-              mb={10}
-              size="lg"
-              variantColor="teal"
-              leftIcon="add"
-            >
-              Add a game
-            </Button>
-          </Link>
+          {currentPerson && (
+            <Link href="/games/create">
+              <Button
+                display="block"
+                m="auto"
+                mb={10}
+                size="lg"
+                variantColor="teal"
+                leftIcon="add"
+              >
+                Add a game
+              </Button>
+            </Link>
+          )}
 
           <motion.div
             initial="initial"

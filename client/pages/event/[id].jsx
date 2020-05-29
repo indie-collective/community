@@ -28,6 +28,7 @@ import Markdown from '../../components/Markdown';
 import RelatedEvents from '../../components/RelatedEvents';
 import usePlaceholder from '../../hooks/usePlaceholder';
 import DateLabel from '../../components/DateLabel';
+import useCurrentPerson from '../../hooks/useCurrentPerson';
 
 const eventQuery = gql`
   query event($id: UUID!) {
@@ -84,6 +85,7 @@ const Event = ({ id, host }) => {
 
   const placeholder = usePlaceholder();
   const [isGoing, setIsGoing] = useState(false);
+  const currentPerson = useCurrentPerson();
   const { loading, error, data } = useQuery(eventQuery, {
     variables: { id },
     skip: !validId,
@@ -183,18 +185,20 @@ const Event = ({ id, host }) => {
               columnGap={2}
               padding={2}
             >
-              <Link href="/event/[id]/edit" as={`/event/${id}/edit`}>
-                <Button
-                  gridRow={['', '1']}
-                  gridColumn={['', '2 / span 1']}
-                  mb={[2, '0']}
-                  leftIcon="edit"
-                  size="sm"
-                  variantColor="teal"
-                >
-                  Edit
-                </Button>
-              </Link>
+              {currentPerson && (
+                <Link href="/event/[id]/edit" as={`/event/${id}/edit`}>
+                  <Button
+                    gridRow={['', '1']}
+                    gridColumn={['', '2 / span 1']}
+                    mb={[2, '0']}
+                    leftIcon="edit"
+                    size="sm"
+                    variantColor="teal"
+                  >
+                    Edit
+                  </Button>
+                </Link>
+              )}
 
               <Text
                 gridColumn="1"
@@ -301,19 +305,21 @@ const Event = ({ id, host }) => {
                 <Text>10 people going</Text>
               </Box>
 
-              <Button
-                mt={[2, '0']}
-                gridRow={['', '1']}
-                gridColumn={['', '3']}
-                variant={isGoing ? 'solid' : 'outline'}
-                variantColor="teal"
-                leftIcon={isGoing ? 'check' : null}
-                onClick={() => setIsGoing(!isGoing)}
-                size="sm"
-                minWidth={100}
-              >
-                {isGoing ? 'Going!' : 'Interested?'}
-              </Button>
+              {currentPerson && (
+                <Button
+                  mt={[2, '0']}
+                  gridRow={['', '1']}
+                  gridColumn={['', '3']}
+                  variant={isGoing ? 'solid' : 'outline'}
+                  variantColor="teal"
+                  leftIcon={isGoing ? 'check' : null}
+                  onClick={() => setIsGoing(!isGoing)}
+                  size="sm"
+                  minWidth={100}
+                >
+                  {isGoing ? 'Going!' : 'Interested?'}
+                </Button>
+              )}
             </Grid>
           </Box>
 
@@ -376,7 +382,7 @@ const Event = ({ id, host }) => {
 
           <RelatedEvents
             eventId={id}
-            tokens={name.split(' ').filter(s => s.length > 3)}
+            tokens={name.split(' ').filter((s) => s.length > 3)}
           />
         </Box>
       </Grid>
@@ -384,7 +390,7 @@ const Event = ({ id, host }) => {
   );
 };
 
-Event.getInitialProps = async context => {
+Event.getInitialProps = async (context) => {
   const { id } = context.query;
 
   if (context.req) {

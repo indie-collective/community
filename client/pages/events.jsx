@@ -3,10 +3,11 @@ import { useQuery } from '@apollo/react-hooks';
 import { Button, Box, Spinner, Heading, Text, Grid, Image } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
-import React, { useMemo, useCallback, useState} from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import Link from 'next/link';
 
 import { withApollo } from '../lib/apollo';
+import useCurrentPerson from '../hooks/useCurrentPerson';
 import Navigation from '../components/Navigation';
 import EventCard from '../components/EventCard';
 import Carousel from '../components/Carousel';
@@ -94,6 +95,7 @@ const eventVariants = {
 
 const Events = () => {
   const now = useMemo(() => new Date(), []);
+  const currentPerson = useCurrentPerson();
   const [loadingMore, setLoadingMore] = useState(false);
   const { data: dataPasts, loading: loadingPasts } = useQuery(getPastEvents, {
     variables: { now },
@@ -112,15 +114,17 @@ const Events = () => {
         cursor: data.events.pageInfo.endCursor,
       },
       updateQuery: (previousResult, { fetchMoreResult }) => {
-        const {nodes, pageInfo} = fetchMoreResult.events;
+        const { nodes, pageInfo } = fetchMoreResult.events;
 
-        return nodes.length ? {
-          events: {
-            __typename: previousResult.events.__typename,
-            nodes: [...previousResult.events.nodes, ...nodes],
-            pageInfo,
-          }
-        } : previousResult;
+        return nodes.length
+          ? {
+              events: {
+                __typename: previousResult.events.__typename,
+                nodes: [...previousResult.events.nodes, ...nodes],
+                pageInfo,
+              },
+            }
+          : previousResult;
       },
     });
 
@@ -131,14 +135,23 @@ const Events = () => {
     <div>
       <Head>
         <title>Events</title>
-        <meta name="description" content="Video game related events around you and all over the world." />
+        <meta
+          name="description"
+          content="Video game related events around you and all over the world."
+        />
         <meta property="og:title" content="Events" />
-        <meta property="og:description" content="Video game related events around you and all over the world." />
+        <meta
+          property="og:description"
+          content="Video game related events around you and all over the world."
+        />
 
         <meta name="twitter:card" content={'summary'} />
         <meta name="twitter:site" content="@IndieColle" />
         <meta name="twitter:title" content="Events" />
-        <meta name="twitter:description" content="Video game related events around you and all over the world." />
+        <meta
+          name="twitter:description"
+          content="Video game related events around you and all over the world."
+        />
       </Head>
 
       <Navigation />
@@ -160,7 +173,11 @@ const Events = () => {
             exit="exit"
             variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
           >
-            <Carousel slidesToShow={[1, 2, 3]} onLoadMore={onLoadMore} loadingMore={loadingMore}>
+            <Carousel
+              slidesToShow={[1, 2, 3]}
+              onLoadMore={onLoadMore}
+              loadingMore={loadingMore}
+            >
               {data.events.nodes.length > 0 ? (
                 data.events.nodes.map(
                   ({
@@ -198,18 +215,20 @@ const Events = () => {
             </Carousel>
           </motion.div>
 
-          <Link href="/events/create">
-            <Button
-              display="block"
-              m="auto"
-              mt={10}
-              size="lg"
-              variantColor="teal"
-              leftIcon="add"
-            >
-              Add an event
-            </Button>
-          </Link>
+          {currentPerson && (
+            <Link href="/events/create">
+              <Button
+                display="block"
+                m="auto"
+                mt={10}
+                size="lg"
+                variantColor="teal"
+                leftIcon="add"
+              >
+                Add an event
+              </Button>
+            </Link>
+          )}
 
           <Heading mb={4} mt={5}>
             Past events
@@ -230,7 +249,15 @@ const Events = () => {
               exit="exit"
               variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
             >
-              <Grid gap={3} templateColumns={["repeat(2, 1fr)", "repeat(2, 1fr)", "repeat(3, 1fr)", "repeat(4, 1fr)"]}>
+              <Grid
+                gap={3}
+                templateColumns={[
+                  'repeat(2, 1fr)',
+                  'repeat(2, 1fr)',
+                  'repeat(3, 1fr)',
+                  'repeat(4, 1fr)',
+                ]}
+              >
                 {dataPasts.pastEvents.nodes.map(
                   ({
                     id,

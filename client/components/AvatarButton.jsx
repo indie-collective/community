@@ -1,25 +1,13 @@
 import { IconButton, Avatar } from '@chakra-ui/core';
-import { useQuery } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
 import Link from 'next/link';
 
-const currentPerson = gql`
-  {
-    currentPerson {
-      id
-      fullName
-      avatar {
-        url
-      }
-    }
-  }
-`;
+import useCurrentPerson from '../hooks/useCurrentPerson';
 
 const AvatarButton = () => {
-  const { data } = useQuery(currentPerson, { fetchPolicy: 'network-only' });
+  const currentPerson = useCurrentPerson();
 
-  if (data && data.currentPerson !== null) {
-    const {fullName, avatar} = data.currentPerson;
+  if (currentPerson) {
+    const { fullName, avatar } = currentPerson;
 
     return (
       <Link href="/profile">
