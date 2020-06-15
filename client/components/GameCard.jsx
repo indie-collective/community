@@ -18,8 +18,6 @@ const GameCard = forwardRef(({ id, images, name, isCompact }, ref) => {
 
   if (isCompact) {
     const overlayBgColor = colorMode === 'dark' ? '#00000088' : '#ffffffbb';
-    const overlayBgColorHover =
-      colorMode === 'dark' ? '#00000055' : '#ffffff99';
 
     return (
       <Link href="/game/[id]" as={`/game/${id}`}>

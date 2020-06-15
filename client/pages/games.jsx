@@ -107,7 +107,7 @@ const Games = () => {
                       name={name}
                       about={about}
                       site={site}
-                      images={images}
+                      images={images.nodes}
                     />
                   </motion.div>
                 </Box>
