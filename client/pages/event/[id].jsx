@@ -70,6 +70,7 @@ const eventQuery = gql`
           images {
             nodes {
               id
+              thumbnail_url
             }
           }
         }
