@@ -31,6 +31,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-dropzone": "^11.0.1",
     "react-hook-form": "^4.3.0",
     "react-slick": "^0.25.2",
     "remarkable": "^2.0.0",
