@@ -177,6 +177,8 @@ export default function createApolloClient(initialState, ctx) {
         fetch,
       }),
     ]),
-    cache: new InMemoryCache().restore(initialState),
+    cache: new InMemoryCache({
+      dataIdFromObject: o => o.id,
+    }).restore(initialState),
   });
 }

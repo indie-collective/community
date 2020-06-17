@@ -86,7 +86,7 @@ const Home = () => {
                 return acc;
               }, {})
             ).map(([key, values]) => (
-              <Box>
+              <Box key={key}>
                 <Heading
                   color="gray.500"
                   textAlign="center"
@@ -106,10 +106,10 @@ const Home = () => {
                       startsAt,
                       endsAt,
                       games,
-                      entities,
+                      participants,
                       location,
                     }) => (
-                      <Box>
+                      <Box key={id}>
                         <EventCard
                           key={id}
                           id={id}
@@ -118,7 +118,7 @@ const Home = () => {
                           startsAt={startsAt}
                           endsAt={endsAt}
                           games={games}
-                          entities={entities}
+                          participants={participants}
                           location={location}
                         />
                       </Box>

@@ -221,6 +221,17 @@ create table indieco.game_event (
 comment on constraint game_event_game_id_fkey on indieco.game_event is E'@manyToManyFieldName games';
 comment on constraint game_event_event_id_fkey on indieco.game_event is E'@manyToManyFieldName events';
 
+-- todo: delete if event or person is deleted
+create table indieco.event_participant (
+  event_id         uuid constraint event_participant_event_id_fkey references indieco.event(id),
+  person_id        uuid constraint event_participant_person_id_fkey references indieco.person(id),
+  joined_at        timestamptz default now(),
+  primary key (event_id, person_id)
+);
+
+comment on constraint event_participant_event_id_fkey on indieco.event_participant is E'@manyToManyFieldName joinedEvents';
+comment on constraint event_participant_person_id_fkey on indieco.event_participant is E'@manyToManyFieldName participants';
+
 
 ------------
 -- functions
@@ -533,6 +544,10 @@ grant insert, update, delete on table indieco.game_tag to indieco_person;
 
 grant select on table indieco.game_event to indieco_anonymous, indieco_person;
 grant insert, update, delete on table indieco.game_event to indieco_person;
+
+grant select on table indieco.event_participant to indieco_anonymous, indieco_person;
+-- todo: insert, update, delete only for the connected person
+grant insert, update, delete on table indieco.event_participant to indieco_person;
 
 grant execute on function indieco.person_full_name(indieco.person) to indieco_anonymous, indieco_person;
 grant execute on function indieco.authenticate(text, text) to indieco_anonymous, indieco_person;

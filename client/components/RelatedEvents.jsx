@@ -28,7 +28,7 @@ const relatedEventsQuery = gql`
           city
         }
 
-        entities {
+        participants {
           totalCount
         }
 

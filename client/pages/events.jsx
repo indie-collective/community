@@ -31,7 +31,7 @@ const EVENT_SUMMARY_FRAGMENT = gql`
       latitude
       longitude
     }
-    entities {
+    participants {
       totalCount
     }
     games {
@@ -185,7 +185,7 @@ const Events = () => {
                     name,
                     cover,
                     games,
-                    entities,
+                    participants,
                     location,
                     startsAt,
                     endsAt,
@@ -199,7 +199,7 @@ const Events = () => {
                           startsAt={startsAt}
                           endsAt={endsAt}
                           games={games}
-                          entities={entities}
+                          participants={participants}
                           location={location}
                         />
                       </motion.div>
@@ -264,7 +264,7 @@ const Events = () => {
                     name,
                     cover,
                     games,
-                    entities,
+                    participants,
                     location,
                     startsAt,
                     endsAt,
@@ -278,7 +278,7 @@ const Events = () => {
                           startsAt={startsAt}
                           endsAt={endsAt}
                           games={games}
-                          entities={entities}
+                          participants={participants}
                           location={location}
                         />
                       </motion.div>

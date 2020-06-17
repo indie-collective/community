@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
 import {
   AspectRatioBox,
   Image,
@@ -23,12 +22,12 @@ import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
 import GameCard from '../../components/GameCard';
 import OrgCard from '../../components/OrgCard';
-import EventCard from '../../components/EventCard';
 import Markdown from '../../components/Markdown';
 import RelatedEvents from '../../components/RelatedEvents';
 import usePlaceholder from '../../hooks/usePlaceholder';
 import DateLabel from '../../components/DateLabel';
 import useCurrentPerson from '../../hooks/useCurrentPerson';
+import JoinEventButton from '../../components/JoinEventButton';
 
 const eventQuery = gql`
   query event($id: UUID!) {
@@ -52,6 +51,16 @@ const eventQuery = gql`
         countryCode
         latitude
         longitude
+      }
+
+      participants {
+        totalCount
+        nodes {
+          id
+          avatar {
+            thumbnail_url
+          }
+        }
       }
 
       entities {
@@ -85,7 +94,6 @@ const Event = ({ id, host }) => {
   const validId = uuidRegex.test(id);
 
   const placeholder = usePlaceholder();
-  const [isGoing, setIsGoing] = useState(false);
   const currentPerson = useCurrentPerson();
   const { loading, error, data } = useQuery(eventQuery, {
     variables: { id },
@@ -108,9 +116,14 @@ const Event = ({ id, host }) => {
     endsAt,
     location,
     entities,
+    participants,
     games,
     cover,
   } = data.event;
+
+  const isGoing =
+    currentPerson &&
+    participants.nodes.some(({ id }) => id === currentPerson.id);
 
   let description = `Event on ${new Date(startsAt).toLocaleString('en-US', {
     day: 'numeric',
@@ -285,41 +298,33 @@ const Event = ({ id, host }) => {
                 flexDirection={['row-reverse', '']}
               >
                 <AvatarGroup size="xs" max={3} justify="flex-end">
-                  <Avatar
-                    name="Ryan Florence"
-                    src="https://bit.ly/ryan-florence"
-                  />
-                  <Avatar
-                    name="Segun Adebayo"
-                    src="https://bit.ly/sage-adebayo"
-                  />
-                  <Avatar name="Kent Dodds" src="https://bit.ly/kent-c-dodds" />
-                  <Avatar
-                    name="Prosper Otemuyiwa"
-                    src="https://bit.ly/prosper-baba"
-                  />
-                  <Avatar
-                    name="Christian Nwamba"
-                    src="https://bit.ly/code-beast"
-                  />
+                  {participants.nodes.map(({ id, firstName, avatar }) => (
+                    <Avatar
+                      key={id}
+                      name={firstName}
+                      src={avatar && avatar.thumbnail_url}
+                    />
+                  ))}
                 </AvatarGroup>
-                <Text>10 people going</Text>
+                <Text>{participants.totalCount} going</Text>
               </Box>
 
               {currentPerson && (
-                <Button
+                <JoinEventButton
                   mt={[2, '0']}
                   gridRow={['', '1']}
                   gridColumn={['', '3']}
-                  variant={isGoing ? 'solid' : 'outline'}
-                  variantColor="teal"
-                  leftIcon={isGoing ? 'check' : null}
-                  onClick={() => setIsGoing(!isGoing)}
                   size="sm"
                   minWidth={100}
+                  eventId={id}
+                  isGoing={isGoing}
                 >
-                  {isGoing ? 'Going!' : 'Interested?'}
-                </Button>
+                  {new Date(endsAt) < new Date() ? (
+                    isGoing ? 'Went' : 'I went!'
+                  ) : (
+                    isGoing ? 'Going' : "Let's go!"
+                  )}
+                </JoinEventButton>
               )}
             </Grid>
           </Box>
