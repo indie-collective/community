@@ -306,7 +306,10 @@ const Event = ({ id, host }) => {
                     />
                   ))}
                 </AvatarGroup>
-                <Text>{participants.totalCount} going</Text>
+                <Text>
+                  {participants.totalCount}{' '}
+                  {new Date(endsAt) < new Date() ? 'went' : 'going'}
+                </Text>
               </Box>
 
               {currentPerson && (
@@ -319,11 +322,13 @@ const Event = ({ id, host }) => {
                   eventId={id}
                   isGoing={isGoing}
                 >
-                  {new Date(endsAt) < new Date() ? (
-                    isGoing ? 'Went' : 'I went!'
-                  ) : (
-                    isGoing ? 'Going' : "Let's go!"
-                  )}
+                  {new Date(endsAt) < new Date()
+                    ? isGoing
+                      ? 'Went'
+                      : 'I went!'
+                    : isGoing
+                    ? 'Going'
+                    : "Let's go!"}
                 </JoinEventButton>
               )}
             </Grid>

@@ -23,6 +23,7 @@ const relatedEventsQuery = gql`
           thumbnail_url
         }
         startsAt
+        endsAt
         location {
           id
           city
