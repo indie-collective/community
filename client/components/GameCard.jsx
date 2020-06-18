@@ -6,11 +6,14 @@ import {
   PseudoBox,
   useColorMode,
   AspectRatioBox,
+  IconButton,
+  Flex,
+  Text,
 } from '@chakra-ui/core';
 
 import usePlaceholder from '../hooks/usePlaceholder';
 
-const GameCard = forwardRef(({ id, images, name, isCompact }, ref) => {
+const GameCard = forwardRef(({ id, images, name, onRemove, isCompact }, ref) => {
   const { colorMode } = useColorMode();
   const placeholder = usePlaceholder();
 
@@ -28,11 +31,13 @@ const GameCard = forwardRef(({ id, images, name, isCompact }, ref) => {
             ref={ref}
             position="relative"
             overflow="hidden"
+            border="1px solid"
+            borderColor={bgColorHover}
             _hover={{
-              backgroundColor: colorMode === 'dark' ? 'gray.700' : 'gray.50',
+              backgroundColor: bgColorHover,
               cursor: 'pointer',
             }}
-           >
+          >
             {images.length > 0 && (
               <Image
                 position="absolute"
@@ -40,13 +45,13 @@ const GameCard = forwardRef(({ id, images, name, isCompact }, ref) => {
                 rounded="md"
                 size="100%"
                 src={images[0].thumbnail_url}
-                alt="Game cover"
-                rounded="md"
+                alt=""
                 zIndex={-1}
               />
             )}
 
             <PseudoBox
+              display="flex"
               rounded="md"
               paddingY={2}
               paddingX={5}
@@ -54,7 +59,23 @@ const GameCard = forwardRef(({ id, images, name, isCompact }, ref) => {
               backgroundColor={images.length > 0 ? overlayBgColor : ''}
               fontWeight="bold"
             >
-              {name}
+              <Text>{name}</Text>
+
+              <IconButton
+                m="auto"
+                ml={2}
+                size="xs"
+                aria-label={`Remove ${name}`}
+                isRound
+                variantColor="red"
+                icon="delete"
+                onClick={(e) => {
+                  e.preventDefault();
+
+                  onRemove();
+                }}
+                tabIndex="-1"
+              />
             </PseudoBox>
           </PseudoBox>
         </a>
@@ -85,10 +106,21 @@ const GameCard = forwardRef(({ id, images, name, isCompact }, ref) => {
             />
           </AspectRatioBox>
 
-          <Box padding={2}>
-            {name}
-          </Box>
+          <Box padding={2}>{name}</Box>
         </PseudoBox>
+
+        <IconButton
+          right={0}
+          top="-25%"
+          size="xs"
+          aria-label={`Remove ${name}`}
+          isRound
+          position="absolute"
+          variantColor="red"
+          icon="delete"
+          onClick={onRemove}
+          tabIndex="-1"
+        />
       </a>
     </Link>
   );

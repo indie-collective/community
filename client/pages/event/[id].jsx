@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import Head from 'next/head';
 import Link from 'next/link';
 import {
@@ -14,6 +14,9 @@ import {
   Avatar,
   Button,
   Stack,
+  IconButton,
+  useDisclosure,
+  Badge,
 } from '@chakra-ui/core';
 import Map from 'pigeon-maps';
 import Error from 'next/error';
@@ -28,8 +31,30 @@ import usePlaceholder from '../../hooks/usePlaceholder';
 import DateLabel from '../../components/DateLabel';
 import useCurrentPerson from '../../hooks/useCurrentPerson';
 import JoinEventButton from '../../components/JoinEventButton';
+import SearchGameModal from '../../components/SearchGameModal';
+
+const eventGamesFragment = gql`
+  fragment EventGames on Event {
+    id
+    games {
+      totalCount
+      nodes {
+        id
+        name
+        images {
+          nodes {
+            id
+            thumbnail_url
+          }
+        }
+      }
+    }
+  }
+`;
 
 const eventQuery = gql`
+  ${eventGamesFragment}
+
   query event($id: UUID!) {
     event(id: $id) {
       id
@@ -71,18 +96,35 @@ const eventQuery = gql`
         }
       }
 
-      games {
-        totalCount
-        nodes {
-          id
-          name
-          images {
-            nodes {
-              id
-              thumbnail_url
-            }
+      ...EventGames
+    }
+  }
+`;
+
+const addGameToEventMutation = gql`
+  mutation addGameToEvent($eventId: UUID!, $gameId: UUID!) {
+    createGameEvent(
+      input: { gameEvent: { eventId: $eventId, gameId: $gameId } }
+    ) {
+      game {
+        id
+        name
+        images {
+          nodes {
+            id
+            thumbnail_url
           }
         }
+      }
+    }
+  }
+`;
+
+const removeGameFromEventMutation = gql`
+  mutation removeGameFromEvent($eventId: UUID!, $gameId: UUID!) {
+    deleteGameEvent(input: { eventId: $eventId, gameId: $gameId }) {
+      game {
+        id
       }
     }
   }
@@ -95,9 +137,59 @@ const Event = ({ id, host }) => {
 
   const placeholder = usePlaceholder();
   const currentPerson = useCurrentPerson();
+  const {
+    isOpen: linkGameIsOpen,
+    onOpen: onOpenLinkGame,
+    onClose: onCloseLinkGame,
+  } = useDisclosure();
   const { loading, error, data } = useQuery(eventQuery, {
     variables: { id },
     skip: !validId,
+  });
+  const [addGameToEvent] = useMutation(addGameToEventMutation, {
+    update(proxy, { data: { createGameEvent } }) {
+      const data = proxy.readFragment({ id, fragment: eventGamesFragment });
+
+      const gamesNodes = [
+        ...data.games.nodes,
+        { __typename: 'Game', ...createGameEvent.game },
+      ];
+
+      proxy.writeFragment({
+        id,
+        fragment: eventGamesFragment,
+        data: {
+          ...data,
+          games: {
+            __typename: 'EventGamesManyToManyConnection',
+            totalCount: gamesNodes.length,
+            nodes: gamesNodes,
+          },
+        },
+      });
+    },
+  });
+  const [removeGameFromEvent] = useMutation(removeGameFromEventMutation, {
+    update(proxy, { data: { deleteGameEvent } }) {
+      const data = proxy.readFragment({ id, fragment: eventGamesFragment });
+
+      const gamesNodes = data.games.nodes.filter(
+        ({ id }) => id !== deleteGameEvent.game.id
+      );
+
+      proxy.writeFragment({
+        id,
+        fragment: eventGamesFragment,
+        data: {
+          ...data,
+          games: {
+            __typename: 'EventGamesManyToManyConnection',
+            totalCount: gamesNodes.length,
+            nodes: gamesNodes,
+          },
+        },
+      });
+    },
   });
 
   if ((id !== undefined && !validId) || error) {
@@ -337,7 +429,7 @@ const Event = ({ id, host }) => {
           {about && (
             <Box
               m={[2, 0]}
-              mb={5}
+              mb={[5, 5]}
               borderWidth="1px"
               borderRadius={5}
               padding={2}
@@ -349,28 +441,79 @@ const Event = ({ id, host }) => {
             </Box>
           )}
 
-          {games.nodes.length > 0 && (
-            <Box m={[2, 0]} mb={5}>
+          {(currentPerson || games.nodes.length > 0) && (
+            <Box m={[2, 0]} mb={[5, 5]}>
               <Heading size="md" mb={2}>
                 Games
+                <Badge
+                  verticalAlign="baseline"
+                  fontSize="md"
+                  ml={2}
+                  variant="subtle"
+                  variantColor="teal"
+                >
+                  {games.nodes.length}
+                </Badge>
               </Heading>
               <Stack wrap="wrap" spacing={2} isInline>
-                {games.nodes.map(({ id, name, images }) => (
-                  <Box key={id} mb={2}>
+                {games.nodes.map((game) => (
+                  <Box key={game.id} mb={2} position="relative">
                     <GameCard
-                      id={id}
-                      name={name}
-                      images={images.nodes}
+                      id={game.id}
+                      name={game.name}
+                      images={game.images.nodes}
+                      onRemove={
+                        currentPerson
+                          ? () =>
+                              removeGameFromEvent({
+                                variables: { eventId: id, gameId: game.id },
+                                optimisticResponse: {
+                                  __typename: 'Mutation',
+                                  deleteGameEvent: {
+                                    __typename: 'DeleteGameEventMutation',
+                                    game: { __typename: 'Game', ...game },
+                                  },
+                                },
+                              })
+                          : null
+                      }
                       isCompact
                     />
                   </Box>
                 ))}
+                {currentPerson && (
+                  <>
+                    <IconButton
+                      variantColor="teal"
+                      aria-label="Add a game to the event"
+                      icon="add"
+                      onClick={onOpenLinkGame}
+                    />
+                    <SearchGameModal
+                      isOpen={linkGameIsOpen}
+                      onClose={onCloseLinkGame}
+                      excludedIds={games.nodes.map(({ id }) => id)}
+                      onSelect={(game) =>
+                        addGameToEvent({
+                          variables: { eventId: id, gameId: game.id },
+                          optimisticResponse: {
+                            __typename: 'Mutation',
+                            createGameEvent: {
+                              __typename: 'CreateGameEventMutation',
+                              game: { __typename: 'Game', ...game },
+                            },
+                          },
+                        })
+                      }
+                    />
+                  </>
+                )}
               </Stack>
             </Box>
           )}
 
-          {entities.nodes.length > 0 && (
-            <Box>
+          {(currentPerson || entities.nodes.length > 0) && (
+            <Box m={[2, 0]} mb={[5, 5]}>
               <Heading size="md" mb={2}>
                 Hosts
               </Heading>
