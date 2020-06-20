@@ -32,6 +32,7 @@ import DateLabel from '../../components/DateLabel';
 import useCurrentPerson from '../../hooks/useCurrentPerson';
 import JoinEventButton from '../../components/JoinEventButton';
 import SearchGameModal from '../../components/SearchGameModal';
+import SearchOrgModal from '../../components/SearchOrgModal';
 
 const eventGamesFragment = gql`
   fragment EventGames on Event {
@@ -52,8 +53,31 @@ const eventGamesFragment = gql`
   }
 `;
 
+const eventHostsFragment = gql`
+  fragment EventHosts on Event {
+    id
+    entities {
+      totalCount
+      nodes {
+        id
+        name
+        images {
+          nodes {
+            id
+            thumbnail_url
+          }
+        }
+        games {
+          totalCount
+        }
+      }
+    }
+  }
+`;
+
 const eventQuery = gql`
   ${eventGamesFragment}
+  ${eventHostsFragment}
 
   query event($id: UUID!) {
     event(id: $id) {
@@ -88,15 +112,8 @@ const eventQuery = gql`
         }
       }
 
-      entities {
-        totalCount
-        nodes {
-          id
-          name
-        }
-      }
-
       ...EventGames
+      ...EventHosts
     }
   }
 `;
@@ -130,6 +147,35 @@ const removeGameFromEventMutation = gql`
   }
 `;
 
+const addHostToEventMutation = gql`
+  mutation addHostToEvent($eventId: UUID!, $hostId: UUID!) {
+    createEntityEvent(
+      input: { entityEvent: { eventId: $eventId, entityId: $hostId } }
+    ) {
+      entity {
+        id
+        name
+        images {
+          nodes {
+            id
+            thumbnail_url
+          }
+        }
+      }
+    }
+  }
+`;
+
+const removeHostFromEventMutation = gql`
+  mutation removeHostFromEvent($eventId: UUID!, $hostId: UUID!) {
+    deleteEntityEvent(input: { eventId: $eventId, entityId: $hostId }) {
+      entity {
+        id
+      }
+    }
+  }
+`;
+
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 const Event = ({ id, host }) => {
@@ -141,6 +187,11 @@ const Event = ({ id, host }) => {
     isOpen: linkGameIsOpen,
     onOpen: onOpenLinkGame,
     onClose: onCloseLinkGame,
+  } = useDisclosure();
+  const {
+    isOpen: linkHostIsOpen,
+    onOpen: onOpenLinkHost,
+    onClose: onCloseLinkHost,
   } = useDisclosure();
   const { loading, error, data } = useQuery(eventQuery, {
     variables: { id },
@@ -186,6 +237,51 @@ const Event = ({ id, host }) => {
             __typename: 'EventGamesManyToManyConnection',
             totalCount: gamesNodes.length,
             nodes: gamesNodes,
+          },
+        },
+      });
+    },
+  });
+  const [addHostToEvent] = useMutation(addHostToEventMutation, {
+    update(proxy, { data: { createEntityEvent } }) {
+      const data = proxy.readFragment({ id, fragment: eventHostsFragment });
+
+      const hostsNodes = [
+        ...data.entities.nodes,
+        { __typename: 'Entity', ...createEntityEvent.entity },
+      ];
+
+      proxy.writeFragment({
+        id,
+        fragment: eventHostsFragment,
+        data: {
+          ...data,
+          entities: {
+            __typename: 'EventEntitiesManyToManyConnection',
+            totalCount: hostsNodes.length,
+            nodes: hostsNodes,
+          },
+        },
+      });
+    },
+  });
+  const [removeHostFromEvent] = useMutation(removeHostFromEventMutation, {
+    update(proxy, { data: { deleteEntityEvent } }) {
+      const data = proxy.readFragment({ id, fragment: eventHostsFragment });
+
+      const hostsNodes = data.entities.nodes.filter(
+        ({ id }) => id !== deleteEntityEvent.entity.id
+      );
+
+      proxy.writeFragment({
+        id,
+        fragment: eventHostsFragment,
+        data: {
+          ...data,
+          entities: {
+            __typename: 'EventEntitiesManyToManyConnection',
+            totalCount: hostsNodes.length,
+            nodes: hostsNodes,
           },
         },
       });
@@ -517,16 +613,66 @@ const Event = ({ id, host }) => {
               <Heading size="md" mb={2}>
                 Hosts
               </Heading>
-              <Box
-                display="grid"
-                gridTemplateColumns="33% 33% 33%"
-                gridColumnGap={3}
-                gridRowGap={3}
+              <Grid
+                gap={5}
+                templateColumns={[
+                  '1fr',
+                  'repeat(2, 1fr)',
+                  'repeat(2, 1fr)',
+                  'repeat(3, 1fr)',
+                ]}
               >
-                {entities.nodes.map(({ id, name, images }) => (
-                  <OrgCard key={id} id={id} name={name} images={images.nodes} />
+                {entities.nodes.map((host) => (
+                  <OrgCard
+                    key={host.id}
+                    {...host}
+                    onRemove={
+                      currentPerson
+                        ? () =>
+                            removeHostFromEvent({
+                              variables: { eventId: id, hostId: host.id },
+                              optimisticResponse: {
+                                __typename: 'Mutation',
+                                deleteEntityEvent: {
+                                  __typename: 'DeleteEntityEventMutation',
+                                  entity: { __typename: 'Entity', ...host },
+                                },
+                              },
+                            })
+                        : null
+                    }
+                  />
                 ))}
-              </Box>
+                {currentPerson && (
+                  <>
+                    <IconButton
+                      alignSelf="center"
+                      justifySelf="flex-start"
+                      variantColor="teal"
+                      aria-label="Add a host to the event"
+                      icon="add"
+                      onClick={onOpenLinkHost}
+                    />
+                    <SearchOrgModal
+                      isOpen={linkHostIsOpen}
+                      onClose={onCloseLinkHost}
+                      excludedIds={entities.nodes.map(({ id }) => id)}
+                      onSelect={(host) =>
+                        addHostToEvent({
+                          variables: { eventId: id, hostId: host.id },
+                          optimisticResponse: {
+                            __typename: 'Mutation',
+                            createEntityEvent: {
+                              __typename: 'CreateEntityEventMutation',
+                              entity: { __typename: 'Entity', ...host },
+                            },
+                          },
+                        })
+                      }
+                    />
+                  </>
+                )}
+              </Grid>
             </Box>
           )}
         </Box>

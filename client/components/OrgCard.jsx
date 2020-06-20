@@ -3,13 +3,13 @@ import Link from 'next/link';
 import {
   Box,
   Badge,
-  AspectRatioBox,
   PseudoBox,
   useColorMode,
   Image,
   Flex,
   Heading,
   DarkMode,
+  IconButton,
 } from '@chakra-ui/core';
 import usePlaceholder from '../hooks/usePlaceholder';
 
@@ -25,7 +25,7 @@ const TYPES_COLORS = {
   ORGANIZATION: 'purple',
 };
 
-const OrgCard = ({ id, type, logo, name, people, games }) => {
+const OrgCard = ({ id, type, logo, name, people, games, onRemove }) => {
   const { colorMode } = useColorMode();
   const placeholder = usePlaceholder();
 
@@ -34,6 +34,7 @@ const OrgCard = ({ id, type, logo, name, people, games }) => {
       <a>
         <PseudoBox
           as={Flex}
+          position="relative"
           alignItems="center"
           rounded={5}
           transition="background-color 200ms ease-out"
@@ -42,7 +43,13 @@ const OrgCard = ({ id, type, logo, name, people, games }) => {
             cursor: 'pointer',
           }}
         >
-          <Flex direction="column" width="60px" mr={2} flexShrink={0} position="relative">
+          <Flex
+            direction="column"
+            width="60px"
+            mr={2}
+            flexShrink={0}
+            position="relative"
+          >
             <Image
               size="60px"
               objectFit="cover"
@@ -73,7 +80,7 @@ const OrgCard = ({ id, type, logo, name, people, games }) => {
             </Box>
           </Flex>
 
-          <Box isTruncated>
+          <Box isTruncated flex="1">
             <Heading as="h3" size="xs" isTruncated>
               {name}
             </Heading>
@@ -88,6 +95,22 @@ const OrgCard = ({ id, type, logo, name, people, games }) => {
               {games.totalCount} {games.totalCount === 1 ? 'game' : 'games'}
             </Box>
           </Box>
+
+          {onRemove && (
+            <IconButton
+              mx={3}
+              size="xs"
+              aria-label={`Remove ${name}`}
+              isRound
+              variantColor="red"
+              icon="delete"
+              onClick={(e) => {
+                e.preventDefault();
+
+                onRemove();
+              }}
+            />
+          )}
         </PseudoBox>
       </a>
     </Link>

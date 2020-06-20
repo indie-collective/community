@@ -7,7 +7,6 @@ import {
   useColorMode,
   AspectRatioBox,
   IconButton,
-  Flex,
   Text,
 } from '@chakra-ui/core';
 
@@ -62,21 +61,22 @@ const GameCard = forwardRef(
               >
                 <Text>{name}</Text>
 
-                <IconButton
-                  m="auto"
-                  ml={2}
-                  size="xs"
-                  aria-label={`Remove ${name}`}
-                  isRound
-                  variantColor="red"
-                  icon="delete"
-                  onClick={(e) => {
-                    e.preventDefault();
+                {onRemove && (
+                  <IconButton
+                    m="auto"
+                    ml={2}
+                    size="xs"
+                    aria-label={`Remove ${name}`}
+                    isRound
+                    variantColor="red"
+                    icon="delete"
+                    onClick={(e) => {
+                      e.preventDefault();
 
-                    onRemove();
-                  }}
-                  tabIndex="-1"
-                />
+                      onRemove();
+                    }}
+                  />
+                )}
               </PseudoBox>
             </PseudoBox>
           </a>
@@ -109,19 +109,6 @@ const GameCard = forwardRef(
 
             <Box padding={2}>{name}</Box>
           </PseudoBox>
-
-          <IconButton
-            right={0}
-            top="-25%"
-            size="xs"
-            aria-label={`Remove ${name}`}
-            isRound
-            position="absolute"
-            variantColor="red"
-            icon="delete"
-            onClick={onRemove}
-            tabIndex="-1"
-          />
         </a>
       </Link>
     );
