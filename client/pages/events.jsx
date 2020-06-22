@@ -1,6 +1,14 @@
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
-import { Button, Box, Spinner, Heading, Text, Grid, Image } from '@chakra-ui/core';
+import {
+  Button,
+  Box,
+  Spinner,
+  Heading,
+  Text,
+  Grid,
+  Image,
+} from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 import React, { useMemo, useCallback, useState } from 'react';
@@ -13,35 +21,8 @@ import EventCard from '../components/EventCard';
 import Carousel from '../components/Carousel';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 
-const EVENT_SUMMARY_FRAGMENT = gql`
-  fragment EventSummary on Event {
-    id
-    name
-    about
-    site
-    startsAt
-    endsAt
-    cover {
-      thumbnail_url
-    }
-    location {
-      id
-      countryCode
-      city
-      latitude
-      longitude
-    }
-    participants {
-      totalCount
-    }
-    games {
-      totalCount
-    }
-  }
-`;
-
 const getPastEvents = gql`
-  ${EVENT_SUMMARY_FRAGMENT}
+  ${EventCard.fragments.event}
 
   query getPastEvents($now: Datetime!) {
     pastEvents: events(
@@ -50,14 +31,15 @@ const getPastEvents = gql`
       orderBy: STARTS_AT_DESC
     ) {
       nodes {
-        ...EventSummary
+        id
+        ...EventCardEvent
       }
     }
   }
 `;
 
 const getEvents = gql`
-  ${EVENT_SUMMARY_FRAGMENT}
+  ${EventCard.fragments.event}
 
   query getEvents($now: Datetime!, $cursor: Cursor) {
     events(
@@ -67,7 +49,8 @@ const getEvents = gql`
       orderBy: STARTS_AT_ASC
     ) {
       nodes {
-        ...EventSummary
+        id
+        ...EventCardEvent
       }
       pageInfo {
         hasNextPage
@@ -179,37 +162,19 @@ const Events = () => {
               loadingMore={loadingMore}
             >
               {data.events.nodes.length > 0 ? (
-                data.events.nodes.map(
-                  ({
-                    id,
-                    name,
-                    cover,
-                    games,
-                    participants,
-                    location,
-                    startsAt,
-                    endsAt,
-                  }) => (
-                    <Box key={id} minW={0} pr={3}>
-                      <motion.div variants={eventVariants}>
-                        <EventCard
-                          id={id}
-                          name={name}
-                          cover={cover}
-                          startsAt={startsAt}
-                          endsAt={endsAt}
-                          games={games}
-                          participants={participants}
-                          location={location}
-                        />
-                      </motion.div>
-                    </Box>
-                  )
-                )
+                data.events.nodes.map((event) => (
+                  <Box key={event.id} minW={0} pr={3}>
+                    <motion.div variants={eventVariants}>
+                      <EventCard {...event} />
+                    </motion.div>
+                  </Box>
+                ))
               ) : (
                 <Box mt={10}>
                   <Image src={noEventsImage} alt="" />
-                  <Text fontSize="xl" mt={10} textAlign="center">No upcoming events yet, sadly.</Text>
+                  <Text fontSize="xl" mt={10} textAlign="center">
+                    No upcoming events yet, sadly.
+                  </Text>
                 </Box>
               )}
             </Carousel>
@@ -258,33 +223,13 @@ const Events = () => {
                   'repeat(4, 1fr)',
                 ]}
               >
-                {dataPasts.pastEvents.nodes.map(
-                  ({
-                    id,
-                    name,
-                    cover,
-                    games,
-                    participants,
-                    location,
-                    startsAt,
-                    endsAt,
-                  }) => (
-                    <Box minW={0} key={id}>
-                      <motion.div variants={eventVariants}>
-                        <EventCard
-                          id={id}
-                          name={name}
-                          cover={cover}
-                          startsAt={startsAt}
-                          endsAt={endsAt}
-                          games={games}
-                          participants={participants}
-                          location={location}
-                        />
-                      </motion.div>
-                    </Box>
-                  )
-                )}
+                {dataPasts.pastEvents.nodes.map((event) => (
+                  <Box minW={0} key={event.id}>
+                    <motion.div variants={eventVariants}>
+                      <EventCard {...event} />
+                    </motion.div>
+                  </Box>
+                ))}
               </Grid>
             </motion.div>
           )}

@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 import { forwardRef } from 'react';
 import Link from 'next/link';
 import {
@@ -38,13 +39,13 @@ const GameCard = forwardRef(
                 cursor: 'pointer',
               }}
             >
-              {images.length > 0 && (
+              {images.nodes.length > 0 && (
                 <Image
                   position="absolute"
                   objectFit="cover"
                   rounded="md"
                   size="100%"
-                  src={images[0].thumbnail_url}
+                  src={images.nodes[0].thumbnail_url}
                   alt=""
                   zIndex={-1}
                 />
@@ -56,7 +57,7 @@ const GameCard = forwardRef(
                 paddingY={2}
                 paddingX={5}
                 zIndex={2}
-                backgroundColor={images.length > 0 ? overlayBgColor : ''}
+                backgroundColor={images.nodes.length > 0 ? overlayBgColor : ''}
                 fontWeight="bold"
               >
                 <Text>{name}</Text>
@@ -100,7 +101,7 @@ const GameCard = forwardRef(
               <Image
                 size="100%"
                 objectFit="cover"
-                src={images.length > 0 && images[0].thumbnail_url}
+                src={images.nodes.length > 0 && images.nodes[0].thumbnail_url}
                 alt="Game cover"
                 fallbackSrc={placeholder}
                 rounded="md"
@@ -114,5 +115,21 @@ const GameCard = forwardRef(
     );
   }
 );
+
+GameCard.fragments = {
+  game: gql`
+    fragment GameCardGame on Game {
+      id
+      name
+
+      images {
+        nodes {
+          id
+          thumbnail_url
+        }
+      }
+    }
+  `,
+};
 
 export default GameCard;

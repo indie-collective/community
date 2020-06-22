@@ -9,10 +9,38 @@ import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 
-import homeQuery from '../gql/homeQuery.gql';
+const homeQuery = gql`
+  ${GameCard.fragments.game}
+  ${OrgCard.fragments.org}
+  ${EventCard.fragments.event}
+
+  query home {
+    games(last: 5, orderBy: CREATED_AT_DESC) {
+      nodes {
+        id
+        ...GameCardGame
+      }
+    }
+
+    entities(last: 10, orderBy: CREATED_AT_DESC) {
+      nodes {
+        id
+        ...OrgCardOrg
+      }
+    }
+
+    events(last: 10, orderBy: STARTS_AT_ASC) {
+      nodes {
+        id
+        startsAt
+        ...EventCardEvent
+      }
+    }
+  }
+`;
 
 const Home = () => {
-  const { loading, error, data } = useQuery(gql(homeQuery));
+  const { loading, error, data } = useQuery(homeQuery);
 
   return (
     <Box pr={2}>
@@ -41,8 +69,8 @@ const Home = () => {
             gridRowGap={3}
           >
             {!loading &&
-              data.games.nodes.map(({ id, name, images }) => (
-                <GameCard key={id} id={id} name={name} images={images} />
+              data.games.nodes.map((game) => (
+                <GameCard key={game.id} {...game} />
               ))}
           </Box>
 
@@ -53,15 +81,8 @@ const Home = () => {
             gridColumnGap={3}
             gridRowGap={3}
           >
-            {data.entities.nodes.map(({ id, name, type, people, games }) => (
-              <OrgCard
-                key={id}
-                id={id}
-                name={name}
-                type={type}
-                people={people}
-                games={games}
-              />
+            {data.entities.nodes.map((org) => (
+              <OrgCard key={org.id} {...org} />
             ))}
           </Box>
 
@@ -98,32 +119,11 @@ const Home = () => {
                   {key}
                 </Heading>
                 <Stack spacing={2}>
-                  {values.map(
-                    ({
-                      id,
-                      name,
-                      cover,
-                      startsAt,
-                      endsAt,
-                      games,
-                      participants,
-                      location,
-                    }) => (
-                      <Box key={id}>
-                        <EventCard
-                          key={id}
-                          id={id}
-                          name={name}
-                          cover={cover}
-                          startsAt={startsAt}
-                          endsAt={endsAt}
-                          games={games}
-                          participants={participants}
-                          location={location}
-                        />
-                      </Box>
-                    )
-                  )}
+                  {values.map((event) => (
+                    <Box key={event.id}>
+                      <EventCard {...event} />
+                    </Box>
+                  ))}
                 </Stack>
               </Box>
             ))}

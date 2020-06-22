@@ -24,6 +24,8 @@ import Navigation from '../../components/Navigation';
 import OrgCard from '../../components/OrgCard';
 
 const gameQuery = gql`
+  ${OrgCard.fragments.org}
+
   query game($id: UUID!) {
     game(id: $id) {
       id
@@ -43,14 +45,7 @@ const gameQuery = gql`
         totalCount
         nodes {
           id
-          name
-          type
-          people {
-            totalCount
-          }
-          games {
-            totalCount
-          }
+          ...OrgCardOrg
         }
       }
 
@@ -175,15 +170,8 @@ const Game = ({ id }) => {
           gridColumnGap={3}
           gridRowGap={3}
         >
-          {entities.nodes.map(({ id, name, type, people, games }) => (
-            <OrgCard
-              key={id}
-              id={id}
-              name={name}
-              type={type}
-              people={people}
-              games={games}
-            />
+          {entities.nodes.map((org) => (
+            <OrgCard key={id} {...org} />
           ))}
         </Box>
       </Box>

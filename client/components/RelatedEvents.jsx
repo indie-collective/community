@@ -6,6 +6,8 @@ import Link from "next/link";
 import EventCard from "./EventCard";
 
 const relatedEventsQuery = gql`
+  ${EventCard.fragments.event}
+
   query getRelatedEvents($eventId: UUID, $tokens: [EventFilter!]!) {
     events(
       filter: {
@@ -18,24 +20,7 @@ const relatedEventsQuery = gql`
     ) {
       nodes {
         id
-        name
-        cover {
-          thumbnail_url
-        }
-        startsAt
-        endsAt
-        location {
-          id
-          city
-        }
-
-        participants {
-          totalCount
-        }
-
-        games {
-          totalCount
-        }
+        ...EventCardEvent
       }
     }
   }

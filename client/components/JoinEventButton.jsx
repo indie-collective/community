@@ -54,7 +54,11 @@ const JoinEventLoggedInButton = ({
   const [joinEvent] = useMutation(joinEventMutation, {
     variables: { eventId, personId: currentPerson.id },
     update(proxy, { data: { createEventParticipant } }) {
-      const data = proxy.readFragment({ id: eventId, fragment: eventFragment });
+      const data = proxy.readFragment({
+        id: eventId,
+        fragment: eventFragment,
+        fragmentName: 'EventParticipants',
+      });
 
       const participantsNodes = [
         ...data.participants.nodes,
@@ -64,6 +68,7 @@ const JoinEventLoggedInButton = ({
       proxy.writeFragment({
         id: eventId,
         fragment: eventFragment,
+        fragmentName: 'EventParticipants',
         data: {
           ...data,
           participants: {
@@ -78,7 +83,11 @@ const JoinEventLoggedInButton = ({
   const [leaveEvent] = useMutation(leaveEventMutation, {
     variables: { eventId, personId: currentPerson.id },
     update(proxy, { data: { deleteEventParticipant } }) {
-      const data = proxy.readFragment({ id: eventId, fragment: eventFragment });
+      const data = proxy.readFragment({
+        id: eventId,
+        fragment: eventFragment,
+        fragmentName: 'EventParticipants',
+      });
 
       const participantsNodes = data.participants.nodes.filter(
         ({ id }) => id !== deleteEventParticipant.person.id
@@ -87,6 +96,7 @@ const JoinEventLoggedInButton = ({
       proxy.writeFragment({
         id: eventId,
         fragment: eventFragment,
+        fragmentName: 'EventParticipants',
         data: {
           ...data,
           participants: {

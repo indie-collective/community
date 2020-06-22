@@ -11,20 +11,13 @@ import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 
 const gamesQuery = gql`
+  ${GameCard.fragments.game}
+
   {
     games(last: 30) {
       nodes {
         id
-        name
-        about
-        site
-
-        images {
-          nodes {
-            id
-            thumbnail_url
-          }
-        }
+        ...GameCardGame
       }
     }
   }
@@ -99,16 +92,10 @@ const Games = () => {
                 'repeat(4, 1fr)',
               ]}
             >
-              {data.games.nodes.map(({ id, name, about, site, images }) => (
-                <Box key={id} minW={0}>
+              {data.games.nodes.map((game) => (
+                <Box key={game.id} minW={0}>
                   <motion.div variants={gameVariants}>
-                    <GameCard
-                      id={id}
-                      name={name}
-                      about={about}
-                      site={site}
-                      images={images.nodes}
-                    />
+                    <GameCard {...game} />
                   </motion.div>
                 </Box>
               ))}

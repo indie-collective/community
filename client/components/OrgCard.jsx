@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 import React from 'react';
 import Link from 'next/link';
 import {
@@ -115,6 +116,28 @@ const OrgCard = ({ id, type, logo, name, people, games, onRemove }) => {
       </a>
     </Link>
   );
+};
+
+OrgCard.fragments = {
+  org: gql`
+    fragment OrgCardOrg on Entity {
+      id
+      name
+      type
+      people {
+        totalCount
+      }
+      games {
+        totalCount
+      }
+      images {
+        totalCount
+      }
+      events {
+        totalCount
+      }
+    }
+  `,
 };
 
 export default OrgCard;

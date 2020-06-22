@@ -35,41 +35,30 @@ import SearchGameModal from '../../components/SearchGameModal';
 import SearchOrgModal from '../../components/SearchOrgModal';
 
 const eventGamesFragment = gql`
+  ${GameCard.fragments.game}
+
   fragment EventGames on Event {
     id
     games {
       totalCount
       nodes {
         id
-        name
-        images {
-          nodes {
-            id
-            thumbnail_url
-          }
-        }
+        ...GameCardGame
       }
     }
   }
 `;
 
 const eventHostsFragment = gql`
+  ${OrgCard.fragments.org}
+
   fragment EventHosts on Event {
     id
     entities {
       totalCount
       nodes {
         id
-        name
-        images {
-          nodes {
-            id
-            thumbnail_url
-          }
-        }
-        games {
-          totalCount
-        }
+        ...OrgCardOrg
       }
     }
   }
@@ -199,7 +188,11 @@ const Event = ({ id, host }) => {
   });
   const [addGameToEvent] = useMutation(addGameToEventMutation, {
     update(proxy, { data: { createGameEvent } }) {
-      const data = proxy.readFragment({ id, fragment: eventGamesFragment });
+      const data = proxy.readFragment({
+        id,
+        fragment: eventGamesFragment,
+        fragmentName: 'EventGames',
+      });
 
       const gamesNodes = [
         ...data.games.nodes,
@@ -209,6 +202,7 @@ const Event = ({ id, host }) => {
       proxy.writeFragment({
         id,
         fragment: eventGamesFragment,
+        fragmentName: 'EventGames',
         data: {
           ...data,
           games: {
@@ -222,7 +216,11 @@ const Event = ({ id, host }) => {
   });
   const [removeGameFromEvent] = useMutation(removeGameFromEventMutation, {
     update(proxy, { data: { deleteGameEvent } }) {
-      const data = proxy.readFragment({ id, fragment: eventGamesFragment });
+      const data = proxy.readFragment({
+        id,
+        fragment: eventGamesFragment,
+        fragmentName: 'EventGames',
+      });
 
       const gamesNodes = data.games.nodes.filter(
         ({ id }) => id !== deleteGameEvent.game.id
@@ -231,6 +229,7 @@ const Event = ({ id, host }) => {
       proxy.writeFragment({
         id,
         fragment: eventGamesFragment,
+        fragmentName: 'EventGames',
         data: {
           ...data,
           games: {
@@ -244,7 +243,11 @@ const Event = ({ id, host }) => {
   });
   const [addHostToEvent] = useMutation(addHostToEventMutation, {
     update(proxy, { data: { createEntityEvent } }) {
-      const data = proxy.readFragment({ id, fragment: eventHostsFragment });
+      const data = proxy.readFragment({
+        id,
+        fragment: eventHostsFragment,
+        fragmentName: 'EventHosts',
+      });
 
       const hostsNodes = [
         ...data.entities.nodes,
@@ -254,6 +257,7 @@ const Event = ({ id, host }) => {
       proxy.writeFragment({
         id,
         fragment: eventHostsFragment,
+        fragmentName: 'EventHosts',
         data: {
           ...data,
           entities: {
@@ -267,7 +271,11 @@ const Event = ({ id, host }) => {
   });
   const [removeHostFromEvent] = useMutation(removeHostFromEventMutation, {
     update(proxy, { data: { deleteEntityEvent } }) {
-      const data = proxy.readFragment({ id, fragment: eventHostsFragment });
+      const data = proxy.readFragment({
+        id,
+        fragment: eventHostsFragment,
+        fragmentName: 'EventHosts',
+      });
 
       const hostsNodes = data.entities.nodes.filter(
         ({ id }) => id !== deleteEntityEvent.entity.id
@@ -276,6 +284,7 @@ const Event = ({ id, host }) => {
       proxy.writeFragment({
         id,
         fragment: eventHostsFragment,
+        fragmentName: 'EventHosts',
         data: {
           ...data,
           entities: {
@@ -556,8 +565,7 @@ const Event = ({ id, host }) => {
                   <Box key={game.id} mb={2} position="relative">
                     <GameCard
                       id={game.id}
-                      name={game.name}
-                      images={game.images.nodes}
+                      {...game}
                       onRemove={
                         currentPerson
                           ? () =>

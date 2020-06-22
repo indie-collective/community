@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 import React, { forwardRef } from 'react';
 import Link from 'next/link';
 import {
@@ -87,5 +88,33 @@ const EventCard = forwardRef(
     );
   }
 );
+
+EventCard.fragments = {
+  event: gql`
+    fragment EventCardEvent on Event {
+      id
+      name
+      startsAt
+      endsAt
+
+      cover {
+        thumbnail_url
+      }
+      location {
+        id
+        countryCode
+        city
+        latitude
+        longitude
+      }
+      participants {
+        totalCount
+      }
+      games {
+        totalCount
+      }
+    }
+  `,
+};
 
 export default EventCard;
