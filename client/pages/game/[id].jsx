@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
-import gql from 'graphql-tag';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import {
   Spinner,
   Box,

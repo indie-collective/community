@@ -1,5 +1,4 @@
-import gql from 'graphql-tag';
-import { useQuery } from '@apollo/react-hooks';
+import { gql, useQuery } from '@apollo/client';
 import { Box, Spinner, Heading, Text, Grid, Image } from '@chakra-ui/core';
 import Head from 'next/head';
 import { startOfDay } from 'date-fns';

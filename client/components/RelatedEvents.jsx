@@ -1,6 +1,5 @@
-import { useQuery } from "@apollo/react-hooks";
+import { gql, useQuery } from "@apollo/client";
 import { Spinner, Grid, Box, Text } from "@chakra-ui/core";
-import gql from "graphql-tag";
 import Link from "next/link";
 
 import EventCard from "./EventCard";

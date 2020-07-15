@@ -1,5 +1,4 @@
-import gql from 'graphql-tag';
-import { useMutation } from '@apollo/react-hooks';
+import { gql, useMutation } from '@apollo/client';
 import { Button } from '@chakra-ui/core';
 
 import useCurrentPerson from '../hooks/useCurrentPerson';
