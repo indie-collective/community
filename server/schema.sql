@@ -21,6 +21,17 @@ create type indieco.entity_type as enum (
 ---------
 -- tables
 
+create table indieco.image (
+  id               uuid primary key default uuid_generate_v4(),
+  image_file       jsonb,
+  created_at       timestamptz default now()
+);
+
+comment on table indieco.image is 'An image.';
+comment on column indieco.image.id is 'The primary unique identifier for the image.';
+comment on column indieco.image.image_file is 'The image file data.';
+comment on column indieco.image.created_at is 'The time this image was created.';
+
 create table indieco.person (
   id               uuid primary key default uuid_generate_v4(),
   first_name       text not null check (char_length(first_name) < 80),
@@ -56,17 +67,6 @@ comment on column indieco.location.region is 'The location region.';
 comment on column indieco.location.country_code is 'The location country ISO code.';
 comment on column indieco.location.latitude is 'The location latitude.';
 comment on column indieco.location.longitude is 'The location longitude.';
-
-create table indieco.image (
-  id               uuid primary key default uuid_generate_v4(),
-  image_file       jsonb,
-  created_at       timestamptz default now()
-);
-
-comment on table indieco.image is 'An image.';
-comment on column indieco.image.id is 'The primary unique identifier for the image.';
-comment on column indieco.image.image_file is 'The image file data.';
-comment on column indieco.image.created_at is 'The time this image was created.';
 
 create table indieco.tag (
   id               uuid primary key default uuid_generate_v4(),
@@ -181,8 +181,8 @@ comment on constraint game_author_game_id_fkey on indieco.game_author is E'@many
 comment on constraint game_author_person_id_fkey on indieco.game_author is E'@manyToManyFieldName people';
 
 create table indieco.game_entity (
-  game_id          uuid constraint game_entity_game_id_fkey references indieco.game(id),
-  entity_id        uuid constraint game_entity_entity_id_fkey references indieco.entity(id),
+  game_id          uuid constraint game_entity_game_id_fkey references indieco.game(id) on delete cascade,
+  entity_id        uuid constraint game_entity_entity_id_fkey references indieco.entity(id) on delete cascade,
   created_at       timestamptz default now(),
   primary key (game_id, entity_id)
 );
@@ -191,8 +191,8 @@ comment on constraint game_entity_game_id_fkey on indieco.game_entity is E'@many
 comment on constraint game_entity_entity_id_fkey on indieco.game_entity is E'@manyToManyFieldName entities';
 
 create table indieco.game_image (
-  game_id          uuid constraint game_image_game_id_fkey references indieco.game(id),
-  image_id         uuid constraint game_image_image_id_fkey references indieco.image(id),
+  game_id          uuid constraint game_image_game_id_fkey references indieco.game(id) on delete cascade,
+  image_id         uuid constraint game_image_image_id_fkey references indieco.image(id) on delete cascade,
   created_at       timestamptz default now(),
   primary key (game_id, image_id)
 );
@@ -201,8 +201,8 @@ comment on constraint game_image_game_id_fkey on indieco.game_image is E'@manyTo
 comment on constraint game_image_image_id_fkey on indieco.game_image is E'@manyToManyFieldName images';
 
 create table indieco.game_tag (
-  game_id          uuid constraint game_tag_game_id_fkey references indieco.game(id),
-  tag_id           uuid constraint game_tag_tag_id_fkey references indieco.tag(id),
+  game_id          uuid constraint game_tag_game_id_fkey references indieco.game(id) on delete cascade,
+  tag_id           uuid constraint game_tag_tag_id_fkey references indieco.tag(id) on delete cascade,
   created_at       timestamptz default now(),
   primary key (game_id, tag_id)
 );
@@ -211,8 +211,8 @@ comment on constraint game_tag_game_id_fkey on indieco.game_tag is E'@manyToMany
 comment on constraint game_tag_tag_id_fkey on indieco.game_tag is E'@manyToManyFieldName tags';
 
 create table indieco.game_event (
-  game_id          uuid constraint game_event_game_id_fkey references indieco.game(id),
-  event_id         uuid constraint game_event_event_id_fkey references indieco.event(id),
+  game_id          uuid constraint game_event_game_id_fkey references indieco.game(id) on delete cascade,
+  event_id         uuid constraint game_event_event_id_fkey references indieco.event(id) on delete cascade,
   tags             varchar(100) [],
   created_at       timestamptz default now(),
   primary key (game_id, event_id)
