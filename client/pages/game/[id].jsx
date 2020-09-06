@@ -12,9 +12,19 @@ import {
   useColorMode,
   PseudoBox,
   AspectRatioBox,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
 } from '@chakra-ui/core';
 import Error from 'next/error';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { useDropzone } from 'react-dropzone';
 
 import { withApollo } from '../../lib/apollo';
@@ -80,6 +90,16 @@ const addGameImageMutation = gql`
   }
 `;
 
+const deleteGameMutation = gql`
+  mutation deleteGame($id: UUID!) {
+    deleteGame(input: { id: $id }) {
+      game {
+        id
+      }
+    }
+  }
+`;
+
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 const Game = ({ id }) => {
@@ -87,6 +107,7 @@ const Game = ({ id }) => {
 
   const currentPerson = useCurrentPerson();
   const { colorMode } = useColorMode();
+  const router = useRouter();
   const [isLoadingNewImages, setIsLoadingNewImages] = useState(false);
   const { loading, error, data } = useQuery(gameQuery, {
     variables: { id },
@@ -94,7 +115,6 @@ const Game = ({ id }) => {
   });
   const [uploadImage] = useMutation(gql(uploadImageMutation));
   const [addGameImage] = useMutation(addGameImageMutation, {
-    variables: { id },
     skip: !validId,
     update(store, { data: { createGameImage } }) {
       const data = store.readQuery({ query: gameQuery, variables: { id } });
@@ -107,6 +127,13 @@ const Game = ({ id }) => {
       store.writeQuery({ query: gameQuery, data });
     },
   });
+  const [deleteGame, { loading: isBeingDeleted }] = useMutation(
+    deleteGameMutation,
+    {
+      variables: { id },
+      skip: !validId,
+    }
+  );
 
   const onDrop = useCallback(async (acceptedFiles) => {
     setIsLoadingNewImages(true);
@@ -131,6 +158,8 @@ const Game = ({ id }) => {
     setIsLoadingNewImages(false);
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+  const deleteModal = useDisclosure();
 
   if ((id !== undefined && !validId) || error) {
     return <Error statusCode={404} />;
@@ -253,6 +282,53 @@ const Game = ({ id }) => {
           )}
         </Grid>
       </Box>
+
+      {currentPerson && (
+        <Box mb={5} pl={5} pr={5}>
+          <Button
+            variant="link"
+            variantColor="red"
+            onClick={deleteModal.onOpen}
+          >
+            Delete game
+          </Button>
+
+          <Modal
+            preserveScrollBarGap
+            isOpen={deleteModal.isOpen}
+            onClose={deleteModal.onClose}
+          >
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Delete Game</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Text>Do you really want to delete {name}?</Text>
+              </ModalBody>
+
+              <ModalFooter>
+                <Button
+                  isLoading={isBeingDeleted}
+                  loadingText="Deleting"
+                  variantColor="red"
+                  mr={3}
+                  onClick={async () => {
+                    await deleteGame();
+
+                    deleteModal.onClose();
+                    router.replace('/games');
+                  }}
+                >
+                  Delete
+                </Button>
+                <Button variant="ghost" onClick={deleteModal.onClose}>
+                  Cancel
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+        </Box>
+      )}
     </div>
   );
 };
