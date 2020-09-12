@@ -26,13 +26,13 @@ const BasicPagination = ({
       <IconButton
         icon="arrow-back"
         size="sm"
-        isDisabled={hasPreviousPage}
+        isDisabled={!hasPreviousPage}
         onClick={onGetPrev}
       />
       <IconButton
         icon="arrow-forward"
         size="sm"
-        isDisabled={hasNextPage}
+        isDisabled={!hasNextPage}
         onClick={onGetNext}
       />
     </Stack>
