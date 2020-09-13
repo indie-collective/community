@@ -1,4 +1,4 @@
-import { IconButton, Avatar } from '@chakra-ui/core';
+import { Button, Avatar } from '@chakra-ui/core';
 import Link from 'next/link';
 
 import useCurrentPerson from '../hooks/useCurrentPerson';
@@ -19,16 +19,27 @@ const AvatarButton = () => {
   }
 
   return (
-    <Link href="/signin">
-      <IconButton
-        ml={5}
-        variantColor="teal"
-        aria-label="Signin"
-        size="sm"
-        icon="chevron-right"
-        variant="ghost"
-      />
-    </Link>
+    <>
+      <Link href="/signin">
+        <Button
+          ml={5}
+          variantColor="teal"
+          variant="ghost"
+          aria-label="Signin"
+        >
+          Sign in
+        </Button>
+      </Link>
+      <Link href="/signup">
+        <Button
+          ml={5}
+          variantColor="teal"
+          aria-label="Signup"
+        >
+          Sign up
+        </Button>
+      </Link>
+    </>
   );
 };
 
