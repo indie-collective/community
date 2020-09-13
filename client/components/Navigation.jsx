@@ -26,9 +26,8 @@ const Navigation = () => {
         <a><Logo /></a>
       </Link>
 
-      <Box flex="auto" />
-
       <Tabs
+        ml={5}
         variant="solid-rounded"
         onChange={i => push(tabs[i].url)}
         index={tabs.findIndex(tab => tab.url === pathname)}
@@ -39,6 +38,8 @@ const Navigation = () => {
           ))}
         </TabList>
       </Tabs>
+
+      <Box flex="auto" />
 
       <AvatarButton />
     </Flex>
