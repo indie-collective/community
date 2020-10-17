@@ -7,6 +7,7 @@ import {
   Stack,
   Tag,
   TagLabel,
+  Badge,
 } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
@@ -33,6 +34,9 @@ const gamesQuery = gql`
       nodes {
         id
         name
+        games {
+          totalCount
+        }
       }
     }
   }
@@ -58,6 +62,11 @@ const Games = () => {
   const router = useRouter();
   const currentPerson = useCurrentPerson();
   const { loading, error, data } = useQuery(gamesQuery);
+
+  const tags = loading ? [] : data.tags.nodes.slice();
+  tags.sort((a, b) => b.games.totalCount - a.games.totalCount);
+
+  const topTagCount = loading ? 0 : tags[0].games.totalCount;
 
   return (
     <div>
@@ -93,10 +102,17 @@ const Games = () => {
             </Link>
           )}
 
-          <Stack isInline spacing={2} flexWrap="wrap" py={5}>
-            {data.tags.nodes.map((tag) => (
+          <Stack
+            isInline
+            spacing={2}
+            flexWrap="wrap"
+            py={5}
+            alignItems="flex-end"
+          >
+            {tags.map((tag) => (
               <Tag
                 key={tag.id}
+                size={tag.games.totalCount < topTagCount / 4 ? 'sm' : 'lg'}
                 marginBottom={2}
                 variantColor="blue"
                 cursor="pointer"
@@ -105,7 +121,8 @@ const Games = () => {
                 }}
                 onClick={() => alert(tag.name)}
               >
-                <TagLabel>{tag.name}</TagLabel>
+                <Badge>{tag.games.totalCount}</Badge>
+                <TagLabel pl={1}>{tag.name}</TagLabel>
               </Tag>
             ))}
           </Stack>
