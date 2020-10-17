@@ -7,12 +7,12 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@apollo/client": "^3.0.0",
+    "@apollo/client": "^3.2.4",
     "@chakra-ui/core": "0.8.0",
     "@emotion/core": "^10.0.28",
     "@emotion/styled": "^10.0.27",
-    "apollo-link-token-refresh": "^0.3.0",
-    "apollo-upload-client": "^13.0.0",
+    "apollo-link-token-refresh": "^0.3.2",
+    "apollo-upload-client": "^14.1.2",
     "babel-plugin-emotion": "^10.0.33",
     "date-fns": "^2.14.0",
     "emotion-theming": "^10.0.27",
