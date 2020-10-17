@@ -1,5 +1,13 @@
 import { gql, useQuery } from '@apollo/client';
-import { Box, Spinner, Grid, Button } from '@chakra-ui/core';
+import {
+  Box,
+  Spinner,
+  Grid,
+  Button,
+  Stack,
+  Tag,
+  TagLabel,
+} from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -8,6 +16,7 @@ import { withApollo } from '../lib/apollo';
 import useCurrentPerson from '../hooks/useCurrentPerson';
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
+import { useRouter } from 'next/router';
 
 const gamesQuery = gql`
   ${GameCard.fragments.game}
@@ -17,6 +26,13 @@ const gamesQuery = gql`
       nodes {
         id
         ...GameCardGame
+      }
+    }
+
+    tags {
+      nodes {
+        id
+        name
       }
     }
   }
@@ -39,6 +55,7 @@ const gameVariants = {
 };
 
 const Games = () => {
+  const router = useRouter();
   const currentPerson = useCurrentPerson();
   const { loading, error, data } = useQuery(gamesQuery);
 
@@ -75,6 +92,23 @@ const Games = () => {
               </Button>
             </Link>
           )}
+
+          <Stack isInline spacing={2} flexWrap="wrap" py={5}>
+            {data.tags.nodes.map((tag) => (
+              <Tag
+                key={tag.id}
+                marginBottom={2}
+                variantColor="blue"
+                cursor="pointer"
+                _hover={{
+                  opacity: 0.8,
+                }}
+                onClick={() => alert(tag.name)}
+              >
+                <TagLabel>{tag.name}</TagLabel>
+              </Tag>
+            ))}
+          </Stack>
 
           <motion.div
             initial="initial"
