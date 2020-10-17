@@ -3,31 +3,24 @@ import { Button } from '@chakra-ui/core';
 
 import useCurrentPerson from '../hooks/useCurrentPerson';
 
-const eventFragment = gql`
-  fragment EventParticipants on Event {
+const participantFragment = gql`
+  fragment EventParticipant on Person {
     id
-    participants {
-      totalCount
-      nodes {
-        id
-        avatar {
-          thumbnail_url
-        }
-      }
+    avatar {
+      thumbnail_url
     }
   }
 `;
 
 const joinEventMutation = gql`
+  ${participantFragment}
+
   mutation joinEvent($eventId: UUID!, $personId: UUID!) {
     createEventParticipant(
       input: { eventParticipant: { eventId: $eventId, personId: $personId } }
     ) {
       person {
-        id
-        avatar {
-          thumbnail_url
-        }
+        ...EventParticipant
       }
     }
   }
@@ -52,28 +45,21 @@ const JoinEventLoggedInButton = ({
 }) => {
   const [joinEvent] = useMutation(joinEventMutation, {
     variables: { eventId, personId: currentPerson.id },
-    update(proxy, { data: { createEventParticipant } }) {
-      const data = proxy.readFragment({
-        id: eventId,
-        fragment: eventFragment,
-        fragmentName: 'EventParticipants',
-      });
+    update(cache, { data: { createEventParticipant } }) {
+      cache.modify({
+        id: cache.identify({id: eventId, __typename: 'Event'}),
+        fields: {
+          participants(participantsRef) {
+            const newParticipantRef = cache.writeFragment({
+              fragment: participantFragment,
+              data: createEventParticipant.person,
+            });
 
-      const participantsNodes = [
-        ...data.participants.nodes,
-        { __typename: 'Person', ...createEventParticipant.person },
-      ];
-
-      proxy.writeFragment({
-        id: eventId,
-        fragment: eventFragment,
-        fragmentName: 'EventParticipants',
-        data: {
-          ...data,
-          participants: {
-            __typename: 'EventParticipantsManyToManyConnection',
-            totalCount: participantsNodes.length,
-            nodes: participantsNodes,
+            return {
+              ...participantsRef,
+              nodes: [...participantsRef.nodes, newParticipantRef],
+              totalCount: participantsRef.totalCount + 1,
+            };
           },
         },
       });
@@ -81,27 +67,20 @@ const JoinEventLoggedInButton = ({
   });
   const [leaveEvent] = useMutation(leaveEventMutation, {
     variables: { eventId, personId: currentPerson.id },
-    update(proxy, { data: { deleteEventParticipant } }) {
-      const data = proxy.readFragment({
-        id: eventId,
-        fragment: eventFragment,
-        fragmentName: 'EventParticipants',
-      });
+    update(cache, { data: { deleteEventParticipant } }) {
+      cache.modify({
+        id: cache.identify({id: eventId, __typename: 'Event'}),
+        fields: {
+          participants(participantsRef, { readField }) {
+            const newNodesList = participantsRef.nodes.filter(
+              nodeRef => deleteEventParticipant.person.id !== readField('id', nodeRef)
+            );
 
-      const participantsNodes = data.participants.nodes.filter(
-        ({ id }) => id !== deleteEventParticipant.person.id
-      );
-
-      proxy.writeFragment({
-        id: eventId,
-        fragment: eventFragment,
-        fragmentName: 'EventParticipants',
-        data: {
-          ...data,
-          participants: {
-            __typename: 'EventParticipantsManyToManyConnection',
-            totalCount: participantsNodes.length,
-            nodes: participantsNodes,
+            return {
+              ...participantsRef,
+              totalCount: newNodesList.length,
+              nodes: newNodesList,
+            };
           },
         },
       });

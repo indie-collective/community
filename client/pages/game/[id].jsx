@@ -115,15 +115,30 @@ const Game = ({ id }) => {
   const [uploadImage] = useMutation(gql(uploadImageMutation));
   const [addGameImage] = useMutation(addGameImageMutation, {
     skip: !validId,
-    update(store, { data: { createGameImage } }) {
-      const data = store.readQuery({ query: gameQuery, variables: { id } });
+    update(cache, { data: { createGameImage } }) {
+      cache.modify({
+        id: cache.identify(data.game),
+        fields: {
+          images(imagesRef) {
+            const newImageRef = cache.writeFragment({
+              fragment: gql`
+                fragment GameImage on Image {
+                  id
+                  url
+                  thumbnail_url
+                }
+              `,
+              data: createGameImage.image,
+            });
 
-      data.game.images.nodes = [
-        ...data.game.images.nodes,
-        createGameImage.image,
-      ];
-
-      store.writeQuery({ query: gameQuery, data });
+            return {
+              ...imagesRef,
+              nodes: [...imagesRef.nodes, newImageRef],
+              totalCount: imagesRef.totalCount + 1,
+            };
+          },
+        },
+      });
     },
   });
   const [deleteGame, { loading: isBeingDeleted }] = useMutation(
