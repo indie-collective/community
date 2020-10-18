@@ -20,7 +20,7 @@ SET row_security = off;
 -- Data for Name: location; Type: TABLE DATA; Schema: indieco; Owner: engleek
 --
 
-COPY indieco.location (id, street, city, region, countryCode, latitude, longitude, updated_at) FROM stdin;
+COPY indieco.location (id, street, city, region, country_code, latitude, longitude, updated_at) FROM stdin;
 8478990b-6f63-43ca-b1ae-0d0a8791df4b	\N	Rennes	Bretagne	FR	\N	\N	2019-08-12 18:12:48.922266+02
 \.
 
