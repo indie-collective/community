@@ -125,6 +125,7 @@ app.use(
           },
         },
       ],
+      connectionFilterRelations: true,
     },
   })
 );

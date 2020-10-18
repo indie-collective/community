@@ -22,8 +22,8 @@ import { useRouter } from 'next/router';
 const gamesQuery = gql`
   ${GameCard.fragments.game}
 
-  {
-    games(last: 30) {
+  query getGames($tags: [TagFilter!]) {
+    games(last: 30, filter: { gameTags: { some: { tag: { or: $tags } } } }) {
       nodes {
         id
         ...GameCardGame
@@ -59,9 +59,17 @@ const gameVariants = {
 };
 
 const Games = () => {
-  const router = useRouter();
+  const { query } = useRouter();
+  const selectedTags = [].concat(query.tags || []);
+
   const currentPerson = useCurrentPerson();
-  const { loading, error, data } = useQuery(gamesQuery);
+  const { loading, error, data } = useQuery(gamesQuery, {
+    variables: {
+      tags: selectedTags.map((tag) => ({
+        name: { equalTo: tag },
+      })),
+    },
+  });
 
   const tags = loading ? [] : data.tags.nodes.slice();
   tags.sort((a, b) => b.games.totalCount - a.games.totalCount);
