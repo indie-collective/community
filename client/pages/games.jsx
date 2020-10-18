@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import {
   Box,
@@ -59,8 +60,8 @@ const gameVariants = {
 };
 
 const Games = () => {
-  const { query } = useRouter();
-  const selectedTags = [].concat(query.tags || []);
+  const router = useRouter();
+  const selectedTags = router.query.tags ? router.query.tags.split(',') : [];
 
   const currentPerson = useCurrentPerson();
   const { loading, error, data } = useQuery(gamesQuery, {
@@ -75,6 +76,20 @@ const Games = () => {
   tags.sort((a, b) => b.games.totalCount - a.games.totalCount);
 
   const topTagCount = loading ? 0 : tags[0].games.totalCount;
+
+  const toggleQueryStringTag = useCallback(
+    (tag) => {
+      const queryString = new URLSearchParams({
+        ...router.query,
+        tags: selectedTags.includes(tag)
+          ? selectedTags.filter((t) => t !== tag)
+          : [...selectedTags, tag],
+      });
+
+      return queryString.toString();
+    },
+    [selectedTags, router.query]
+  );
 
   return (
     <div>
@@ -122,12 +137,17 @@ const Games = () => {
                 key={tag.id}
                 size={tag.games.totalCount < topTagCount / 4 ? 'sm' : 'lg'}
                 marginBottom={2}
+                variant={selectedTags.includes(tag.name) ? 'solid' : 'outline'}
                 variantColor="blue"
                 cursor="pointer"
                 _hover={{
                   opacity: 0.8,
                 }}
-                onClick={() => alert(tag.name)}
+                onClick={() =>
+                  router.replace(
+                    router.pathname + '?' + toggleQueryStringTag(tag.name)
+                  )
+                }
               >
                 <Badge>{tag.games.totalCount}</Badge>
                 <TagLabel pl={1}>{tag.name}</TagLabel>
