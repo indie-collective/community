@@ -32,7 +32,6 @@ import useCurrentPerson from '../../hooks/useCurrentPerson';
 import JoinEventButton from '../../components/JoinEventButton';
 import SearchGameModal from '../../components/SearchGameModal';
 import SearchOrgModal from '../../components/SearchOrgModal';
-import Marker from '../../components/Marker';
 
 const eventQuery = gql`
   ${GameCard.fragments.game}
