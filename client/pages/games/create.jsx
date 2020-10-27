@@ -4,25 +4,38 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 
 import { withApollo } from '../../lib/apollo';
-import uploadImageMutation from '../../gql/sendImage.gql';
 import Navigation from '../../components/Navigation';
 import GameForm from '../../components/GameForm';
 
-const createGameMutation = gql`
-  mutation createEvent(
-    $name: String!
-    $about: String
-    $site: String
-  ) {
-    createGame(
+const addOrGetTagMutation = gql`
+  mutation addOrGetTag($name: String!) {
+    upsertTagByName(input: { tag: { name: $name }, patch: { name: $name } }) {
+      tag {
+        id
+      }
+    }
+  }
+`;
+
+const linkTagToGameMutation = gql`
+  mutation linkTagToGame($gameId: UUID!, $tagId: UUID!) {
+    upsertGameTagByGameIdAndTagId(
       input: {
-        game: {
-          name: $name
-          about: $about
-          site: $site
-        }
+        gameTag: { gameId: $gameId, tagId: $tagId }
+        patch: { gameId: $gameId, tagId: $tagId }
       }
     ) {
+      gameTag {
+        tagId
+        gameId
+      }
+    }
+  }
+`;
+
+const createGameMutation = gql`
+  mutation createEvent($name: String!, $about: String, $site: String) {
+    createGame(input: { game: { name: $name, about: $about, site: $site } }) {
       game {
         id
         name
@@ -65,16 +78,13 @@ const createGameMutation = gql`
 const CreateGame = () => {
   const { push } = useRouter();
 
-  // const [uploadImage, { loading: loadingImage }] = useMutation(
-  //   gql(uploadImageMutation)
-  // );
   const [createGame, { loading }] = useMutation(createGameMutation);
+  const [addOrGetTag, { loadingTag }] = useMutation(addOrGetTagMutation);
+  const [linkTagToGame, { loadingTagLink }] = useMutation(
+    linkTagToGameMutation
+  );
 
-  async function handleFormSubmit({
-    name,
-    about,
-    site,
-  }) {
+  async function handleFormSubmit({ name, about, site, tags }) {
     const response = await createGame({
       variables: {
         name,
@@ -83,7 +93,25 @@ const CreateGame = () => {
       },
     });
 
-    push(`/game/${response.data.createGame.game.id}`);
+    const { game } = response.data.createGame;
+
+    await Promise.all(
+      tags
+        .trim()
+        .split(',')
+        .map(async (tagName) => {
+          const result = await addOrGetTag({
+            variables: { name: tagName.trim() },
+          });
+          const { tag } = result.data.upsertTagByName;
+
+          await linkTagToGame({
+            variables: { gameId: game.id, tagId: tag.id },
+          });
+        })
+    );
+
+    push(`/game/${game.id}`);
   }
 
   return (
@@ -100,7 +128,7 @@ const CreateGame = () => {
         <Stack borderWidth="1px" mb={10} p={3} borderRadius={5} align="stretch">
           <GameForm
             onSubmit={handleFormSubmit}
-            loading={loading}
+            loading={loading || loadingTag || loadingTagLink}
           />
         </Stack>
       </Box>
