@@ -1,7 +1,6 @@
-import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { useState, useEffect, useRef } from 'react';
-import { useLazyQuery } from '@apollo/react-hooks';
+import { gql, useLazyQuery } from '@apollo/client';
 import {
   Modal,
   ModalOverlay,

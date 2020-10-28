@@ -1,5 +1,4 @@
-import gql from 'graphql-tag';
-import { useQuery } from '@apollo/react-hooks';
+import { gql, useQuery } from '@apollo/client';
 import { Box, Spinner, Grid, Button } from '@chakra-ui/core';
 import { motion } from 'framer-motion';
 import Head from 'next/head';

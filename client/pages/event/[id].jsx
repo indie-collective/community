@@ -1,5 +1,4 @@
-import gql from 'graphql-tag';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import Head from 'next/head';
 import Link from 'next/link';
 import {
@@ -34,39 +33,9 @@ import JoinEventButton from '../../components/JoinEventButton';
 import SearchGameModal from '../../components/SearchGameModal';
 import SearchOrgModal from '../../components/SearchOrgModal';
 
-const eventGamesFragment = gql`
-  ${GameCard.fragments.game}
-
-  fragment EventGames on Event {
-    id
-    games {
-      totalCount
-      nodes {
-        id
-        ...GameCardGame
-      }
-    }
-  }
-`;
-
-const eventHostsFragment = gql`
-  ${OrgCard.fragments.org}
-
-  fragment EventHosts on Event {
-    id
-    entities {
-      totalCount
-      nodes {
-        id
-        ...OrgCardOrg
-      }
-    }
-  }
-`;
-
 const eventQuery = gql`
-  ${eventGamesFragment}
-  ${eventHostsFragment}
+  ${GameCard.fragments.game}
+  ${OrgCard.fragments.org}
 
   query event($id: UUID!) {
     event(id: $id) {
@@ -101,26 +70,35 @@ const eventQuery = gql`
         }
       }
 
-      ...EventGames
-      ...EventHosts
+      games {
+        totalCount
+        nodes {
+          id
+          ...GameCardGame
+        }
+      }
+
+      entities {
+        totalCount
+        nodes {
+          id
+          ...OrgCardOrg
+        }
+      }
     }
   }
 `;
 
 const addGameToEventMutation = gql`
-  mutation addGameToEvent($eventId: UUID!, $gameId: UUID!) {
+  ${GameCard.fragments.game}
+
+  mutation addGameToEvent($eventId: UUID!, $gameId: UUID!) {  
     createGameEvent(
       input: { gameEvent: { eventId: $eventId, gameId: $gameId } }
     ) {
       game {
         id
-        name
-        images {
-          nodes {
-            id
-            thumbnail_url
-          }
-        }
+        ...GameCardGame
       }
     }
   }
@@ -137,19 +115,15 @@ const removeGameFromEventMutation = gql`
 `;
 
 const addHostToEventMutation = gql`
+  ${OrgCard.fragments.org}
+
   mutation addHostToEvent($eventId: UUID!, $hostId: UUID!) {
     createEntityEvent(
       input: { entityEvent: { eventId: $eventId, entityId: $hostId } }
     ) {
       entity {
         id
-        name
-        images {
-          nodes {
-            id
-            thumbnail_url
-          }
-        }
+        ...OrgCardOrg
       }
     }
   }
@@ -182,115 +156,89 @@ const Event = ({ id, host }) => {
     onOpen: onOpenLinkHost,
     onClose: onCloseLinkHost,
   } = useDisclosure();
-  const { loading, error, data } = useQuery(eventQuery, {
+  const { loading, error, data, refetch } = useQuery(eventQuery, {
     variables: { id },
     skip: !validId,
   });
   const [addGameToEvent] = useMutation(addGameToEventMutation, {
-    update(proxy, { data: { createGameEvent } }) {
-      const data = proxy.readFragment({
-        id,
-        fragment: eventGamesFragment,
-        fragmentName: 'EventGames',
-      });
+    update(cache, { data: { createGameEvent } }) {
+      cache.modify({
+        id: cache.identify(data.event),
+        fields: {
+          games(gamesRef) {
+            const newGameRef = cache.writeFragment({
+              fragment: GameCard.fragments.game,
+              data: createGameEvent.game,
+            });
 
-      const gamesNodes = [
-        ...data.games.nodes,
-        { __typename: 'Game', ...createGameEvent.game },
-      ];
-
-      proxy.writeFragment({
-        id,
-        fragment: eventGamesFragment,
-        fragmentName: 'EventGames',
-        data: {
-          ...data,
-          games: {
-            __typename: 'EventGamesManyToManyConnection',
-            totalCount: gamesNodes.length,
-            nodes: gamesNodes,
+            return {
+              ...gamesRef,
+              nodes: [...gamesRef.nodes, newGameRef],
+              totalCount: gamesRef.totalCount + 1,
+            };
           },
         },
       });
     },
   });
   const [removeGameFromEvent] = useMutation(removeGameFromEventMutation, {
-    update(proxy, { data: { deleteGameEvent } }) {
-      const data = proxy.readFragment({
-        id,
-        fragment: eventGamesFragment,
-        fragmentName: 'EventGames',
-      });
+    update(cache, { data: { deleteGameEvent } }) {
+      cache.modify({
+        id: cache.identify(data.event),
+        fields: {
+          games(gamesRef, { readField }) {
+            const newNodesList = gamesRef.nodes.filter(
+              nodeRef => deleteGameEvent.game.id !== readField('id', nodeRef)
+            );
 
-      const gamesNodes = data.games.nodes.filter(
-        ({ id }) => id !== deleteGameEvent.game.id
-      );
-
-      proxy.writeFragment({
-        id,
-        fragment: eventGamesFragment,
-        fragmentName: 'EventGames',
-        data: {
-          ...data,
-          games: {
-            __typename: 'EventGamesManyToManyConnection',
-            totalCount: gamesNodes.length,
-            nodes: gamesNodes,
+            return {
+              ...gamesRef,
+              totalCount: newNodesList.length,
+              nodes: newNodesList,
+            };
           },
         },
       });
     },
   });
   const [addHostToEvent] = useMutation(addHostToEventMutation, {
-    update(proxy, { data: { createEntityEvent } }) {
-      const data = proxy.readFragment({
-        id,
-        fragment: eventHostsFragment,
-        fragmentName: 'EventHosts',
-      });
+    update(cache, { data: { createEntityEvent } }) {
+      refetch();
+      // I don't f*cking know why this doesn't work
+      // cache.modify({
+      //   id: cache.identify(data.event),
+      //   fields: {
+      //     entities(orgsRef) {
+      //       const newOrgRef = cache.writeFragment({
+      //         fragment: OrgCard.fragments.org,
+      //         data: createEntityEvent.entity,
+      //       });
 
-      const hostsNodes = [
-        ...data.entities.nodes,
-        { __typename: 'Entity', ...createEntityEvent.entity },
-      ];
-
-      proxy.writeFragment({
-        id,
-        fragment: eventHostsFragment,
-        fragmentName: 'EventHosts',
-        data: {
-          ...data,
-          entities: {
-            __typename: 'EventEntitiesManyToManyConnection',
-            totalCount: hostsNodes.length,
-            nodes: hostsNodes,
-          },
-        },
-      });
+      //       return {
+      //         ...orgsRef,
+      //         nodes: [...orgsRef.nodes, newOrgRef],
+      //         totalCount: orgsRef.totalCount + 1,
+      //       };
+      //     },
+      //   },
+      // });
     },
   });
   const [removeHostFromEvent] = useMutation(removeHostFromEventMutation, {
-    update(proxy, { data: { deleteEntityEvent } }) {
-      const data = proxy.readFragment({
-        id,
-        fragment: eventHostsFragment,
-        fragmentName: 'EventHosts',
-      });
+    update(cache, { data: { deleteEntityEvent } }) {
+      cache.modify({
+        id: cache.identify(data.event),
+        fields: {
+          entities(orgsRef, { readField }) {
+            const newNodesList = orgsRef.nodes.filter(
+              nodeRef => deleteEntityEvent.entity.id !== readField('id', nodeRef)
+            );
 
-      const hostsNodes = data.entities.nodes.filter(
-        ({ id }) => id !== deleteEntityEvent.entity.id
-      );
-
-      proxy.writeFragment({
-        id,
-        fragment: eventHostsFragment,
-        fragmentName: 'EventHosts',
-        data: {
-          ...data,
-          entities: {
-            __typename: 'EventEntitiesManyToManyConnection',
-            totalCount: hostsNodes.length,
-            nodes: hostsNodes,
+            return {
+              ...orgsRef,
+              totalCount: newNodesList.length,
+              nodes: newNodesList,
+            };
           },
         },
       });

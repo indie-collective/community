@@ -1,5 +1,4 @@
-import gql from 'graphql-tag';
-import { useQuery, useApolloClient } from '@apollo/react-hooks';
+import { gql, useQuery, useApolloClient } from '@apollo/client';
 import {
   Avatar,
   Box,

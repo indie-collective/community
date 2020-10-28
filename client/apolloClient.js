@@ -1,7 +1,5 @@
-import { ApolloClient } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { ApolloLink, Observable } from 'apollo-link';
-import { onError } from 'apollo-link-error';
+import { ApolloClient, InMemoryCache, ApolloLink, Observable } from '@apollo/client';
+import { onError } from '@apollo/client/link/error';
 import { createUploadLink } from 'apollo-upload-client';
 import fetch from 'isomorphic-unfetch';
 import jwt from 'jsonwebtoken';
