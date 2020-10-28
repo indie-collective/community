@@ -177,6 +177,13 @@ export default function createApolloClient(initialState, ctx) {
     ]),
     cache: new InMemoryCache({
       dataIdFromObject: o => o.id,
+      typePolicies: {
+        Person: {
+          fields: {
+            avatar: { merge: true },
+          },
+        },
+      },
     }).restore(initialState),
   });
 }
