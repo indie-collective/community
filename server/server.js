@@ -12,6 +12,7 @@ const PostGraphileDerivedFieldPlugin = require('postgraphile-plugin-derived-fiel
 const PgManyToManyPlugin = require('@graphile-contrib/pg-many-to-many');
 const PgSimplifyInflector = require('@graphile-contrib/pg-simplify-inflector');
 const ConnectionFilterPlugin = require('postgraphile-plugin-connection-filter');
+const UpsertPlugin = require('./PgUpsertPlugin');
 
 const { jwtSecret } = require('./config.json');
 
@@ -64,6 +65,7 @@ app.use(
       PgManyToManyPlugin,
       PgSimplifyInflector,
       ConnectionFilterPlugin,
+      UpsertPlugin,
     ],
     jwtSecret,
     jwtPgTypeIdentifier: 'indieco.jwt_token',

@@ -56,8 +56,11 @@ create table indieco.location (
   region           text not null check (char_length(region) < 80),
   country_code     char(2) not null check (upper(country_code) = country_code),
   latitude         float,
-  longitude        float
+  longitude        float,
+  unique (street, city, region, country_code, latitude, longitude)
 );
+
+comment on table indieco.location is E'@upsert';
 
 comment on table indieco.location is 'A location.';
 comment on column indieco.location.id is 'The primary unique identifier for the location.';

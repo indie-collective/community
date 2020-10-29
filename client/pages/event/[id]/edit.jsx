@@ -73,8 +73,8 @@ const updateEventMutation = gql`
   }
 `;
 
-const createLocationMutation = gql`
-  mutation createLocation(
+const upsertLocationMutation = gql`
+  mutation upsertLocation(
     $street: String
     $city: String!
     $region: String!
@@ -82,9 +82,17 @@ const createLocationMutation = gql`
     $latitude: Float!
     $longitude: Float!
   ) {
-    createLocation(
+    upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude(
       input: {
         location: {
+          street: $street
+          city: $city
+          region: $region
+          countryCode: $countryCode
+          latitude: $latitude
+          longitude: $longitude
+        }
+        patch: {
           street: $street
           city: $city
           region: $region
@@ -117,8 +125,8 @@ const EditEvent = ({id}) => {
     skip: !validId,
   });
   const [uploadImage, {loading: loadingCover}] = useMutation(gql(uploadImageMutation));
-  const [createLocation, { loading: loadingLocation }] = useMutation(
-    createLocationMutation
+  const [upsertLocation, { loading: loadingLocation }] = useMutation(
+    upsertLocationMutation
   );
   const [updateEvent, { loading: loadingUpdate }] = useMutation(updateEventMutation);
 
@@ -153,11 +161,14 @@ const EditEvent = ({id}) => {
     let locationId = null;
 
     if (location && !location.id) {
-      const response = await createLocation({
+      const response = await upsertLocation({
         variables: location,
       });
 
-      locationId = response.data.createLocation.location.id;
+      locationId =
+        response.data
+          .upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude
+          .location.id;
     }
     else if (location) {
       locationId = location.id;
