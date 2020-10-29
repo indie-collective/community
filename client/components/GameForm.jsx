@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
   FormControl,
@@ -43,7 +44,7 @@ const defaultProps = {
 const GameForm = ({ defaultData, onSubmit, loading }) => {
   const { name, about, site, images } = defaultData;
   const { handleSubmit, register, errors } = useForm({
-    validationSchema,
+    resolver: yupResolver(validationSchema),
     defaultValues: {
       name,
       about,

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
   FormControl,
@@ -62,7 +63,7 @@ const CustomRadio = React.forwardRef((props, ref) => {
 const OrgForm = ({ defaultData, onSubmit, loading }) => {
   const { type, name, about } = defaultData;
   const { handleSubmit, control, register, errors } = useForm({
-    validationSchema,
+    resolver: yupResolver(validationSchema),
     defaultValues: {
       type,
       name,

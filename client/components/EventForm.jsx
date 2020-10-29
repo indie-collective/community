@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
   FormControl,
@@ -25,10 +26,16 @@ const validationSchema = yup.object().shape({
   name: yup.string().required(),
   about: yup.string(),
   location: yup.object({
-    type: yup
-      .string()
-      .notOneOf(['country'], 'You need to specify at least a city'),
-  }).nullable(),
+    label: yup.string(),
+    value: yup
+      .object({
+        id: yup.string().nullable(),
+        type: yup
+          .string()
+          .notOneOf(['country'], 'You need to specify at least a city'),
+      })
+      .nullable(),
+  }),
   start: yup
     .date()
     .default(() => {
@@ -80,14 +87,21 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
   const coverRef = useRef();
   const [cover, setCover] = useState(defaultData.cover);
   const { handleSubmit, register, errors, control, watch, setValue } = useForm({
-    validationSchema,
+    resolver: yupResolver(validationSchema),
     defaultValues: {
       name,
       start: startsAt
         ? format(new Date(startsAt), "yyyy-MM-dd'T'HH:mm")
         : undefined,
       end: endsAt ? format(new Date(endsAt), "yyyy-MM-dd'T'HH:mm") : undefined,
-      location: l,
+      location: {
+        label: l
+          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${
+              l.countryCode
+            }`
+          : '',
+        value: l || null,
+      },
       about,
     },
   });
@@ -144,17 +158,17 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         <FormLabel htmlFor="location">Location</FormLabel>
 
         <Controller
-          as={PlacesSearch}
+          as={<PlacesSearch />}
           control={control}
           name="location"
           placeholder="Where is the party?"
-          onClear={() => setValue('location', null)}
+          onClear={() => setValue('location', { label: '', value: null })}
         />
         <FormErrorMessage>
           {errors.about && errors.about.message}
         </FormErrorMessage>
 
-        {location && (
+        {location.value && (
           <Box
             width="100%"
             height="100px"
@@ -175,8 +189,8 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
               }}
               defaultWidth={800}
               defaultHeight={100}
-              center={[location.latitude, location.longitude]}
-              zoom={location.street ? 16 : 11}
+              center={[location.value.latitude, location.value.longitude]}
+              zoom={location.value.street ? 16 : 11}
               mouseEvents={false}
               touchEvents={false}
             ></Map>
@@ -216,11 +230,11 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
           type="file"
           id="cover"
           name="cover"
-          ref={node => {
+          ref={(node) => {
             register(node);
             coverRef.current = node;
           }}
-          onChange={e => {
+          onChange={(e) => {
             const [file] = e.target.files;
 
             if (file) {

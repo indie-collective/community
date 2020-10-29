@@ -1493,6 +1493,11 @@
   resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.1.0.tgz#6c9eafc78c1529248f8f4d92b0799a712b6052c6"
   integrity sha512-i9YbZPN3QgfighY/1X1Pu118VUz2Fmmhd6b2n0/O8YVgGGfw0FbUYoA97k7FkpGJ+pLCFEDLUmAPPV4D1kpeFw==
 
+"@hookform/resolvers@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@hookform/resolvers/-/resolvers-1.0.0.tgz#ad924cb846343fe0a42addcf0b055c4f9aa2dcb9"
+  integrity sha512-YzBq6ZFw/uWGa3rXBNSHqnsE4hDXLrzdboDxPRKGjYHVzs1dBxjvELftP8iTmRPqP32VjnbVfUktX1CQ6Y7sog==
+
 "@icons/material@^0.2.4":
   version "0.2.4"
   resolved "https://registry.yarnpkg.com/@icons/material/-/material-0.2.4.tgz#e90c9f71768b3736e76d7dd6783fc6c2afa88bc8"
@@ -9037,10 +9042,10 @@ pify@^4.0.1:
   resolved "https://registry.yarnpkg.com/pify/-/pify-4.0.1.tgz#4b2cd25c50d598735c50292224fd8c6df41e3231"
   integrity sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==
 
-pigeon-maps@^0.15.0:
-  version "0.15.0"
-  resolved "https://registry.yarnpkg.com/pigeon-maps/-/pigeon-maps-0.15.0.tgz#219183131007f27ce4d84363baa90c5b7fd3700c"
-  integrity sha512-8Qz+mEtuJfzFeTfN8YP57z0FLsmNnP+QIkWH3Fq7HJ/TRFIGQYy/G18d3MbgWtW7hCGev31sbMx05r5TqaT1ZQ==
+pigeon-maps@^0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/pigeon-maps/-/pigeon-maps-0.16.1.tgz#723bf1855cdb3a4727e4f87b15d36987909c7078"
+  integrity sha512-rHW6ClryKhdWWzYiAze8NF1CDwSXPUFply+8MG7tBawtSE4IcK56mKvbhO0EbR+2Ly6n12imvW5gxE+pBdwt6w==
 
 pigeon-marker@^0.3.4:
   version "0.3.4"
@@ -9680,10 +9685,10 @@ react-helmet-async@^1.0.2:
     react-fast-compare "^3.2.0"
     shallowequal "^1.1.0"
 
-react-hook-form@^4.3.0:
-  version "4.10.2"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-4.10.2.tgz#fb56160c302a0e2b595ef78cc8946c9dc9cb776a"
-  integrity sha512-Ule/KqHBwUvuubqGC4WDvOARS6VjlULSS+WHspgQ5FhFKR4ytHDc4AMpjVfnv+Wbz2TEbMp9/ZHmuZsUksPCiA==
+react-hook-form@^6.9.6:
+  version "6.9.6"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-6.9.6.tgz#bbcdfa34a660edcdd160cba2d501583b0e3d60a9"
+  integrity sha512-TyLqWHgFS1WLELDuUBvMWLHEzmR7aS7xOY+eOxMtS1w4jFhqF1xmHnMhJsbiFPSgC+OeTJ1Pc0U4K0y6cA7ERA==
 
 react-hotkeys@2.0.0:
   version "2.0.0"

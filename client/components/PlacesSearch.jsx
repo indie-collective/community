@@ -8,6 +8,7 @@ const propTypes = {
   ...AlgoliaPlaces.propTypes,
   options: PropTypes.shape({
     ...AlgoliaPlaces.propTypes.options,
+    isRequired: undefined,
     appId: undefined,
     apiKey: undefined,
   }),
@@ -19,9 +20,11 @@ const defaultProps = {
   options: {},
 };
 
-const PlacesSearch = ({ onChange, options, value: l, ...rest }) => {
+const PlacesSearch = ({ onChange, options, value, ...rest }) => {
   const {colorMode} = useColorMode();
   const theme = useTheme();
+
+  const l = value.value;
 
   return (
     <>
@@ -47,30 +50,36 @@ const PlacesSearch = ({ onChange, options, value: l, ...rest }) => {
           language: 'en',
           ...options,
         }}
-        defaultValue={l && `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${l.countryCode}`}
+        defaultValue={value.label}
         onChange={({ suggestion }) => {
-          const {name, city, administrative, countryCode, latlng} = suggestion;
+          const {value, name, city, administrative, countryCode, latlng} = suggestion;
 
           if (suggestion.type === 'city') {
             onChange({
-              id: null,
-              city: suggestion.name,
-              region: administrative,
-              countryCode: countryCode.toUpperCase(),
-              latitude: latlng.lat,
-              longitude: latlng.lng,
+              label: value,
+              value: {
+                id: null,
+                city: suggestion.name,
+                region: administrative,
+                countryCode: countryCode.toUpperCase(),
+                latitude: latlng.lat,
+                longitude: latlng.lng,
+              },
             });
             return;
           }
 
           onChange({
-            id: null,
-            street: name,
-            city,
-            region: administrative,
-            countryCode: countryCode.toUpperCase(),
-            latitude: latlng.lat,
-            longitude: latlng.lng,
+            label: value,
+            value: {
+              id: null,
+              street: name,
+              city,
+              region: administrative,
+              countryCode: countryCode.toUpperCase(),
+              latitude: latlng.lat,
+              longitude: latlng.lng,
+            },
           });
         }}
         {...rest}

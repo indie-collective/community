@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
   FormControl,
@@ -40,7 +41,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
   const avatarRef = useRef();
   const [avatar, setAvatar] = useState(defaultData.avatar);
   const { handleSubmit, register, errors } = useForm({
-    validationSchema,
+    resolver: yupResolver(validationSchema),
   });
 
   const { firstName, lastName, about } = defaultData;

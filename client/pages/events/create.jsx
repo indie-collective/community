@@ -119,17 +119,18 @@ const CreateEvent = () => {
 
     let locationId = null;
 
-    if (location && !location.id) {
+    if (location.value && location.id) {
+      locationId = location.id;
+    }
+    else if (location.value) {
       const response = await upsertLocation({
-        variables: location,
+        variables: location.value,
       });
 
       locationId =
         response.data
           .upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude
           .location.id;
-    } else if (location) {
-      locationId = location.id;
     }
 
     const response = await createEvent({
