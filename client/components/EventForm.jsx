@@ -199,7 +199,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
       </FormControl>
 
       <FormControl gridColumn="1 / 3">
-        <FormLabel htmlFor="avatar">Cover</FormLabel>
+        <FormLabel htmlFor="cover">Cover</FormLabel>
 
         <Box position="relative">
           <AspectRatioBox ratio={3} onClick={() => coverRef.current.click()}>

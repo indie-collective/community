@@ -58,8 +58,8 @@ const Profile = ({}) => {
   const { loading, error, data } = useQuery(profileQuery, {
     variables: {},
   });
-  const [uploadImage, {loading: loadingCover}] = useMutation(gql(uploadImageMutation));
-  const [updateProfile] = useMutation(updateProfileMutation);
+  const [uploadImage, {loading: loadingAvatar}] = useMutation(gql(uploadImageMutation));
+  const [updateProfile, {loading: loadingUpdate}] = useMutation(updateProfileMutation);
   const { push } = useRouter();
 
   if (loading) {
@@ -112,7 +112,7 @@ const Profile = ({}) => {
           <ProfileForm
             defaultData={data.currentPerson}
             onSubmit={handleFormSubmit}
-            loading={false}
+            loading={loadingUpdate || loadingAvatar}
           />
         </Stack>
       </Box>
