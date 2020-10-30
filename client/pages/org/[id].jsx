@@ -8,8 +8,8 @@ import {
   DarkMode,
   Grid,
   Image,
-  AspectRatioBox,
   Flex,
+  Button,
 } from '@chakra-ui/core';
 import Error from 'next/error';
 import Head from 'next/head';
@@ -20,6 +20,8 @@ import Navigation from '../../components/Navigation';
 import GameCard from '../../components/GameCard';
 import EventCard from '../../components/EventCard';
 import usePlaceholder from '../../hooks/usePlaceholder';
+import useCurrentPerson from '../../hooks/useCurrentPerson';
+import Link from 'next/link';
 
 const TYPES_ABBR = {
   STUDIO: 'studio',
@@ -92,6 +94,7 @@ const variants = {
 
 const Org = ({ id, host }) => {
   const placeholder = usePlaceholder();
+  const currentPerson = useCurrentPerson();
   const validId = uuidRegex.test(id);
 
   const { loading, error, data } = useQuery(orgQuery, {
@@ -117,9 +120,7 @@ const Org = ({ id, host }) => {
         <meta property="og:title" content={name} />
         <meta property="og:description" content={`${about}.`} />
         <meta property="og:url" content={`https://${host}/event/${id}`} />
-        {logo && (
-          <meta property="og:image" content={logo.thumbnail_url} />
-        )}
+        {logo && <meta property="og:image" content={logo.thumbnail_url} />}
 
         <meta
           name="twitter:card"
@@ -128,14 +129,12 @@ const Org = ({ id, host }) => {
         <meta name="twitter:site" content="@IndieColle" />
         <meta name="twitter:title" content={name} />
         <meta name="twitter:description" content={`${about}.`} />
-        {logo && (
-          <meta name="twitter:image" content={logo.thumbnail_url} />
-        )}
+        {logo && <meta name="twitter:image" content={logo.thumbnail_url} />}
       </Head>
 
       <Navigation />
 
-      <Box mb={5} pl={5} pr={5}>
+      <Box mt={[5, 2, 5]} padding={[0, 5]}>
         <Flex alignItems="center">
           <Image
             size="100px"
@@ -159,6 +158,14 @@ const Org = ({ id, host }) => {
             </DarkMode>
           </Box>
         </Flex>
+
+        {currentPerson && (
+          <Link href={`/org/${id}/edit`}>
+            <Button leftIcon="edit" variantColor="teal" mt={3}>
+              Edit
+            </Button>
+          </Link>
+        )}
 
         <Text fontSize="md" mt={3}>
           {about}
