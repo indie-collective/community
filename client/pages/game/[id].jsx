@@ -20,9 +20,11 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
+  IconButton,
 } from '@chakra-ui/core';
 import Error from 'next/error';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDropzone } from 'react-dropzone';
 
@@ -31,7 +33,7 @@ import useCurrentPerson from '../../hooks/useCurrentPerson';
 import uploadImageMutation from '../../gql/sendImage.gql';
 import Navigation from '../../components/Navigation';
 import OrgCard from '../../components/OrgCard';
-import Link from 'next/link';
+import SearchOrgModal from '../../components/SearchOrgModal';
 
 const gameQuery = gql`
   ${OrgCard.fragments.org}
@@ -100,16 +102,46 @@ const deleteGameMutation = gql`
   }
 `;
 
+const addAuthorToGameMutation = gql`
+  ${OrgCard.fragments.org}
+
+  mutation addAuthorToGame($gameId: UUID!, $authorId: UUID!) {
+    createGameEntity(
+      input: { gameEntity: { gameId: $gameId, entityId: $authorId } }
+    ) {
+      entity {
+        id
+        ...OrgCardOrg
+      }
+    }
+  }
+`;
+
+const removeAuthorFromGameMutation = gql`
+  mutation removeAuthorFromGame($gameId: UUID!, $authorId: UUID!) {
+    deleteGameEntity(input: { gameId: $gameId, entityId: $authorId }) {
+      entity {
+        id
+      }
+    }
+  }
+`;
+
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 const Game = ({ id }) => {
   const validId = uuidRegex.test(id);
 
   const currentPerson = useCurrentPerson();
+  const {
+    isOpen: linkAuthorIsOpen,
+    onOpen: onOpenLinkAuthor,
+    onClose: onCloseLinkAuthor,
+  } = useDisclosure();
   const { colorMode } = useColorMode();
   const router = useRouter();
   const [isLoadingNewImages, setIsLoadingNewImages] = useState(false);
-  const { loading, error, data } = useQuery(gameQuery, {
+  const { loading, error, data, refetch } = useQuery(gameQuery, {
     variables: { id },
     skip: !validId,
   });
@@ -149,6 +181,49 @@ const Game = ({ id }) => {
       skip: !validId,
     }
   );
+  const [addAuthorToGame] = useMutation(addAuthorToGameMutation, {
+    update(cache, { data: { createGameEntity } }) {
+      refetch();
+      // still no clue
+      // cache.modify({
+      //   id: cache.identify(data.game),
+      //   fields: {
+      //     entities(orgsRef) {
+      //       const newOrgRef = cache.writeFragment({
+      //         fragment: OrgCard.fragments.org,
+      //         data: createGameEntity.entity,
+      //       });
+
+      //       return {
+      //         ...orgsRef,
+      //         nodes: [...orgsRef.nodes, newOrgRef],
+      //         totalCount: orgsRef.totalCount + 1,
+      //       };
+      //     },
+      //   },
+      // });
+    },
+  });
+  const [removeAuthorFromGame] = useMutation(removeAuthorFromGameMutation, {
+    update(cache, { data: { deleteGameEntity } }) {
+      cache.modify({
+        id: cache.identify(data.game),
+        fields: {
+          entities(orgsRef, { readField }) {
+            const newNodesList = orgsRef.nodes.filter(
+              nodeRef => deleteGameEntity.entity.id !== readField('id', nodeRef)
+            );
+
+            return {
+              ...orgsRef,
+              totalCount: newNodesList.length,
+              nodes: newNodesList,
+            };
+          },
+        },
+      });
+    },
+  });
 
   const onDrop = useCallback(async (acceptedFiles) => {
     setIsLoadingNewImages(true);
@@ -217,16 +292,67 @@ const Game = ({ id }) => {
         <Heading size="md" mb={2}>
           Authors
         </Heading>
-        <Box
-          display="grid"
-          gridTemplateColumns="33% 33% 33%"
-          gridColumnGap={3}
-          gridRowGap={3}
+
+        <Grid
+          gap={5}
+          templateColumns={[
+            '1fr',
+            'repeat(2, 1fr)',
+            'repeat(2, 1fr)',
+            'repeat(3, 1fr)',
+          ]}
         >
-          {entities.nodes.map((org) => (
-            <OrgCard key={id} {...org} />
+          {entities.nodes.map((author) => (
+            <OrgCard
+              key={author.id}
+              {...author}
+              onRemove={
+                currentPerson
+                  ? () =>
+                      removeAuthorFromGame({
+                        variables: { gameId: id, authorId: author.id },
+                        optimisticResponse: {
+                          __typename: 'Mutation',
+                          deleteGameEntity: {
+                            __typename: 'DeleteGameEntityMutation',
+                            entity: { __typename: 'Entity', ...author },
+                          },
+                        },
+                      })
+                  : null
+              }
+            />
           ))}
-        </Box>
+          {currentPerson && (
+            <>
+              <IconButton
+                alignSelf="center"
+                justifySelf="flex-start"
+                variantColor="teal"
+                aria-label="Add an author to the game"
+                icon="add"
+                onClick={onOpenLinkAuthor}
+              />
+              <SearchOrgModal
+                isOpen={linkAuthorIsOpen}
+                onClose={onCloseLinkAuthor}
+                excludedIds={entities.nodes.map(({ id }) => id)}
+                onSelect={(author) =>
+                  addAuthorToGame({
+                    variables: { gameId: id, authorId: author.id },
+                    optimisticResponse: {
+                      __typename: 'Mutation',
+                      createGameEntity: {
+                        __typename: 'CreateGameEntityMutation',
+                        entity: { __typename: 'Entity', ...author },
+                      },
+                    },
+                  })
+                }
+              />
+            </>
+          )}
+        </Grid>
       </Box>
 
       <Box mb={5} pl={5} pr={5}>
