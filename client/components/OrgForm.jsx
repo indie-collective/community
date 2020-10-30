@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -12,7 +12,13 @@ import {
   Textarea,
   Grid,
   RadioButtonGroup,
+  IconButton,
+  Box,
+  AspectRatioBox,
+  Image,
 } from '@chakra-ui/core';
+
+import usePlaceholder from '../hooks/usePlaceholder';
 
 const validationSchema = yup.object().shape({
   type: yup
@@ -27,6 +33,7 @@ const propTypes = {
   loading: PropTypes.bool.isRequired,
   onSubmit: PropTypes.func.isRequired,
   defaultData: PropTypes.shape({
+    logo: PropTypes.any,
     type: PropTypes.oneOf(['STUDIO', 'ASSOCIATION', 'ORGANIZATION']),
     name: PropTypes.string,
     about: PropTypes.string,
@@ -61,6 +68,10 @@ const CustomRadio = React.forwardRef((props, ref) => {
 });
 
 const OrgForm = ({ defaultData, onSubmit, loading }) => {
+  const placeholder = usePlaceholder();
+  const logoRef = useRef();
+  const [logo, setLogo] = useState(defaultData.logo);
+
   const { type, name, about } = defaultData;
   const { handleSubmit, control, register, errors } = useForm({
     resolver: yupResolver(validationSchema),
@@ -79,6 +90,53 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
       gridTemplateColumns="1fr 1fr"
       gap={5}
     >
+      <FormControl gridColumn="1 / 3">
+        <FormLabel htmlFor="Logo">Logo</FormLabel>
+
+        <Box position="relative" w="25%">
+          <AspectRatioBox ratio={1} onClick={() => logoRef.current.click()}>
+            <Image
+              size="100%"
+              objectFit="logo"
+              src={logo && logo.url}
+              alt="Event logo"
+              fallbackSrc={placeholder}
+              borderRadius={5}
+            />
+          </AspectRatioBox>
+
+          <IconButton
+            position="absolute"
+            right={2}
+            bottom={2}
+            aria-label="Edit logo"
+            icon="edit"
+            variantColor="teal"
+            isRound
+            onClick={() => logoRef.current.click()}
+          />
+        </Box>
+
+        <Input
+          display="none"
+          type="file"
+          id="logo"
+          name="logo"
+          ref={(node) => {
+            register(node);
+            logoRef.current = node;
+          }}
+          onChange={(e) => {
+            const [file] = e.target.files;
+
+            if (file) {
+              setLogo({ url: window.URL.createObjectURL(file) });
+            }
+          }}
+          accept="image/*"
+        />
+      </FormControl>
+
       <FormControl gridColumn="1 / 3" isInvalid={errors.type} isRequired>
         <FormLabel htmlFor="name">Type</FormLabel>
         <Controller

@@ -9,9 +9,9 @@ import Navigation from '../../components/Navigation';
 import OrgForm from '../../components/OrgForm';
 
 const createOrgMutation = gql`
-  mutation createOrg($name: String!, $type: EntityType!, $about: String) {
+  mutation createOrg($name: String!, $type: EntityType!, $logoId: UUID, $about: String) {
     createOrg: createEntity(
-      input: { entity: { type: $type, name: $name, about: $about } }
+      input: { entity: { name: $name, type: $type, logoId: $logoId, about: $about } }
     ) {
       org: entity {
         id
@@ -42,16 +42,29 @@ const createOrgMutation = gql`
 const CreateOrg = () => {
   const { push } = useRouter();
 
-  // const [uploadImage, { loading: loadingImage }] = useMutation(
-  //   gql(uploadImageMutation)
-  // );
+  const [uploadImage, { loading: loadingLogo }] = useMutation(
+    gql(uploadImageMutation)
+  );
   const [createOrg, { loading }] = useMutation(createOrgMutation);
 
-  async function handleFormSubmit({ name, type, about }) {
+  async function handleFormSubmit({ name, type, logo: logoFiles, about }) {
+    let logoId;
+
+    if (logoFiles[0]) {
+      const response = await uploadImage({
+        variables: {
+          file: logoFiles[0],
+        },
+      });
+
+      logoId = response.data.createImage.image.id;
+    }
+
     const response = await createOrg({
       variables: {
         name,
         type,
+        logoId,
         about,
       },
     });
@@ -71,7 +84,7 @@ const CreateOrg = () => {
         <Heading mb={5}>Create organization</Heading>
 
         <Stack borderWidth="1px" mb={10} p={3} borderRadius={5} align="stretch">
-          <OrgForm onSubmit={handleFormSubmit} loading={loading} />
+          <OrgForm onSubmit={handleFormSubmit} loading={loading || loadingLogo} />
         </Stack>
       </Box>
     </div>

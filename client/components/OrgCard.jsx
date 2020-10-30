@@ -26,7 +26,7 @@ const TYPES_COLORS = {
   ORGANIZATION: 'purple',
 };
 
-const OrgCard = ({ id, type, logo, name, people, games, onRemove }) => {
+const OrgCard = ({ id, type, logo, name, people, games, events, onRemove }) => {
   const { colorMode } = useColorMode();
   const placeholder = usePlaceholder();
 
@@ -62,7 +62,7 @@ const OrgCard = ({ id, type, logo, name, people, games, onRemove }) => {
 
             <Box
               position="absolute"
-              bottom={-4}
+              bottom={-2}
               left={0}
               right={0}
               textAlign="center"
@@ -93,7 +93,8 @@ const OrgCard = ({ id, type, logo, name, people, games, onRemove }) => {
               fontSize="xs"
               textTransform="uppercase"
             >
-              {games.totalCount} {games.totalCount === 1 ? 'game' : 'games'}
+              {type === 'STUDIO' && `${games.totalCount} ${games.totalCount === 1 ? 'game' : 'games'}`}
+              {type !== 'STUDIO' && `${events.totalCount} ${events.totalCount === 1 ? 'event' : 'events'}`}
             </Box>
           </Box>
 
@@ -124,13 +125,13 @@ OrgCard.fragments = {
       id
       name
       type
+      logo {
+        thumbnail_url
+      }
       people {
         totalCount
       }
       games {
-        totalCount
-      }
-      images {
         totalCount
       }
       events {

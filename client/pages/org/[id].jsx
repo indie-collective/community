@@ -7,6 +7,9 @@ import {
   Badge,
   DarkMode,
   Grid,
+  Image,
+  AspectRatioBox,
+  Flex,
 } from '@chakra-ui/core';
 import Error from 'next/error';
 import Head from 'next/head';
@@ -16,6 +19,7 @@ import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
 import GameCard from '../../components/GameCard';
 import EventCard from '../../components/EventCard';
+import usePlaceholder from '../../hooks/usePlaceholder';
 
 const TYPES_ABBR = {
   STUDIO: 'studio',
@@ -40,11 +44,9 @@ const orgQuery = gql`
       type
       about
 
-      images {
-        nodes {
-          id
-          thumbnail_url
-        }
+      logo {
+        id
+        thumbnail_url
       }
 
       people {
@@ -89,6 +91,7 @@ const variants = {
 };
 
 const Org = ({ id, host }) => {
+  const placeholder = usePlaceholder();
   const validId = uuidRegex.test(id);
 
   const { loading, error, data } = useQuery(orgQuery, {
@@ -104,7 +107,7 @@ const Org = ({ id, host }) => {
     return <Spinner />;
   }
 
-  const { name, type, about, images, games, events } = data.entity;
+  const { name, type, about, logo, games, events } = data.entity;
 
   return (
     <div>
@@ -114,31 +117,49 @@ const Org = ({ id, host }) => {
         <meta property="og:title" content={name} />
         <meta property="og:description" content={`${about}.`} />
         <meta property="og:url" content={`https://${host}/event/${id}`} />
-        {images[0] && (
-          <meta property="og:image" content={images[0].thumbnail_url} />
+        {logo && (
+          <meta property="og:image" content={logo.thumbnail_url} />
         )}
 
         <meta
           name="twitter:card"
-          content={images[0] ? 'summary_large_image' : 'summary'}
+          content={logo ? 'summary_large_image' : 'summary'}
         />
         <meta name="twitter:site" content="@IndieColle" />
         <meta name="twitter:title" content={name} />
         <meta name="twitter:description" content={`${about}.`} />
-        {images[0] && (
-          <meta name="twitter:image" content={images[0].thumbnail_url} />
+        {logo && (
+          <meta name="twitter:image" content={logo.thumbnail_url} />
         )}
       </Head>
 
       <Navigation />
 
       <Box mb={5} pl={5} pr={5}>
-        <Heading>{name}</Heading>
-        <DarkMode>
-          <Badge rounded={3} variant="solid" variantColor={TYPES_COLORS[type]}>
-            {TYPES_ABBR[type]}
-          </Badge>
-        </DarkMode>
+        <Flex alignItems="center">
+          <Image
+            size="100px"
+            objectFit="cover"
+            src={logo && logo.thumbnail_url}
+            alt="Organization cover"
+            fallbackSrc={placeholder}
+            rounded={3}
+          />
+
+          <Box isTruncated flex="1" ml={2}>
+            <Heading>{name}</Heading>
+            <DarkMode>
+              <Badge
+                rounded={3}
+                variant="solid"
+                variantColor={TYPES_COLORS[type]}
+              >
+                {type}
+              </Badge>
+            </DarkMode>
+          </Box>
+        </Flex>
+
         <Text fontSize="md" mt={3}>
           {about}
         </Text>
