@@ -31,6 +31,7 @@ import useCurrentPerson from '../../hooks/useCurrentPerson';
 import uploadImageMutation from '../../gql/sendImage.gql';
 import Navigation from '../../components/Navigation';
 import OrgCard from '../../components/OrgCard';
+import Link from 'next/link';
 
 const gameQuery = gql`
   ${OrgCard.fragments.org}
@@ -198,6 +199,15 @@ const Game = ({ id }) => {
         <Text fontSize="lg">
           <a href={site}>{site}</a>
         </Text>
+
+        {currentPerson && (
+          <Link href={`/game/${id}/edit`}>
+            <Button leftIcon="edit" variantColor="teal" mt={3}>
+              Edit
+            </Button>
+          </Link>
+        )}
+
         <Text fontSize="md" mt={3}>
           {about}
         </Text>
