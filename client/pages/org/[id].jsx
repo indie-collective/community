@@ -1,4 +1,4 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql, useApolloClient, useMutation, useQuery } from '@apollo/client';
 import {
   Box,
   Text,
@@ -10,9 +10,19 @@ import {
   Image,
   Flex,
   Button,
+  useDisclosure,
+  ModalOverlay,
+  ModalContent,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Modal,
+  ModalHeader,
 } from '@chakra-ui/core';
 import Error from 'next/error';
 import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 
 import { withApollo } from '../../lib/apollo';
@@ -21,13 +31,6 @@ import GameCard from '../../components/GameCard';
 import EventCard from '../../components/EventCard';
 import usePlaceholder from '../../hooks/usePlaceholder';
 import useCurrentPerson from '../../hooks/useCurrentPerson';
-import Link from 'next/link';
-
-const TYPES_ABBR = {
-  STUDIO: 'studio',
-  ASSOCIATION: 'asso.',
-  ORGANIZATION: 'org.',
-};
 
 const TYPES_COLORS = {
   STUDIO: 'yellow',
@@ -74,6 +77,16 @@ const orgQuery = gql`
   }
 `;
 
+const deleteOrgMutation = gql`
+  mutation deleteOrg($id: UUID!) {
+    deleteEntity(input: { id: $id }) {
+      org: entity {
+        id
+      }
+    }
+  }
+`;
+
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 const variants = {
@@ -95,14 +108,26 @@ const variants = {
 const Org = ({ id, host }) => {
   const placeholder = usePlaceholder();
   const currentPerson = useCurrentPerson();
+  const router = useRouter();
   const validId = uuidRegex.test(id);
 
+  const {cache} = useApolloClient();
   const { loading, error, data } = useQuery(orgQuery, {
     variables: { id },
     skip: !validId,
   });
 
-  if ((id !== undefined && !validId) || error) {
+  const [deleteOrg, { loading: isBeingDeleted }] = useMutation(
+    deleteOrgMutation,
+    {
+      variables: { id },
+      skip: !validId,
+    }
+  );
+
+  const deleteModal = useDisclosure();
+
+  if (error || (id !== undefined && !validId) || (!loading && data.entity === null)) {
     return <Error statusCode={404} />;
   }
 
@@ -253,6 +278,55 @@ const Org = ({ id, host }) => {
               ))}
             </Grid>
           </motion.div>
+        </Box>
+      )}
+
+      {currentPerson && (
+        <Box mb={5} pl={5} pr={5}>
+          <Button
+            variant="link"
+            variantColor="red"
+            onClick={deleteModal.onOpen}
+          >
+            Delete organization
+          </Button>
+
+          <Modal
+            preserveScrollBarGap
+            isOpen={deleteModal.isOpen}
+            onClose={deleteModal.onClose}
+          >
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Delete Organisation</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Text>Do you really want to delete {name}?</Text>
+              </ModalBody>
+
+              <ModalFooter>
+                <Button
+                  isLoading={isBeingDeleted}
+                  loadingText="Deleting"
+                  variantColor="red"
+                  mr={3}
+                  onClick={async () => {
+                    await deleteOrg();
+
+                    deleteModal.onClose();
+                    router.replace('/orgs');
+
+                    cache.evict({id});
+                  }}
+                >
+                  Delete
+                </Button>
+                <Button variant="ghost" onClick={deleteModal.onClose}>
+                  Cancel
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
         </Box>
       )}
     </div>

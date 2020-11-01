@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery, useMutation, useApolloClient } from '@apollo/client';
 import {
   Spinner,
   Box,
@@ -141,6 +141,8 @@ const Game = ({ id }) => {
   const { colorMode } = useColorMode();
   const router = useRouter();
   const [isLoadingNewImages, setIsLoadingNewImages] = useState(false);
+
+  const { cache } = useApolloClient();
   const { loading, error, data, refetch } = useQuery(gameQuery, {
     variables: { id },
     skip: !validId,
@@ -211,7 +213,8 @@ const Game = ({ id }) => {
         fields: {
           entities(orgsRef, { readField }) {
             const newNodesList = orgsRef.nodes.filter(
-              nodeRef => deleteGameEntity.entity.id !== readField('id', nodeRef)
+              (nodeRef) =>
+                deleteGameEntity.entity.id !== readField('id', nodeRef)
             );
 
             return {
@@ -251,7 +254,11 @@ const Game = ({ id }) => {
 
   const deleteModal = useDisclosure();
 
-  if ((id !== undefined && !validId) || error) {
+  if (
+    error ||
+    (id !== undefined && !validId) ||
+    (!loading && data.game === null)
+  ) {
     return <Error statusCode={404} />;
   }
 
@@ -467,6 +474,8 @@ const Game = ({ id }) => {
 
                     deleteModal.onClose();
                     router.replace('/games');
+
+                    cache.evict({ id });
                   }}
                 >
                   Delete
