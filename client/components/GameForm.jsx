@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -10,14 +10,10 @@ import {
   FormErrorMessage,
   Button,
   Textarea,
-  AspectRatioBox,
-  Image,
-  IconButton,
-  Box,
   Grid,
 } from '@chakra-ui/core';
 
-import usePlaceholder from '../hooks/usePlaceholder';
+import PossibleGameDuplicates from './PossibleGameDuplicates';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
@@ -43,7 +39,7 @@ const defaultProps = {
 
 const GameForm = ({ defaultData, onSubmit, loading }) => {
   const { name, about, site, images } = defaultData;
-  const { handleSubmit, register, errors } = useForm({
+  const { handleSubmit, register, errors, watch } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       name,
@@ -52,6 +48,8 @@ const GameForm = ({ defaultData, onSubmit, loading }) => {
       images,
     },
   });
+
+  const newGameName = watch('name');
 
   return (
     <Grid
@@ -68,6 +66,7 @@ const GameForm = ({ defaultData, onSubmit, loading }) => {
           placeholder="Super Tractor Simulator 2042, Assassin's Greed..."
           ref={register}
         />
+        <PossibleGameDuplicates value={newGameName} />
         <FormErrorMessage>
           {errors.name && errors.name.message}
         </FormErrorMessage>
@@ -90,11 +89,7 @@ const GameForm = ({ defaultData, onSubmit, loading }) => {
 
       <FormControl gridColumn="1 / 3" isInvalid={errors.site}>
         <FormLabel htmlFor="site">Site</FormLabel>
-        <Input
-          name="site"
-          placeholder="https://example.com"
-          ref={register}
-        />
+        <Input name="site" placeholder="https://example.com" ref={register} />
         <FormErrorMessage>
           {errors.site && errors.site.message}
         </FormErrorMessage>
