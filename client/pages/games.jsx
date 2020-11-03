@@ -20,6 +20,20 @@ import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 import { useRouter } from 'next/router';
 
+const tagsQuery = gql`
+  query getTags {
+    tags(filter: { gameTagsExist: true }) {
+      nodes {
+        id
+        name
+        games {
+          totalCount
+        }
+      }
+    }
+  }
+`;
+
 const gamesQuery = gql`
   ${GameCard.fragments.game}
 
@@ -28,16 +42,6 @@ const gamesQuery = gql`
       nodes {
         id
         ...GameCardGame
-      }
-    }
-
-    tags {
-      nodes {
-        id
-        name
-        games {
-          totalCount
-        }
       }
     }
   }
@@ -64,7 +68,8 @@ const Games = () => {
   const selectedTags = router.query.tags ? router.query.tags.split(',') : [];
 
   const currentPerson = useCurrentPerson();
-  const { loading, error, data } = useQuery(gamesQuery, {
+  const { loading: loadingTags, data: dataTags } = useQuery(tagsQuery);
+  const { loading: loadingGames, data: dataGames } = useQuery(gamesQuery, {
     variables: {
       tags: selectedTags.map((tag) => ({
         name: { equalTo: tag },
@@ -72,21 +77,27 @@ const Games = () => {
     },
   });
 
-  const tags = loading ? [] : data.tags.nodes.slice();
+  const tags = loadingTags ? [] : dataTags.tags.nodes.slice();
   tags.sort((a, b) => b.games.totalCount - a.games.totalCount);
 
-  const topTagCount = loading ? 0 : tags[0].games.totalCount;
+  const topTagCount = loadingTags ? 0 : tags[0].games.totalCount;
 
   const toggleQueryStringTag = useCallback(
     (tag) => {
+      const newSelectedTags = selectedTags.includes(tag)
+        ? selectedTags.filter((t) => t !== tag)
+        : [...selectedTags, tag];
+
       const queryString = new URLSearchParams({
         ...router.query,
-        tags: selectedTags.includes(tag)
-          ? selectedTags.filter((t) => t !== tag)
-          : [...selectedTags, tag],
+        tags: newSelectedTags,
       });
 
-      return queryString.toString();
+      if (newSelectedTags.length === 0) {
+        queryString.delete('tags');
+      }
+
+      return queryString.toString() ? '?' + queryString.toString() : '';
     },
     [selectedTags, router.query]
   );
@@ -99,88 +110,103 @@ const Games = () => {
 
       <Navigation />
 
-      {loading ? (
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          height="100%"
-        >
-          <Spinner size="lg" />
-        </Box>
-      ) : (
-        <Box p={5}>
-          {currentPerson && (
-            <Link href="/games/create">
-              <Button
-                display="block"
-                m="auto"
-                mb={10}
-                size="lg"
-                variantColor="teal"
-                leftIcon="add"
-              >
-                Add a game
-              </Button>
-            </Link>
-          )}
-
-          <Stack
-            isInline
-            spacing={2}
-            flexWrap="wrap"
-            py={5}
-            alignItems="flex-end"
-          >
-            {tags.map((tag) => (
-              <Tag
-                key={tag.id}
-                size={tag.games.totalCount < topTagCount / 4 ? 'sm' : 'lg'}
-                marginBottom={2}
-                variant={selectedTags.includes(tag.name) ? 'solid' : 'outline'}
-                variantColor="blue"
-                cursor="pointer"
-                _hover={{
-                  opacity: 0.8,
-                }}
-                onClick={() =>
-                  router.replace(
-                    router.pathname + '?' + toggleQueryStringTag(tag.name)
-                  )
-                }
-              >
-                <Badge>{tag.games.totalCount}</Badge>
-                <TagLabel pl={1}>{tag.name}</TagLabel>
-              </Tag>
-            ))}
-          </Stack>
-
-          <motion.div
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-          >
-            <Grid
-              gap={5}
-              templateColumns={[
-                '1fr',
-                'repeat(2, 1fr)',
-                'repeat(3, 1fr)',
-                'repeat(4, 1fr)',
-              ]}
+      <Box p={5}>
+        {currentPerson && (
+          <Link href="/games/create">
+            <Button
+              display="block"
+              m="auto"
+              mb={10}
+              size="lg"
+              variantColor="teal"
+              leftIcon="add"
             >
-              {data.games.nodes.map((game) => (
-                <Box key={game.id} minW={0}>
-                  <motion.div variants={gameVariants}>
-                    <GameCard {...game} />
-                  </motion.div>
-                </Box>
+              Add a game
+            </Button>
+          </Link>
+        )}
+
+        {loadingTags ? (
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            height="100%"
+          >
+            <Spinner size="lg" />
+          </Box>
+        ) : (
+          <>
+            <Stack
+              isInline
+              spacing={2}
+              flexWrap="wrap"
+              py={5}
+              alignItems="flex-end"
+            >
+              {tags.map((tag) => (
+                <Tag
+                  key={tag.id}
+                  size={tag.games.totalCount < topTagCount / 4 ? 'sm' : 'lg'}
+                  marginBottom={2}
+                  variant={
+                    selectedTags.includes(tag.name) ? 'solid' : 'outline'
+                  }
+                  variantColor="teal"
+                  cursor="pointer"
+                  _hover={{
+                    opacity: 0.8,
+                  }}
+                  onClick={() =>
+                    router.replace(
+                      router.pathname + toggleQueryStringTag(tag.name)
+                    )
+                  }
+                >
+                  <Badge>{tag.games.totalCount}</Badge>
+                  <TagLabel pl={1}>{tag.name}</TagLabel>
+                </Tag>
               ))}
-            </Grid>
-          </motion.div>
-        </Box>
-      )}
+            </Stack>
+
+            {loadingGames ? (
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                height="100%"
+              >
+                <Spinner size="lg" />
+              </Box>
+            ) : (
+              <motion.div
+                initial="initial"
+                animate="enter"
+                exit="exit"
+                variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+              >
+                <Grid
+                  gap={5}
+                  templateColumns={[
+                    '1fr',
+                    'repeat(2, 1fr)',
+                    'repeat(3, 1fr)',
+                    'repeat(4, 1fr)',
+                  ]}
+                >
+                  {dataGames.games.nodes.map((game) => (
+                    <Box key={game.id} minW={0}>
+                      <motion.div variants={gameVariants}>
+                        <GameCard {...game} />
+                      </motion.div>
+                    </Box>
+                  ))}
+                </Grid>
+              </motion.div>
+            )}
+          </>
+        )}
+      </Box>
     </div>
   );
 };
