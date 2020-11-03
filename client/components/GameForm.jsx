@@ -35,20 +35,18 @@ const propTypes = {
 
 const defaultProps = {
   loading: false,
-  defaultData: {
-    tags: {nodes: []},
-  },
+  defaultData: {},
 };
 
 const GameForm = ({ defaultData, onSubmit, loading }) => {
-  const { name, about, site, tags } = defaultData;
+  const { id, name, about, site, tags = { nodes: [] } } = defaultData;
   const { handleSubmit, register, errors, watch } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       name,
       about,
       site,
-      tags: tags.nodes.map(t => t.name).join(', '),
+      tags: tags.nodes.map((t) => t.name).join(', '),
     },
   });
 
