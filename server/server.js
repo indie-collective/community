@@ -86,8 +86,8 @@ app.use(
               columns: 'image_file',
             },
           ],
-          inflect: fieldName => 'url',
-          resolve: image => {
+          inflect: (fieldName) => 'url',
+          resolve: (image) => {
             if (image) {
               try {
                 return s3.getSignedUrl('getObject', {
@@ -108,8 +108,8 @@ app.use(
               columns: 'image_file',
             },
           ],
-          inflect: fieldName => 'thumbnail_url',
-          resolve: image => {
+          inflect: (fieldName) => 'thumbnail_url',
+          resolve: (image) => {
             if (image) {
               try {
                 return s3.getSignedUrl('getObject', {
@@ -125,6 +125,7 @@ app.use(
           },
         },
       ],
+      connectionFilterRelations: true,
     },
   })
 );
@@ -162,7 +163,7 @@ async function resolveUpload(upload) {
 
   const chunks = [];
   const imageBuffer = await new Promise((resolve, reject) => {
-    stream.on('data', chunk => chunks.push(chunk));
+    stream.on('data', (chunk) => chunks.push(chunk));
     stream.on('error', reject);
     stream.on('end', () => resolve(Buffer.concat(chunks)));
   });

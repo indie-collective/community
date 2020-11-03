@@ -29,6 +29,7 @@ const propTypes = {
     about: PropTypes.string,
     site: PropTypes.string,
     images: PropTypes.arrayOf(PropTypes.any),
+    tags: PropTypes.arrayOf(PropTypes.any),
   }),
 };
 
@@ -38,14 +39,14 @@ const defaultProps = {
 };
 
 const GameForm = ({ defaultData, onSubmit, loading }) => {
-  const { name, about, site, images } = defaultData;
+  const { id, name, about, site, tags = { nodes: [] } } = defaultData;
   const { handleSubmit, register, errors, watch } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       name,
       about,
       site,
-      images,
+      tags: tags.nodes.map((t) => t.name).join(', '),
     },
   });
 
@@ -92,6 +93,18 @@ const GameForm = ({ defaultData, onSubmit, loading }) => {
         <Input name="site" placeholder="https://example.com" ref={register} />
         <FormErrorMessage>
           {errors.site && errors.site.message}
+        </FormErrorMessage>
+      </FormControl>
+
+      <FormControl gridColumn="1 / 3" isInvalid={errors.tags}>
+        <FormLabel htmlFor="site">Tags</FormLabel>
+        <Input
+          name="tags"
+          placeholder="action, mystery, multiplayer"
+          ref={register}
+        />
+        <FormErrorMessage>
+          {errors.tags && errors.tags.message}
         </FormErrorMessage>
       </FormControl>
 

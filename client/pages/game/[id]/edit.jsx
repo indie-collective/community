@@ -2,6 +2,7 @@ import { Box, Heading, Spinner, Stack } from '@chakra-ui/core';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import differenceWith from 'lodash.differencewith';
 
 import { withApollo } from '../../../lib/apollo';
 import Navigation from '../../../components/Navigation';
@@ -14,6 +15,49 @@ const getGameQuery = gql`
       name
       about
       site
+      tags {
+        nodes {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+const addOrGetTagMutation = gql`
+  mutation addOrGetTag($name: String!) {
+    upsertTagByName(input: { tag: { name: $name }, patch: { name: $name } }) {
+      tag {
+        id
+      }
+    }
+  }
+`;
+
+const linkTagToGameMutation = gql`
+  mutation linkTagToGame($gameId: UUID!, $tagId: UUID!) {
+    upsertGameTagByGameIdAndTagId(
+      input: {
+        gameTag: { gameId: $gameId, tagId: $tagId }
+        patch: { gameId: $gameId, tagId: $tagId }
+      }
+    ) {
+      gameTag {
+        tagId
+        gameId
+      }
+    }
+  }
+`;
+
+const unlinkTagFromGameMutation = gql`
+  mutation unlinkTagFromGame($gameId: UUID!, $tagId: UUID!) {
+    deleteGameTag(input: { gameId: $gameId, tagId: $tagId }) {
+      gameTag {
+        tagId
+        gameId
+      }
     }
   }
 `;
@@ -26,10 +70,7 @@ const updateGameMutation = gql`
     $site: String
   ) {
     updateGame(
-      input: {
-        id: $id
-        patch: { name: $name, about: $about, site: $site }
-      }
+      input: { id: $id, patch: { name: $name, about: $about, site: $site } }
     ) {
       game {
         id
@@ -52,6 +93,13 @@ const EditGame = ({ id }) => {
     skip: !validId,
   });
   const [updateGame, { loadingUpdate }] = useMutation(updateGameMutation);
+  const [addOrGetTag, { loadingTag }] = useMutation(addOrGetTagMutation);
+  const [linkTagToGame, { loadingTagLink }] = useMutation(
+    linkTagToGameMutation
+  );
+  const [unlinkTagFromGame, { loadingTagUnlink }] = useMutation(
+    unlinkTagFromGameMutation
+  );
 
   if ((id !== undefined && !validId) || error) {
     return <Error statusCode={404} />;
@@ -61,7 +109,7 @@ const EditGame = ({ id }) => {
     return <Spinner />;
   }
 
-  async function handleFormSubmit({ name, about, site }) {
+  async function handleFormSubmit({ name, about, site, tags: tagsStr }) {
     const response = await updateGame({
       variables: {
         id,
@@ -71,7 +119,47 @@ const EditGame = ({ id }) => {
       },
     });
 
-    push(`/game/${response.data.updateGame.game.id}`);
+    const { game } = response.data.updateGame;
+
+    const tags = tagsStr
+      .trim()
+      .split(',')
+      .map((t) => t.trim().toLowerCase());
+
+    const tagsToDelete = differenceWith(
+      data.game.tags.nodes,
+      tags,
+      (existingTag, tag) => tag === existingTag.name.toLowerCase()
+    );
+
+    await Promise.all(
+      tagsToDelete.map((tag) =>
+        unlinkTagFromGame({
+          variables: { gameId: game.id, tagId: tag.id },
+        })
+      )
+    );
+
+    const tagsToAdd = differenceWith(
+      tags,
+      data.game.tags.nodes,
+      (tag, existingTag) => tag === existingTag.name.toLowerCase()
+    );
+
+    await Promise.all(
+      tagsToAdd.map(async (tagName) => {
+        const result = await addOrGetTag({
+          variables: { name: tagName.trim() },
+        });
+        const { tag } = result.data.upsertTagByName;
+
+        await linkTagToGame({
+          variables: { gameId: game.id, tagId: tag.id },
+        });
+      })
+    );
+
+    push(`/game/${game.id}`);
   }
 
   return (
@@ -89,7 +177,9 @@ const EditGame = ({ id }) => {
           <GameForm
             defaultData={data && data.game}
             onSubmit={handleFormSubmit}
-            loading={loadingUpdate}
+            loading={
+              loadingUpdate || loadingTag || loadingTagLink || loadingTagUnlink
+            }
           />
         </Stack>
       </Box>
@@ -97,7 +187,7 @@ const EditGame = ({ id }) => {
   );
 };
 
-EditGame.getInitialProps = async context => {
+EditGame.getInitialProps = async (context) => {
   const { id } = context.query;
 
   return {

@@ -73,9 +73,11 @@ comment on column indieco.location.longitude is 'The location longitude.';
 
 create table indieco.tag (
   id               uuid primary key default uuid_generate_v4(),
-  name             varchar (30) not null check (char_length(name) < 30),
+  name             varchar (30) unique not null check (char_length(name) < 30),
   created_at       timestamptz default now()
 );
+
+comment on table indieco.tag is E'@upsert';
 
 comment on table indieco.tag is 'An tag.';
 comment on column indieco.tag.id is 'The primary unique identifier for the tag.';
@@ -211,6 +213,8 @@ create table indieco.game_tag (
   created_at       timestamptz default now(),
   primary key (game_id, tag_id)
 );
+
+comment on table indieco.game_tag is E'@upsert';
 
 comment on constraint game_tag_game_id_fkey on indieco.game_tag is E'@manyToManyFieldName games';
 comment on constraint game_tag_tag_id_fkey on indieco.game_tag is E'@manyToManyFieldName tags';

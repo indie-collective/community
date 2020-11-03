@@ -3,6 +3,7 @@ import { gql, useQuery, useMutation, useApolloClient } from '@apollo/client';
 import {
   Spinner,
   Box,
+  Stack,
   Heading,
   Text,
   Image,
@@ -21,6 +22,9 @@ import {
   Button,
   useDisclosure,
   IconButton,
+  Tag,
+  TagLabel,
+  TagCloseButton,
 } from '@chakra-ui/core';
 import Error from 'next/error';
 import Head from 'next/head';
@@ -266,7 +270,7 @@ const Game = ({ id }) => {
     return <Spinner />;
   }
 
-  const { name, site, about, images, entities } = data.game;
+  const { name, site, about, images, entities, tags } = data.game;
 
   return (
     <div>
@@ -294,6 +298,14 @@ const Game = ({ id }) => {
           {about}
         </Text>
       </Box>
+
+      <Stack isInline spacing={2} mb={5} pl={5} pr={5}>
+        {tags.nodes.map((tag) => (
+          <Tag>
+            <TagLabel>{tag.name}</TagLabel>
+          </Tag>
+        ))}
+      </Stack>
 
       <Box mb={5} pl={5} pr={5}>
         <Heading size="md" mb={2}>
