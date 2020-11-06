@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import games from './sample_games.json';
 
 import Search from '../components/Search';
 
@@ -10,33 +11,39 @@ export default {
 function wait(ms) {
   return new Promise((resolve) => {
     setTimeout(function () {
-      resolve()
-    }, ms)
-  })
+      resolve();
+    }, ms);
+  });
 }
 
-const Template = (args) => {
+const Template = () => {
   const [results, setResults] = useState();
   const [loading, setLoading] = useState(false);
 
-  async function handleSearch() {
+  async function handleSearch(query) {
     setLoading(true);
     await wait(500);
-    setResults([{ label: 'test', link: '/' }]);
+    setResults(
+      games
+        .filter((game) =>
+          game.name.toLowerCase().startsWith(query.toLowerCase())
+        )
+        .slice(0, 10)
+    );
     setLoading(false);
   }
 
   return (
     <Search
-      results={results}
       loading={loading}
+      results={results}
+      renderResult={(game) => game.name}
+      itemToString={game => game.name}
       onSearch={handleSearch}
+      onSelect={alert}
     />
   );
 };
 
 export const Example = Template.bind({});
-Example.args = {
-  results: [],
-  onSearch() {},
-};
+Example.args = {};
