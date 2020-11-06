@@ -7,11 +7,11 @@ import {
   InputRightElement,
   Spinner,
   Icon,
-  Menu,
-  MenuList,
-  MenuItem,
+  Stack,
+  List,
+  ListItem,
 } from '@chakra-ui/core';
-import { useState } from 'react';
+import { useCombobox } from 'downshift';
 
 const propTypes = {
   loading: PropTypes.bool,
@@ -25,35 +25,58 @@ const defaultProps = {
   onSearch() {},
 };
 
-const Search = ({ loading, results, onSearch }) => {
-  const [query, setQuery] = useState();
-
-  function handleChange(e) {
-    const value = e.target.value;
-    setQuery(value);
-    onSearch(value);
-  }
+const Search = ({
+  loading,
+  results,
+  renderResult,
+  itemToString,
+  onSearch,
+  onSelect,
+}) => {
+  const {
+    isOpen,
+    getComboboxProps,
+    getInputProps,
+    getMenuProps,
+    getItemProps,
+    highlightedIndex,
+  } = useCombobox({
+    items: results,
+    itemToString,
+    onInputValueChange({ inputValue }) {
+      onSearch(inputValue);
+    },
+    onSelectedItemChange({ inputValue }) {
+      onSelect(inputValue);
+    },
+  });
 
   return (
-    <Menu isOpen={results.length > 0}>
-      <InputGroup>
+    <Stack>
+      <InputGroup {...getComboboxProps()}>
         <InputLeftElement children={<Icon name="search" color="green.500" />} />
-        <Input
-          placeholder="Search"
-          value={query}
-          onChange={handleChange}
-        />
+        <Input placeholder="Search" {...getInputProps()} />
         {loading && <InputRightElement children={<Spinner />} />}
       </InputGroup>
 
-      <MenuList>
-        {results.map(({ label, link }) => (
-          <MenuItem>
-            <span>{label}</span>
-          </MenuItem>
-        ))}
-      </MenuList>
-    </Menu>
+      {isOpen && (
+        <List {...getMenuProps()} bg="white" rounded={5} borderColor="gray.600">
+          {results.map((item, index) => (
+            <ListItem
+              key={`${item}${index}`}
+              rounded={5}
+              color="gray.800"
+              background={highlightedIndex === index ? 'yellow' : 'white'}
+              px={3}
+              py={2}
+              {...getItemProps({ item, index })}
+            >
+              {renderResult(item)}
+            </ListItem>
+          ))}
+        </List>
+      )}
+    </Stack>
   );
 };
 
