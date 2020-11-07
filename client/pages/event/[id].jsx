@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/core';
 import Map from 'pigeon-maps';
 
-import Error from '../error';
+import Error from '../_error';
 import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
 import GameCard from '../../components/GameCard';
