@@ -19,12 +19,12 @@ import {
   Modal,
   ModalHeader,
 } from '@chakra-ui/core';
-import Error from 'next/error';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 
+import Error from '../_error';
 import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
 import GameCard from '../../components/GameCard';

@@ -18,8 +18,8 @@ import {
   Badge,
 } from '@chakra-ui/core';
 import Map from 'pigeon-maps';
-import Error from 'next/error';
 
+import Error from '../error';
 import { withApollo } from '../../lib/apollo';
 import Navigation from '../../components/Navigation';
 import GameCard from '../../components/GameCard';

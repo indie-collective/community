@@ -3,6 +3,7 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
+import Error from '../../_error';
 import { withApollo } from '../../../lib/apollo';
 import uploadImageMutation from '../../../gql/sendImage.gql';
 import Navigation from '../../../components/Navigation';

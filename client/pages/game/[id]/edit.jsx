@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import differenceWith from 'lodash.differencewith';
 
+import Error from '../../_error';
 import { withApollo } from '../../../lib/apollo';
 import Navigation from '../../../components/Navigation';
 import GameForm from '../../../components/GameForm';

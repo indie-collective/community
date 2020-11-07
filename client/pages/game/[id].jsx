@@ -26,12 +26,12 @@ import {
   TagLabel,
   TagCloseButton,
 } from '@chakra-ui/core';
-import Error from 'next/error';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDropzone } from 'react-dropzone';
 
+import Error from '../_error';
 import { withApollo } from '../../lib/apollo';
 import useCurrentPerson from '../../hooks/useCurrentPerson';
 import uploadImageMutation from '../../gql/sendImage.gql';
