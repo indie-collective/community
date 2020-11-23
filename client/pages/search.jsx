@@ -10,6 +10,7 @@ import EventCard from '../components/EventCard';
 import Carousel from '../components/Carousel';
 import { withApollo } from '../lib/apollo';
 import { useRouter } from 'next/dist/client/router';
+import useDebounce from '../hooks/useDebounce';
 
 const searchQuery = gql`
   ${GameCard.fragments.game}
@@ -65,9 +66,10 @@ const SearchPage = () => {
   const router = useRouter();
 
   const search = router.query.q;
+  const debouncedSearch = useDebounce(router.query.q, 300);
 
-  const tokens = search
-    ? search.split(' ').map((token) => ({
+  const tokens = debouncedSearch
+    ? debouncedSearch.split(' ').map((token) => ({
         name: {
           likeInsensitive: `%${token}%`,
         },
@@ -95,7 +97,7 @@ const SearchPage = () => {
       <Box p={5} mb={5}>
         <Head>
           <title>
-            {search && <>Results for "{search}" | </>}
+            {search && `Results for "${search}" | `}
             Search
           </title>
         </Head>
