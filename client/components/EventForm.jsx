@@ -15,6 +15,7 @@ import {
   IconButton,
   Box,
   Grid,
+  Switch,
 } from '@chakra-ui/core';
 import Map from 'pigeon-maps';
 
@@ -24,6 +25,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
+  status: yup.string().oneOf(['ONGOING', 'CANCELED']).default('ONGOING'),
   about: yup.string(),
   location: yup.object({
     label: yup.string(),
@@ -59,6 +61,7 @@ const propTypes = {
   defaultData: PropTypes.shape({
     cover: PropTypes.any,
     name: PropTypes.string,
+    status: PropTypes.oneOf(['ONGOING', 'CANCELED']),
     about: PropTypes.string,
     location: PropTypes.shape({
       id: PropTypes.string,
@@ -83,13 +86,14 @@ const OSMServer = 'abc'.charAt(Math.floor(Math.random() * 3));
 
 const EventForm = ({ defaultData, onSubmit, loading }) => {
   const placeholder = usePlaceholder();
-  const { name, startsAt, endsAt, location: l, about } = defaultData;
+  const { name, status, startsAt, endsAt, location: l, about } = defaultData;
   const coverRef = useRef();
   const [cover, setCover] = useState(defaultData.cover);
   const { handleSubmit, register, errors, control, watch, setValue } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       name,
+      status,
       start: startsAt
         ? format(new Date(startsAt), "yyyy-MM-dd'T'HH:mm")
         : undefined,
@@ -125,6 +129,28 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         />
         <FormErrorMessage>
           {errors.name && errors.name.message}
+        </FormErrorMessage>
+      </FormControl>
+
+      <FormControl gridColumn="1 / 3" isInvalid={errors.status}>
+        <FormLabel htmlFor="status">Mark as canceled</FormLabel>
+        <Controller
+          name="status"
+          control={control}
+          defaultValue={status}
+          render={(props) => (
+            <Switch
+              id="status"
+              color="red"
+              isChecked={props.value === 'CANCELED'}
+              onChange={(e) =>
+                props.onChange(e.target.checked ? 'CANCELED' : 'ONGOING')
+              }
+            />
+          )}
+        />
+        <FormErrorMessage>
+          {errors.status && errors.status.message}
         </FormErrorMessage>
       </FormControl>
 

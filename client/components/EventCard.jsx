@@ -14,14 +14,24 @@ import usePlaceholder from '../hooks/usePlaceholder';
 
 const EventCard = forwardRef(
   (
-    { id, name, cover, location, games, participants, startsAt, endsAt },
+    {
+      id,
+      name,
+      status,
+      cover,
+      location,
+      games,
+      participants,
+      startsAt,
+      endsAt,
+    },
     ref
   ) => {
     const { colorMode } = useColorMode();
     const placeholder = usePlaceholder();
 
     return (
-      <Link href="/event/[id]" as={`/event/${id}`}>
+      <Link href={`/event/${id}`}>
         <a>
           <PseudoBox
             ref={ref}
@@ -44,7 +54,12 @@ const EventCard = forwardRef(
             </AspectRatioBox>
 
             <Box padding={2}>
-              <Text textTransform="uppercase" whiteSpace="nowrap" isTruncated>
+              <Text
+                textTransform="uppercase"
+                whiteSpace="nowrap"
+                isTruncated
+                color={status === 'CANCELED' && 'gray.500'}
+              >
                 <Text as="time" datetime={startsAt}>
                   {new Date(startsAt).toLocaleString(undefined, {
                     day: 'numeric',
@@ -61,7 +76,14 @@ const EventCard = forwardRef(
                 )}
               </Text>
 
-              <Heading as="h3" size="lg" lineHeight="tight" isTruncated>
+              <Heading
+                as="h3"
+                size="lg"
+                lineHeight="tight"
+                isTruncated
+                textDecoration={status === 'CANCELED' && 'line-through'}
+                color={status === 'CANCELED' && 'gray.500'}
+              >
                 {name}
               </Heading>
 
@@ -77,7 +99,9 @@ const EventCard = forwardRef(
                   <>
                     {' '}
                     &bull; {participants.totalCount}{' '}
-                    {new Date(endsAt) < new Date() ? 'went' : 'going'}
+                    {status !== 'CANCELED' &&
+                      (new Date(endsAt) < new Date() ? 'went' : 'going')}
+                    {status === 'CANCELED' && 'were going'}
                   </>
                 )}
               </Box>
@@ -94,6 +118,7 @@ EventCard.fragments = {
     fragment EventCardEvent on Event {
       id
       name
+      status
       startsAt
       endsAt
 

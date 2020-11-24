@@ -24,7 +24,10 @@ const authenticatedHomeQuery = gql`
       eventsToCome: joinedEvents(
         first: 8
         orderBy: STARTS_AT_DESC
-        filter: { endsAt: { greaterThanOrEqualTo: $currentDay } }
+        filter: {
+          endsAt: { greaterThanOrEqualTo: $currentDay }
+          status: { notEqualTo: CANCELED }
+        }
       ) {
         nodes {
           id
@@ -56,8 +59,11 @@ const authenticatedHomeQuery = gql`
 
     eventsToCome: events(
       first: 8
-      orderBy: STARTS_AT_DESC
-      filter: { endsAt: { greaterThanOrEqualTo: $currentDay } }
+      orderBy: STARTS_AT_ASC
+      filter: {
+        endsAt: { greaterThanOrEqualTo: $currentDay }
+        status: { notEqualTo: CANCELED }
+      }
     ) {
       nodes {
         id

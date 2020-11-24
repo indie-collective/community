@@ -52,8 +52,11 @@ const homeQuery = gql`
 
     eventsToCome: events(
       first: 8
-      orderBy: STARTS_AT_DESC
-      filter: { endsAt: { greaterThanOrEqualTo: $currentDay } }
+      orderBy: STARTS_AT_ASC
+      filter: {
+        endsAt: { greaterThanOrEqualTo: $currentDay }
+        status: { notEqualTo: CANCELED }
+      }
     ) {
       nodes {
         id
@@ -110,7 +113,10 @@ const LandingPage = () => {
           name="description"
           content="Video game related events around you and all over the world."
         />
-        <meta property="og:title" content="Indie Collective - Community powered video game data" />
+        <meta
+          property="og:title"
+          content="Indie Collective - Community powered video game data"
+        />
         <meta
           property="og:description"
           content="Video game related events around you and all over the world."
@@ -118,7 +124,10 @@ const LandingPage = () => {
 
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@IndieColle" />
-        <meta name="twitter:title" content="Indie Collective - Community powered video game data" />
+        <meta
+          name="twitter:title"
+          content="Indie Collective - Community powered video game data"
+        />
         <meta
           name="twitter:description"
           content="Video game related events around you and all over the world."

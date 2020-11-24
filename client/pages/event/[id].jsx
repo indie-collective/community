@@ -16,6 +16,7 @@ import {
   IconButton,
   useDisclosure,
   Badge,
+  Icon,
 } from '@chakra-ui/core';
 import Map from 'pigeon-maps';
 
@@ -41,6 +42,7 @@ const eventQuery = gql`
     event(id: $id) {
       id
       name
+      status
       cover {
         thumbnail_url
         url
@@ -92,7 +94,7 @@ const eventQuery = gql`
 const addGameToEventMutation = gql`
   ${GameCard.fragments.game}
 
-  mutation addGameToEvent($eventId: UUID!, $gameId: UUID!) {  
+  mutation addGameToEvent($eventId: UUID!, $gameId: UUID!) {
     createGameEvent(
       input: { gameEvent: { eventId: $eventId, gameId: $gameId } }
     ) {
@@ -188,7 +190,7 @@ const Event = ({ id, host }) => {
         fields: {
           games(gamesRef, { readField }) {
             const newNodesList = gamesRef.nodes.filter(
-              nodeRef => deleteGameEvent.game.id !== readField('id', nodeRef)
+              (nodeRef) => deleteGameEvent.game.id !== readField('id', nodeRef)
             );
 
             return {
@@ -231,7 +233,8 @@ const Event = ({ id, host }) => {
         fields: {
           entities(orgsRef, { readField }) {
             const newNodesList = orgsRef.nodes.filter(
-              nodeRef => deleteEntityEvent.entity.id !== readField('id', nodeRef)
+              (nodeRef) =>
+                deleteEntityEvent.entity.id !== readField('id', nodeRef)
             );
 
             return {
@@ -255,6 +258,7 @@ const Event = ({ id, host }) => {
 
   const {
     name,
+    status,
     about,
     site,
     startsAt,
@@ -343,12 +347,16 @@ const Event = ({ id, host }) => {
               gridTemplateColumns={['1fr', '1fr auto auto']}
               columnGap={2}
               padding={2}
+              color={status === 'CANCELED' && 'gray.500'}
             >
               {currentPerson && (
                 <Link href="/event/[id]/edit" as={`/event/${id}/edit`}>
                   <Button
                     gridRow={['', '1']}
-                    gridColumn={['', '2 / span 1']}
+                    gridColumn={[
+                      '',
+                      status === 'CANCELED' ? '2 / span 2' : '2 / span 1',
+                    ]}
                     mb={[2, '0']}
                     leftIcon="edit"
                     size="sm"
@@ -389,7 +397,11 @@ const Event = ({ id, host }) => {
                 )}
               </Text>
 
-              <Heading gridColumn="1" gridRow={['', !location && '3']}>
+              <Heading
+                gridColumn="1"
+                gridRow={['', !location && '3']}
+                textDecoration={status === 'CANCELED' && 'line-through'}
+              >
                 {name}
               </Heading>
 
@@ -453,11 +465,13 @@ const Event = ({ id, host }) => {
                 </AvatarGroup>
                 <Text>
                   {participants.totalCount}{' '}
-                  {new Date(endsAt) < new Date() ? 'went' : 'going'}
+                  {status !== 'CANCELED' &&
+                    (new Date(endsAt) < new Date() ? 'went' : 'going')}
+                  {status === 'CANCELED' && 'were going'}
                 </Text>
               </Box>
 
-              {currentPerson && (
+              {currentPerson && status !== 'CANCELED' && (
                 <JoinEventButton
                   mt={[2, '0']}
                   gridRow={['', '1']}
@@ -478,6 +492,22 @@ const Event = ({ id, host }) => {
               )}
             </Grid>
           </Box>
+
+          {status === 'CANCELED' && (
+            <Stack
+              isInline
+              p={5}
+              m={[2, 0]}
+              mb={[5, 5]}
+              backgroundColor="red.300"
+              borderRadius={5}
+            >
+              <Icon name="warning-2" size="24px" color="white" />
+              <Text as="b" color="white">
+                This event was canceled.
+              </Text>
+            </Stack>
+          )}
 
           {about && (
             <Box

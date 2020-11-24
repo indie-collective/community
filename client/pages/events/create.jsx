@@ -11,6 +11,7 @@ import EventForm from '../../components/EventForm';
 const createEventMutation = gql`
   mutation createEvent(
     $name: String!
+    $status: EventStatus
     $startsAt: Datetime!
     $endsAt: Datetime!
     $coverId: UUID
@@ -21,6 +22,7 @@ const createEventMutation = gql`
       input: {
         event: {
           name: $name
+          status: $status
           about: $about
           coverId: $coverId
           locationId: $locationId
@@ -32,6 +34,7 @@ const createEventMutation = gql`
       event {
         id
         name
+        status
         about
         cover {
           url
@@ -99,6 +102,7 @@ const CreateEvent = () => {
 
   async function handleFormSubmit({
     name,
+    status,
     about,
     start,
     end,
@@ -121,8 +125,7 @@ const CreateEvent = () => {
 
     if (location.value && location.id) {
       locationId = location.id;
-    }
-    else if (location.value) {
+    } else if (location.value) {
       const response = await upsertLocation({
         variables: location.value,
       });
@@ -136,6 +139,7 @@ const CreateEvent = () => {
     const response = await createEvent({
       variables: {
         name,
+        status,
         startsAt: start,
         endsAt: end,
         coverId,

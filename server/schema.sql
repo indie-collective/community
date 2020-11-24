@@ -17,6 +17,11 @@ create type indieco.entity_type as enum (
   'organization'
 );
 
+create type indieco.event_status as enum (
+  'ongoing',
+  'canceled'
+);
+
 
 ---------
 -- tables
@@ -123,6 +128,7 @@ comment on column indieco.game.created_at is 'The time this game was created.';
 create table indieco.event (
   id               uuid primary key default uuid_generate_v4(),
   name             text not null check (char_length(name) < 80),
+  status           indieco.event_status not null default 'ongoing',
   about            text,
   cover_id         uuid references indieco.image(id) on delete cascade,
   location_id      uuid references indieco.location(id),

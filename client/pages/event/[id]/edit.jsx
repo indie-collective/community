@@ -14,6 +14,7 @@ const getEventQuery = gql`
     event(id: $id) {
       id
       name
+      status
       cover {
         url
       }
@@ -39,6 +40,7 @@ const updateEventMutation = gql`
   mutation createEvent(
     $id: UUID!
     $name: String
+    $status: EventStatus
     $startsAt: Datetime
     $endsAt: Datetime
     $coverId: UUID
@@ -50,6 +52,7 @@ const updateEventMutation = gql`
         id: $id
         patch: {
           name: $name
+          status: $status
           about: $about
           coverId: $coverId
           locationId: $locationId
@@ -61,6 +64,7 @@ const updateEventMutation = gql`
       event {
         id
         name
+        status
         about
         cover {
           url
@@ -117,7 +121,7 @@ const upsertLocationMutation = gql`
 
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-const EditEvent = ({id}) => {
+const EditEvent = ({ id }) => {
   const validId = uuidRegex.test(id);
   const { push } = useRouter();
 
@@ -125,11 +129,15 @@ const EditEvent = ({id}) => {
     variables: { id },
     skip: !validId,
   });
-  const [uploadImage, {loading: loadingCover}] = useMutation(gql(uploadImageMutation));
+  const [uploadImage, { loading: loadingCover }] = useMutation(
+    gql(uploadImageMutation)
+  );
   const [upsertLocation, { loading: loadingLocation }] = useMutation(
     upsertLocationMutation
   );
-  const [updateEvent, { loading: loadingUpdate }] = useMutation(updateEventMutation);
+  const [updateEvent, { loading: loadingUpdate }] = useMutation(
+    updateEventMutation
+  );
 
   if ((id !== undefined && !validId) || error) {
     return <Error statusCode={404} />;
@@ -141,6 +149,7 @@ const EditEvent = ({id}) => {
 
   async function handleFormSubmit({
     name,
+    status,
     about,
     start,
     end,
@@ -163,8 +172,7 @@ const EditEvent = ({id}) => {
 
     if (location.value && location.id) {
       locationId = location.id;
-    }
-    else if (location.value) {
+    } else if (location.value) {
       const response = await upsertLocation({
         variables: location.value,
       });
@@ -179,6 +187,7 @@ const EditEvent = ({id}) => {
       variables: {
         id,
         name,
+        status,
         startsAt: start,
         endsAt: end,
         coverId,
@@ -201,13 +210,7 @@ const EditEvent = ({id}) => {
       <Box width={500} margin="40px auto">
         <Heading mb={5}>Update event</Heading>
 
-        <Stack
-          borderWidth="1px"
-          mb={10}
-          p={3}
-          borderRadius={5}
-          align="stretch"
-        >
+        <Stack borderWidth="1px" mb={10} p={3} borderRadius={5} align="stretch">
           <EventForm
             defaultData={data && data.event}
             onSubmit={handleFormSubmit}
@@ -219,7 +222,7 @@ const EditEvent = ({id}) => {
   );
 };
 
-EditEvent.getInitialProps = async context => {
+EditEvent.getInitialProps = async (context) => {
   const { id } = context.query;
 
   return {
