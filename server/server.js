@@ -32,6 +32,8 @@ const DB_URL =
     ? `postgres://${DB_USER}:${DB_PASS}@localhost:5432/indieco`
     : 'postgres://localhost:5432/indieco';
 
+const CDN = `cdn.community${isDev ? '-dev' : ''}.indieco.xyz`;
+
 const s3 = new AWS.S3({
   endpoint: 's3.fr-par.scw.cloud',
   region: 'fr-par',
@@ -39,7 +41,7 @@ const s3 = new AWS.S3({
   secretAccessKey: S3_SECRET_ACCESS_KEY,
   signatureVersion: 'v4',
   // s3ForcePathStyle: true,
-  params: { Bucket: 'community' },
+  params: { Bucket: CDN },
 });
 
 const app = express();
@@ -89,15 +91,7 @@ app.use(
           inflect: (fieldName) => 'url',
           resolve: (image) => {
             if (image) {
-              try {
-                return s3.getSignedUrl('getObject', {
-                  Bucket: 'community',
-                  Key: image.name,
-                  Expires: 900,
-                });
-              } catch (e) {
-                console.log(e);
-              }
+              return `http://${CDN}/${image.name}`;
             }
             return null;
           },
@@ -111,15 +105,7 @@ app.use(
           inflect: (fieldName) => 'thumbnail_url',
           resolve: (image) => {
             if (image) {
-              try {
-                return s3.getSignedUrl('getObject', {
-                  Bucket: 'community',
-                  Key: `thumb_${image.name}`,
-                  Expires: 900,
-                });
-              } catch (e) {
-                console.log(e);
-              }
+              return `http://${CDN}/thumb_${image.name}`;
             }
             return null;
           },
