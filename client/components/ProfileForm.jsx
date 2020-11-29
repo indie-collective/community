@@ -13,7 +13,8 @@ import {
   Avatar,
   AvatarBadge,
   IconButton,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
+import { EditIcon } from '@chakra-ui/icons';
 
 const validationSchema = yup.object().shape({
   firstName: yup.string().required(),
@@ -48,14 +49,14 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <FormControl mb={5} textAlign="center">
-        <FormLabel htmlFor="avatar">
+      <FormControl mb={5}>
+        <FormLabel htmlFor="avatar" textAlign="center">
           <Avatar size="2xl" margin="1rem" src={avatar && avatar.url}>
             <AvatarBadge size="1em" bg="white">
               <IconButton
                 aria-label="Edit avatar"
-                icon="edit"
-                variantColor="teal"
+                icon={<EditIcon />}
+                colorScheme="teal"
                 isRound
                 onClick={() => avatarRef.current.click()}
               />
@@ -119,7 +120,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
         width="100%"
         type="submit"
         mt={3}
-        variantColor="teal"
+        colorScheme="teal"
         isDisabled={loading}
         isLoading={loading}
       >

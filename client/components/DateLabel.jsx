@@ -1,14 +1,14 @@
-import { useColorMode, Box, Text } from '@chakra-ui/core';
+import { Box, Text, useColorModeValue } from '@chakra-ui/react';
 
 const DateLabel = ({ value, ...rest }) => {
-  const { colorMode } = useColorMode();
+  const bg = useColorModeValue('#f2f2f2ab', '#282828aa');
 
   return (
     <Box
       width={['50px', '65px', '80px']}
       textAlign="center"
       borderRadius={[5, 8, 10]}
-      background={colorMode === 'dark' ? '#282828aa' : '#f2f2f2ab'}
+      background={bg}
       {...rest}
     >
       <Box

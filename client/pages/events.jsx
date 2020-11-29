@@ -7,7 +7,8 @@ import {
   Text,
   Grid,
   Image,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
+import { AddIcon } from '@chakra-ui/icons';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 import React, { useMemo, useCallback, useState } from 'react';
@@ -186,8 +187,8 @@ const Events = () => {
                 m="auto"
                 mt={10}
                 size="lg"
-                variantColor="teal"
-                leftIcon="add"
+                colorScheme="teal"
+                leftIcon={<AddIcon />}
               >
                 Add an event
               </Button>

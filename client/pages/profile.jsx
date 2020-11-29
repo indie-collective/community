@@ -11,7 +11,8 @@ import {
   Switch,
   FormLabel,
   useColorMode,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
+import { EditIcon } from '@chakra-ui/icons';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -74,7 +75,7 @@ const Profile = ({ id }) => {
         >
           <Box position="absolute" alignSelf="flex-end">
             <Link href="/profile/edit">
-              <Button leftIcon="edit">Edit</Button>
+              <Button leftIcon={<EditIcon />}>Edit</Button>
             </Link>
           </Box>
 
@@ -97,6 +98,7 @@ const Profile = ({ id }) => {
             <FormLabel htmlFor="dark-mode">Dark mode</FormLabel>
             <Switch
               id="dark-mode"
+              colorScheme="teal"
               isChecked={colorMode === 'dark'}
               onChange={toggleColorMode}
             />

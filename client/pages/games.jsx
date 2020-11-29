@@ -9,7 +9,10 @@ import {
   Tag,
   TagLabel,
   Badge,
-} from '@chakra-ui/core';
+  Wrap,
+  WrapItem,
+} from '@chakra-ui/react';
+import { AddIcon } from '@chakra-ui/icons';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -118,8 +121,8 @@ const Games = () => {
               m="auto"
               mb={10}
               size="lg"
-              variantColor="teal"
-              leftIcon="add"
+              colorScheme="teal"
+              leftIcon={<AddIcon />}
             >
               Add a game
             </Button>
@@ -137,37 +140,39 @@ const Games = () => {
           </Box>
         ) : (
           <>
-            <Stack
-              isInline
-              spacing={2}
-              flexWrap="wrap"
-              py={5}
-              alignItems="flex-end"
-            >
+            <Wrap spacing={2} mb={5} align="flex-end">
               {tags.map((tag) => (
-                <Tag
-                  key={tag.id}
-                  size={tag.games.totalCount < topTagCount / 4 ? 'sm' : 'lg'}
-                  marginBottom={2}
-                  variant={
-                    selectedTags.includes(tag.name) ? 'solid' : 'outline'
-                  }
-                  variantColor="teal"
-                  cursor="pointer"
-                  _hover={{
-                    opacity: 0.8,
-                  }}
-                  onClick={() =>
-                    router.replace(
-                      router.pathname + toggleQueryStringTag(tag.name)
-                    )
-                  }
-                >
-                  <Badge>{tag.games.totalCount}</Badge>
-                  <TagLabel pl={1}>{tag.name}</TagLabel>
-                </Tag>
+                <WrapItem key={tag.id}>
+                  <Tag
+                    size={tag.games.totalCount < topTagCount / 4 ? 'md' : 'lg'}
+                    variant={
+                      selectedTags.includes(tag.name) ? 'solid' : 'outline'
+                    }
+                    colorScheme={
+                      selectedTags.includes(tag.name) ? 'teal' : 'gray'
+                    }
+                    cursor="pointer"
+                    _hover={{ opacity: 0.8 }}
+                    onClick={() =>
+                      router.replace(
+                        router.pathname + toggleQueryStringTag(tag.name)
+                      )
+                    }
+                  >
+                    <TagLabel>{tag.name}</TagLabel>
+                    <Badge
+                      ml={2}
+                      colorScheme="teal"
+                      variant={
+                        selectedTags.includes(tag.name) ? 'subtle' : 'solid'
+                      }
+                    >
+                      {tag.games.totalCount}
+                    </Badge>
+                  </Tag>
+                </WrapItem>
               ))}
-            </Stack>
+            </Wrap>
 
             {loadingGames ? (
               <Box

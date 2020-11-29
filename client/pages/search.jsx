@@ -1,5 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
-import { Box, Spinner, Heading, Text } from '@chakra-ui/core';
+import { Box, Spinner, Heading, Text, useColorModeValue } from '@chakra-ui/react';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
 
@@ -64,6 +64,8 @@ const variants = {
 
 const SearchPage = () => {
   const router = useRouter();
+
+  const helpTextColor = useColorModeValue('gray.300', 'gray.600');
 
   const search = router.query.q;
   const debouncedSearch = useDebounce(router.query.q, 300);
@@ -170,7 +172,7 @@ const SearchPage = () => {
           </>
         ) : (
           <Box textAlign="center" p={20}>
-            <Text color="gray.600" fontSize="3xl">
+            <Text color={helpTextColor} fontSize="3xl">
               Games, organizations and events matching your research will show
               up here once you start typing.
             </Text>

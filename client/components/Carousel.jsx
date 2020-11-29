@@ -1,7 +1,8 @@
-import { IconButton, useTheme, Box, Spinner } from '@chakra-ui/core';
+import { IconButton, useTheme, Box, Spinner } from '@chakra-ui/react';
 import React, { useState, useEffect, Children, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import SlickSlider from 'react-slick';
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 // import dynamic from 'next/dynamic'
 
 const canUseDOM = () =>
@@ -16,10 +17,10 @@ const enquire = canUseDOM() && require('enquire.js');
 const PrevArrow = ({ onClick, className }) =>
   !className.includes('slick-disabled') && (
     <IconButton
-      variantColor="teal"
+      colorScheme="teal"
       aria-label="Previous"
       fontSize="2xl"
-      icon="chevron-left"
+      icon={<ChevronLeftIcon />}
       isRound
       position="absolute"
       left="-15px"
@@ -34,10 +35,10 @@ const PrevArrow = ({ onClick, className }) =>
 const NextArrow = ({ onClick, className }) =>
   !className.includes('slick-disabled') && (
     <IconButton
-      variantColor="teal"
+      colorScheme="teal"
       aria-label="Next"
       fontSize="2xl"
-      icon="chevron-right"
+      icon={<ChevronRightIcon />}
       isRound
       position="absolute"
       right="-15px"

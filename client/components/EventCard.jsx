@@ -1,16 +1,18 @@
 import { gql } from '@apollo/client';
 import React, { forwardRef } from 'react';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import {
   Box,
   Text,
-  AspectRatioBox,
+  AspectRatio,
   Image,
   Heading,
-  PseudoBox,
-  useColorMode,
-} from '@chakra-ui/core';
+  useColorModeValue,
+} from '@chakra-ui/react';
+
 import usePlaceholder from '../hooks/usePlaceholder';
+import Card from './Card';
+import CardLink from './CardLink';
 
 const EventCard = forwardRef(
   (
@@ -27,88 +29,89 @@ const EventCard = forwardRef(
     },
     ref
   ) => {
-    const { colorMode } = useColorMode();
     const placeholder = usePlaceholder();
 
+    const bg = useColorModeValue('gray.100', 'gray.700');
+
     return (
-      <Link href={`/event/${id}`}>
-        <a>
-          <PseudoBox
-            ref={ref}
-            transition="background-color 200ms ease-out"
-            _hover={{
-              backgroundColor: colorMode === 'dark' ? 'gray.700' : 'gray.50',
-              cursor: 'pointer',
-            }}
+      <Card
+        isClickable
+        href={`/event/${id}`}
+        ref={ref}
+        transition="background-color 200ms ease-out"
+        _hover={{
+          backgroundColor: bg,
+          cursor: 'pointer',
+        }}
+        rounded={5}
+      >
+        <AspectRatio ratio={2}>
+          <Image
+            size="100%"
+            objectFit="cover"
+            src={cover && cover.thumbnail_url}
+            alt="Event cover"
+            fallbackSrc={placeholder}
             rounded={5}
+          />
+        </AspectRatio>
+
+        <Box padding={2}>
+          <Text
+            textTransform="uppercase"
+            whiteSpace="nowrap"
+            isTruncated
+            color={status === 'CANCELED' && 'gray.500'}
           >
-            <AspectRatioBox ratio={2}>
-              <Image
-                size="100%"
-                objectFit="cover"
-                src={cover && cover.thumbnail_url}
-                alt="Event cover"
-                fallbackSrc={placeholder}
-                rounded={5}
-              />
-            </AspectRatioBox>
+            <Text as="time" dateTime={startsAt}>
+              {new Date(startsAt).toLocaleString(undefined, {
+                day: 'numeric',
+                month: 'short',
+                hour: 'numeric',
+                minute: 'numeric',
+              })}
+            </Text>
+            {location && (
+              <>
+                {' '}
+                • <Text as="span">{location.city}</Text>
+              </>
+            )}
+          </Text>
 
-            <Box padding={2}>
-              <Text
-                textTransform="uppercase"
-                whiteSpace="nowrap"
-                isTruncated
-                color={status === 'CANCELED' && 'gray.500'}
-              >
-                <Text as="time" datetime={startsAt}>
-                  {new Date(startsAt).toLocaleString(undefined, {
-                    day: 'numeric',
-                    month: 'short',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                  })}
-                </Text>
-                {location && (
-                  <>
-                    {' '}
-                    • <Text as="span">{location.city}</Text>
-                  </>
-                )}
-              </Text>
+          <Heading
+            as="h3"
+            size="lg"
+            lineHeight="tight"
+            isTruncated
+            textDecoration={status === 'CANCELED' && 'line-through'}
+            color={status === 'CANCELED' && 'gray.500'}
+          >
+            <NextLink href={`/event/${id}`}>
+              <CardLink href={`/event/${id}`}>{name}</CardLink>
+            </NextLink>
+          </Heading>
 
-              <Heading
-                as="h3"
-                size="lg"
-                lineHeight="tight"
-                isTruncated
-                textDecoration={status === 'CANCELED' && 'line-through'}
-                color={status === 'CANCELED' && 'gray.500'}
-              >
-                {name}
-              </Heading>
-
-              <Box
-                color="gray.500"
-                fontWeight="semibold"
-                letterSpacing="wide"
-                fontSize="xs"
-                textTransform="uppercase"
-              >
-                {games.totalCount} games
-                {participants.totalCount > 0 && (
-                  <>
-                    {' '}
-                    &bull; {participants.totalCount}{' '}
-                    {status !== 'CANCELED' &&
-                      (new Date(endsAt) < new Date() ? 'went' : 'going')}
-                    {status === 'CANCELED' && 'were going'}
-                  </>
-                )}
-              </Box>
-            </Box>
-          </PseudoBox>
-        </a>
-      </Link>
+          <Box
+            color="gray.500"
+            fontWeight="semibold"
+            letterSpacing="wide"
+            fontSize="xs"
+            textTransform="uppercase"
+          >
+            {games.totalCount} games
+            {participants.totalCount > 0 && (
+              <>
+                {' '}
+                &bull; {participants.totalCount}{' '}
+                {status !== 'CANCELED' &&
+                  (new Date(endsAt) < new Date() ? 'went' : 'going')}
+                {status === 'CANCELED' && 'were going'}
+              </>
+            )}
+          </Box>
+        </Box>
+      </Card>
     );
   }
 );

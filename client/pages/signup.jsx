@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { Box, Heading, Text, Button, Link as ChakraLink } from '@chakra-ui/core';
+import { Box, Heading, Text, Button, Link as ChakraLink } from '@chakra-ui/react';
 import Link from 'next/link';
 import Head from 'next/head';
 

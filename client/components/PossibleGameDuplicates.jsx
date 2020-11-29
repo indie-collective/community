@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Fragment, useEffect } from 'react';
 import NextLink from 'next/link';
 import { gql, useLazyQuery } from '@apollo/client';
-import { Link, Text } from '@chakra-ui/core';
+import { Link, Text } from '@chakra-ui/react';
 
 import useDebounce from '../hooks/useDebounce';
 import usePreviousNonNullish from '../hooks/usePreviousNonNullish';

@@ -2,7 +2,7 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import Head from 'next/head';
 import Link from 'next/link';
 import {
-  AspectRatioBox,
+  AspectRatio,
   Image,
   Box,
   Grid,
@@ -16,8 +16,8 @@ import {
   IconButton,
   useDisclosure,
   Badge,
-  Icon,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
+import { AddIcon, EditIcon, WarningTwoIcon } from '@chakra-ui/icons';
 import Map from 'pigeon-maps';
 
 import Error from '../_error';
@@ -319,7 +319,7 @@ const Event = ({ id, host }) => {
       >
         <Box>
           <Box position="relative">
-            <AspectRatioBox ratio={3}>
+            <AspectRatio ratio={3}>
               <Image
                 size="100%"
                 objectFit="cover"
@@ -327,7 +327,7 @@ const Event = ({ id, host }) => {
                 alt="Event cover"
                 fallbackSrc={placeholder}
               />
-            </AspectRatioBox>
+            </AspectRatio>
 
             <DateLabel
               position="absolute"
@@ -358,9 +358,9 @@ const Event = ({ id, host }) => {
                       status === 'CANCELED' ? '2 / span 2' : '2 / span 1',
                     ]}
                     mb={[2, '0']}
-                    leftIcon="edit"
+                    leftIcon={<EditIcon />}
                     size="sm"
-                    variantColor="teal"
+                    colorScheme="teal"
                   >
                     Edit
                   </Button>
@@ -371,7 +371,7 @@ const Event = ({ id, host }) => {
                 gridColumn="1"
                 textTransform="uppercase"
                 as="time"
-                datetime={startsAt}
+                dateTime={startsAt}
                 whiteSpace="nowrap"
               >
                 {new Date(startsAt).toLocaleString(undefined, {
@@ -502,7 +502,7 @@ const Event = ({ id, host }) => {
               backgroundColor="red.300"
               borderRadius={5}
             >
-              <Icon name="warning-2" size="24px" color="white" />
+              <WarningTwoIcon size="24px" color="white" />
               <Text as="b" color="white">
                 This event was canceled.
               </Text>
@@ -533,7 +533,7 @@ const Event = ({ id, host }) => {
                   fontSize="md"
                   ml={2}
                   variant="subtle"
-                  variantColor="teal"
+                  colorScheme="teal"
                 >
                   {games.nodes.length}
                 </Badge>
@@ -566,9 +566,9 @@ const Event = ({ id, host }) => {
                 {currentPerson && (
                   <>
                     <IconButton
-                      variantColor="teal"
+                      colorScheme="teal"
                       aria-label="Add a game to the event"
-                      icon="add"
+                      icon={<AddIcon />}
                       onClick={onOpenLinkGame}
                     />
                     <SearchGameModal
@@ -634,9 +634,9 @@ const Event = ({ id, host }) => {
                     <IconButton
                       alignSelf="center"
                       justifySelf="flex-start"
-                      variantColor="teal"
+                      colorScheme="teal"
                       aria-label="Add a host to the event"
-                      icon="add"
+                      icon={<AddIcon />}
                       onClick={onOpenLinkHost}
                     />
                     <SearchOrgModal

@@ -1,5 +1,6 @@
 import { gql, useMutation } from '@apollo/client';
-import { Button } from '@chakra-ui/core';
+import { Button } from '@chakra-ui/react';
+import { CheckIcon } from '@chakra-ui/icons';
 
 import useCurrentPerson from '../hooks/useCurrentPerson';
 
@@ -90,8 +91,8 @@ const JoinEventLoggedInButton = ({
   return (
     <Button
       variant={isGoing ? 'solid' : 'outline'}
-      variantColor="teal"
-      leftIcon={isGoing ? 'check' : null}
+      colorScheme="teal"
+      leftIcon={isGoing ? <CheckIcon /> : null}
       onClick={() =>
         isGoing
           ? leaveEvent({

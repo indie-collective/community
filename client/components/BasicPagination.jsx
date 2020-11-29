@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Stack, IconButton } from '@chakra-ui/core';
+import { Stack, IconButton } from '@chakra-ui/react';
+import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons';
 
 const propTypes = {
   hasNextPage: PropTypes.bool,
@@ -24,13 +25,13 @@ const BasicPagination = ({
   return (
     <Stack isInline spacing={1}>
       <IconButton
-        icon="arrow-back"
+        icon={<ArrowBackIcon />}
         size="sm"
         isDisabled={!hasPreviousPage}
         onClick={onGetPrev}
       />
       <IconButton
-        icon="arrow-forward"
+        icon={<ArrowForwardIcon />}
         size="sm"
         isDisabled={!hasNextPage}
         onClick={onGetNext}

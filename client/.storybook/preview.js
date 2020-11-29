@@ -3,7 +3,7 @@ import {
   ColorModeProvider,
   CSSReset,
   ThemeProvider,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
 
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },

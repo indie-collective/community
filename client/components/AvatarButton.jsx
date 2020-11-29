@@ -1,4 +1,4 @@
-import { Button, Avatar } from '@chakra-ui/core';
+import { Button, Avatar } from '@chakra-ui/react';
 import Link from 'next/link';
 
 import useCurrentPerson from '../hooks/useCurrentPerson';
@@ -23,7 +23,7 @@ const AvatarButton = () => {
       <Link href="/signin">
         <Button
           ml={5}
-          variantColor="teal"
+          colorScheme="teal"
           variant="ghost"
           aria-label="Signin"
         >
@@ -33,7 +33,7 @@ const AvatarButton = () => {
       <Link href="/signup">
         <Button
           ml={5}
-          variantColor="teal"
+          colorScheme="teal"
           aria-label="Signup"
         >
           Sign up

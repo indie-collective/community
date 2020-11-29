@@ -1,9 +1,17 @@
 import { Remarkable } from 'remarkable';
 import { linkify } from 'remarkable/linkify';
 import RemarkableReactRenderer from 'remarkable-react';
-import { Text, Link, Box, Divider, List, ListItem, Icon } from '@chakra-ui/core';
+import {
+  Text,
+  Link,
+  Box,
+  Divider,
+  List,
+  ListItem,
+} from '@chakra-ui/react';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 
-const Blockquote = props => (
+const Blockquote = (props) => (
   <Box
     as="blockquote"
     borderLeft="5px solid #000"
@@ -15,32 +23,50 @@ const Blockquote = props => (
   />
 );
 
-const ImgLink = ({title, alt, src}) => (
+const ImgLink = ({ title, alt, src }) => (
   <>
-    <Link href={src} title={title}>{alt}</Link>
-    {' '}
-    <Icon name="external-link" />
+    <Link href={src} title={title}>
+      {alt}
+    </Link>{' '}
+    <ExternalLinkIcon />
   </>
 );
 
 const A = (props) => (
   <>
-    <Link {...props} />
-    {' '}
-    <Icon name="external-link" />
+    <Link {...props} /> <ExternalLinkIcon />
   </>
 );
 
-const Paragraph = props => <Text mb={2} {...props} />;
+const Paragraph = (props) => <Text mb={2} {...props} />;
 
-const OrderedList = props => <List as="ol" styleType="decimal" stylePos="outside" pl={10} paddingY={5} {...props} />;
+const OrderedList = (props) => (
+  <List
+    as="ol"
+    styleType="decimal"
+    stylePosition="outside"
+    pl={10}
+    paddingY={5}
+    {...props}
+  />
+);
 
-const UnorderedList = props => <List styleType="disc" stylePos="outside" pl={10} paddingY={5} {...props} />;
+const UnorderedList = (props) => (
+  <List styleType="disc" stylePosition="outside" pl={10} paddingY={5} {...props} />
+);
 
-const Li = props => <ListItem {...props} />;
+const Li = (props) => <ListItem {...props} />;
 
 const md = new Remarkable().use(linkify);
-md.block.ruler.disable([ 'code', 'fences', 'table', 'footnote', 'heading', 'lheading', 'htmlblock' ]);
+md.block.ruler.disable([
+  'code',
+  'fences',
+  'table',
+  'footnote',
+  'heading',
+  'lheading',
+  'htmlblock',
+]);
 md.renderer = new RemarkableReactRenderer({
   components: {
     a: A,

@@ -1,4 +1,4 @@
-import { Box, Heading, Link as ChakraLink } from '@chakra-ui/core';
+import { Box, Heading, Link as ChakraLink } from '@chakra-ui/react';
 import { gql, useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Link from 'next/link';

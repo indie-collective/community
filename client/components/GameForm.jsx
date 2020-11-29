@@ -11,7 +11,7 @@ import {
   Button,
   Textarea,
   Grid,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
 
 import PossibleGameDuplicates from './PossibleGameDuplicates';
 
@@ -110,7 +110,7 @@ const GameForm = ({ defaultData, onSubmit, loading }) => {
 
       <Button
         gridColumn="1 / 3"
-        variantColor="teal"
+        colorScheme="teal"
         mt={3}
         type="submit"
         isLoading={loading}

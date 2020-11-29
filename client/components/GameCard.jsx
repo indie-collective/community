@@ -1,32 +1,33 @@
 import { gql } from '@apollo/client';
 import { forwardRef } from 'react';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import {
   Box,
   Image,
-  PseudoBox,
-  useColorMode,
-  AspectRatioBox,
+  AspectRatio,
   IconButton,
   Text,
-} from '@chakra-ui/core';
+  Heading,
+  useColorModeValue,
+} from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
 
 import usePlaceholder from '../hooks/usePlaceholder';
+import Card from './Card';
+import CardLink from './CardLink';
 
 const GameCard = forwardRef(
   ({ id, images, name, onRemove, isCompact }, ref) => {
-    const { colorMode } = useColorMode();
     const placeholder = usePlaceholder();
 
-    const bgColorHover = colorMode === 'dark' ? 'gray.700' : 'gray.50';
+    const bgColorHover = useColorModeValue('gray.100', 'gray.700');
+    const overlayBgColor = useColorModeValue('#ffffffbb', '#00000088');
 
     if (isCompact) {
-      const overlayBgColor = colorMode === 'dark' ? '#00000088' : '#ffffffbb';
-
       return (
-        <Link href="/game/[id]" as={`/game/${id}`}>
+        <NextLink href={`/game/${id}`}>
           <a>
-            <PseudoBox
+            <Box
               rounded={5}
               transition="background-color 200ms ease-out"
               ref={ref}
@@ -51,7 +52,7 @@ const GameCard = forwardRef(
                 />
               )}
 
-              <PseudoBox
+              <Box
                 display="flex"
                 rounded="md"
                 paddingY={2}
@@ -69,8 +70,8 @@ const GameCard = forwardRef(
                     size="xs"
                     aria-label={`Remove ${name}`}
                     isRound
-                    variantColor="red"
-                    icon="delete"
+                    colorScheme="red"
+                    icon={<DeleteIcon />}
                     onClick={(e) => {
                       e.preventDefault();
 
@@ -78,40 +79,43 @@ const GameCard = forwardRef(
                     }}
                   />
                 )}
-              </PseudoBox>
-            </PseudoBox>
+              </Box>
+            </Box>
           </a>
-        </Link>
+        </NextLink>
       );
     }
 
     return (
-      <Link href="/game/[id]" as={`/game/${id}`}>
-        <a>
-          <PseudoBox
-            ref={ref}
-            boxShadow="0 1px 2px rgba(0, 0, 0, 0.1)"
-            _hover={{
-              backgroundColor: bgColorHover,
-              cursor: 'pointer',
-            }}
-            rounded={5}
-          >
-            <AspectRatioBox ratio={2}>
-              <Image
-                size="100%"
-                objectFit="cover"
-                src={images.nodes.length > 0 && images.nodes[0].thumbnail_url}
-                alt="Game cover"
-                fallbackSrc={placeholder}
-                rounded="md"
-              />
-            </AspectRatioBox>
+      <Card isClickable>
+        <Box
+          ref={ref}
+          _hover={{
+            backgroundColor: bgColorHover,
+            cursor: 'pointer',
+          }}
+          rounded={5}
+        >
+          <AspectRatio ratio={2}>
+            <Image
+              size="100%"
+              objectFit="cover"
+              src={images.nodes.length > 0 && images.nodes[0].thumbnail_url}
+              alt="Game cover"
+              fallbackSrc={placeholder}
+              rounded="md"
+            />
+          </AspectRatio>
 
-            <Box padding={2}>{name}</Box>
-          </PseudoBox>
-        </a>
-      </Link>
+          <Box padding={2}>
+            <Heading as="h3" size="md" lineHeight="tight" isTruncated>
+              <NextLink href={`/game/${id}`}>
+                <CardLink href={`/game/${id}`}>{name}</CardLink>
+              </NextLink>
+            </Heading>
+          </Box>
+        </Box>
+      </Card>
     );
   }
 );

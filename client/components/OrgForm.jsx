@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
@@ -11,12 +11,18 @@ import {
   Button,
   Textarea,
   Grid,
-  RadioButtonGroup,
   IconButton,
   Box,
-  AspectRatioBox,
+  AspectRatio,
   Image,
-} from '@chakra-ui/core';
+  useRadioGroup,
+  useRadio,
+  useStyleConfig,
+  useButtonGroup,
+  Flex,
+  omitThemingProps,
+} from '@chakra-ui/react';
+import { EditIcon } from '@chakra-ui/icons';
 
 import usePlaceholder from '../hooks/usePlaceholder';
 
@@ -54,16 +60,41 @@ const TYPES_COLORS = {
 };
 
 const CustomRadio = React.forwardRef((props, ref) => {
-  const { isChecked, isDisabled, value, color = 'green', ...rest } = props;
+  const { getInputProps, getCheckboxProps } = useRadio(props);
+  const { color = 'teal', value, name, ...otherProps } = omitThemingProps(
+    props
+  );
+
+  const input = getInputProps();
+  const checkbox = getCheckboxProps();
+
+  const group = useButtonGroup();
+  const styles = useStyleConfig('Button', {
+    ...group,
+    ...props,
+    colorScheme: input.checked ? color : undefined,
+  });
+
+  const buttonStyles = {
+    display: 'inline-flex',
+    appearance: 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 250ms',
+    userSelect: 'none',
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    verticalAlign: 'middle',
+    outline: 'none',
+    cursor: 'pointer',
+    ...styles,
+  };
+
   return (
-    <Button
-      ref={ref}
-      variantColor={isChecked ? color : 'gray'}
-      aria-checked={isChecked}
-      role="radio"
-      isDisabled={isDisabled}
-      {...rest}
-    />
+    <Box as="label" {...otherProps} {...buttonStyles} {...checkbox}>
+      <input {...input} ref={ref} />
+      {props.children}
+    </Box>
   );
 });
 
@@ -73,7 +104,7 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
   const [logo, setLogo] = useState(defaultData.logo);
 
   const { type, name, about } = defaultData;
-  const { handleSubmit, control, register, errors } = useForm({
+  const { handleSubmit, register, errors } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       type,
@@ -82,10 +113,15 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
     },
   });
 
+  const { getRootProps, getRadioProps } = useRadioGroup({
+    name: 'type',
+    defaultValue: type,
+  });
+
   return (
     <Grid
       as="form"
-      enctype="multipart/form-data"
+      encType="multipart/form-data"
       onSubmit={handleSubmit(onSubmit)}
       gridTemplateColumns="1fr 1fr"
       gap={5}
@@ -94,7 +130,7 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
         <FormLabel htmlFor="Logo">Logo</FormLabel>
 
         <Box position="relative" w="25%">
-          <AspectRatioBox ratio={1} onClick={() => logoRef.current.click()}>
+          <AspectRatio ratio={1} onClick={() => logoRef.current.click()}>
             <Image
               size="100%"
               objectFit="logo"
@@ -103,15 +139,15 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
               fallbackSrc={placeholder}
               borderRadius={5}
             />
-          </AspectRatioBox>
+          </AspectRatio>
 
           <IconButton
             position="absolute"
             right={2}
             bottom={2}
             aria-label="Edit logo"
-            icon="edit"
-            variantColor="teal"
+            icon={<EditIcon />}
+            colorScheme="teal"
             isRound
             onClick={() => logoRef.current.click()}
           />
@@ -139,22 +175,23 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
 
       <FormControl gridColumn="1 / 3" isInvalid={errors.type} isRequired>
         <FormLabel htmlFor="name">Type</FormLabel>
-        <Controller
-          as={<RadioButtonGroup />}
-          control={control}
-          name="type"
-          defaultValue={{ value: "chocolate" }}
-
-          display="flex"
-          isInline
-        > 
-          <CustomRadio color={TYPES_COLORS.STUDIO} flex="1" value="STUDIO">
+        <Flex isInline {...getRootProps()}>
+          <CustomRadio
+            color={TYPES_COLORS.STUDIO}
+            flex="1"
+            mr={2}
+            {...getRadioProps({ value: 'STUDIO' })}
+            ref={register}
+          >
             Studio
           </CustomRadio>
           <CustomRadio
             color={TYPES_COLORS.ASSOCIATION}
             flex="1"
+            mr={2}
             value="ASSOCIATION"
+            {...getRadioProps({ value: 'ASSOCIATION' })}
+            ref={register}
           >
             Association
           </CustomRadio>
@@ -162,10 +199,12 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
             color={TYPES_COLORS.ORGANIZATION}
             flex="1"
             value="ORGANIZATION"
+            {...getRadioProps({ value: 'ORGANIZATION' })}
+            ref={register}
           >
             Organization
           </CustomRadio>
-        </Controller>
+        </Flex>
         <FormErrorMessage>
           {errors.type && errors.type.message}
         </FormErrorMessage>
@@ -200,7 +239,7 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
 
       <Button
         gridColumn="1 / 3"
-        variantColor="teal"
+        colorScheme="teal"
         mt={3}
         type="submit"
         isLoading={loading}

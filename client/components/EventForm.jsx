@@ -10,13 +10,14 @@ import {
   FormErrorMessage,
   Button,
   Textarea,
-  AspectRatioBox,
+  AspectRatio,
   Image,
   IconButton,
   Box,
   Grid,
   Switch,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
+import { EditIcon } from '@chakra-ui/icons';
 import Map from 'pigeon-maps';
 
 import PlacesSearch from './PlacesSearch';
@@ -141,7 +142,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
           render={(props) => (
             <Switch
               id="status"
-              color="red"
+              colorScheme="red"
               isChecked={props.value === 'CANCELED'}
               onChange={(e) =>
                 props.onChange(e.target.checked ? 'CANCELED' : 'ONGOING')
@@ -228,7 +229,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         <FormLabel htmlFor="cover">Cover</FormLabel>
 
         <Box position="relative">
-          <AspectRatioBox ratio={3} onClick={() => coverRef.current.click()}>
+          <AspectRatio ratio={3} onClick={() => coverRef.current.click()}>
             <Image
               size="100%"
               objectFit="cover"
@@ -237,15 +238,15 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
               fallbackSrc={placeholder}
               borderRadius={5}
             />
-          </AspectRatioBox>
+          </AspectRatio>
 
           <IconButton
             position="absolute"
             right={2}
             bottom={2}
             aria-label="Edit cover"
-            icon="edit"
-            variantColor="teal"
+            icon={<EditIcon />}
+            colorScheme="teal"
             isRound
             onClick={() => coverRef.current.click()}
           />
@@ -288,7 +289,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
 
       <Button
         gridColumn="1 / 3"
-        variantColor="teal"
+        colorScheme="teal"
         mt={3}
         type="submit"
         isLoading={loading}

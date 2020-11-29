@@ -1,5 +1,6 @@
 import { gql, useQuery } from '@apollo/client';
-import { Box, Spinner, Grid, Button } from '@chakra-ui/core';
+import { Box, Spinner, Grid, Button } from '@chakra-ui/react';
+import { AddIcon } from '@chakra-ui/icons';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -82,8 +83,8 @@ const Orgs = () => {
               m="auto"
               mb={10}
               size="lg"
-              variantColor="teal"
-              leftIcon="add"
+              colorScheme="teal"
+              leftIcon={<AddIcon />}
             >
               Add a organization
             </Button>

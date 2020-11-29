@@ -1,5 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
-import { Box, Spinner, Heading, Text, Grid, Image } from '@chakra-ui/core';
+import { Box, Spinner, Heading, Text, Grid, Image } from '@chakra-ui/react';
 import Head from 'next/head';
 import { startOfDay } from 'date-fns';
 import { motion } from 'framer-motion';

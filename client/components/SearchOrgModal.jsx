@@ -12,7 +12,7 @@ import {
   List,
   Input,
   Text,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
 
 import useDebounce from '../hooks/useDebounce';
 
@@ -62,7 +62,6 @@ const SearchOrgModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
 
   return (
     <Modal
-      preserveScrollBarGap
       initialFocusRef={initialFocusRef}
       isOpen={isOpen}
       onClose={onClose}

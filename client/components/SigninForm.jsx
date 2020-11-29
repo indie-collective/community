@@ -9,7 +9,7 @@ import {
   Input,
   FormErrorMessage,
   Button,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
 
 const validationSchema = yup.object().shape({
   email: yup
@@ -50,7 +50,7 @@ const SigninForm = ({ loading, onSubmit }) => {
       <Button
         type="submit"
         mt={3}
-        variantColor="teal"
+        colorScheme="teal"
         isDisabled={loading}
         isLoading={loading}
       >

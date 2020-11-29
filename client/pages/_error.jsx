@@ -1,5 +1,5 @@
 import NextLink from 'next/link';
-import { Button, Stack, Text } from '@chakra-ui/core';
+import { Button, Stack, Text } from '@chakra-ui/react';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
@@ -28,7 +28,7 @@ function Error({ statusCode }) {
         </Text>
         <Text fontSize="18px" mt={10}>
           <NextLink href="/">
-            <Button variantColor="teal" size="lg">Let's go home !</Button>
+            <Button colorScheme="teal" size="lg">Let's go home !</Button>
           </NextLink>
         </Text>
       </Stack>

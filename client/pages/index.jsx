@@ -10,7 +10,7 @@ import {
   StatNumber,
   Stat,
   Image,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
 import Head from 'next/head';
 import { startOfDay } from 'date-fns';
 import { motion } from 'framer-motion';

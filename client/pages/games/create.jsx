@@ -1,4 +1,4 @@
-import { Box, Heading, Stack } from '@chakra-ui/core';
+import { Box, Heading, Stack } from '@chakra-ui/react';
 import { gql, useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Head from 'next/head';

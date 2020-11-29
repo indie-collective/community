@@ -8,10 +8,7 @@ import {
   Text,
   Image,
   Grid,
-  Icon,
-  useColorMode,
-  PseudoBox,
-  AspectRatioBox,
+  AspectRatio,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -23,9 +20,9 @@ import {
   useDisclosure,
   IconButton,
   Tag,
-  TagLabel,
-  TagCloseButton,
-} from '@chakra-ui/core';
+  useColorModeValue,
+} from '@chakra-ui/react';
+import { AddIcon, EditIcon } from '@chakra-ui/icons';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -136,13 +133,22 @@ const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A
 const Game = ({ id }) => {
   const validId = uuidRegex.test(id);
 
+  const dzColor = useColorModeValue('gray.200', 'gray.700');
+  const dzHoverColor = useColorModeValue('gray.400', 'gray.50');
+  const dzActiveColor = useColorModeValue('teal.200', 'teal.700');
+  const dzActiveHoverColor = useColorModeValue('teal.600', 'teal.50');
+
+  const dzBorderColor = useColorModeValue('gray.200', 'gray.700');
+  const dzActiveBorderColor = useColorModeValue('teal.200', 'teal.700');
+  const dzHoverBorderColor = useColorModeValue('gray.200', 'gray.700');
+  const dzActiveHoverBorderColor = useColorModeValue('teal.600', 'teal.700');
+
   const currentPerson = useCurrentPerson();
   const {
     isOpen: linkAuthorIsOpen,
     onOpen: onOpenLinkAuthor,
     onClose: onCloseLinkAuthor,
   } = useDisclosure();
-  const { colorMode } = useColorMode();
   const router = useRouter();
   const [isLoadingNewImages, setIsLoadingNewImages] = useState(false);
 
@@ -288,7 +294,7 @@ const Game = ({ id }) => {
 
         {currentPerson && (
           <Link href={`/game/${id}/edit`}>
-            <Button leftIcon="edit" variantColor="teal" mt={3}>
+            <Button leftIcon={<EditIcon />} colorScheme="teal" mt={3}>
               Edit
             </Button>
           </Link>
@@ -301,8 +307,8 @@ const Game = ({ id }) => {
 
       <Stack isInline spacing={2} mb={5} pl={5} pr={5}>
         {tags.nodes.map((tag) => (
-          <Tag>
-            <TagLabel>{tag.name}</TagLabel>
+          <Tag colorScheme="teal">
+            {tag.name}
           </Tag>
         ))}
       </Stack>
@@ -347,9 +353,9 @@ const Game = ({ id }) => {
               <IconButton
                 alignSelf="center"
                 justifySelf="flex-start"
-                variantColor="teal"
+                colorScheme="teal"
                 aria-label="Add an author to the game"
-                icon="add"
+                icon={<AddIcon />}
                 onClick={onOpenLinkAuthor}
               />
               <SearchOrgModal
@@ -388,35 +394,26 @@ const Game = ({ id }) => {
           ]}
         >
           {images.nodes.map(({ id, thumbnail_url }) => (
-            <AspectRatioBox key={id} ratio={1}>
+            <AspectRatio key={id} ratio={1}>
               <Image objectFit="cover" size="100%" src={thumbnail_url} alt="" />
-            </AspectRatioBox>
+            </AspectRatio>
           ))}
           {currentPerson && (
-            <AspectRatioBox key={id} ratio={1}>
-              <PseudoBox
+            <AspectRatio key={id} ratio={1}>
+              <Box
                 transition="background-color 200ms ease-out"
-                color={
-                  isDragActive
-                    ? colorMode === 'dark'
-                      ? 'teal.700'
-                      : 'teal.100'
-                    : colorMode === 'dark'
-                    ? 'gray.700'
-                    : 'gray.200'
-                }
+                color={isDragActive ? dzActiveColor : dzColor}
+                borderColor={isDragActive ? dzActiveBorderColor : dzBorderColor}
                 _hover={
                   isDragActive
                     ? {
-                        color: colorMode === 'dark' ? 'teal.50' : 'teal.600',
-                        borderColor:
-                          colorMode === 'dark' ? 'teal.700' : 'teal.600',
+                        color: dzActiveHoverColor,
+                        borderColor: dzActiveHoverBorderColor,
                         cursor: 'pointer',
                       }
                     : {
-                        color: colorMode === 'dark' ? 'gray.50' : 'gray.400',
-                        backgroundColor:
-                          colorMode === 'dark' ? 'gray.700' : 'gray.100',
+                        color: dzHoverColor,
+                        backgroundColor: dzHoverBorderColor,
                         cursor: 'pointer',
                       }
                 }
@@ -424,15 +421,6 @@ const Game = ({ id }) => {
                 borderWidth={5}
                 padding={5}
                 borderStyle="dashed"
-                borderColor={
-                  isDragActive
-                    ? colorMode === 'dark'
-                      ? 'teal.700'
-                      : 'teal.100'
-                    : colorMode === 'dark'
-                    ? 'gray.700'
-                    : 'gray.100'
-                }
                 textAlign="center"
                 display="flex"
                 flexDirection="column"
@@ -441,32 +429,20 @@ const Game = ({ id }) => {
                 {...getRootProps()}
               >
                 <input {...getInputProps()} />
-                {isLoadingNewImages ? (
-                  <Spinner />
-                ) : (
-                  <Icon name="add" size="48px" />
-                )}
-              </PseudoBox>
-            </AspectRatioBox>
+                {isLoadingNewImages ? <Spinner /> : <AddIcon size="48px" />}
+              </Box>
+            </AspectRatio>
           )}
         </Grid>
       </Box>
 
       {currentPerson && (
         <Box mb={5} pl={5} pr={5}>
-          <Button
-            variant="link"
-            variantColor="red"
-            onClick={deleteModal.onOpen}
-          >
+          <Button variant="link" colorScheme="red" onClick={deleteModal.onOpen}>
             Delete game
           </Button>
 
-          <Modal
-            preserveScrollBarGap
-            isOpen={deleteModal.isOpen}
-            onClose={deleteModal.onClose}
-          >
+          <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
             <ModalOverlay />
             <ModalContent>
               <ModalHeader>Delete Game</ModalHeader>
@@ -479,7 +455,7 @@ const Game = ({ id }) => {
                 <Button
                   isLoading={isBeingDeleted}
                   loadingText="Deleting"
-                  variantColor="red"
+                  colorScheme="red"
                   mr={3}
                   onClick={async () => {
                     await deleteGame();

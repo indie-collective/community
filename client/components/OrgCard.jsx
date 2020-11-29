@@ -1,18 +1,21 @@
 import { gql } from '@apollo/client';
 import React from 'react';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import {
   Box,
   Badge,
-  PseudoBox,
-  useColorMode,
   Image,
   Flex,
   Heading,
   DarkMode,
   IconButton,
-} from '@chakra-ui/core';
+  useColorModeValue,
+} from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
+
 import usePlaceholder from '../hooks/usePlaceholder';
+import Card from './Card';
+import CardLink from './CardLink';
 
 const TYPES_ABBR = {
   STUDIO: 'studio',
@@ -27,95 +30,98 @@ const TYPES_COLORS = {
 };
 
 const OrgCard = ({ id, type, logo, name, people, games, events, onRemove }) => {
-  const { colorMode } = useColorMode();
   const placeholder = usePlaceholder();
 
+  const bg = useColorModeValue('gray.100', 'gray.700');
+
   return (
-    <Link href="/org/[id]" as={`/org/${id}`}>
-      <a>
-        <PseudoBox
-          as={Flex}
+    <Card isClickable>
+      <Box
+        as={Flex}
+        position="relative"
+        alignItems="center"
+        rounded={5}
+        transition="background-color 200ms ease-out"
+        _hover={{
+          backgroundColor: bg,
+          cursor: 'pointer',
+        }}
+      >
+        <Flex
+          direction="column"
+          width="75px"
+          mr={3}
+          flexShrink={0}
           position="relative"
-          alignItems="center"
-          rounded={5}
-          transition="background-color 200ms ease-out"
-          _hover={{
-            backgroundColor: colorMode === 'dark' ? 'gray.700' : 'gray.50',
-            cursor: 'pointer',
-          }}
         >
-          <Flex
-            direction="column"
-            width="60px"
-            mr={2}
-            flexShrink={0}
-            position="relative"
-          >
-            <Image
-              size="60px"
-              objectFit="cover"
-              src={logo && logo.thumbnail_url}
-              alt="Organization cover"
-              fallbackSrc={placeholder}
-              rounded={3}
-            />
+          <Image
+            w="75px"
+            h="75px"
+            objectFit="cover"
+            src={logo && logo.thumbnail_url}
+            alt="Organization cover"
+            fallbackSrc={placeholder}
+            rounded={3}
+          />
 
-            <Box
+          <DarkMode>
+            <Badge
               position="absolute"
-              bottom={-2}
-              left={0}
-              right={0}
+              bottom={0}
               textAlign="center"
+              width="100%"
+              rounded={3}
+              variant="solid"
+              colorScheme={TYPES_COLORS[type]}
+              fontSize="0.55em"
             >
-              <DarkMode>
-                <Badge
-                  width="100%"
-                  rounded={3}
-                  variant="solid"
-                  variantColor={TYPES_COLORS[type]}
-                  fontSize="0.5em"
-                >
-                  {TYPES_ABBR[type]}
-                </Badge>
-              </DarkMode>
-            </Box>
-          </Flex>
+              {TYPES_ABBR[type]}
+            </Badge>
+          </DarkMode>
+        </Flex>
 
-          <Box isTruncated flex="1">
-            <Heading as="h3" size="xs" isTruncated>
-              {name}
-            </Heading>
+        <Box isTruncated flex="1">
+          <Heading as="h3" size="md" isTruncated>
+            <NextLink href={`/org/${id}`}>
+              <CardLink href={`/org/${id}`}>{name}</CardLink>
+            </NextLink>
+          </Heading>
 
-            <Box
-              color="gray.500"
-              fontWeight="semibold"
-              letterSpacing="wide"
-              fontSize="xs"
-              textTransform="uppercase"
-            >
-              {type === 'STUDIO' && `${games.totalCount} ${games.totalCount === 1 ? 'game' : 'games'}`}
-              {type !== 'STUDIO' && `${events.totalCount} ${events.totalCount === 1 ? 'event' : 'events'}`}
-            </Box>
+          <Box
+            color="gray.500"
+            fontWeight="semibold"
+            letterSpacing="wide"
+            fontSize="xs"
+            textTransform="uppercase"
+          >
+            {type === 'STUDIO' &&
+              `${games.totalCount} ${
+                games.totalCount === 1 ? 'game' : 'games'
+              }`}
+            {type !== 'STUDIO' &&
+              `${events.totalCount} ${
+                events.totalCount === 1 ? 'event' : 'events'
+              }`}
           </Box>
+        </Box>
 
-          {onRemove && (
-            <IconButton
-              mx={3}
-              size="xs"
-              aria-label={`Remove ${name}`}
-              isRound
-              variantColor="red"
-              icon="delete"
-              onClick={(e) => {
-                e.preventDefault();
+        {onRemove && (
+          <IconButton
+            mx={5}
+            size="xs"
+            aria-label={`Remove ${name}`}
+            isRound
+            colorScheme="red"
+            icon={<DeleteIcon />}
+            onClick={(e) => {
+              e.preventDefault();
 
-                onRemove();
-              }}
-            />
-          )}
-        </PseudoBox>
-      </a>
-    </Link>
+              onRemove();
+            }}
+          />
+        )}
+      </Box>
+    </Card>
   );
 };
 

@@ -1,5 +1,5 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { Box, Heading, Spinner, Stack } from '@chakra-ui/core';
+import { Box, Heading, Spinner, Stack } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Stack, Button } from '@chakra-ui/core';
+import { Stack, Button } from '@chakra-ui/react';
 
 const propTypes = {
   totalPages: PropTypes.number,

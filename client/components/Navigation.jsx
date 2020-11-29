@@ -1,40 +1,57 @@
-import { Box, Flex, Tabs, TabList, Tab } from '@chakra-ui/core';
+import { Box, Flex, HStack, chakra, useColorModeValue } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
+import NextLink from 'next/link';
 
 import Logo from './Logo';
 import AvatarButton from './AvatarButton';
 import SearchInput from './SearchInput';
 
-const tabs = [
-  { label: 'Games', url: '/games' },
-  { label: 'Orgs', url: '/orgs' },
-  { label: 'Events', url: '/events' },
-];
+function NavLink(props) {
+  const { href, ...rest } = props;
+  const { pathname } = useRouter();
 
-const Navigation = ({ search }) => {
-  const { pathname, push } = useRouter();
+  const [, group] = href.split('/');
+  const isActive = pathname.includes(group);
 
   return (
+    <NextLink href={href} passHref>
+      <chakra.a
+        aria-current={isActive ? 'page' : undefined}
+        display="block"
+        mx="3"
+        py="1"
+        transition="all 0.3s"
+        borderBottomWidth="3px"
+        fontSize="18px"
+        fontWeight="semibold"
+        color={useColorModeValue('gray.500', 'white')}
+        borderColor="transparent"
+        _hover={{ borderColor: useColorModeValue('gray.400', 'white') }}
+        _activeLink={{
+          fontWeight: 'bold',
+          color: 'teal.500',
+          borderColor: 'teal.500',
+        }}
+        {...rest}
+      />
+    </NextLink>
+  );
+}
+
+const Navigation = ({ search }) => {
+  return (
     <Flex pl={5} pr={2} pt={5} alignItems="center">
-      <Link href="/">
+      <NextLink href="/" passHref>
         <a>
           <Logo />
         </a>
-      </Link>
+      </NextLink>
 
-      <Tabs
-        ml={5}
-        variant="solid-rounded"
-        onChange={(i) => push(tabs[i].url)}
-        index={tabs.findIndex((tab) => tab.url === pathname)}
-      >
-        <TabList>
-          {tabs.map((tab) => (
-            <Tab key={tab.url}>{tab.label}</Tab>
-          ))}
-        </TabList>
-      </Tabs>
+      <HStack as="nav" spacing="4" ml="24px">
+        <NavLink href="/games">Games</NavLink>
+        <NavLink href="/orgs">Orgs</NavLink>
+        <NavLink href="/events">Events</NavLink>
+      </HStack>
 
       <Box flex="auto" />
 

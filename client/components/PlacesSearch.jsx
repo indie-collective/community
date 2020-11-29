@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Input, useColorMode, useTheme } from '@chakra-ui/core';
+import { Input, useColorMode, useTheme } from '@chakra-ui/react';
 
 import AlgoliaPlaces from './AlgoliaPlaces';
 

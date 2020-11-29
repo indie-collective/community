@@ -18,7 +18,8 @@ import {
   ModalFooter,
   Modal,
   ModalHeader,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
+import { EditIcon } from '@chakra-ui/icons';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -162,7 +163,8 @@ const Org = ({ id, host }) => {
       <Box mt={[5, 2, 5]} padding={[0, 5]}>
         <Flex alignItems="center">
           <Image
-            size="100px"
+            w="100px"
+            h="100px"
             objectFit="cover"
             src={logo && logo.thumbnail_url}
             alt="Organization cover"
@@ -176,7 +178,7 @@ const Org = ({ id, host }) => {
               <Badge
                 rounded={3}
                 variant="solid"
-                variantColor={TYPES_COLORS[type]}
+                colorScheme={TYPES_COLORS[type]}
               >
                 {type}
               </Badge>
@@ -186,7 +188,7 @@ const Org = ({ id, host }) => {
 
         {currentPerson && (
           <Link href={`/org/${id}/edit`}>
-            <Button leftIcon="edit" variantColor="teal" mt={3}>
+            <Button leftIcon={<EditIcon />} colorScheme="teal" mt={3}>
               Edit
             </Button>
           </Link>
@@ -198,7 +200,7 @@ const Org = ({ id, host }) => {
       </Box>
 
       {games.nodes.length > 0 && (
-        <Box pl={5} pr={5}>
+        <Box pl={5} pr={5} mb={5}>
           <Heading size="md" mb={2}>
             Games
             <Badge
@@ -206,7 +208,7 @@ const Org = ({ id, host }) => {
               fontSize="md"
               ml={2}
               variant="subtle"
-              variantColor="teal"
+              colorScheme="teal"
             >
               {games.nodes.length}
             </Badge>
@@ -240,7 +242,7 @@ const Org = ({ id, host }) => {
       )}
 
       {events.nodes.length > 0 && (
-        <Box pl={5} pr={5}>
+        <Box pl={5} pr={5} mb={5}>
           <Heading size="md" mb={2}>
             Hosted events
             <Badge
@@ -248,7 +250,7 @@ const Org = ({ id, host }) => {
               fontSize="md"
               ml={2}
               variant="subtle"
-              variantColor="teal"
+              colorScheme="teal"
             >
               {events.nodes.length}
             </Badge>
@@ -285,14 +287,13 @@ const Org = ({ id, host }) => {
         <Box mb={5} pl={5} pr={5}>
           <Button
             variant="link"
-            variantColor="red"
+            colorScheme="red"
             onClick={deleteModal.onOpen}
           >
             Delete organization
           </Button>
 
           <Modal
-            preserveScrollBarGap
             isOpen={deleteModal.isOpen}
             onClose={deleteModal.onClose}
           >
@@ -308,7 +309,7 @@ const Org = ({ id, host }) => {
                 <Button
                   isLoading={isBeingDeleted}
                   loadingText="Deleting"
-                  variantColor="red"
+                  colorScheme="red"
                   mr={3}
                   onClick={async () => {
                     await deleteOrg();
