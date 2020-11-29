@@ -9,12 +9,26 @@ import {
   Text,
   Heading,
   useColorModeValue,
+  Skeleton,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 
 import usePlaceholder from '../hooks/usePlaceholder';
 import Card from './Card';
 import CardLink from './CardLink';
+
+export const GameCardSkeleton = () => (
+  <Box>
+    <AspectRatio ratio={2}>
+      <Skeleton />
+    </AspectRatio>
+    <Box py={2} w="75%">
+      <Skeleton>
+        <Heading size="md">Game Title</Heading>
+      </Skeleton>
+    </Box>
+  </Box>
+);
 
 const GameCard = forwardRef(
   ({ id, images, name, onRemove, isCompact }, ref) => {
@@ -108,7 +122,7 @@ const GameCard = forwardRef(
           </AspectRatio>
 
           <Box padding={2}>
-            <Heading as="h3" size="md" lineHeight="tight" isTruncated>
+            <Heading as="h3" size="md" isTruncated>
               <NextLink href={`/game/${id}`}>
                 <CardLink href={`/game/${id}`}>{name}</CardLink>
               </NextLink>

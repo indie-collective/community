@@ -8,11 +8,26 @@ import {
   Image,
   Heading,
   useColorModeValue,
+  Skeleton,
+  SkeletonText,
 } from '@chakra-ui/react';
 
 import usePlaceholder from '../hooks/usePlaceholder';
 import Card from './Card';
 import CardLink from './CardLink';
+
+export const EventCardSkeleton = () => (
+  <Box>
+    <AspectRatio ratio={2}>
+      <Skeleton />
+    </AspectRatio>
+    <Box py={2}>
+      <SkeletonText skeletonHeight="1rem" noOfLines={1} w="60%" />
+      <SkeletonText skeletonHeight="1.8rem" py={2} noOfLines={1} w="75%" />
+      <SkeletonText skeletonHeight="0.75rem" noOfLines={1} w="50%" />
+    </Box>
+  </Box>
+);
 
 const EventCard = forwardRef(
   (
@@ -82,7 +97,6 @@ const EventCard = forwardRef(
           <Heading
             as="h3"
             size="lg"
-            lineHeight="tight"
             isTruncated
             textDecoration={status === 'CANCELED' && 'line-through'}
             color={status === 'CANCELED' && 'gray.500'}

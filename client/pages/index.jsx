@@ -1,7 +1,6 @@
 import { gql, useQuery } from '@apollo/client';
 import {
   Box,
-  Spinner,
   Heading,
   Text,
   Grid,
@@ -10,17 +9,18 @@ import {
   StatNumber,
   Stat,
   Image,
+  SkeletonText,
+  Fade,
 } from '@chakra-ui/react';
 import Head from 'next/head';
 import { startOfDay } from 'date-fns';
-import { motion } from 'framer-motion';
 
 import { withApollo } from '../lib/apollo';
 import useCurrentPerson from '../hooks/useCurrentPerson';
 import Navigation from '../components/Navigation';
-import GameCard from '../components/GameCard';
-import OrgCard from '../components/OrgCard';
-import EventCard from '../components/EventCard';
+import GameCard, { GameCardSkeleton } from '../components/GameCard';
+import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
+import EventCard, { EventCardSkeleton } from '../components/EventCard';
 import AuthenticatedHomePage from '../components/AuthenticatedHomePage';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 
@@ -67,21 +67,130 @@ const homeQuery = gql`
   }
 `;
 
-const variants = {
-  initial: { scale: 0.96, y: 30, opacity: 0 },
-  enter: {
-    scale: 1,
-    y: 0,
-    opacity: 1,
-    transition: { duration: 0.5, ease: [0.48, 0.15, 0.25, 0.96] },
-  },
-  exit: {
-    scale: 0.6,
-    y: 100,
-    opacity: 0,
-    transition: { duration: 0.2, ease: [0.48, 0.15, 0.25, 0.96] },
-  },
-};
+const LandingPageSkeleton = () => (
+  <Box p={5} mb={5}>
+    <Box py={5} mb={10} textAlign="center">
+      <Box m="auto" width={['auto', 'auto', '75%', '50%']}>
+        <Heading mb={5} size="2xl">
+          Find Your Community
+        </Heading>
+
+        <Text mb={5}>
+          Community lets you explore indie game-focused data around the world.
+          <br />
+          Discover who, where and what has been / is being made near you through
+          crowd-sourced data.
+        </Text>
+
+        <StatGroup my={2}>
+          <Stat>
+            <StatNumber>
+              <SkeletonText noOfLines={1} w="30%" m="auto" skeletonHeight="2rem" p={1} />
+            </StatNumber>
+            <StatLabel>
+              <SkeletonText noOfLines={1} w="50%" m="auto" />
+            </StatLabel>
+          </Stat>
+
+          <Stat>
+            <StatNumber>
+              <SkeletonText noOfLines={1} w="30%" m="auto" skeletonHeight="2rem" p={1} />
+            </StatNumber>
+            <StatLabel>
+              <SkeletonText noOfLines={1} w="50%" m="auto" />
+            </StatLabel>
+          </Stat>
+
+          <Stat>
+            <StatNumber>
+              <SkeletonText noOfLines={1} w="30%" m="auto" skeletonHeight="2rem" p={1} />
+            </StatNumber>
+            <StatLabel>
+              <SkeletonText noOfLines={1} w="50%" m="auto" />
+            </StatLabel>
+          </Stat>
+        </StatGroup>
+      </Box>
+    </Box>
+
+    <Box mb={10}>
+      <Heading as="h3" size="xl" mb={5}>
+        Recently added games
+      </Heading>
+
+      <Fade in>
+        <Grid
+          gap={3}
+          templateColumns={[
+            '2fr',
+            'repeat(3, 1fr)',
+            'repeat(4, 1fr)',
+            'repeat(6, 1fr)',
+          ]}
+        >
+          {[...new Array(12)].map((_, i) => (
+            <Box key={i} minW={0}>
+              <GameCardSkeleton />
+            </Box>
+          ))}
+        </Grid>
+      </Fade>
+    </Box>
+
+    <Box mb={10}>
+      <Heading as="h3" size="xl" mb={5}>
+        Recently added orgs
+      </Heading>
+
+      <Fade in>
+        <Grid
+          mb={5}
+          gap={3}
+          templateColumns={[
+            '1fr',
+            'repeat(2, 1fr)',
+            'repeat(3, 1fr)',
+            'repeat(4, 1fr)',
+          ]}
+        >
+          {[...new Array(12)].map((_, i) => (
+            <Box key={i} minW={0}>
+              <OrgCardSkeleton />
+            </Box>
+          ))}
+        </Grid>
+      </Fade>
+    </Box>
+
+    <Box>
+      <Heading as="h3" size="xl" mb={5}>
+        Upcoming events
+      </Heading>
+
+      <Fade in>
+        <Grid
+          gap={3}
+          templateColumns={[
+            '1fr',
+            'repeat(2, 1fr)',
+            'repeat(3, 1fr)',
+            'repeat(4, 1fr)',
+          ]}
+        >
+          <Box minW={0}>
+            <EventCardSkeleton />
+          </Box>
+          <Box minW={0}>
+            <EventCardSkeleton />
+          </Box>
+          <Box minW={0}>
+            <EventCardSkeleton />
+          </Box>
+        </Grid>
+      </Fade>
+    </Box>
+  </Box>
+);
 
 const LandingPage = () => {
   const { loading, error, data } = useQuery(homeQuery, {
@@ -91,16 +200,7 @@ const LandingPage = () => {
   });
 
   if (loading) {
-    return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        height="100%"
-      >
-        <Spinner size="lg" />
-      </Box>
-    );
+    return <LandingPageSkeleton />;
   }
 
   const { games, entities, events, eventsToCome } = data;
@@ -171,12 +271,7 @@ const LandingPage = () => {
           Recently added games
         </Heading>
 
-        <motion.div
-          initial="initial"
-          animate="enter"
-          exit="exit"
-          variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-        >
+        <Fade in>
           <Grid
             gap={3}
             templateColumns={[
@@ -188,13 +283,11 @@ const LandingPage = () => {
           >
             {games.nodes.map((game) => (
               <Box key={game.id} minW={0}>
-                <motion.div variants={variants}>
-                  <GameCard {...game} />
-                </motion.div>
+                <GameCard {...game} />
               </Box>
             ))}
           </Grid>
-        </motion.div>
+        </Fade>
       </Box>
 
       <Box mb={10}>
@@ -202,12 +295,7 @@ const LandingPage = () => {
           Recently added orgs
         </Heading>
 
-        <motion.div
-          initial="initial"
-          animate="enter"
-          exit="exit"
-          variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-        >
+        <Fade in>
           <Grid
             mb={5}
             gap={3}
@@ -220,13 +308,11 @@ const LandingPage = () => {
           >
             {entities.nodes.map((org) => (
               <Box key={org.id} minW={0}>
-                <motion.div variants={variants}>
-                  <OrgCard key={org.id} {...org} />
-                </motion.div>
+                <OrgCard key={org.id} {...org} />
               </Box>
             ))}
           </Grid>
-        </motion.div>
+        </Fade>
       </Box>
 
       <Box>
@@ -234,12 +320,7 @@ const LandingPage = () => {
           Upcoming events
         </Heading>
 
-        <motion.div
-          initial="initial"
-          animate="enter"
-          exit="exit"
-          variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-        >
+        <Fade in>
           {eventsToCome.nodes.length > 0 ? (
             <Grid
               gap={3}
@@ -252,9 +333,7 @@ const LandingPage = () => {
             >
               {eventsToCome.nodes.map((event) => (
                 <Box key={event.id} minW={0}>
-                  <motion.div variants={variants}>
-                    <EventCard {...event} />
-                  </motion.div>
+                  <EventCard {...event} />
                 </Box>
               ))}
             </Grid>
@@ -266,7 +345,7 @@ const LandingPage = () => {
               </Text>
             </Box>
           )}
-        </motion.div>
+        </Fade>
       </Box>
     </Box>
   );
@@ -284,4 +363,4 @@ const Home = () => {
   );
 };
 
-export default withApollo()(Home);
+export default withApollo({ ssr: true })(Home);

@@ -10,6 +10,8 @@ import {
   DarkMode,
   IconButton,
   useColorModeValue,
+  Skeleton,
+  SkeletonText,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 
@@ -28,6 +30,29 @@ const TYPES_COLORS = {
   ASSOCIATION: 'green',
   ORGANIZATION: 'purple',
 };
+
+export const OrgCardSkeleton = () => (
+  <Flex
+    position="relative"
+    alignItems="center"
+  >
+    <Flex
+      direction="column"
+      width="75px"
+      mr={3}
+      flexShrink={0}
+      position="relative"
+    >
+      <Skeleton w="75px" h="75px" />
+    </Flex>
+
+    <Box flex="1">
+      <SkeletonText skeletonHeight="1.8rem" py={2} noOfLines={1} w="75%" />
+
+      <SkeletonText skeletonHeight="0.75rem" noOfLines={1} w="50%" />
+    </Box>
+  </Flex>
+);
 
 const OrgCard = ({ id, type, logo, name, people, games, events, onRemove }) => {
   const placeholder = usePlaceholder();

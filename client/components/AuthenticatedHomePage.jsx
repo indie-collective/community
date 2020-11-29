@@ -1,12 +1,18 @@
 import { gql, useQuery } from '@apollo/client';
-import { Box, Spinner, Heading, Text, Grid, Image } from '@chakra-ui/react';
+import {
+  Box,
+  Heading,
+  Text,
+  Grid,
+  Image,
+  Fade,
+} from '@chakra-ui/react';
 import Head from 'next/head';
 import { startOfDay } from 'date-fns';
-import { motion } from 'framer-motion';
 
-import GameCard from '../components/GameCard';
-import OrgCard from '../components/OrgCard';
-import EventCard from '../components/EventCard';
+import GameCard, {GameCardSkeleton} from '../components/GameCard';
+import OrgCard, {OrgCardSkeleton} from '../components/OrgCard';
+import EventCard, {EventCardSkeleton} from '../components/EventCard';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 
 const authenticatedHomeQuery = gql`
@@ -74,21 +80,118 @@ const authenticatedHomeQuery = gql`
   }
 `;
 
-const variants = {
-  initial: { scale: 0.96, y: 30, opacity: 0 },
-  enter: {
-    scale: 1,
-    y: 0,
-    opacity: 1,
-    transition: { duration: 0.5, ease: [0.48, 0.15, 0.25, 0.96] },
-  },
-  exit: {
-    scale: 0.6,
-    y: 100,
-    opacity: 0,
-    transition: { duration: 0.2, ease: [0.48, 0.15, 0.25, 0.96] },
-  },
-};
+const AuthenticatedHomePageSkeleton = () => (
+  <Box p={5} mb={5}>
+    <Heading size="2xl" mb={10}>
+      Welcome back
+    </Heading>
+
+    <Box mb={10}>
+      <Heading as="h3" size="xl" mb={5}>
+        Your upcoming events
+      </Heading>
+
+      <Fade in>
+        <Grid
+          gap={3}
+          templateColumns={[
+            '1fr',
+            'repeat(2, 1fr)',
+            'repeat(3, 1fr)',
+            'repeat(4, 1fr)',
+          ]}
+        >
+          <Box minW={0}>
+            <EventCardSkeleton />
+          </Box>
+          <Box minW={0}>
+            <EventCardSkeleton />
+          </Box>
+          <Box minW={0}>
+            <EventCardSkeleton />
+          </Box>
+        </Grid>
+      </Fade>
+    </Box>
+
+    <Box mb={10}>
+      <Heading as="h3" size="xl" mb={5}>
+        Recently added games
+      </Heading>
+
+      <Fade in>
+        <Grid
+          gap={3}
+          templateColumns={[
+            '2fr',
+            'repeat(3, 1fr)',
+            'repeat(4, 1fr)',
+            'repeat(6, 1fr)',
+          ]}
+        >
+          {[...new Array(12)].map((_, i) => (
+            <Box key={i} minW={0}>
+              <GameCardSkeleton />
+            </Box>
+          ))}
+        </Grid>
+      </Fade>
+    </Box>
+
+    <Box mb={10}>
+      <Heading as="h3" size="xl" mb={5}>
+        Recently added orgs
+      </Heading>
+
+      <Fade in>
+        <Grid
+          mb={5}
+          gap={3}
+          templateColumns={[
+            '1fr',
+            'repeat(2, 1fr)',
+            'repeat(3, 1fr)',
+            'repeat(4, 1fr)',
+          ]}
+        >
+          {[...new Array(12)].map((_, i) => (
+            <Box key={i} minW={0}>
+              <OrgCardSkeleton />
+            </Box>
+          ))}
+        </Grid>
+      </Fade>
+    </Box>
+
+    <Box>
+      <Heading as="h3" size="xl" mb={5}>
+        Upcoming events
+      </Heading>
+
+      <Fade in>
+        <Grid
+          gap={3}
+          templateColumns={[
+            '1fr',
+            'repeat(2, 1fr)',
+            'repeat(3, 1fr)',
+            'repeat(4, 1fr)',
+          ]}
+        >
+          <Box minW={0}>
+            <EventCardSkeleton />
+          </Box>
+          <Box minW={0}>
+            <EventCardSkeleton />
+          </Box>
+          <Box minW={0}>
+            <EventCardSkeleton />
+          </Box>
+        </Grid>
+      </Fade>
+    </Box>
+  </Box>
+);
 
 const AuthenticatedHomePage = () => {
   const { data, loading } = useQuery(authenticatedHomeQuery, {
@@ -98,11 +201,12 @@ const AuthenticatedHomePage = () => {
   });
 
   if (loading) {
-    return <Spinner />;
+    return <AuthenticatedHomePageSkeleton />;
   }
 
-  const { games, entities, eventsToCome } = data;
-  const { firstName, eventsToCome: joinedEventsToCome } = data.currentPerson;
+  const { games, entities, eventsToCome } = data || {};
+  const { firstName, eventsToCome: joinedEventsToCome } =
+    data.currentPerson || {};
 
   return (
     <Box p={5} mb={5}>
@@ -120,30 +224,23 @@ const AuthenticatedHomePage = () => {
             Your upcoming events
           </Heading>
 
-          <motion.div
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+          <Grid
+            gap={3}
+            templateColumns={[
+              '1fr',
+              'repeat(2, 1fr)',
+              'repeat(3, 1fr)',
+              'repeat(4, 1fr)',
+            ]}
           >
-            <Grid
-              gap={3}
-              templateColumns={[
-                '1fr',
-                'repeat(2, 1fr)',
-                'repeat(3, 1fr)',
-                'repeat(4, 1fr)',
-              ]}
-            >
-              {joinedEventsToCome.nodes.map((event) => (
-                <Box key={event.id} minW={0}>
-                  <motion.div variants={variants}>
-                    <EventCard {...event} />
-                  </motion.div>
-                </Box>
-              ))}
-            </Grid>
-          </motion.div>
+            {joinedEventsToCome.nodes.map((event) => (
+              <Box key={event.id} minW={0}>
+                <Fade in>
+                  <EventCard {...event} />
+                </Fade>
+              </Box>
+            ))}
+          </Grid>
         </Box>
       )}
 
@@ -152,12 +249,7 @@ const AuthenticatedHomePage = () => {
           Recently added games
         </Heading>
 
-        <motion.div
-          initial="initial"
-          animate="enter"
-          exit="exit"
-          variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-        >
+        <Fade in>
           <Grid
             gap={3}
             templateColumns={[
@@ -169,13 +261,11 @@ const AuthenticatedHomePage = () => {
           >
             {games.nodes.map((game) => (
               <Box key={game.id} minW={0}>
-                <motion.div variants={variants}>
-                  <GameCard {...game} />
-                </motion.div>
+                <GameCard {...game} />
               </Box>
             ))}
           </Grid>
-        </motion.div>
+        </Fade>
       </Box>
 
       <Box mb={10}>
@@ -183,12 +273,7 @@ const AuthenticatedHomePage = () => {
           Recently added orgs
         </Heading>
 
-        <motion.div
-          initial="initial"
-          animate="enter"
-          exit="exit"
-          variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-        >
+        <Fade in>
           <Grid
             mb={5}
             gap={3}
@@ -201,13 +286,11 @@ const AuthenticatedHomePage = () => {
           >
             {entities.nodes.map((org) => (
               <Box key={org.id} minW={0}>
-                <motion.div variants={variants}>
-                  <OrgCard key={org.id} {...org} />
-                </motion.div>
+                <OrgCard key={org.id} {...org} />
               </Box>
             ))}
           </Grid>
-        </motion.div>
+        </Fade>
       </Box>
 
       <Box>
@@ -215,12 +298,7 @@ const AuthenticatedHomePage = () => {
           Upcoming events
         </Heading>
 
-        <motion.div
-          initial="initial"
-          animate="enter"
-          exit="exit"
-          variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
-        >
+        <Fade in>
           {eventsToCome.nodes.length > 0 ? (
             <Grid
               gap={3}
@@ -233,9 +311,7 @@ const AuthenticatedHomePage = () => {
             >
               {eventsToCome.nodes.map((event) => (
                 <Box key={event.id} minW={0}>
-                  <motion.div variants={variants}>
-                    <EventCard {...event} />
-                  </motion.div>
+                  <EventCard {...event} />
                 </Box>
               ))}
             </Grid>
@@ -247,7 +323,7 @@ const AuthenticatedHomePage = () => {
               </Text>
             </Box>
           )}
-        </motion.div>
+        </Fade>
       </Box>
     </Box>
   );
