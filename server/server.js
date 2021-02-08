@@ -32,7 +32,7 @@ const DB_URL =
     ? `postgres://${DB_USER}:${DB_PASS}@localhost:5432/indieco`
     : 'postgres://localhost:5432/indieco';
 
-const CDN = `cdn.community${isDev ? '-dev' : ''}.indieco.xyz`;
+const CDN = `cdn{isDev ? '-dev' : ''}.indieco.xyz`;
 
 const s3 = new AWS.S3({
   endpoint: 's3.fr-par.scw.cloud',
@@ -91,7 +91,7 @@ app.use(
           inflect: (fieldName) => 'url',
           resolve: (image) => {
             if (image) {
-              return `http://${CDN}/${image.name}`;
+              return `https://${CDN}/${image.name}`;
             }
             return null;
           },
@@ -105,7 +105,7 @@ app.use(
           inflect: (fieldName) => 'thumbnail_url',
           resolve: (image) => {
             if (image) {
-              return `http://${CDN}/thumb_${image.name}`;
+              return `https://${CDN}/thumb_${image.name}`;
             }
             return null;
           },
