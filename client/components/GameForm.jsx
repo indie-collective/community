@@ -67,7 +67,7 @@ const GameForm = ({ defaultData, onSubmit, loading }) => {
           placeholder="Super Tractor Simulator 2042, Assassin's Greed..."
           ref={register}
         />
-        <PossibleGameDuplicates value={newGameName} />
+        <PossibleGameDuplicates value={newGameName} ignoredId={id} />
         <FormErrorMessage>
           {errors.name && errors.name.message}
         </FormErrorMessage>

@@ -8,8 +8,11 @@ import useDebounce from '../hooks/useDebounce';
 import usePreviousNonNullish from '../hooks/usePreviousNonNullish';
 
 const searchGameQuery = gql`
-  query searchGame($tokens: [GameFilter!]!) {
-    games(filter: { and: $tokens }, first: 3) {
+  query searchGame($tokens: [GameFilter!]!, $ignoredId: UUID) {
+    games(
+      filter: { and: $tokens, not: { id: { equalTo: $ignoredId } } }
+      first: 3
+    ) {
       nodes {
         id
         name
@@ -18,7 +21,7 @@ const searchGameQuery = gql`
   }
 `;
 
-const PossibleGameDuplicates = ({ value }) => {
+const PossibleGameDuplicates = ({ value, ignoredId }) => {
   const [searchGame, { data }] = useLazyQuery(searchGameQuery);
   const prevData = usePreviousNonNullish(data);
 
@@ -38,6 +41,7 @@ const PossibleGameDuplicates = ({ value }) => {
                 likeInsensitive: `%${token}%`,
               },
             })),
+          ignoredId,
         },
       });
     }
@@ -74,6 +78,7 @@ PossibleGameDuplicates.defaultProps = {
 
 PossibleGameDuplicates.propTypes = {
   value: PropTypes.string.isRequired,
+  ignoredId: PropTypes.string,
 };
 
 export default PossibleGameDuplicates;
