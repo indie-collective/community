@@ -55,7 +55,7 @@ export const OrgCardSkeleton = () => (
 );
 
 const OrgCard = ({ id, type, logo, name, people, games, events, onRemove }) => {
-  const placeholder = usePlaceholder();
+  const placeholder = usePlaceholder('square');
 
   const bg = useColorModeValue('gray.100', 'gray.700');
 
@@ -82,7 +82,7 @@ const OrgCard = ({ id, type, logo, name, people, games, events, onRemove }) => {
           <Image
             w="75px"
             h="75px"
-            objectFit="cover"
+            objectFit="contain"
             src={logo && logo.thumbnail_url}
             alt="Organization cover"
             fallbackSrc={placeholder}

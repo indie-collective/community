@@ -107,7 +107,7 @@ const variants = {
 };
 
 const Org = ({ id, host }) => {
-  const placeholder = usePlaceholder();
+  const placeholder = usePlaceholder('square');
   const currentPerson = useCurrentPerson();
   const router = useRouter();
   const validId = uuidRegex.test(id);
