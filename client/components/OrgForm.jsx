@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
@@ -23,7 +23,10 @@ import {
   omitThemingProps,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
+import Map from 'pigeon-maps';
+import { viewport } from '@mapbox/geo-viewport';
 
+import PlacesSearch from './PlacesSearch';
 import usePlaceholder from '../hooks/usePlaceholder';
 
 const validationSchema = yup.object().shape({
@@ -32,6 +35,17 @@ const validationSchema = yup.object().shape({
     .oneOf(['STUDIO', 'ASSOCIATION', 'ORGANIZATION'])
     .required(),
   name: yup.string().required(),
+  location: yup.object({
+    label: yup.string(),
+    value: yup
+      .object({
+        id: yup.string().nullable(),
+        type: yup
+          .string()
+          .notOneOf(['country'], 'You need to specify at least a country'),
+      })
+      .nullable(),
+  }),
   about: yup.string(),
 });
 
@@ -42,6 +56,15 @@ const propTypes = {
     logo: PropTypes.any,
     type: PropTypes.oneOf(['STUDIO', 'ASSOCIATION', 'ORGANIZATION']),
     name: PropTypes.string,
+    location: PropTypes.shape({
+      id: PropTypes.string,
+      street: PropTypes.string,
+      city: PropTypes.string.isRequired,
+      region: PropTypes.string.isRequired,
+      countryCode: PropTypes.string.isRequired,
+      latitude: PropTypes.number.isRequired,
+      longitude: PropTypes.number.isRequired,
+    }),
     about: PropTypes.string,
   }),
 };
@@ -98,17 +121,27 @@ const CustomRadio = React.forwardRef((props, ref) => {
   );
 });
 
+const OSMServer = 'abc'.charAt(Math.floor(Math.random() * 3));
+
 const OrgForm = ({ defaultData, onSubmit, loading }) => {
   const placeholder = usePlaceholder();
   const logoRef = useRef();
   const [logo, setLogo] = useState(defaultData.logo);
 
-  const { type, name, about } = defaultData;
-  const { handleSubmit, register, errors } = useForm({
+  const { type, name, location: l, about } = defaultData;
+  const { handleSubmit, register, errors, control, watch, setValue } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       type,
       name,
+      location: {
+        label: l
+          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${
+              l.countryCode
+            }`
+          : '',
+        value: l || null,
+      },
       about,
     },
   });
@@ -117,6 +150,8 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
     name: 'type',
     defaultValue: type,
   });
+
+  const location = watch('location');
 
   return (
     <Grid
@@ -220,6 +255,47 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
         <FormErrorMessage>
           {errors.name && errors.name.message}
         </FormErrorMessage>
+      </FormControl>
+
+      <FormControl gridColumn="1 / 3">
+        <FormLabel htmlFor="location">Location</FormLabel>
+
+        <Controller
+          as={<PlacesSearch />}
+          control={control}
+          name="location"
+          placeholder="Rennes, France"
+          onClear={() => setValue('location', { label: '', value: null })}
+        />
+
+        {location.value && (
+          <Box
+            width="100%"
+            height="100px"
+            overflow="hidden"
+            borderRadius={5}
+            mt={2}
+          >
+            <Map
+              provider={(x, y, z, dpr) => {
+                const retina =
+                  typeof dpr !== 'undefined'
+                    ? dpr >= 2
+                    : typeof window !== 'undefined' &&
+                      window.devicePixelRatio >= 2;
+                return `https://${OSMServer}.tile.openstreetmap.org/${z}/${x}/${y}${
+                  retina ? '@2x' : ''
+                }.png`;
+              }}
+              defaultWidth={800}
+              defaultHeight={100}
+              center={[location.value.latitude, location.value.longitude]}
+              zoom={location.value.bbox ? viewport(location.value.bbox, [474, 100]).zoom : 16}
+              mouseEvents={false}
+              touchEvents={false}
+            />
+          </Box>
+        )}
       </FormControl>
 
       <FormControl gridColumn="1 / 3" isInvalid={errors.about}>

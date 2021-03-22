@@ -17,6 +17,15 @@ const getOrgQuery = gql`
       logo {
         url
       }
+      location {
+        id
+        street
+        city
+        region
+        countryCode
+        latitude
+        longitude
+      }
       about
     }
   }
@@ -28,12 +37,19 @@ const updateOrgMutation = gql`
     $name: String
     $type: EntityType
     $logoId: UUID
+    $locationId: UUID
     $about: String
   ) {
     updateOrg: updateEntity(
       input: {
         id: $id
-        patch: { name: $name, type: $type, logoId: $logoId, about: $about }
+        patch: {
+          name: $name
+          type: $type
+          logoId: $logoId
+          locationId: $locationId
+          about: $about
+        }
       }
     ) {
       org: entity {
@@ -44,7 +60,57 @@ const updateOrgMutation = gql`
           url
           thumbnail_url
         }
+        location {
+          id
+          street
+          city
+          region
+          countryCode
+          latitude
+          longitude
+        }
         about
+      }
+    }
+  }
+`;
+
+const upsertLocationMutation = gql`
+  mutation upsertLocation(
+    $street: String
+    $city: String!
+    $region: String!
+    $countryCode: String!
+    $latitude: Float!
+    $longitude: Float!
+  ) {
+    upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude(
+      input: {
+        location: {
+          street: $street
+          city: $city
+          region: $region
+          countryCode: $countryCode
+          latitude: $latitude
+          longitude: $longitude
+        }
+        patch: {
+          street: $street
+          city: $city
+          region: $region
+          countryCode: $countryCode
+          latitude: $latitude
+          longitude: $longitude
+        }
+      }
+    ) {
+      location {
+        id
+        countryCode
+        region
+        city
+        latitude
+        longitude
       }
     }
   }
@@ -63,6 +129,9 @@ const EditOrg = ({ id }) => {
   const [uploadImage, { loading: loadingLogo }] = useMutation(
     gql(uploadImageMutation)
   );
+  const [upsertLocation, { loading: loadingLocation }] = useMutation(
+    upsertLocationMutation
+  );
   const [updateOrg, { loadingUpdate }] = useMutation(updateOrgMutation);
 
   if ((id !== undefined && !validId) || error) {
@@ -73,7 +142,13 @@ const EditOrg = ({ id }) => {
     return <Spinner />;
   }
 
-  async function handleFormSubmit({ name, type, logo: logoFiles, about }) {
+  async function handleFormSubmit({
+    name,
+    type,
+    logo: logoFiles,
+    location,
+    about,
+  }) {
     let logoId;
 
     if (logoFiles[0]) {
@@ -86,12 +161,28 @@ const EditOrg = ({ id }) => {
       logoId = response.data.createImage.image.id;
     }
 
+    let locationId = null;
+
+    if (location.value && location.id) {
+      locationId = location.id;
+    } else if (location.value) {
+      const response = await upsertLocation({
+        variables: location.value,
+      });
+
+      locationId =
+        response.data
+          .upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude
+          .location.id;
+    }
+
     const response = await updateOrg({
       variables: {
         id,
         name,
         type,
         logoId,
+        locationId,
         about,
       },
     });

@@ -1,90 +1,84 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Input, useColorMode, useTheme } from '@chakra-ui/react';
 
-import AlgoliaPlaces from './AlgoliaPlaces';
+import MapboxAutocomplete from './MapboxAutocomplete';
 
 const propTypes = {
-  ...AlgoliaPlaces.propTypes,
-  options: PropTypes.shape({
-    ...AlgoliaPlaces.propTypes.options,
-    isRequired: undefined,
-    appId: undefined,
-    apiKey: undefined,
+  onChange: PropTypes.func,
+  value: PropTypes.shape({
+    label: PropTypes.string,
+    value: PropTypes.shape({
+      street: PropTypes.string,
+      city: PropTypes.string,
+      countryCode: PropTypes.string,
+      longitude: PropTypes.number,
+      latitude: PropTypes.number,
+    }),
   }),
 };
 
 const defaultProps = {
-  ...AlgoliaPlaces.defaultProps,
-  placeholder: "Write an address here",
-  options: {},
+  onChange: () => {},
+  value: { label: '', value: null },
 };
 
-const PlacesSearch = ({ onChange, options, value, ...rest }) => {
-  const {colorMode} = useColorMode();
-  const theme = useTheme();
-
+const PlacesSearch = ({ onChange, onClear, options, value, ...rest }) => {
   const l = value.value;
 
   return (
-    <>
-      <style jsx global>{`
-        /* sounds like the reset file makes all SVG block, messing with Algolia's style */
-        .ap-suggestion svg, .ap-footer svg {
-          display: inline;
-        }
+    <MapboxAutocomplete
+      defaultQuery={value.label}
+      token="pk.eyJ1IjoiaW5kaWVjb2xsZSIsImEiOiJja21qN2dzd2kwb2d3MndxNGs4eGFyeXhnIn0.4kAFQx69wEpXRGPcsGE--Q"
+      types={[/*'country',*/ 'region', 'place', 'address' /*, 'poi'*/]}
+      onSuggestionSelect={(place) => {
+        if (!place) return onClear();
 
-        .ap-dropdown-menu {
-          background-color: ${colorMode === 'dark' ? theme.colors.gray[700] : ''};
-        }
+        let countryCode, region, city, street;
 
-        .ap-cursor {
-          background-color: ${colorMode === 'dark' ? theme.colors.gray[600] : ''};
-        }
-      `}</style>
-      <AlgoliaPlaces
-        as={Input}
-        options={{
-          appId: 'pl24HLO3LZ8C',
-          apiKey: 'd578bc1dce14bf17d571df4e5b6a5a03',
-          language: 'en',
-          ...options,
-        }}
-        defaultValue={value.label}
-        onChange={({ suggestion }) => {
-          const {value, name, city, administrative, countryCode, latlng} = suggestion;
+        if (place.place_type.includes('country'))
+          countryCode = place.short_code;
+        else {
+          countryCode = place.context.find((c) => c.id.includes('country'))
+            .short_code;
 
-          if (suggestion.type === 'city') {
-            onChange({
-              label: value,
-              value: {
-                id: null,
-                city: suggestion.name,
-                region: administrative,
-                countryCode: countryCode.toUpperCase(),
-                latitude: latlng.lat,
-                longitude: latlng.lng,
-              },
-            });
-            return;
+          if (place.place_type.includes('region')) region = place.text;
+          else {
+            region = place.context.find((c) => c.id.includes('region')).text;
+
+            if (place.place_type.includes('place')) city = place.text;
+            else {
+              city = place.context.find((c) => c.id.includes('place')).text;
+
+              if (place.place_type.includes('address')) {
+                if (place.address) street = place.address + ' ' + place.text;
+                else street = place.text;
+              } else {
+                const address = place.context.find((c) =>
+                  c.id.includes('address')
+                );
+
+                if (address.address) street = address.address + ' ' + address.text;
+                else street = address.text;
+              }
+            }
           }
+        }
 
-          onChange({
-            label: value,
-            value: {
-              id: null,
-              street: name,
-              city,
-              region: administrative,
-              countryCode: countryCode.toUpperCase(),
-              latitude: latlng.lat,
-              longitude: latlng.lng,
-            },
-          });
-        }}
-        {...rest}
-      />
-    </>
+        onChange({
+          label: place.place_name,
+          value: {
+            street,
+            city,
+            region,
+            countryCode: countryCode.toUpperCase(),
+            longitude: place.geometry.coordinates[0],
+            latitude: place.geometry.coordinates[1],
+            bbox: place.bbox,
+          },
+        });
+      }}
+      {...rest}
+    />
   );
 };
 

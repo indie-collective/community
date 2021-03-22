@@ -19,9 +19,10 @@ import {
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
 import Map from 'pigeon-maps';
+import { viewport } from '@mapbox/geo-viewport';
+import { format } from 'date-fns';
 
 import PlacesSearch from './PlacesSearch';
-import { format } from 'date-fns';
 import usePlaceholder from '../hooks/usePlaceholder';
 
 const validationSchema = yup.object().shape({
@@ -35,7 +36,7 @@ const validationSchema = yup.object().shape({
         id: yup.string().nullable(),
         type: yup
           .string()
-          .notOneOf(['country'], 'You need to specify at least a city'),
+          .notOneOf(['country'], 'You need to specify at least a country'),
       })
       .nullable(),
   }),
@@ -116,7 +117,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
   return (
     <Grid
       as="form"
-      enctype="multipart/form-data"
+      encType="multipart/form-data"
       onSubmit={handleSubmit(onSubmit)}
       gridTemplateColumns="1fr 1fr"
       gap={5}
@@ -181,7 +182,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         <FormErrorMessage>{errors.end && errors.end.message}</FormErrorMessage>
       </FormControl>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.about}>
+      <FormControl gridColumn="1 / 3">
         <FormLabel htmlFor="location">Location</FormLabel>
 
         <Controller
@@ -191,9 +192,6 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
           placeholder="Where is the party?"
           onClear={() => setValue('location', { label: '', value: null })}
         />
-        <FormErrorMessage>
-          {errors.about && errors.about.message}
-        </FormErrorMessage>
 
         {location.value && (
           <Box
@@ -217,10 +215,10 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
               defaultWidth={800}
               defaultHeight={100}
               center={[location.value.latitude, location.value.longitude]}
-              zoom={location.value.street ? 16 : 11}
+              zoom={location.value.bbox ? viewport(location.value.bbox, [474, 100]).zoom : 16}
               mouseEvents={false}
               touchEvents={false}
-            ></Map>
+            />
           </Box>
         )}
       </FormControl>

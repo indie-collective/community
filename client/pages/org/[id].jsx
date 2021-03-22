@@ -50,6 +50,16 @@ const orgQuery = gql`
       type
       about
 
+      location {
+        id
+        street
+        city
+        region
+        countryCode
+        latitude
+        longitude
+      }
+
       logo {
         id
         thumbnail_url
@@ -112,7 +122,7 @@ const Org = ({ id, host }) => {
   const router = useRouter();
   const validId = uuidRegex.test(id);
 
-  const {cache} = useApolloClient();
+  const { cache } = useApolloClient();
   const { loading, error, data } = useQuery(orgQuery, {
     variables: { id },
     skip: !validId,
@@ -128,7 +138,11 @@ const Org = ({ id, host }) => {
 
   const deleteModal = useDisclosure();
 
-  if (error || (id !== undefined && !validId) || (!loading && data.entity === null)) {
+  if (
+    error ||
+    (id !== undefined && !validId) ||
+    (!loading && data.entity === null)
+  ) {
     return <Error statusCode={404} />;
   }
 
@@ -136,7 +150,7 @@ const Org = ({ id, host }) => {
     return <Spinner />;
   }
 
-  const { name, type, about, logo, games, events } = data.entity;
+  const { name, type, about, location, logo, games, events } = data.entity;
 
   return (
     <div>
@@ -183,6 +197,11 @@ const Org = ({ id, host }) => {
                 {type}
               </Badge>
             </DarkMode>
+            {location && (
+              <Text>
+                {location.city}, {location.region}, {location.countryCode}
+              </Text>
+            )}
           </Box>
         </Flex>
 
@@ -285,18 +304,11 @@ const Org = ({ id, host }) => {
 
       {currentPerson && (
         <Box mb={5} pl={5} pr={5}>
-          <Button
-            variant="link"
-            colorScheme="red"
-            onClick={deleteModal.onOpen}
-          >
+          <Button variant="link" colorScheme="red" onClick={deleteModal.onOpen}>
             Delete organization
           </Button>
 
-          <Modal
-            isOpen={deleteModal.isOpen}
-            onClose={deleteModal.onClose}
-          >
+          <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
             <ModalOverlay />
             <ModalContent>
               <ModalHeader>Delete Organisation</ModalHeader>
@@ -317,7 +329,7 @@ const Org = ({ id, host }) => {
                     deleteModal.onClose();
                     router.replace('/orgs');
 
-                    cache.evict({id});
+                    cache.evict({ id });
                   }}
                 >
                   Delete

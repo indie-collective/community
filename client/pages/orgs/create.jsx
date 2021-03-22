@@ -9,15 +9,31 @@ import Navigation from '../../components/Navigation';
 import OrgForm from '../../components/OrgForm';
 
 const createOrgMutation = gql`
-  mutation createOrg($name: String!, $type: EntityType!, $logoId: UUID, $about: String) {
+  mutation createOrg(
+    $name: String!
+    $type: EntityType!
+    $logoId: UUID
+    $about: String
+    $locationId: UUID
+  ) {
     createOrg: createEntity(
-      input: { entity: { name: $name, type: $type, logoId: $logoId, about: $about } }
+      input: {
+        entity: {
+          name: $name
+          type: $type
+          logoId: $logoId
+          about: $about
+          locationId: $locationId
+        }
+      }
     ) {
       org: entity {
         id
         name
         type
         about
+
+        locationId
 
         people {
           totalCount
@@ -39,15 +55,65 @@ const createOrgMutation = gql`
   }
 `;
 
+const upsertLocationMutation = gql`
+  mutation upsertLocation(
+    $street: String
+    $city: String!
+    $region: String!
+    $countryCode: String!
+    $latitude: Float!
+    $longitude: Float!
+  ) {
+    upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude(
+      input: {
+        location: {
+          street: $street
+          city: $city
+          region: $region
+          countryCode: $countryCode
+          latitude: $latitude
+          longitude: $longitude
+        }
+        patch: {
+          street: $street
+          city: $city
+          region: $region
+          countryCode: $countryCode
+          latitude: $latitude
+          longitude: $longitude
+        }
+      }
+    ) {
+      location {
+        id
+        countryCode
+        region
+        city
+        latitude
+        longitude
+      }
+    }
+  }
+`;
+
 const CreateOrg = () => {
   const { push } = useRouter();
 
   const [uploadImage, { loading: loadingLogo }] = useMutation(
     gql(uploadImageMutation)
   );
+  const [upsertLocation, { loading: loadingLocation }] = useMutation(
+    upsertLocationMutation
+  );
   const [createOrg, { loading }] = useMutation(createOrgMutation);
 
-  async function handleFormSubmit({ name, type, logo: logoFiles, about }) {
+  async function handleFormSubmit({
+    name,
+    type,
+    logo: logoFiles,
+    location,
+    about,
+  }) {
     let logoId;
 
     if (logoFiles[0]) {
@@ -60,11 +126,27 @@ const CreateOrg = () => {
       logoId = response.data.createImage.image.id;
     }
 
+    let locationId = null;
+
+    if (location.value && location.id) {
+      locationId = location.id;
+    } else if (location.value) {
+      const response = await upsertLocation({
+        variables: location.value,
+      });
+
+      locationId =
+        response.data
+          .upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude
+          .location.id;
+    }
+
     const response = await createOrg({
       variables: {
         name,
         type,
         logoId,
+        locationId,
         about,
       },
     });
@@ -84,7 +166,10 @@ const CreateOrg = () => {
         <Heading mb={5}>Create organization</Heading>
 
         <Stack borderWidth="1px" mb={10} p={3} borderRadius={5} align="stretch">
-          <OrgForm onSubmit={handleFormSubmit} loading={loading || loadingLogo} />
+          <OrgForm
+            onSubmit={handleFormSubmit}
+            loading={loading || loadingLogo || loadingLocation}
+          />
         </Stack>
       </Box>
     </div>

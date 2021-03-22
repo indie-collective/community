@@ -70,7 +70,15 @@ const updateEventMutation = gql`
           url
           thumbnail_url
         }
-        locationId
+        location {
+          id
+          street
+          city
+          region
+          countryCode
+          latitude
+          longitude
+        }
         startsAt
         endsAt
       }
@@ -109,9 +117,10 @@ const upsertLocationMutation = gql`
     ) {
       location {
         id
-        countryCode
-        region
+        street
         city
+        region
+        countryCode
         latitude
         longitude
       }
