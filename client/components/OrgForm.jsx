@@ -27,6 +27,7 @@ import Map from 'pigeon-maps';
 import { viewport } from '@mapbox/geo-viewport';
 
 import PlacesSearch from './PlacesSearch';
+import PossibleOrgDuplicates from './PossibleOrgDuplicates';
 import usePlaceholder from '../hooks/usePlaceholder';
 
 const validationSchema = yup.object().shape({
@@ -128,7 +129,7 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
   const logoRef = useRef();
   const [logo, setLogo] = useState(defaultData.logo);
 
-  const { type, name, location: l, about } = defaultData;
+  const { id, type, name, location: l, about } = defaultData;
   const { handleSubmit, register, errors, control, watch, setValue } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -152,6 +153,7 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
   });
 
   const location = watch('location');
+  const newOrgName = watch('name');
 
   return (
     <Grid
@@ -252,6 +254,7 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
           placeholder="Indie Collective, Electronic Darts..."
           ref={register}
         />
+        <PossibleOrgDuplicates value={newOrgName} ignoredId={id} />
         <FormErrorMessage>
           {errors.name && errors.name.message}
         </FormErrorMessage>
