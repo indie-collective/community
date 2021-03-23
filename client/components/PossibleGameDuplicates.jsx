@@ -8,11 +8,8 @@ import useDebounce from '../hooks/useDebounce';
 import usePreviousNonNullish from '../hooks/usePreviousNonNullish';
 
 const searchGameQuery = gql`
-  query searchGame($tokens: [GameFilter!]!, $ignoredId: UUID) {
-    games(
-      filter: { and: $tokens, not: { id: { equalTo: $ignoredId } } }
-      first: 3
-    ) {
+  query searchGame($tokens: [GameFilter!]!) {
+    games(filter: { and: $tokens }, first: 3) {
       nodes {
         id
         name
@@ -31,17 +28,20 @@ const PossibleGameDuplicates = ({ value, ignoredId }) => {
 
   useEffect(() => {
     if (value.length > 2) {
+      const tokens = value
+        .split(' ')
+        .filter((s) => s.length > 2)
+        .map((token) => ({
+          name: {
+            likeInsensitive: `%${token}%`,
+          },
+        }));
+
+      if (ignoredId) tokens.push({ id: { notEqualTo: ignoredId } });
+
       searchGame({
         variables: {
-          tokens: value
-            .split(' ')
-            .filter((s) => s.length > 2)
-            .map((token) => ({
-              name: {
-                likeInsensitive: `%${token}%`,
-              },
-            })),
-          ignoredId,
+          tokens,
         },
       });
     }
