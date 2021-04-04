@@ -248,7 +248,11 @@ const Event = ({ id, host }) => {
     },
   });
 
-  if ((id !== undefined && !validId) || error) {
+  if (
+    error ||
+    (id !== undefined && !validId) ||
+    (!loading && data.event === null)
+  ) {
     return <Error statusCode={404} />;
   }
 
