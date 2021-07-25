@@ -76,6 +76,8 @@ comment on column indieco.location.country_code is 'The location country ISO cod
 comment on column indieco.location.latitude is 'The location latitude.';
 comment on column indieco.location.longitude is 'The location longitude.';
 
+create view indieco.city as select city as name, region, country_code from indieco.location group by city, region, country_code;
+
 create table indieco.tag (
   id               uuid primary key default uuid_generate_v4(),
   name             varchar (30) unique not null check (char_length(name) < 30),
@@ -523,6 +525,8 @@ grant insert, update, delete on table indieco.game to indieco_person;
 
 grant select on table indieco.location to indieco_anonymous, indieco_person;
 grant insert, update, delete on table indieco.location to indieco_person;
+
+grant select on table indieco.city to indieco_anonymous, indieco_person;
 
 grant select on table indieco.event to indieco_anonymous, indieco_person;
 grant insert, update, delete on table indieco.event to indieco_person;
