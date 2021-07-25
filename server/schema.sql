@@ -515,6 +515,24 @@ begin
 end;
 $$ language plpgsql strict security definer;
 
+create function indieco.city_orgs(city indieco.city) returns setof indieco.entity AS $$
+  select indieco.entity.* from indieco.entity
+  join indieco.location l on location_id = l.id
+  where
+    city.name = city and
+    city.region = region and
+    city.country_code = country_code
+$$ language sql stable;
+
+create function indieco.city_events(city indieco.city) returns setof indieco.event AS $$
+  select indieco.event.* from indieco.event
+  join indieco.location l on location_id = l.id
+  where
+    city.name = city and
+    city.region = region and
+    city.country_code = country_code
+$$ language sql stable;
+
 grant usage on schema indieco to indieco_anonymous, indieco_person;
 
 grant select on table indieco.person to indieco_anonymous, indieco_person;
@@ -576,6 +594,10 @@ grant execute on function indieco.change_password(text, text) to indieco_person;
 grant execute on function uuid_generate_v4() to indieco_person;
 
 grant execute on function indieco.register_person(text, text, text, text) to indieco_anonymous;
+
+grant execute on function indieco.city_orgs(indieco.city) to indieco_anonymous, indieco_person;
+
+grant execute on function indieco.city_events(indieco.city) to indieco_anonymous, indieco_person;
 
 alter table indieco.person enable row level security;
 
