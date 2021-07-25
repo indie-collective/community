@@ -19,13 +19,15 @@ const CityPlugin = makeExtendSchemaPlugin((build) => {
             [_query.name, _query.region, _query.countryCode]
           );
 
+          const locationIds = rows.map((r) => r.id).join('');
+
           return resolveInfo.graphile.selectGraphQLResultFromTable(
             sql.fragment`indieco.entity`,
             (tableAlias, queryBuilder) => {
               queryBuilder.where(
-                sql.fragment`${tableAlias}.location_id = ${sql.value(
-                  rows[0].id
-                )}`
+                sql.fragment`${tableAlias}.location_id in (${sql.value(
+                  locationIds
+                )})`
               );
             }
           );
@@ -37,13 +39,15 @@ const CityPlugin = makeExtendSchemaPlugin((build) => {
             [_query.name, _query.region, _query.countryCode]
           );
 
+          const locationIds = rows.map((r) => r.id).join('');
+
           return resolveInfo.graphile.selectGraphQLResultFromTable(
             sql.fragment`indieco.event`,
             (tableAlias, queryBuilder) => {
               queryBuilder.where(
-                sql.fragment`${tableAlias}.location_id = ${sql.value(
-                  rows[0].id
-                )}`
+                sql.fragment`${tableAlias}.location_id in (${sql.value(
+                  locationIds
+                )})`
               );
             }
           );
