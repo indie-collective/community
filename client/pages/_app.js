@@ -8,7 +8,7 @@ import theme from '../theme';
 // CSS needed for Carousel component
 import 'slick-carousel/slick/slick.css';
 
-const Main = (props) => <Box as="main" mx="auto" mb="3rem" {...props} />;
+const Main = (props) => <Box as="main" mx="auto" mb={{base: 0, md: "3rem"}} {...props} />;
 
 export default class MyApp extends App {
   getServerSideProps({ req }) {
