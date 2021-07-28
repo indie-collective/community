@@ -18,7 +18,7 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, WarningTwoIcon } from '@chakra-ui/icons';
-import Map from 'pigeon-maps';
+import { Map } from 'pigeon-maps';
 
 import Error from '../_error';
 import { withApollo } from '../../lib/apollo';
@@ -427,18 +427,6 @@ const Event = ({ id, host }) => {
                   mt={[2]}
                 >
                   <Map
-                    provider={(x, y, z, dpr) => {
-                      const retina =
-                        typeof dpr !== 'undefined'
-                          ? dpr >= 2
-                          : typeof window !== 'undefined' &&
-                            window.devicePixelRatio >= 2;
-                      return `https://${'abc'.charAt(
-                        Math.floor(Math.random() * 3)
-                      )}.tile.openstreetmap.org/${z}/${x}/${y}${
-                        retina ? '@2x' : ''
-                      }.png`;
-                    }}
                     defaultWidth={1200}
                     defaultHeight={150}
                     center={[location.latitude, location.longitude]}

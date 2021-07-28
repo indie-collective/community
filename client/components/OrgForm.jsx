@@ -23,7 +23,7 @@ import {
   omitThemingProps,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
-import Map from 'pigeon-maps';
+import { Map } from 'pigeon-maps';
 import { viewport } from '@mapbox/geo-viewport';
 
 import PlacesSearch from './PlacesSearch';
@@ -269,20 +269,14 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
             mt={2}
           >
             <Map
-              provider={(x, y, z, dpr) => {
-                const retina =
-                  typeof dpr !== 'undefined'
-                    ? dpr >= 2
-                    : typeof window !== 'undefined' &&
-                      window.devicePixelRatio >= 2;
-                return `https://${OSMServer}.tile.openstreetmap.org/${z}/${x}/${y}${
-                  retina ? '@2x' : ''
-                }.png`;
-              }}
               defaultWidth={800}
               defaultHeight={100}
               center={[location.value.latitude, location.value.longitude]}
-              zoom={location.value.bbox ? viewport(location.value.bbox, [474, 100]).zoom : 16}
+              zoom={
+                location.value.bbox
+                  ? viewport(location.value.bbox, [474, 100]).zoom
+                  : 16
+              }
               mouseEvents={false}
               touchEvents={false}
             />

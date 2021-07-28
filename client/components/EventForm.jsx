@@ -18,7 +18,7 @@ import {
   Switch,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
-import Map from 'pigeon-maps';
+import { Map } from 'pigeon-maps';
 import { viewport } from '@mapbox/geo-viewport';
 import { format } from 'date-fns';
 
