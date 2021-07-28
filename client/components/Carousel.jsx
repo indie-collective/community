@@ -59,6 +59,8 @@ const Carousel = ({
   const theme = useTheme();
   const [isClient, setIsClient] = useState(false);
 
+  const breakpoints = Object.values(theme.breakpoints);
+
   // dynamic import breaks the dynamic rendering of elements
   // const SlickSlider = dynamic(import('react-slick'), {
   //   ssr: !isClient,
@@ -73,8 +75,6 @@ const Carousel = ({
   useEffect(() => {
     const responsiveMediaHandlers = [];
     if (Array.isArray(slidesToShow)) {
-      const { breakpoints } = theme;
-
       breakpoints.forEach((breakpoint, index) => {
         let query = `(min-width: ${index === 0 ? 0 : breakpoints[index - 1]})`;
 
@@ -108,7 +108,7 @@ const Carousel = ({
 
   let newSlidesToShow;
 
-  const sliderBreakpoints = theme.breakpoints.map((b, i) => {
+  const sliderBreakpoints = breakpoints.map((b, i) => {
     newSlidesToShow = slidesToShow[i] || newSlidesToShow;
 
     return {
