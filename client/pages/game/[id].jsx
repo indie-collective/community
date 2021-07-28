@@ -21,8 +21,9 @@ import {
   IconButton,
   Tag,
   useColorModeValue,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
-import { AddIcon, EditIcon } from '@chakra-ui/icons';
+import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -289,9 +290,14 @@ const Game = ({ id }) => {
 
       <Box mb={5} pl={5} pr={5}>
         <Heading>{name}</Heading>
-        <Text fontSize="lg">
-          <a href={site}>{site}</a>
-        </Text>
+        {site && (
+          <Text fontSize="lg">
+            <ChakraLink href={site} isExternal>
+              {site.replace(/https?:\/\//, '')}
+              <ExternalLinkIcon mx="2px" />
+            </ChakraLink>
+          </Text>
+        )}
 
         {currentPerson && (
           <Link href={`/game/${id}/edit`}>
