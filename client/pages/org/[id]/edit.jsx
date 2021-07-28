@@ -26,6 +26,7 @@ const getOrgQuery = gql`
         latitude
         longitude
       }
+      site
       about
     }
   }
@@ -39,6 +40,7 @@ const updateOrgMutation = gql`
     $logoId: UUID
     $locationId: UUID
     $about: String
+    $site: String
   ) {
     updateOrg: updateEntity(
       input: {
@@ -48,6 +50,7 @@ const updateOrgMutation = gql`
           type: $type
           logoId: $logoId
           locationId: $locationId
+          site: $site
           about: $about
         }
       }
@@ -69,6 +72,7 @@ const updateOrgMutation = gql`
           latitude
           longitude
         }
+        site
         about
       }
     }
@@ -147,6 +151,7 @@ const EditOrg = ({ id }) => {
     type,
     logo: logoFiles,
     location,
+    site,
     about,
   }) {
     let logoId;
@@ -183,6 +188,7 @@ const EditOrg = ({ id }) => {
         type,
         logoId,
         locationId,
+        site,
         about,
       },
     });

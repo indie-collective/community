@@ -18,8 +18,9 @@ import {
   ModalFooter,
   Modal,
   ModalHeader,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
-import { EditIcon } from '@chakra-ui/icons';
+import { EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -49,6 +50,7 @@ const orgQuery = gql`
       id
       name
       type
+      site
       about
 
       location {
@@ -151,7 +153,16 @@ const Org = ({ id, host }) => {
     return <Spinner />;
   }
 
-  const { name, type, about, location, logo, games, events } = data.entity;
+  const {
+    name,
+    type,
+    site,
+    about,
+    location,
+    logo,
+    games,
+    events,
+  } = data.entity;
 
   return (
     <div>
@@ -198,6 +209,12 @@ const Org = ({ id, host }) => {
                 {type}
               </Badge>
             </DarkMode>
+            {site && (
+              <ChakraLink href={site} isExternal ml={2}>
+                {site.replace(/https?:\/\//, '')}
+                <ExternalLinkIcon mx="2px" />
+              </ChakraLink>
+            )}
             {location && (
               <Text>
                 {location.city}, {location.region}, {location.countryCode}

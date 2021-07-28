@@ -95,6 +95,7 @@ create table indieco.entity (
   id               uuid primary key default uuid_generate_v4(),
   type             indieco.entity_type,
   name             text not null check (char_length(name) < 80),
+  site             text check (char_length(name) < 512),
   logo_id          uuid references indieco.image(id) on delete cascade,
   about            text,
   location_id      uuid references indieco.location(id),
@@ -105,7 +106,8 @@ comment on table indieco.entity is 'An entity.';
 comment on column indieco.entity.id is 'The primary unique identifier for the entity.';
 comment on column indieco.entity.type is 'The type of entity.';
 comment on column indieco.entity.name is 'The entity name.';
-comment on column indieco.entity.name is 'The entity logo.';
+comment on column indieco.entity.site is 'The entity website.';
+comment on column indieco.entity.logo_id is 'The entity logo id.';
 comment on column indieco.entity.about is 'A short description of the entity.';
 comment on column indieco.entity.location_id is 'The location of the entity.';
 comment on column indieco.entity.created_at is 'The time this entity was created.';

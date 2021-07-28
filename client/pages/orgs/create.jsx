@@ -13,6 +13,7 @@ const createOrgMutation = gql`
     $name: String!
     $type: EntityType!
     $logoId: UUID
+    $site: String
     $about: String
     $locationId: UUID
   ) {
@@ -22,6 +23,7 @@ const createOrgMutation = gql`
           name: $name
           type: $type
           logoId: $logoId
+          site: $site
           about: $about
           locationId: $locationId
         }
@@ -31,6 +33,7 @@ const createOrgMutation = gql`
         id
         name
         type
+        site
         about
 
         locationId
@@ -112,6 +115,7 @@ const CreateOrg = () => {
     type,
     logo: logoFiles,
     location,
+    site,
     about,
   }) {
     let logoId;
@@ -147,6 +151,7 @@ const CreateOrg = () => {
         type,
         logoId,
         locationId,
+        site,
         about,
       },
     });

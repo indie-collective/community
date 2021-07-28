@@ -66,6 +66,7 @@ const propTypes = {
       latitude: PropTypes.number.isRequired,
       longitude: PropTypes.number.isRequired,
     }),
+    site: PropTypes.string,
     about: PropTypes.string,
   }),
 };
@@ -129,7 +130,7 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
   const logoRef = useRef();
   const [logo, setLogo] = useState(defaultData.logo);
 
-  const { id, type, name, location: l, about } = defaultData;
+  const { id, type, name, location: l, site, about } = defaultData;
   const { handleSubmit, register, errors, control, watch, setValue } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -143,6 +144,7 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
           : '',
         value: l || null,
       },
+      site,
       about,
     },
   });
@@ -299,6 +301,14 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
             />
           </Box>
         )}
+      </FormControl>
+
+      <FormControl gridColumn="1 / 3" isInvalid={errors.site}>
+        <FormLabel htmlFor="site">Site</FormLabel>
+        <Input name="site" placeholder="https://example.com" ref={register} />
+        <FormErrorMessage>
+          {errors.site && errors.site.message}
+        </FormErrorMessage>
       </FormControl>
 
       <FormControl gridColumn="1 / 3" isInvalid={errors.about}>
