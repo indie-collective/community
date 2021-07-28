@@ -22,13 +22,11 @@ import CardLink from './CardLink';
 const TYPES_ABBR = {
   STUDIO: 'studio',
   ASSOCIATION: 'asso.',
-  ORGANIZATION: 'org.',
 };
 
 const TYPES_COLORS = {
   STUDIO: 'yellow',
   ASSOCIATION: 'green',
-  ORGANIZATION: 'purple',
 };
 
 export const OrgCardSkeleton = () => (

@@ -38,7 +38,6 @@ import Markdown from '../../components/Markdown';
 const TYPES_COLORS = {
   STUDIO: 'yellow',
   ASSOCIATION: 'green',
-  ORGANIZATION: 'purple',
 };
 
 const orgQuery = gql`

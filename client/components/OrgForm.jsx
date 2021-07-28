@@ -33,7 +33,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 const validationSchema = yup.object().shape({
   type: yup
     .string()
-    .oneOf(['STUDIO', 'ASSOCIATION', 'ORGANIZATION'])
+    .oneOf(['STUDIO', 'ASSOCIATION'])
     .required(),
   name: yup.string().required(),
   location: yup.object({
@@ -55,7 +55,7 @@ const propTypes = {
   onSubmit: PropTypes.func.isRequired,
   defaultData: PropTypes.shape({
     logo: PropTypes.any,
-    type: PropTypes.oneOf(['STUDIO', 'ASSOCIATION', 'ORGANIZATION']),
+    type: PropTypes.oneOf(['STUDIO', 'ASSOCIATION']),
     name: PropTypes.string,
     location: PropTypes.shape({
       id: PropTypes.string,
@@ -81,7 +81,6 @@ const defaultProps = {
 const TYPES_COLORS = {
   STUDIO: 'yellow',
   ASSOCIATION: 'green',
-  ORGANIZATION: 'purple',
 };
 
 const CustomRadio = React.forwardRef((props, ref) => {
@@ -122,8 +121,6 @@ const CustomRadio = React.forwardRef((props, ref) => {
     </Box>
   );
 });
-
-const OSMServer = 'abc'.charAt(Math.floor(Math.random() * 3));
 
 const OrgForm = ({ defaultData, onSubmit, loading }) => {
   const placeholder = usePlaceholder();
@@ -227,21 +224,11 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
           <CustomRadio
             color={TYPES_COLORS.ASSOCIATION}
             flex="1"
-            mr={2}
             value="ASSOCIATION"
             {...getRadioProps({ value: 'ASSOCIATION' })}
             ref={register}
           >
             Association
-          </CustomRadio>
-          <CustomRadio
-            color={TYPES_COLORS.ORGANIZATION}
-            flex="1"
-            value="ORGANIZATION"
-            {...getRadioProps({ value: 'ORGANIZATION' })}
-            ref={register}
-          >
-            Organization
           </CustomRadio>
         </Flex>
         <FormErrorMessage>
