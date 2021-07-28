@@ -194,6 +194,7 @@ const LandingPageSkeleton = () => (
 
 const LandingPage = () => {
   const { loading, error, data } = useQuery(homeQuery, {
+    fetchPolicy: 'cache-and-network',
     variables: {
       currentDay: startOfDay(new Date()),
     },
