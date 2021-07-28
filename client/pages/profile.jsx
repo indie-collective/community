@@ -79,7 +79,12 @@ const Profile = ({ id }) => {
             </Link>
           </Box>
 
-          <Avatar size="2xl" name={fullName} margin="1rem" src={avatar && avatar.url} />
+          <Avatar
+            size="2xl"
+            name={fullName}
+            margin="1rem"
+            src={avatar && avatar.url}
+          />
 
           <Heading>{fullName}</Heading>
 
@@ -108,9 +113,9 @@ const Profile = ({ id }) => {
         <Stack align="center">
           <Button
             variant="link"
-            onClick={async e => {
-              document.cookies = '';
+            onClick={async (e) => {
               await apolloClient.resetStore();
+              document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
               push('/');
             }}
@@ -123,7 +128,7 @@ const Profile = ({ id }) => {
   );
 };
 
-Profile.getInitialProps = async ctx => {
+Profile.getInitialProps = async (ctx) => {
   const { data } = await ctx.apolloClient.query({
     query: gql`
       query isLoggedIn {
