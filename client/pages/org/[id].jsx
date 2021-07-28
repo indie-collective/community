@@ -32,6 +32,7 @@ import GameCard from '../../components/GameCard';
 import EventCard from '../../components/EventCard';
 import usePlaceholder from '../../hooks/usePlaceholder';
 import useCurrentPerson from '../../hooks/useCurrentPerson';
+import Markdown from '../../components/Markdown';
 
 const TYPES_COLORS = {
   STUDIO: 'yellow',
@@ -213,9 +214,11 @@ const Org = ({ id, host }) => {
           </Link>
         )}
 
-        <Text fontSize="md" mt={3}>
-          {about}
-        </Text>
+        {about && (
+          <Box mt={3}>
+            <Markdown value={about} />
+          </Box>
+        )}
       </Box>
 
       {games.nodes.length > 0 && (

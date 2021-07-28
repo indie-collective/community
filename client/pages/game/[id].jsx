@@ -35,6 +35,7 @@ import uploadImageMutation from '../../gql/sendImage.gql';
 import Navigation from '../../components/Navigation';
 import OrgCard from '../../components/OrgCard';
 import SearchOrgModal from '../../components/SearchOrgModal';
+import Markdown from '../../components/Markdown';
 
 const gameQuery = gql`
   ${OrgCard.fragments.org}
@@ -300,16 +301,16 @@ const Game = ({ id }) => {
           </Link>
         )}
 
-        <Text fontSize="md" mt={3}>
-          {about}
-        </Text>
+        {about && (
+          <Box mt={3}>
+            <Markdown value={about} />
+          </Box>
+        )}
       </Box>
 
       <Stack isInline spacing={2} mb={5} pl={5} pr={5}>
         {tags.nodes.map((tag) => (
-          <Tag colorScheme="teal">
-            {tag.name}
-          </Tag>
+          <Tag colorScheme="teal">{tag.name}</Tag>
         ))}
       </Stack>
 
