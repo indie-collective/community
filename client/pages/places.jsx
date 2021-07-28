@@ -22,7 +22,7 @@ const getCitiesQuery = gql`
             logo {
               thumbnail_url
             }
-            url
+            # url
             location {
               street
               latitude
