@@ -132,7 +132,7 @@ const removeAuthorFromGameMutation = gql`
 
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-const Game = ({ id }) => {
+const Game = ({ id, host }) => {
   const validId = uuidRegex.test(id);
 
   const dzColor = useColorModeValue('gray.200', 'gray.700');
@@ -284,6 +284,24 @@ const Game = ({ id }) => {
     <div>
       <Head>
         <title>{name} - Games</title>
+
+        <meta property="og:title" content={name} />
+        <meta property="og:description" content={`${about}.`} />
+        <meta property="og:url" content={`https://${host}/game/${id}`} />
+        {images[0] && (
+          <meta property="og:image" content={images[0].thumbnail_url} />
+        )}
+
+        <meta
+          name="twitter:card"
+          content={images[0] ? 'summary_large_image' : 'summary'}
+        />
+        <meta name="twitter:site" content="@IndieColle" />
+        <meta name="twitter:title" content={name} />
+        <meta name="twitter:description" content={`${about}.`} />
+        {images[0] && (
+          <meta name="twitter:image" content={images[0].thumbnail_url} />
+        )}
       </Head>
 
       <Navigation />
@@ -490,8 +508,16 @@ const Game = ({ id }) => {
 Game.getInitialProps = async (context) => {
   const { id } = context.query;
 
+  if (context.req) {
+    return {
+      id,
+      host: context.req.headers.host,
+    };
+  }
+
   return {
     id,
+    host: window.location.hostname,
   };
 };
 
