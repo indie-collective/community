@@ -122,10 +122,10 @@ const EditGame = ({ id }) => {
 
     const { game } = response.data.updateGame;
 
-    const tags = tagsStr
+    const tags = tagsStr.trim() ? tagsStr
       .trim()
       .split(',')
-      .map((t) => t.trim().toLowerCase());
+      .map((t) => t.trim().toLowerCase()) : [];
 
     const tagsToDelete = differenceWith(
       data.game.tags.nodes,
@@ -150,7 +150,7 @@ const EditGame = ({ id }) => {
     await Promise.all(
       tagsToAdd.map(async (tagName) => {
         const result = await addOrGetTag({
-          variables: { name: tagName.trim() },
+          variables: { name: tagName },
         });
         const { tag } = result.data.upsertTagByName;
 

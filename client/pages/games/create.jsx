@@ -84,7 +84,7 @@ const CreateGame = () => {
     linkTagToGameMutation
   );
 
-  async function handleFormSubmit({ name, about, site, tags }) {
+  async function handleFormSubmit({ name, about, site, tags: tagsStr }) {
     const response = await createGame({
       variables: {
         name,
@@ -95,13 +95,18 @@ const CreateGame = () => {
 
     const { game } = response.data.createGame;
 
+    const tags = tagsStr.trim()
+      ? tagsStr
+          .trim()
+          .split(',')
+          .map((t) => t.trim().toLowerCase())
+      : [];
+
     await Promise.all(
       tags
-        .trim()
-        .split(',')
         .map(async (tagName) => {
           const result = await addOrGetTag({
-            variables: { name: tagName.trim() },
+            variables: { name: tagName },
           });
           const { tag } = result.data.upsertTagByName;
 
