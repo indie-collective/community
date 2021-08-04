@@ -142,7 +142,7 @@ const Org = ({ id, host }) => {
 
   if (
     error ||
-    (id !== undefined && !validId) ||
+    (id === undefined || id !== undefined && !validId) ||
     (!loading && data.entity === null)
   ) {
     return <Error statusCode={404} />;
