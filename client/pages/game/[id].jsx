@@ -288,19 +288,19 @@ const Game = ({ id, host }) => {
         <meta property="og:title" content={name} />
         <meta property="og:description" content={`${about}.`} />
         <meta property="og:url" content={`https://${host}/game/${id}`} />
-        {images[0] && (
-          <meta property="og:image" content={images[0].thumbnail_url} />
+        {images.nodes[0] && (
+          <meta property="og:image" content={images.nodes[0].thumbnail_url} />
         )}
 
         <meta
           name="twitter:card"
-          content={images[0] ? 'summary_large_image' : 'summary'}
+          content={images.nodes[0] ? 'summary_large_image' : 'summary'}
         />
         <meta name="twitter:site" content="@IndieColle" />
         <meta name="twitter:title" content={name} />
         <meta name="twitter:description" content={`${about}.`} />
-        {images[0] && (
-          <meta name="twitter:image" content={images[0].thumbnail_url} />
+        {images.nodes[0] && (
+          <meta name="twitter:image" content={images.nodes[0].thumbnail_url} />
         )}
       </Head>
 
