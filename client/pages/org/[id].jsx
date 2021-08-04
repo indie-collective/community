@@ -170,13 +170,10 @@ const Org = ({ id, host }) => {
 
         <meta property="og:title" content={name} />
         <meta property="og:description" content={`${about}.`} />
-        <meta property="og:url" content={`https://${host}/event/${id}`} />
+        <meta property="og:url" content={`https://${host}/org/${id}`} />
         {logo && <meta property="og:image" content={logo.thumbnail_url} />}
 
-        <meta
-          name="twitter:card"
-          content={logo ? 'summary_large_image' : 'summary'}
-        />
+        <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@IndieColle" />
         <meta name="twitter:title" content={name} />
         <meta name="twitter:description" content={`${about}.`} />
