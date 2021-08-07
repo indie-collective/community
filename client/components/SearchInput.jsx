@@ -20,7 +20,7 @@ const SearchInput = ({ defaultValue }) => {
   const { pathname, query, push, replace, back } = useRouter();
 
   return (
-    <InputGroup w="auto">
+    <InputGroup w="auto" ml={3}>
       <InputLeftElement children={<SearchIcon color="teal.500" />} />
       <Input
         placeholder="Search"

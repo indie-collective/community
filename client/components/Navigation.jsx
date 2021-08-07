@@ -1,4 +1,16 @@
-import { Box, Flex, HStack, chakra, useColorModeValue } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  HStack,
+  chakra,
+  useColorModeValue,
+  VStack,
+  Collapse,
+  IconButton,
+  useDisclosure,
+  useBreakpointValue,
+} from '@chakra-ui/react';
+import { HamburgerIcon } from '@chakra-ui/icons';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 
@@ -39,26 +51,47 @@ function NavLink(props) {
 }
 
 const Navigation = ({ search }) => {
+  const { isOpen, onToggle } = useDisclosure();
+  const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
+
   return (
-    <Flex pl={5} pr={2} pt={5} alignItems="center">
-      <NextLink href="/" passHref>
-        <a>
-          <Logo />
-        </a>
-      </NextLink>
+    <>
+      <Flex pl={5} pr={2} pt={5} alignItems="center">
+        <NextLink href="/" passHref>
+          <a>
+            <Logo />
+          </a>
+        </NextLink>
 
-      <HStack as="nav" spacing="4" ml="24px">
-        <NavLink href="/games">Games</NavLink>
-        <NavLink href="/orgs">Orgs</NavLink>
-        <NavLink href="/events">Events</NavLink>
-      </HStack>
+        {variant === 'desktop' && (
+          <HStack as="nav" spacing="4" ml="24px">
+            <NavLink href="/games">Games</NavLink>
+            <NavLink href="/orgs">Orgs</NavLink>
+            <NavLink href="/events">Events</NavLink>
+          </HStack>
+        )}
 
-      <Box flex="auto" />
+        <Box flex="auto" />
 
-      <SearchInput defaultValue={search} />
+        <SearchInput defaultValue={search} />
 
-      <AvatarButton />
-    </Flex>
+        {variant === 'mobile' && (
+          <IconButton ml={2} icon={<HamburgerIcon />} onClick={onToggle} />
+        )}
+
+        <AvatarButton />
+      </Flex>
+
+      {variant === 'mobile' && (
+        <Collapse in={isOpen}>
+          <VStack as="nav" spacing="4" ml="24px">
+            <NavLink href="/games">Games</NavLink>
+            <NavLink href="/orgs">Orgs</NavLink>
+            <NavLink href="/events">Events</NavLink>
+          </VStack>
+        </Collapse>
+      )}
+    </>
   );
 };
 
