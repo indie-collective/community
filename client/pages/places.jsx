@@ -8,6 +8,7 @@ import {
   Stack,
   Tooltip,
   useBreakpointValue,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import Head from 'next/head';
 import { Map, Marker, Overlay, ZoomControl } from 'pigeon-maps';
@@ -16,7 +17,7 @@ import Error from './_error';
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import OrgCard from '../components/OrgCard';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const getCitiesQuery = gql`
   ${OrgCard.fragments.org}
@@ -64,7 +65,7 @@ function inBounds(point, bounds) {
   return inLat && inLong;
 }
 
-const RETRACTED_BAND_TOP = '93%';
+const RETRACTED_BAND_TOP = '90%';
 
 const Cities = () => {
   const containerRef = useRef();
@@ -76,6 +77,17 @@ const Cities = () => {
   });
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
   const isMobile = variant === 'mobile';
+
+  useEffect(() => {
+    if (!window) return;
+
+    // hack, prevent Chrome's pull-to-refresh on mobile
+    // it doesn't work just on this page's container
+    document.body.style.overscrollBehaviorY = 'contain';
+
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }, [typeof window])
 
   if (error || (!loading && data.cities === null)) {
     return <Error statusCode={404} />;
@@ -102,9 +114,10 @@ const Cities = () => {
 
   const onMoveBand = useCallback((e) => {
     if (isDraggingBand) {
+      const { top } = containerRef.current.getBoundingClientRect();
       const points = e.changedTouches || [];
 
-      setBandTop((points[0] ? points[0].pageY : e.pageY) + 'px');
+      setBandTop((points[0] ? points[0].pageY : e.pageY) - top + 'px');
     }
   });
 
@@ -115,7 +128,7 @@ const Cities = () => {
       if (parseInt(bandTop) > top + height / 2) {
         setBandTop(RETRACTED_BAND_TOP);
       } else {
-        setBandTop(top + 'px');
+        setBandTop(0 + 'px');
       }
       setIsDraggingBand(false);
     }
@@ -134,7 +147,10 @@ const Cities = () => {
   return (
     // TODO: Fix this weird hack, see margin bottom in app
     <Flex
-      h={{ base: 'calc(100vh - 10px)', md: 'calc(100vh - 3rem)' }}
+      h={{
+        base: 'calc(var(--vh, 1vh) * 100 - 10px)',
+        md: 'calc(100vh - 3rem)',
+      }}
       direction="column"
     >
       <Head>
@@ -150,6 +166,7 @@ const Cities = () => {
         padding={{ base: 0, md: 5 }}
         display={{ base: '', md: 'flex' }}
         h="100%"
+        overflow="hidden"
         onTouchMove={isMobile ? onMoveBand : undefined}
         onTouchEnd={isMobile ? onMoveBandStop : undefined}
         onTouchCancel={isMobile ? onMoveBandStop : undefined}
@@ -183,17 +200,21 @@ const Cities = () => {
         <Flex
           direction="column"
           w={{ base: '100%', md: '400px' }}
-          h={{ base: `calc(100% - 80%)`, md: 'auto' }}
-          position={{ base: 'absolute', md: 'static' }}
-          top={{ base: '80%', md: '' }}
-          overflow={{ base: 'hidden', md: '' }}
-          background={{ base: 'gray.800', md: 'transparent' }}
+          h={{ base: `100%`, md: 'auto' }}
+          transform={{
+            base: `translateY(${RETRACTED_BAND_TOP})`,
+            md: 'initial',
+          }}
+          overflow={{ base: 'hidden', md: 'auto' }}
+          background={{
+            base: useColorModeValue('white', 'gray.800'),
+            md: 'transparent',
+          }}
           borderTopRadius={24}
           style={
             isMobile
               ? {
-                  height: `calc(100% - ${bandTop})`,
-                  top: bandTop,
+                  transform: `translateY(calc(${bandTop} - 100%))`,
                 }
               : undefined
           }
@@ -209,14 +230,14 @@ const Cities = () => {
                     width: '40px',
                     height: '4px',
                     borderRadius: 4,
-                    backgroundColor: 'gray.500',
+                    backgroundColor: useColorModeValue('gray.300', 'gray.500'),
                   }
                 : undefined
             }
             onTouchStart={() => setIsDraggingBand(true)}
             onMouseDown={() => setIsDraggingBand(true)}
             p={3}
-            userSelect={{base: "none", md: 'initial'}}
+            userSelect={{ base: 'none', md: 'initial' }}
           >
             <Heading size="md" textAlign="center" m={2}>
               Locations
