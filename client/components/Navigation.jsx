@@ -30,8 +30,6 @@ function NavLink(props) {
       <chakra.a
         aria-current={isActive ? 'page' : undefined}
         display="block"
-        mx="3"
-        py="1"
         transition="all 0.3s"
         borderBottomWidth="3px"
         fontSize="18px"
@@ -64,10 +62,11 @@ const Navigation = ({ search }) => {
         </NextLink>
 
         {variant === 'desktop' && (
-          <HStack as="nav" spacing="4" ml="24px">
+          <HStack as="nav" spacing={4} ml="24px">
             <NavLink href="/games">Games</NavLink>
             <NavLink href="/orgs">Orgs</NavLink>
             <NavLink href="/events">Events</NavLink>
+            <NavLink href="/places">Places</NavLink>
           </HStack>
         )}
 
@@ -84,10 +83,11 @@ const Navigation = ({ search }) => {
 
       {variant === 'mobile' && (
         <Collapse in={isOpen}>
-          <VStack as="nav" spacing="4" ml="24px">
+          <VStack as="nav" spacing={4} ml="24px">
             <NavLink href="/games">Games</NavLink>
             <NavLink href="/orgs">Orgs</NavLink>
             <NavLink href="/events">Events</NavLink>
+            <NavLink href="/places">Places</NavLink>
           </VStack>
         </Collapse>
       )}
