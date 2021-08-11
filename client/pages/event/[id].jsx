@@ -1,4 +1,4 @@
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery, useMutation, useApolloClient } from '@apollo/client';
 import Head from 'next/head';
 import Link from 'next/link';
 import {
@@ -16,6 +16,14 @@ import {
   IconButton,
   useDisclosure,
   Badge,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useToast,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, WarningTwoIcon } from '@chakra-ui/icons';
 import { Map } from 'pigeon-maps';
@@ -33,6 +41,7 @@ import useCurrentPerson from '../../hooks/useCurrentPerson';
 import JoinEventButton from '../../components/JoinEventButton';
 import SearchGameModal from '../../components/SearchGameModal';
 import SearchOrgModal from '../../components/SearchOrgModal';
+import { useRouter } from 'next/router';
 
 const eventQuery = gql`
   ${GameCard.fragments.game}
@@ -141,11 +150,24 @@ const removeHostFromEventMutation = gql`
   }
 `;
 
+const deleteEventMutation = gql`
+  mutation deleteEvent($id: UUID!) {
+    deleteEvent(input: { id: $id }) {
+      event {
+        id
+      }
+    }
+  }
+`;
+
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 const Event = ({ id, host }) => {
   const validId = uuidRegex.test(id);
+  const router = useRouter();
+  const toast = useToast();
 
+  const { cache } = useApolloClient();
   const placeholder = usePlaceholder();
   const currentPerson = useCurrentPerson();
   const {
@@ -247,6 +269,16 @@ const Event = ({ id, host }) => {
       });
     },
   });
+
+  const [deleteEvent, { loading: isBeingDeleted }] = useMutation(
+    deleteEventMutation,
+    {
+      variables: { id },
+      skip: !validId,
+    }
+  );
+
+  const deleteModal = useDisclosure();
 
   if (
     error ||
@@ -651,6 +683,57 @@ const Event = ({ id, host }) => {
                   </>
                 )}
               </Grid>
+            </Box>
+          )}
+
+          {currentPerson && (
+            <Box mb={5}>
+              <Button
+                variant="link"
+                colorScheme="red"
+                onClick={deleteModal.onOpen}
+              >
+                Delete event
+              </Button>
+
+              <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>Delete Event</ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <Text>Do you really want to delete {name}?</Text>
+                  </ModalBody>
+
+                  <ModalFooter>
+                    <Button
+                      isLoading={isBeingDeleted}
+                      loadingText="Deleting"
+                      colorScheme="red"
+                      mr={3}
+                      onClick={async () => {
+                        await deleteEvent();
+
+                        deleteModal.onClose();
+                        router.replace('/events');
+
+                        cache.evict({ id });
+
+                        toast({
+                          title: 'Event deleted.',
+                          description: `${name} has been deleted.`,
+                          status: 'success',
+                        });
+                      }}
+                    >
+                      Delete
+                    </Button>
+                    <Button variant="ghost" onClick={deleteModal.onClose}>
+                      Cancel
+                    </Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
             </Box>
           )}
         </Box>
