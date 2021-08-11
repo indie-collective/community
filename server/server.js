@@ -85,6 +85,7 @@ app.use(
         {
           identifiers: [
             {
+              table: 'indieco.image',
               columns: 'image_file',
             },
           ],
@@ -99,6 +100,7 @@ app.use(
         {
           identifiers: [
             {
+              table: 'indieco.image',
               columns: 'image_file',
             },
           ],
