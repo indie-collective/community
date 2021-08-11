@@ -155,6 +155,22 @@ const Cities = () => {
     >
       <Head>
         <title>Places</title>
+        <meta
+          name="description"
+          content="Video game related companies and organizations all over the world."
+        />
+        <meta property="og:title" content="Places" />
+        <meta
+          property="og:description"
+          content="Video game related companies and organizations all over the world."
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@IndieColle" />
+        <meta name="twitter:title" content="Places" />
+        <meta
+          name="twitter:description"
+          content="Video game related companies and organizations all over the world."
+        />
       </Head>
 
       <Navigation />
