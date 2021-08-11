@@ -1,4 +1,4 @@
-import { Box, Heading, Stack } from '@chakra-ui/react';
+import { Box, Heading, Stack, useToast } from '@chakra-ui/react';
 import { gql, useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -101,6 +101,7 @@ const upsertLocationMutation = gql`
 
 const CreateOrg = () => {
   const { push } = useRouter();
+  const toast = useToast();
 
   const [uploadImage, { loading: loadingLogo }] = useMutation(
     gql(uploadImageMutation)
@@ -135,14 +136,22 @@ const CreateOrg = () => {
     if (location.value && location.id) {
       locationId = location.id;
     } else if (location.value) {
-      const response = await upsertLocation({
-        variables: location.value,
-      });
+      try {
+        const response = await upsertLocation({
+          variables: location.value,
+        });
 
-      locationId =
-        response.data
-          .upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude
-          .location.id;
+        locationId =
+          response.data
+            .upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude
+            .location.id;
+      } catch (err) {
+        toast({
+          title: 'Error with location',
+          description: err.message,
+          status: 'error',
+        });
+      }
     }
 
     const response = await createOrg({

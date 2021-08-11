@@ -1,4 +1,4 @@
-import { Box, Heading, Spinner, Stack } from '@chakra-ui/react';
+import { Box, Heading, Spinner, Stack, useToast } from '@chakra-ui/react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -125,6 +125,7 @@ const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A
 const EditOrg = ({ id }) => {
   const validId = uuidRegex.test(id);
   const { push } = useRouter();
+  const toast = useToast();
 
   const { loading, error, data } = useQuery(getOrgQuery, {
     variables: { id },
@@ -171,14 +172,22 @@ const EditOrg = ({ id }) => {
     if (location.value && location.id) {
       locationId = location.id;
     } else if (location.value) {
-      const response = await upsertLocation({
-        variables: location.value,
-      });
+      try {
+        const response = await upsertLocation({
+          variables: location.value,
+        });
 
-      locationId =
-        response.data
-          .upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude
-          .location.id;
+        locationId =
+          response.data
+            .upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude
+            .location.id;
+      } catch (err) {
+        toast({
+          title: 'Error with location',
+          description: err.message,
+          status: 'error',
+        });
+      }
     }
 
     const response = await updateOrg({
