@@ -22,6 +22,7 @@ import {
   Tag,
   useColorModeValue,
   Link as ChakraLink,
+  useToast,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import Head from 'next/head';
@@ -134,6 +135,7 @@ const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A
 
 const Game = ({ id, host }) => {
   const validId = uuidRegex.test(id);
+  const toast = useToast();
 
   const dzColor = useColorModeValue('gray.200', 'gray.700');
   const dzHoverColor = useColorModeValue('gray.400', 'gray.50');
@@ -489,6 +491,12 @@ const Game = ({ id, host }) => {
                     router.replace('/games');
 
                     cache.evict({ id });
+
+                    toast({
+                      title: 'Game deleted.',
+                      description: `${name} has been deleted.`,
+                      status: 'success',
+                    });
                   }}
                 >
                   Delete

@@ -19,6 +19,7 @@ import {
   Modal,
   ModalHeader,
   Link as ChakraLink,
+  useToast,
 } from '@chakra-ui/react';
 import { EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import Head from 'next/head';
@@ -123,6 +124,7 @@ const Org = ({ id, host }) => {
   const currentPerson = useCurrentPerson();
   const router = useRouter();
   const validId = uuidRegex.test(id);
+  const toast = useToast();
 
   const { cache } = useApolloClient();
   const { loading, error, data } = useQuery(orgQuery, {
@@ -346,6 +348,12 @@ const Org = ({ id, host }) => {
                     router.replace('/orgs');
 
                     cache.evict({ id });
+
+                    toast({
+                      title: 'Organization deleted.',
+                      description: `${name} has been deleted.`,
+                      status: 'success',
+                    });
                   }}
                 >
                   Delete
