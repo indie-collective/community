@@ -30,10 +30,7 @@ const TYPES_COLORS = {
 };
 
 export const OrgCardSkeleton = () => (
-  <Flex
-    position="relative"
-    alignItems="center"
-  >
+  <Flex position="relative" alignItems="center">
     <Flex
       direction="column"
       width="75px"
@@ -58,18 +55,16 @@ const OrgCard = ({ id, type, logo, name, people, games, events, onRemove }) => {
   const bg = useColorModeValue('gray.100', 'gray.700');
 
   return (
-    <Card isClickable>
-      <Box
-        as={Flex}
-        position="relative"
-        alignItems="center"
-        rounded={5}
-        transition="background-color 200ms ease-out"
-        _hover={{
-          backgroundColor: bg,
-          cursor: 'pointer',
-        }}
-      >
+    <Card
+      isClickable
+      transition="background-color 200ms ease-out"
+      _hover={{
+        backgroundColor: bg,
+        cursor: 'pointer',
+      }}
+      rounded={5}
+    >
+      <Flex position="relative" alignItems="center">
         <Flex
           direction="column"
           width="75px"
@@ -143,7 +138,7 @@ const OrgCard = ({ id, type, logo, name, people, games, events, onRemove }) => {
             }}
           />
         )}
-      </Box>
+      </Flex>
     </Card>
   );
 };
