@@ -86,6 +86,8 @@ const Cities = () => {
   });
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
   const isMobile = variant === 'mobile';
+  const listBgColor = useColorModeValue('white', 'gray.800');
+  const dragHandlebgColor = useColorModeValue('gray.300', 'gray.500');
 
   useEffect(() => {
     if (!window) return;
@@ -98,28 +100,7 @@ const Cities = () => {
     document.documentElement.style.setProperty('--vh', `${vh}px`);
   }, [typeof window]);
 
-  if (error || (!loading && data.cities === null)) {
-    return <Error statusCode={404} />;
-  }
-
-  if (loading) {
-    return <Spinner />;
-  }
-
-  const { cities } = data;
-
-  cities.nodes
-    .map((city) => city.orgs.nodes)
-    .flat()
-    .filter((org) => {
-      if (!currentBounds || !org.location || !org.location.latitude)
-        return true;
-
-      return (
-        currentBounds.ne[0] > org.location.latitude > currentBounds.sw[0] &&
-        currentBounds.ne[1] > org.location.longitude > currentBounds.sw[1]
-      );
-    });
+  const cities = data ? data.cities : {nodes: []};
 
   const onMoveBand = useCallback((e) => {
     if (isDraggingBand) {
@@ -156,6 +137,14 @@ const Cities = () => {
         }),
     [cities.nodes, currentBounds]
   );
+
+  if (error || (!loading && data.cities === null)) {
+    return <Error statusCode={404} />;
+  }
+
+  if (loading) {
+    return <Spinner />;
+  }
 
   return (
     // TODO: Fix this weird hack, see margin bottom in app
@@ -220,6 +209,7 @@ const Cities = () => {
               //   </Tooltip>
               // </Overlay>
               <Marker
+                key={org.id}
                 anchor={[org.location.latitude, org.location.longitude]}
                 color={org.type === 'STUDIO' ? 'red' : 'green'}
               />
@@ -236,7 +226,7 @@ const Cities = () => {
           }}
           overflow={{ base: 'hidden', md: 'auto' }}
           background={{
-            base: useColorModeValue('white', 'gray.800'),
+            base: listBgColor,
             md: 'transparent',
           }}
           borderTopRadius={24}
@@ -259,7 +249,7 @@ const Cities = () => {
                     width: '40px',
                     height: '4px',
                     borderRadius: 4,
-                    backgroundColor: useColorModeValue('gray.300', 'gray.500'),
+                    backgroundColor: dragHandlebgColor,
                   }
                 : undefined
             }
