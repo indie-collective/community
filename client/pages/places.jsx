@@ -1,3 +1,4 @@
+import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import {
   Badge,
@@ -17,7 +18,7 @@ import Error from './_error';
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import OrgCard from '../components/OrgCard';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const getCitiesQuery = gql`
   ${OrgCard.fragments.org}
@@ -49,6 +50,14 @@ const getCitiesQuery = gql`
     }
   }
 `;
+
+const OrgList = React.memo(({ orgs }) => (
+  <Stack spacing={3}>
+    {orgs.map((org) => (
+      <OrgCard key={org.id} {...org} />
+    ))}
+  </Stack>
+));
 
 function inBounds(point, bounds) {
   var eastBound = point.longitude < bounds.ne[1];
@@ -87,7 +96,7 @@ const Cities = () => {
 
     let vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
-  }, [typeof window])
+  }, [typeof window]);
 
   if (error || (!loading && data.cities === null)) {
     return <Error statusCode={404} />;
@@ -134,15 +143,19 @@ const Cities = () => {
     }
   });
 
-  const orgsInBounds = cities.nodes
-    .map((city) => city.orgs.nodes)
-    .flat()
-    .filter((org) => {
-      if (!currentBounds || !org.location || !org.location.latitude)
-        return true;
+  const orgsInBounds = useMemo(
+    () =>
+      cities.nodes
+        .map((city) => city.orgs.nodes)
+        .flat()
+        .filter((org) => {
+          if (!currentBounds || !org.location || !org.location.latitude)
+            return true;
 
-      return inBounds(org.location, currentBounds);
-    });
+          return inBounds(org.location, currentBounds);
+        }),
+    [cities.nodes, currentBounds]
+  );
 
   return (
     // TODO: Fix this weird hack, see margin bottom in app
@@ -263,11 +276,7 @@ const Cities = () => {
             </Heading>
           </Box>
           <Box flex={1} overflow="auto" px={3}>
-            <Stack spacing={3}>
-              {orgsInBounds.map((org) => (
-                <OrgCard key={org.id} {...org} />
-              ))}
-            </Stack>
+            <OrgList orgs={orgsInBounds} />
           </Box>
         </Flex>
       </Box>
