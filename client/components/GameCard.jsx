@@ -101,33 +101,32 @@ const GameCard = forwardRef(
     }
 
     return (
-      <Card isClickable>
-        <Box
-          ref={ref}
-          _hover={{
-            backgroundColor: bgColorHover,
-            cursor: 'pointer',
-          }}
-          rounded={5}
-        >
-          <AspectRatio ratio={2}>
-            <Image
-              size="100%"
-              objectFit="cover"
-              src={images.nodes.length > 0 && images.nodes[0].thumbnail_url}
-              alt="Game cover"
-              fallbackSrc={placeholder}
-              rounded="md"
-            />
-          </AspectRatio>
+      <Card
+        isClickable
+        ref={ref}
+        _hover={{
+          backgroundColor: bgColorHover,
+          cursor: 'pointer',
+        }}
+        rounded={5}
+      >
+        <AspectRatio ratio={2}>
+          <Image
+            size="100%"
+            objectFit="cover"
+            src={images.nodes.length > 0 && images.nodes[0].thumbnail_url}
+            alt="Game cover"
+            fallbackSrc={placeholder}
+            rounded="md"
+          />
+        </AspectRatio>
 
-          <Box padding={2}>
-            <Heading as="h3" size="md" isTruncated>
-              <NextLink href={`/game/${id}`}>
-                <CardLink href={`/game/${id}`}>{name}</CardLink>
-              </NextLink>
-            </Heading>
-          </Box>
+        <Box padding={2}>
+          <Heading as="h3" size="md" isTruncated>
+            <NextLink href={`/game/${id}`}>
+              <CardLink href={`/game/${id}`}>{name}</CardLink>
+            </NextLink>
+          </Heading>
         </Box>
       </Card>
     );
