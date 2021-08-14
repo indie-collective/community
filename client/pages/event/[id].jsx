@@ -479,7 +479,7 @@ const Event = ({ id, host }) => {
                 display={['flex', 'block']}
                 flexDirection={['row-reverse', '']}
               >
-                <AvatarGroup size="xs" max={3} justify="flex-end">
+                <AvatarGroup size="xs" max={3} justifyContent="end">
                   {participants.nodes.map(({ id, firstName, avatar }) => (
                     <Avatar
                       key={id}
