@@ -24,6 +24,7 @@ import {
   ModalBody,
   ModalFooter,
   useToast,
+  Wrap,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, WarningTwoIcon } from '@chakra-ui/icons';
 import { Map } from 'pigeon-maps';
@@ -562,9 +563,9 @@ const Event = ({ id, host }) => {
                   {games.nodes.length}
                 </Badge>
               </Heading>
-              <Stack wrap="wrap" spacing={2} isInline>
+              <Wrap spacing={2}>
                 {games.nodes.map((game) => (
-                  <Box key={game.id} mb={2} position="relative">
+                  <Box key={game.id} position="relative">
                     <GameCard
                       id={game.id}
                       {...game}
@@ -614,7 +615,7 @@ const Event = ({ id, host }) => {
                     />
                   </>
                 )}
-              </Stack>
+              </Wrap>
             </Box>
           )}
 
