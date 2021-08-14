@@ -126,18 +126,20 @@ app.listen(4000, () => {
   console.log('Server listening on port 4000');
 });
 
-const storeUpload = async ({ object, filename }) => {
+const storeUpload = async ({ object, filename, mimetype }) => {
   const upload = s3.putObject({
     ACL: 'public-read',
     Key: filename,
     Body: object,
+    ContentType: mimetype,
+    CacheControl: 'max-age=31536000',
   });
 
   return upload.promise();
 };
 
 async function resolveUpload(upload) {
-  const { filename, createReadStream } = upload;
+  const { filename, mimetype, createReadStream } = upload;
   const stream = createReadStream();
 
   if (!stream) {
@@ -160,6 +162,7 @@ async function resolveUpload(upload) {
     const { ETag, VersionId } = await storeUpload({
       object: imageBuffer,
       filename: newFilename,
+      mimetype,
     });
 
     const image = await jimp.read(imageBuffer);
@@ -171,6 +174,7 @@ async function resolveUpload(upload) {
     const { ETag: thumbETag, VersionId: thumbVersionId } = await storeUpload({
       object: buffer,
       filename: `thumb_${newFilename}`,
+      mimetype: image.getMIME(),
     });
 
     return {
