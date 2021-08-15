@@ -76,7 +76,7 @@ const highlight = keyframes({
   },
 });
 
-const OrgList = React.memo(({ orgs }) => (
+const OrgList = React.memo(({ orgs, onMouseEnter, onMouseOut }) => (
   <Stack spacing={3}>
     {orgs.map((org) => (
       <OrgCard
@@ -88,6 +88,8 @@ const OrgList = React.memo(({ orgs }) => (
           },
         }}
         {...org}
+        onMouseEnter={() => onMouseEnter(org)}
+        onMouseOut={() => onMouseOut(org)}
       />
     ))}
   </Stack>
@@ -113,6 +115,7 @@ const RETRACTED_BAND_TOP = '90%';
 const Cities = () => {
   const containerRef = useRef();
   const [currentBounds, setCurrentBounds] = useState();
+  const [highlightedOrg, setHighlightedOrg] = useState();
   const [bandTop, setBandTop] = useState(RETRACTED_BAND_TOP);
   const [isDraggingBand, setIsDraggingBand] = useState(false);
   const { loading, error, data } = useQuery(getCitiesQuery, {
@@ -157,6 +160,9 @@ const Cities = () => {
       setIsDraggingBand(false);
     }
   });
+
+  const handleOrgCardEnter = useCallback((org) => setHighlightedOrg(org.id));
+  const handleOrgCardOut = useCallback(() => setHighlightedOrg());
 
   const orgsInBounds = useMemo(
     () =>
@@ -241,12 +247,13 @@ const Cities = () => {
                 key={org.id}
                 anchor={[org.location.latitude, org.location.longitude]}
                 offset={[48 / 2, 48]}
-                zIndex={org.logo ? 1 : 0}
+                cursor="pointer"
+                transformOrigin="bottom center"
+                transform={highlightedOrg === org.id && 'scale(1.2)'}
+                zIndex={highlightedOrg === org.id ? 2 : org.logo ? 1 : 0}
                 _hover={{
                   zIndex: 2,
                   transform: 'scale(1.2)',
-                  transformOrigin: 'bottom center',
-                  cursor: 'pointer',
                 }}
               >
                 <Tooltip label={org.name} aria-label="A tooltip">
@@ -255,7 +262,6 @@ const Cities = () => {
                     height={50}
                     position="relative"
                     onClick={() => {
-                      console.log('click');
                       window.location.hash = org.id;
                     }}
                   >
@@ -361,7 +367,11 @@ const Cities = () => {
             px={3}
             sx={{ 'scroll-behavior': 'smooth' }}
           >
-            <OrgList orgs={orgsInBounds} />
+            <OrgList
+              orgs={orgsInBounds}
+              onMouseEnter={handleOrgCardEnter}
+              onMouseOut={handleOrgCardOut}
+            />
           </Box>
         </Flex>
       </Box>
