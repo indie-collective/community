@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Box } from '@chakra-ui/react';
+import { Spinner } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 
 import SelectInput from './SelectInput';
@@ -55,6 +55,7 @@ const MapboxAutocomplete = ({
   const [query, setQuery] = useState(defaultQuery);
   const [queryResults, setQueryResults] = useState([]);
   const [value, setValue] = useState();
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -70,11 +71,13 @@ const MapboxAutocomplete = ({
 
     if (query.length > 2) {
       try {
+        setIsLoading(true);
         const res = await fetch(path, { headers: header });
 
         if (!res.ok) throw Error(res.statusText);
         const json = await res.json();
 
+        setIsLoading(false);
         setError(false);
         setQueryResults(json.features);
 
@@ -83,11 +86,13 @@ const MapboxAutocomplete = ({
           setIsFirstQuery(false);
         }
       } catch (err) {
+        setIsLoading(false);
         setError(true);
         setErrorMsg('There was a problem retrieving data from mapbox');
         setQueryResults([]);
       }
     } else {
+      setIsLoading(false);
       setError(false);
       setQueryResults([]);
     }
@@ -99,7 +104,7 @@ const MapboxAutocomplete = ({
       name="location"
       items={queryResults}
       itemPredicate={(item) => item.place_name}
-      icon={<SearchIcon />}
+      icon={isLoading ? <Spinner size="sm" /> : <SearchIcon />}
       onSelect={(value) => {
         setValue(value);
         onSuggestionSelect(value);
