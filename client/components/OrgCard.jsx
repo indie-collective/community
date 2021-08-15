@@ -49,13 +49,14 @@ export const OrgCardSkeleton = () => (
   </Flex>
 );
 
-const OrgCard = ({ id, type, logo, name, people, games, events, onRemove }) => {
+const OrgCard = ({ id, type, logo, name, people, games, events, onRemove, ...rest }) => {
   const placeholder = usePlaceholder('square');
 
   const bg = useColorModeValue('gray.100', 'gray.700');
 
   return (
     <Card
+      id={id}
       isClickable
       transition="background-color 200ms ease-out"
       _hover={{
@@ -63,6 +64,7 @@ const OrgCard = ({ id, type, logo, name, people, games, events, onRemove }) => {
         cursor: 'pointer',
       }}
       rounded={5}
+      {...rest}
     >
       <Flex position="relative" alignItems="center">
         <Flex

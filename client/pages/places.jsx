@@ -11,15 +11,18 @@ import {
   Tooltip,
   useBreakpointValue,
   useColorModeValue,
+  keyframes,
 } from '@chakra-ui/react';
 import Head from 'next/head';
-import { Map, Overlay, ZoomControl } from 'pigeon-maps';
+import { Map, Overlay as BaseOverlay, ZoomControl } from 'pigeon-maps';
 
 import Error from './_error';
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import OrgCard from '../components/OrgCard';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+const Overlay = chakra(BaseOverlay);
 
 const TYPES_COLORS = {
   STUDIO: 'yellow',
@@ -57,10 +60,35 @@ const getCitiesQuery = gql`
   }
 `;
 
+const highlight = keyframes({
+  '0%': {
+    transform: 'scale(1)',
+  },
+
+  '50%': {
+    transform: 'scale(1.1)',
+    boxShadow:
+      '0 0 0 1px rgba(16, 22, 26, 0.1), 0 4px 8px rgba(16, 22, 26, 0.2), 0 18px 46px 6px rgba(16, 22, 26, 0.2)',
+  },
+
+  '100%': {
+    transform: 'scale(1)',
+  },
+});
+
 const OrgList = React.memo(({ orgs }) => (
   <Stack spacing={3}>
     {orgs.map((org) => (
-      <OrgCard key={org.id} {...org} />
+      <OrgCard
+        key={org.id}
+        id={org.id}
+        sx={{
+          '&:target': {
+            animation: `${highlight} 500ms ease-in-out 500ms`,
+          },
+        }}
+        {...org}
+      />
     ))}
   </Stack>
 ));
@@ -213,9 +241,24 @@ const Cities = () => {
                 key={org.id}
                 anchor={[org.location.latitude, org.location.longitude]}
                 offset={[48 / 2, 48]}
+                zIndex={org.logo ? 1 : 0}
+                _hover={{
+                  zIndex: 2,
+                  transform: 'scale(1.2)',
+                  transformOrigin: 'bottom center',
+                  cursor: 'pointer',
+                }}
               >
                 <Tooltip label={org.name} aria-label="A tooltip">
-                  <Box width={50} height={50} position="relative">
+                  <Box
+                    width={50}
+                    height={50}
+                    position="relative"
+                    onClick={() => {
+                      console.log('click');
+                      window.location.hash = org.id;
+                    }}
+                  >
                     <chakra.svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="48px"
@@ -271,6 +314,7 @@ const Cities = () => {
             md: 'initial',
           }}
           overflow={{ base: 'hidden', md: 'auto' }}
+          sx={{ 'scroll-behavior': 'smooth' }}
           background={{
             base: listBgColor,
             md: 'transparent',
@@ -311,7 +355,12 @@ const Cities = () => {
               </Badge>
             </Heading>
           </Box>
-          <Box flex={1} overflow="auto" px={3}>
+          <Box
+            flex={1}
+            overflow="auto"
+            px={3}
+            sx={{ 'scroll-behavior': 'smooth' }}
+          >
             <OrgList orgs={orgsInBounds} />
           </Box>
         </Flex>
