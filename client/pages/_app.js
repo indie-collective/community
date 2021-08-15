@@ -26,7 +26,7 @@ export default class MyApp extends App {
 
     const colorModeManager =
       typeof cookies === 'string'
-        ? cookieStorageManager(cookies)
+        ? cookieStorageManager(pageProps.cookies)
         : localStorageManager;
 
     return (
