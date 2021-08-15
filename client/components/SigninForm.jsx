@@ -9,13 +9,15 @@ import {
   Input,
   FormErrorMessage,
   Button,
+  Link,
+  useColorModeValue as mode,
+  Flex,
 } from '@chakra-ui/react';
 
+import { PasswordInput } from './PasswordInput';
+
 const validationSchema = yup.object().shape({
-  email: yup
-    .string()
-    .email()
-    .required(),
+  email: yup.string().email().required(),
   password: yup.string().required(),
 });
 
@@ -39,9 +41,19 @@ const SigninForm = ({ loading, onSubmit }) => {
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl mb={5} isInvalid={errors.password} isRequired>
-        <FormLabel htmlFor="password">Password</FormLabel>
-        <Input name="password" type="password" ref={register} />
+      <FormControl id="password" mb={5} isInvalid={errors.password} isRequired>
+        <Flex justify="space-between" alignItems="baseline">
+          <FormLabel htmlFor="password">Password</FormLabel>
+          <Link
+            color={mode('teal.600', 'teal.200')}
+            fontWeight="semibold"
+            fontSize="sm"
+          >
+            Forgot Password?
+          </Link>
+        </Flex>
+        <PasswordInput ref={register} name="password" />
+
         <FormErrorMessage>
           {errors.password && errors.password.message}
         </FormErrorMessage>
@@ -49,7 +61,9 @@ const SigninForm = ({ loading, onSubmit }) => {
 
       <Button
         type="submit"
-        mt={3}
+        display="block"
+        ml="auto"
+        mt={8}
         colorScheme="teal"
         isDisabled={loading}
         isLoading={loading}

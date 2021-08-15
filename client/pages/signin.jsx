@@ -1,4 +1,10 @@
-import { Box, Heading, Link as ChakraLink } from '@chakra-ui/react';
+import {
+  Box,
+  Heading,
+  Link as ChakraLink,
+  Text,
+  useColorModeValue as mode,
+} from '@chakra-ui/react';
 import { gql, useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -28,32 +34,36 @@ const SignIn = () => {
 
       <Navigation />
 
-      <Box width={500} margin="40px auto">
-        <Box display="flex" alignItems="baseline">
-          <Heading mb={5} flex={1}>
-            Sign In
-          </Heading>
-          <Link href="/signup">
-            <ChakraLink>No account?</ChakraLink>
+      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+        <Heading textAlign="center" size="xl" fontWeight="extrabold">
+          Sign in to your account
+        </Heading>
+        <Text mt="4" mb="8" align="center" maxW="md" fontWeight="medium">
+          <Text as="span">Don&apos;t have an account? </Text>
+          <Link href="/signup" passHref>
+            <ChakraLink
+              color={mode('teal.600', 'teal.200')}
+              fontWeight="semibold"
+            >
+              Sign up
+            </ChakraLink>
           </Link>
-        </Box>
+        </Text>
 
-        <Box borderWidth="1px" mb={10} p={3} borderRadius={5}>
-          <SigninForm
-            onSubmit={async variables => {
-              const { data } = await signin({ variables });
+        <SigninForm
+          onSubmit={async (variables) => {
+            const { data } = await signin({ variables });
 
-              if (data && data.authenticate.jwtToken !== null) {
-                document.cookie = `token=${
-                  data.authenticate.jwtToken
-                };max-age=${60 * 60 * 24 * 365}`;
+            if (data && data.authenticate.jwtToken !== null) {
+              document.cookie = `token=${data.authenticate.jwtToken};max-age=${
+                60 * 60 * 24 * 365
+              }`;
 
-                push('/');
-              }
-            }}
-            loading={loading}
-          />
-        </Box>
+              push('/');
+            }
+          }}
+          loading={loading}
+        />
       </Box>
     </Box>
   );
