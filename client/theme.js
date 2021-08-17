@@ -1,18 +1,16 @@
+import {
+  extendTheme,
+  withDefaultColorScheme,
+  withDefaultVariant,
+} from '@chakra-ui/react';
 import { extendTheme } from '@chakra-ui/react';
 
-const theme = extendTheme({
-  components: {
-    Input: {
-      defaultProps: {
-        variant: 'filled',
-      },
-    },
-    Textarea: {
-      defaultProps: {
-        variant: 'filled',
-      },
-    },
-  },
-});
+const theme = extendTheme(
+  withDefaultColorScheme({ colorScheme: 'teal' }),
+  withDefaultVariant({
+    variant: 'filled',
+    components: ['Input', 'Textarea'],
+  }),
+);
 
 export default theme;
