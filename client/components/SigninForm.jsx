@@ -42,7 +42,12 @@ const SigninForm = ({ loading, onSubmit }) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <FormControl mb={5} isInvalid={errors.email} isRequired>
         <FormLabel htmlFor="email">Email</FormLabel>
-        <Input {...register('email')} />
+        <Input
+          {...register('email')}
+          id="email"
+          type="email"
+          placeholder="jmj@indieco.xyz"
+        />
         <FormErrorMessage>
           {errors.email && errors.email.message}
         </FormErrorMessage>
@@ -59,7 +64,11 @@ const SigninForm = ({ loading, onSubmit }) => {
             Forgot Password?
           </Link>
         </Flex>
-        <PasswordInput {...register('password')} />
+        <PasswordInput
+          {...register('password')}
+          id="password"
+          placeholder="SoS3cr3t"
+        />
 
         <FormErrorMessage>
           {errors.password && errors.password.message}

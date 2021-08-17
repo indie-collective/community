@@ -29,6 +29,14 @@ export const PasswordInput = forwardRef((props, ref) => {
 
   return (
     <InputGroup>
+      <Input
+        ref={mergeRef}
+        name="password"
+        autoComplete="current-password"
+        required
+        {...props}
+        type={isOpen ? 'text' : 'password'}
+      />
       <InputRightElement>
         <IconButton
           bg="transparent !important"
@@ -38,14 +46,6 @@ export const PasswordInput = forwardRef((props, ref) => {
           onClick={onClickReveal}
         />
       </InputRightElement>
-      <Input
-        ref={mergeRef}
-        name="password"
-        autoComplete="current-password"
-        required
-        {...props}
-        type={isOpen ? 'text' : 'password'}
-      />
     </InputGroup>
   );
 });

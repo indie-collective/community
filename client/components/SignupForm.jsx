@@ -10,6 +10,7 @@ import {
   FormErrorMessage,
   Button,
 } from '@chakra-ui/react';
+import { PasswordInput } from './PasswordInput';
 
 const validationSchema = yup.object().shape({
   firstName: yup.string().required(),
@@ -46,7 +47,12 @@ const SignupForm = ({ loading, onSubmit }) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <FormControl mb={5} isInvalid={errors.firstName} isRequired>
         <FormLabel htmlFor="firstName">First name</FormLabel>
-        <Input {...register('firstName')} />
+        <Input
+          {...register('firstName')}
+          id="firstName"
+          type="text"
+          placeholder="Jean-Michel"
+        />
         <FormErrorMessage>
           {errors.firstName && errors.firstName.message}
         </FormErrorMessage>
@@ -54,7 +60,12 @@ const SignupForm = ({ loading, onSubmit }) => {
 
       <FormControl mb={5} isInvalid={errors.lastName} isRequired>
         <FormLabel htmlFor="lastName">Last name</FormLabel>
-        <Input {...register('lastName')} />
+        <Input
+          {...register('lastName')}
+          id="lastName"
+          type="text"
+          placeholder="Jam"
+        />
         <FormErrorMessage>
           {errors.lastName && errors.lastName.message}
         </FormErrorMessage>
@@ -62,7 +73,12 @@ const SignupForm = ({ loading, onSubmit }) => {
 
       <FormControl mb={5} isInvalid={errors.email} isRequired>
         <FormLabel htmlFor="email">Email</FormLabel>
-        <Input {...register('email')} />
+        <Input
+          {...register('email')}
+          id="email"
+          type="email"
+          placeholder="jmj@indieco.xyz"
+        />
         <FormErrorMessage>
           {errors.email && errors.email.message}
         </FormErrorMessage>
@@ -70,7 +86,11 @@ const SignupForm = ({ loading, onSubmit }) => {
 
       <FormControl mb={5} isInvalid={errors.password} isRequired>
         <FormLabel htmlFor="password">Password</FormLabel>
-        <Input {...register('password')} type="password" />
+        <PasswordInput
+          {...register('password')}
+          id="password"
+          placeholder="SoS3cr3t"
+        />
         <FormErrorMessage>
           {errors.password && errors.password.message}
         </FormErrorMessage>
@@ -78,7 +98,11 @@ const SignupForm = ({ loading, onSubmit }) => {
 
       <FormControl mb={5} isInvalid={errors.passwordConfirmation} isRequired>
         <FormLabel htmlFor="password2">Password confirmation</FormLabel>
-        <Input {...register('passwordConfirmation')} type="password" />
+        <PasswordInput
+          {...register('passwordConfirmation')}
+          id="passwordConfirmation"
+          placeholder="SoS3cr3t"
+        />
         <FormErrorMessage>
           {errors.passwordConfirmation && errors.passwordConfirmation.message}
         </FormErrorMessage>
@@ -86,8 +110,10 @@ const SignupForm = ({ loading, onSubmit }) => {
 
       <Button
         type="submit"
-        mt={3}
-        colorScheme="green"
+        display="block"
+        ml="auto"
+        mt={8}
+        colorScheme="teal"
         isDisabled={loading}
         isLoading={loading}
       >

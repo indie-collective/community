@@ -1,5 +1,12 @@
 import { gql, useMutation } from '@apollo/client';
-import { Box, Heading, Text, Button, Link as ChakraLink } from '@chakra-ui/react';
+import {
+  Box,
+  Heading,
+  Text,
+  Button,
+  Link as ChakraLink,
+  useColorModeValue as mode,
+} from '@chakra-ui/react';
 import Link from 'next/link';
 import Head from 'next/head';
 
@@ -49,7 +56,9 @@ const SignUp = () => {
           </Heading>
           <Text fontSize="xl">Welcome to the community!</Text>
           <Link href="/signin">
-            <Button color="teal.500" mt="24px">Sign in</Button>
+            <Button color="teal.500" mt="24px">
+              Sign in
+            </Button>
           </Link>
         </Box>
       </Box>
@@ -60,18 +69,26 @@ const SignUp = () => {
     <Box>
       <Navigation />
 
-      <Box maxWidth={500} margin="40px auto">
-        <Box display="flex" alignItems="baseline">
-          <Heading mb={5} flex={1}>Sign Up</Heading>
-          <Link href="/signin"><ChakraLink>Already registered?</ChakraLink></Link>
-        </Box>
+      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+        <Heading textAlign="center" size="xl" fontWeight="extrabold">
+          Joining the Community
+        </Heading>
+        <Text mt="4" mb="8" align="center" maxW="md" fontWeight="medium">
+          <Text as="span">Already have an account? </Text>
+          <Link href="/signin" passHref>
+            <ChakraLink
+              color={mode('teal.600', 'teal.200')}
+              fontWeight="semibold"
+            >
+              Sign in
+            </ChakraLink>
+          </Link>
+        </Text>
 
-        <Box border="1px solid #eee" mb={10} p={3} borderRadius={5}>
-          <SignupForm
-            loading={loading}
-            onSubmit={variables => signin({ variables })}
-          />
-        </Box>
+        <SignupForm
+          loading={loading}
+          onSubmit={(variables) => signin({ variables })}
+        />
         {data && <pre>{JSON.stringify(data, false, 2)}</pre>}
       </Box>
     </Box>
