@@ -27,7 +27,14 @@ const propTypes = {
 };
 
 const SigninForm = ({ loading, onSubmit }) => {
-  const { handleSubmit, register, errors } = useForm({
+  const {
+    handleSubmit,
+    register,
+
+    formState: {
+      errors,
+    },
+  } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
@@ -35,7 +42,7 @@ const SigninForm = ({ loading, onSubmit }) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <FormControl mb={5} isInvalid={errors.email} isRequired>
         <FormLabel htmlFor="email">Email</FormLabel>
-        <Input name="email" ref={register} />
+        <Input {...register('email')} />
         <FormErrorMessage>
           {errors.email && errors.email.message}
         </FormErrorMessage>
@@ -52,7 +59,7 @@ const SigninForm = ({ loading, onSubmit }) => {
             Forgot Password?
           </Link>
         </Flex>
-        <PasswordInput ref={register} name="password" />
+        <PasswordInput {...register('password')} />
 
         <FormErrorMessage>
           {errors.password && errors.password.message}

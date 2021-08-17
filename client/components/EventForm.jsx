@@ -16,6 +16,7 @@ import {
   Box,
   Grid,
   Switch,
+  useMergeRefs,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
 import { Map } from 'pigeon-maps';
@@ -91,7 +92,16 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
   const { name, status, startsAt, endsAt, location: l, about } = defaultData;
   const coverRef = useRef();
   const [cover, setCover] = useState(defaultData.cover);
-  const { handleSubmit, register, errors, control, watch, setValue } = useForm({
+  const {
+    handleSubmit,
+    register,
+    control,
+    watch,
+    setValue,
+    formState: {
+      errors,
+    },
+  } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       name,
@@ -114,6 +124,8 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
 
   const location = watch('location');
 
+  const coverProps = register('cover');
+
   return (
     <Grid
       as="form"
@@ -125,9 +137,8 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
       <FormControl gridColumn="1 / 3" isInvalid={errors.name} isRequired>
         <FormLabel htmlFor="name">Name</FormLabel>
         <Input
-          name="name"
+          {...register('name')}
           placeholder="Stunfest 2042, Global Game Jam Bamako, Indie Online Fest..."
-          ref={register}
         />
         <FormErrorMessage>
           {errors.name && errors.name.message}
@@ -159,11 +170,10 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
       <FormControl isInvalid={errors.start} isRequired>
         <FormLabel htmlFor="start">Start</FormLabel>
         <Input
-          name="start"
+          {...register('start')}
           type="datetime-local"
           pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
           placeholder="When does it starts?"
-          ref={register}
         />
         <FormErrorMessage>
           {errors.start && errors.start.message}
@@ -173,11 +183,10 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
       <FormControl gridColumn="2 / 3" isInvalid={errors.end} isRequired>
         <FormLabel htmlFor="end">End</FormLabel>
         <Input
-          name="end"
+          {...register('end')}
           type="datetime-local"
           pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
           placeholder="When does it ends?"
-          ref={register}
         />
         <FormErrorMessage>{errors.end && errors.end.message}</FormErrorMessage>
       </FormControl>
@@ -186,11 +195,11 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         <FormLabel htmlFor="location">Location</FormLabel>
 
         <Controller
-          as={<PlacesSearch />}
           control={control}
           name="location"
           placeholder="Where is the party?"
           onClear={() => setValue('location', { label: '', value: null })}
+          render={({ field }) => <PlacesSearch {...field} />}
         />
 
         {location.value && (
@@ -215,7 +224,11 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
               defaultWidth={800}
               defaultHeight={100}
               center={[location.value.latitude, location.value.longitude]}
-              zoom={location.value.bbox ? viewport(location.value.bbox, [474, 100]).zoom : 16}
+              zoom={
+                location.value.bbox
+                  ? viewport(location.value.bbox, [474, 100]).zoom
+                  : 16
+              }
               mouseEvents={false}
               touchEvents={false}
             />
@@ -251,14 +264,11 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         </Box>
 
         <Input
+          {...coverProps}
+          ref={useMergeRefs(coverRef, coverProps.ref)}
           display="none"
           type="file"
           id="cover"
-          name="cover"
-          ref={(node) => {
-            register(node);
-            coverRef.current = node;
-          }}
           onChange={(e) => {
             const [file] = e.target.files;
 
@@ -273,12 +283,11 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
       <FormControl gridColumn="1 / 3" isInvalid={errors.about}>
         <FormLabel htmlFor="about">About</FormLabel>
         <Textarea
-          name="about"
+          {...register('about')}
           minH="15rem"
           resize="vertical"
           placeholder="What is it about?"
           whiteSpace="pre-wrap"
-          ref={register}
         />
         <FormErrorMessage>
           {errors.about && errors.about.message}

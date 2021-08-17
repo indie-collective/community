@@ -31,7 +31,14 @@ const propTypes = {
 };
 
 const SignupForm = ({ loading, onSubmit }) => {
-  const { handleSubmit, register, errors } = useForm({
+  const {
+    handleSubmit,
+    register,
+
+    formState: {
+      errors,
+    },
+  } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
@@ -39,7 +46,7 @@ const SignupForm = ({ loading, onSubmit }) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <FormControl mb={5} isInvalid={errors.firstName} isRequired>
         <FormLabel htmlFor="firstName">First name</FormLabel>
-        <Input name="firstName" ref={register} />
+        <Input {...register('firstName')} />
         <FormErrorMessage>
           {errors.firstName && errors.firstName.message}
         </FormErrorMessage>
@@ -47,7 +54,7 @@ const SignupForm = ({ loading, onSubmit }) => {
 
       <FormControl mb={5} isInvalid={errors.lastName} isRequired>
         <FormLabel htmlFor="lastName">Last name</FormLabel>
-        <Input name="lastName" ref={register} />
+        <Input {...register('lastName')} />
         <FormErrorMessage>
           {errors.lastName && errors.lastName.message}
         </FormErrorMessage>
@@ -55,7 +62,7 @@ const SignupForm = ({ loading, onSubmit }) => {
 
       <FormControl mb={5} isInvalid={errors.email} isRequired>
         <FormLabel htmlFor="email">Email</FormLabel>
-        <Input name="email" ref={register} />
+        <Input {...register('email')} />
         <FormErrorMessage>
           {errors.email && errors.email.message}
         </FormErrorMessage>
@@ -63,7 +70,7 @@ const SignupForm = ({ loading, onSubmit }) => {
 
       <FormControl mb={5} isInvalid={errors.password} isRequired>
         <FormLabel htmlFor="password">Password</FormLabel>
-        <Input name="password" type="password" ref={register} />
+        <Input {...register('password')} type="password" />
         <FormErrorMessage>
           {errors.password && errors.password.message}
         </FormErrorMessage>
@@ -71,7 +78,7 @@ const SignupForm = ({ loading, onSubmit }) => {
 
       <FormControl mb={5} isInvalid={errors.passwordConfirmation} isRequired>
         <FormLabel htmlFor="password2">Password confirmation</FormLabel>
-        <Input name="passwordConfirmation" type="password" ref={register} />
+        <Input {...register('passwordConfirmation')} type="password" />
         <FormErrorMessage>
           {errors.passwordConfirmation && errors.passwordConfirmation.message}
         </FormErrorMessage>

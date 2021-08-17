@@ -21,6 +21,7 @@ import {
   useButtonGroup,
   Flex,
   omitThemingProps,
+  useMergeRefs,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
 import { Map } from 'pigeon-maps';
@@ -128,7 +129,16 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
   const [logo, setLogo] = useState(defaultData.logo);
 
   const { id, type, name, location: l, site, about } = defaultData;
-  const { handleSubmit, register, errors, control, watch, setValue } = useForm({
+  const {
+    handleSubmit,
+    register,
+    control,
+    watch,
+    setValue,
+    formState: {
+      errors,
+    },
+  } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       type,
@@ -153,6 +163,8 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
 
   const location = watch('location');
   const newOrgName = watch('name');
+
+  const logoProps = register('logo');
 
   return (
     <Grid
@@ -190,14 +202,11 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
         </Box>
 
         <Input
+          {...logoProps}
+          ref={useMergeRefs(logoRef, logoProps.ref)}
           display="none"
           type="file"
           id="logo"
-          name="logo"
-          ref={(node) => {
-            register(node);
-            logoRef.current = node;
-          }}
           onChange={(e) => {
             const [file] = e.target.files;
 
@@ -216,8 +225,8 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
             color={TYPES_COLORS.STUDIO}
             flex="1"
             mr={2}
+            {...register('type')}
             {...getRadioProps({ value: 'STUDIO' })}
-            ref={register}
           >
             Studio
           </CustomRadio>
@@ -225,8 +234,8 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
             color={TYPES_COLORS.ASSOCIATION}
             flex="1"
             value="ASSOCIATION"
+            {...register('type')}
             {...getRadioProps({ value: 'ASSOCIATION' })}
-            ref={register}
           >
             Association
           </CustomRadio>
@@ -239,9 +248,8 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
       <FormControl gridColumn="1 / 3" isInvalid={errors.name} isRequired>
         <FormLabel htmlFor="name">Name</FormLabel>
         <Input
-          name="name"
+          {...register('name')}
           placeholder="Indie Collective, Electronic Darts..."
-          ref={register}
         />
         <PossibleOrgDuplicates value={newOrgName} ignoredId={id} />
         <FormErrorMessage>
@@ -253,11 +261,12 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
         <FormLabel htmlFor="location">Location</FormLabel>
 
         <Controller
-          as={<PlacesSearch />}
           control={control}
           name="location"
           placeholder="Rennes, France"
           onClear={() => setValue('location', { label: '', value: null })}
+          render={({ field }) => <PlacesSearch {...field} />}
+          // photon
         />
 
         {location.value && (
@@ -286,7 +295,7 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
 
       <FormControl gridColumn="1 / 3" isInvalid={errors.site}>
         <FormLabel htmlFor="site">Site</FormLabel>
-        <Input name="site" placeholder="https://example.com" ref={register} />
+        <Input {...register('site')} placeholder="https://example.com" />
         <FormErrorMessage>
           {errors.site && errors.site.message}
         </FormErrorMessage>
@@ -295,12 +304,11 @@ const OrgForm = ({ defaultData, onSubmit, loading }) => {
       <FormControl gridColumn="1 / 3" isInvalid={errors.about}>
         <FormLabel htmlFor="about">About</FormLabel>
         <Textarea
-          name="about"
+          {...register('about')}
           minH="15rem"
           resize="vertical"
           placeholder="What is this organization doing?"
           whiteSpace="pre-wrap"
-          ref={register}
         />
         <FormErrorMessage>
           {errors.about && errors.about.message}

@@ -41,7 +41,14 @@ const defaultProps = {
 const ProfileForm = ({ loading, onSubmit, defaultData }) => {
   const avatarRef = useRef();
   const [avatar, setAvatar] = useState(defaultData.avatar);
-  const { handleSubmit, register, errors } = useForm({
+  const {
+    handleSubmit,
+    register,
+
+    formState: {
+      errors,
+    },
+  } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
@@ -86,7 +93,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
 
       <FormControl mb={5} isInvalid={errors.firstName} isRequired>
         <FormLabel htmlFor="firstName">First name</FormLabel>
-        <Input name="firstName" defaultValue={firstName} ref={register} />
+        <Input {...register('firstName')} defaultValue={firstName} />
         <FormErrorMessage>
           {errors.firstName && errors.firstName.message}
         </FormErrorMessage>
@@ -94,7 +101,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
 
       <FormControl mb={5} isInvalid={errors.lastName}>
         <FormLabel htmlFor="lastName">Last name</FormLabel>
-        <Input name="lastName" defaultValue={lastName} ref={register} />
+        <Input {...register('lastName')} defaultValue={lastName} />
         <FormErrorMessage>
           {errors.lastName && errors.lastName.message}
         </FormErrorMessage>
@@ -104,12 +111,10 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
         <FormLabel htmlFor="about">About</FormLabel>
         <Textarea
           placeholder="What's your life like..."
-          name="about"
+          {...register('about')}
           resize="vertical"
           whiteSpace="pre-wrap"
-          defaultValue={about}
-          ref={register}
-        />
+          defaultValue={about} />
         <FormErrorMessage>
           {errors.about && errors.about.message}
         </FormErrorMessage>

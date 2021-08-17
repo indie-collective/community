@@ -40,7 +40,15 @@ const defaultProps = {
 
 const GameForm = ({ defaultData, onSubmit, loading }) => {
   const { id, name, about, site, tags = { nodes: [] } } = defaultData;
-  const { handleSubmit, register, errors, watch } = useForm({
+  const {
+    handleSubmit,
+    register,
+    watch,
+
+    formState: {
+      errors,
+    },
+  } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       name,
@@ -63,10 +71,8 @@ const GameForm = ({ defaultData, onSubmit, loading }) => {
       <FormControl gridColumn="1 / 3" isInvalid={errors.name} isRequired>
         <FormLabel htmlFor="name">Name</FormLabel>
         <Input
-          name="name"
-          placeholder="Super Tractor Simulator 2042, Assassin's Greed..."
-          ref={register}
-        />
+          {...register('name')}
+          placeholder="Super Tractor Simulator 2042, Assassin's Greed..." />
         <PossibleGameDuplicates value={newGameName} ignoredId={id} />
         <FormErrorMessage>
           {errors.name && errors.name.message}
@@ -76,13 +82,11 @@ const GameForm = ({ defaultData, onSubmit, loading }) => {
       <FormControl gridColumn="1 / 3" isInvalid={errors.about}>
         <FormLabel htmlFor="about">About</FormLabel>
         <Textarea
-          name="about"
+          {...register('about')}
           minH="15rem"
           resize="vertical"
           placeholder="What is it about?"
-          whiteSpace="pre-wrap"
-          ref={register}
-        />
+          whiteSpace="pre-wrap" />
         <FormErrorMessage>
           {errors.about && errors.about.message}
         </FormErrorMessage>
@@ -90,7 +94,7 @@ const GameForm = ({ defaultData, onSubmit, loading }) => {
 
       <FormControl gridColumn="1 / 3" isInvalid={errors.site}>
         <FormLabel htmlFor="site">Site</FormLabel>
-        <Input name="site" placeholder="https://example.com" ref={register} />
+        <Input {...register('site')} placeholder="https://example.com" />
         <FormErrorMessage>
           {errors.site && errors.site.message}
         </FormErrorMessage>
@@ -98,11 +102,7 @@ const GameForm = ({ defaultData, onSubmit, loading }) => {
 
       <FormControl gridColumn="1 / 3" isInvalid={errors.tags}>
         <FormLabel htmlFor="site">Tags</FormLabel>
-        <Input
-          name="tags"
-          placeholder="action, mystery, multiplayer"
-          ref={register}
-        />
+        <Input {...register('tags')} placeholder="action, mystery, multiplayer" />
         <FormErrorMessage>
           {errors.tags && errors.tags.message}
         </FormErrorMessage>
