@@ -283,6 +283,7 @@ const Event = ({ id, host }) => {
 
   if (
     error ||
+    id === undefined ||
     (id !== undefined && !validId) ||
     (!loading && data.event === null)
   ) {

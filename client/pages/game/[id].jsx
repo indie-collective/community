@@ -270,6 +270,7 @@ const Game = ({ id, host }) => {
 
   if (
     error ||
+    id === undefined ||
     (id !== undefined && !validId) ||
     (!loading && data.game === null)
   ) {
