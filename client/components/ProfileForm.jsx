@@ -13,12 +13,13 @@ import {
   Avatar,
   AvatarBadge,
   IconButton,
+  useMergeRefs,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
 
 const validationSchema = yup.object().shape({
   firstName: yup.string().required(),
-  lastName: yup.string(),
+  lastName: yup.string().required(),
   about: yup.string(),
 });
 
@@ -40,19 +41,25 @@ const defaultProps = {
 
 const ProfileForm = ({ loading, onSubmit, defaultData }) => {
   const avatarRef = useRef();
+  const { firstName, lastName, about } = defaultData;
   const [avatar, setAvatar] = useState(defaultData.avatar);
   const {
     handleSubmit,
     register,
-
     formState: {
       errors,
     },
   } = useForm({
     resolver: yupResolver(validationSchema),
+    defaultValues: {
+      firstName,
+      lastName,
+      about,
+    },
   });
 
-  const { firstName, lastName, about } = defaultData;
+
+  const avatarProps = register('avatar');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -76,15 +83,12 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
           type="file"
           id="avatar"
           name="avatar"
-          ref={node => {
-            register(node);
-            avatarRef.current = node;
-          }}
-          onChange={e => {
+          ref={useMergeRefs(avatarRef, avatarProps.ref)}
+          onChange={(e) => {
             const [file] = e.target.files;
 
             if (file) {
-              setAvatar({url: window.URL.createObjectURL(file)});
+              setAvatar({ url: window.URL.createObjectURL(file) });
             }
           }}
           accept="image/*"
@@ -93,7 +97,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
 
       <FormControl mb={5} isInvalid={errors.firstName} isRequired>
         <FormLabel htmlFor="firstName">First name</FormLabel>
-        <Input {...register('firstName')} defaultValue={firstName} />
+        <Input {...register('firstName')} id="firstName" placeholder="Jean-Michel" />
         <FormErrorMessage>
           {errors.firstName && errors.firstName.message}
         </FormErrorMessage>
@@ -101,7 +105,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
 
       <FormControl mb={5} isInvalid={errors.lastName}>
         <FormLabel htmlFor="lastName">Last name</FormLabel>
-        <Input {...register('lastName')} defaultValue={lastName} />
+        <Input {...register('lastName')} placeholder="Jam" />
         <FormErrorMessage>
           {errors.lastName && errors.lastName.message}
         </FormErrorMessage>
@@ -114,16 +118,15 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
           {...register('about')}
           resize="vertical"
           whiteSpace="pre-wrap"
-          defaultValue={about} />
+        />
         <FormErrorMessage>
           {errors.about && errors.about.message}
         </FormErrorMessage>
       </FormControl>
 
       <Button
-        display="block"
-        width="100%"
         type="submit"
+        isFullWidth
         mt={3}
         colorScheme="teal"
         isDisabled={loading}
