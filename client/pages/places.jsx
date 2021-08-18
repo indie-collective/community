@@ -112,19 +112,137 @@ function inBounds(point, bounds) {
 
 const RETRACTED_BAND_TOP = '90%';
 
+const MovingBandRaw = ({ containerRef, header, children }) => {
+  const [bandTop, setBandTop] = useState(RETRACTED_BAND_TOP);
+  const bandTopRef = useRef(RETRACTED_BAND_TOP);
+  const isDraggingBand = useRef(false);
+  const listBgColor = useColorModeValue('white', 'gray.800');
+  const dragHandlebgColor = useColorModeValue('gray.300', 'gray.500');
+
+  const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
+  const isMobile = variant === 'mobile';
+
+  const onMoveBand = useCallback(
+    (e) => {
+      console.log('move', isDraggingBand.current);
+      if (isDraggingBand.current) {
+        const { top } = containerRef.current.getBoundingClientRect();
+        const points = e.touches || [];
+
+        const y = (points[0] ? points[0].pageY : e.pageY) - top;
+        const newPosition = (y > 0 ? y : 0) + 'px';
+
+        setBandTop(newPosition);
+        bandTopRef.current = newPosition;
+      }
+    },
+    [isDraggingBand, containerRef]
+  );
+
+  const onMoveBandStop = useCallback(() => {
+    console.log('stop', isDraggingBand.current);
+    if (isDraggingBand.current) {
+      const { top, height } = containerRef.current.getBoundingClientRect();
+
+      if (parseInt(bandTopRef.current) > top + height / 2) {
+        setBandTop(RETRACTED_BAND_TOP);
+        bandTopRef.current = RETRACTED_BAND_TOP;
+      } else {
+        setBandTop(0 + 'px');
+        bandTopRef.current = 0 + 'px';
+      }
+      isDraggingBand.current = false;
+    }
+  }, [isDraggingBand, containerRef]);
+
+  useEffect(() => {
+    const tm = document.addEventListener('touchmove', onMoveBand);
+    const te = document.addEventListener('touchend', onMoveBandStop);
+    const tc = document.addEventListener('touchcancel', onMoveBandStop);
+    const mm = document.addEventListener('mousemove', onMoveBand);
+    const mu = document.addEventListener('mouseup', onMoveBandStop);
+
+    return () => {
+      document.removeEventListener('touchmove', tm);
+      document.removeEventListener('touchend', te);
+      document.removeEventListener('touchcancel', tc);
+      document.removeEventListener('mousemove', mm);
+      document.removeEventListener('mouseup', mu);
+    };
+  }, []);
+
+  return (
+    <Flex
+      direction="column"
+      w={{ base: '100%', md: '400px' }}
+      h={{ base: `100%`, md: 'auto' }}
+      transform={{
+        base: `translate3d(0, ${RETRACTED_BAND_TOP}, 0)`,
+        md: 'initial',
+      }}
+      overflow={{ base: 'hidden', md: 'auto' }}
+      sx={{ scrollBehavior: 'smooth' }}
+      background={{
+        base: listBgColor,
+        md: 'transparent',
+      }}
+      borderTopRadius={24}
+      position="relative"
+      zIndex="100"
+      style={
+        isMobile
+          ? {
+              transform: `translate3d(0, calc(${bandTop} - 100%), 0)`,
+            }
+          : undefined
+      }
+    >
+      <Box
+        as="header"
+        _before={
+          isMobile
+            ? {
+                content: '""',
+                display: 'block',
+                margin: 'auto',
+                width: '40px',
+                height: '4px',
+                borderRadius: 4,
+                backgroundColor: dragHandlebgColor,
+              }
+            : undefined
+        }
+        onTouchStart={() => {
+          isDraggingBand.current = true;
+        }}
+        onMouseDown={() => {
+          isDraggingBand.current = true;
+        }}
+        p={3}
+        userSelect={{ base: 'none', md: 'initial' }}
+      >
+        {header}
+      </Box>
+      {children}
+    </Flex>
+  );
+};
+
+const MovingBand = React.memo(MovingBandRaw, (prev, next) => {
+  return (
+    prev.containerRef === next.containerRef &&
+    prev.header === next.header &&
+    prev.children === next.children
+  );
+});
+
 const Cities = () => {
   const containerRef = useRef();
   const [currentBounds, setCurrentBounds] = useState();
   const [highlightedOrg, setHighlightedOrg] = useState();
-  const [bandTop, setBandTop] = useState(RETRACTED_BAND_TOP);
-  const [isDraggingBand, setIsDraggingBand] = useState(false);
   const { loading, error, data } = useQuery(getCitiesQuery, {
     variables: {},
   });
-  const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
-  const isMobile = variant === 'mobile';
-  const listBgColor = useColorModeValue('white', 'gray.800');
-  const dragHandlebgColor = useColorModeValue('gray.300', 'gray.500');
 
   useEffect(() => {
     if (!window) return;
@@ -139,31 +257,10 @@ const Cities = () => {
 
   const cities = data ? data.cities : { nodes: [] };
 
-  const onMoveBand = useCallback((e) => {
-    if (isDraggingBand) {
-      const { top } = containerRef.current.getBoundingClientRect();
-      const points = e.changedTouches || [];
-
-      setBandTop((points[0] ? points[0].pageY : e.pageY) - top + 'px');
-    }
-  });
-
-  const onMoveBandStop = useCallback(() => {
-    if (isDraggingBand) {
-      const { top, height } = containerRef.current.getBoundingClientRect();
-
-      if (parseInt(bandTop) > top + height / 2) {
-        setBandTop(RETRACTED_BAND_TOP);
-      } else {
-        setBandTop(0 + 'px');
-      }
-      setIsDraggingBand(false);
-    }
-  });
-
   const handleOrgCardEnter = useCallback((org) => setHighlightedOrg(org.id));
   const handleOrgCardOut = useCallback(() => setHighlightedOrg());
 
+  // TODO: see if we can prevent this from changing
   const orgsInBounds = useMemo(
     () =>
       cities.nodes
@@ -176,6 +273,18 @@ const Cities = () => {
           return inBounds(org.location, currentBounds);
         }),
     [cities.nodes, currentBounds]
+  );
+
+  const orgsListHeader = useMemo(
+    () => (
+      <Heading size="md" textAlign="center" m={2}>
+        Locations
+        <Badge colorScheme="teal" variant="solid" ml={2} fontSize="xl">
+          {orgsInBounds.length}
+        </Badge>
+      </Heading>
+    ),
+    [orgsInBounds.length]
   );
 
   if (error || (!loading && data.cities === null)) {
@@ -225,11 +334,6 @@ const Cities = () => {
         display={{ base: '', md: 'flex' }}
         h="100%"
         overflow="hidden"
-        onTouchMove={isMobile ? onMoveBand : undefined}
-        onTouchEnd={isMobile ? onMoveBandStop : undefined}
-        onTouchCancel={isMobile ? onMoveBandStop : undefined}
-        onMouseMove={isMobile ? onMoveBand : undefined}
-        onMouseUp={isMobile ? onMoveBandStop : undefined}
       >
         <Map
           defaultWidth={1240}
@@ -311,61 +415,13 @@ const Cities = () => {
             ))}
         </Map>
 
-        <Flex
-          direction="column"
-          w={{ base: '100%', md: '400px' }}
-          h={{ base: `100%`, md: 'auto' }}
-          transform={{
-            base: `translateY(${RETRACTED_BAND_TOP})`,
-            md: 'initial',
-          }}
-          overflow={{ base: 'hidden', md: 'auto' }}
-          sx={{ 'scroll-behavior': 'smooth' }}
-          background={{
-            base: listBgColor,
-            md: 'transparent',
-          }}
-          borderTopRadius={24}
-          style={
-            isMobile
-              ? {
-                  transform: `translateY(calc(${bandTop} - 100%))`,
-                }
-              : undefined
-          }
-        >
-          <Box
-            as="header"
-            _before={
-              isMobile
-                ? {
-                    content: '""',
-                    display: 'block',
-                    margin: 'auto',
-                    width: '40px',
-                    height: '4px',
-                    borderRadius: 4,
-                    backgroundColor: dragHandlebgColor,
-                  }
-                : undefined
-            }
-            onTouchStart={() => setIsDraggingBand(true)}
-            onMouseDown={() => setIsDraggingBand(true)}
-            p={3}
-            userSelect={{ base: 'none', md: 'initial' }}
-          >
-            <Heading size="md" textAlign="center" m={2}>
-              Locations
-              <Badge colorScheme="teal" variant="solid" ml={2} fontSize="xl">
-                {orgsInBounds.length}
-              </Badge>
-            </Heading>
-          </Box>
+        {/* TODO: see if we can prevent change in children (see orgsInBounds) */}
+        <MovingBand containerRef={containerRef} header={orgsListHeader}>
           <Box
             flex={1}
             overflow="auto"
             px={3}
-            sx={{ 'scroll-behavior': 'smooth' }}
+            sx={{ scrollBehavior: 'smooth' }}
           >
             <OrgList
               orgs={orgsInBounds}
@@ -373,7 +429,7 @@ const Cities = () => {
               onMouseOut={handleOrgCardOut}
             />
           </Box>
-        </Flex>
+        </MovingBand>
       </Box>
     </Flex>
   );
