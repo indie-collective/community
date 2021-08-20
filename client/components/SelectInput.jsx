@@ -127,6 +127,7 @@ const SelectInput = ({
               key={itemPredicate(item)}
               {...ButtonProps}
               variant="ghost"
+              colorScheme="gray"
               width="100%"
               textAlign="left"
               onClick={() => {
