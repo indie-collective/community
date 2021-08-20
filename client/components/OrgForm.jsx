@@ -97,7 +97,7 @@ const CustomRadio = React.forwardRef((props, ref) => {
   const styles = useStyleConfig('Button', {
     ...group,
     ...props,
-    colorScheme: input.checked ? color : undefined,
+    colorScheme: input.checked ? color : 'gray',
   });
 
   const buttonStyles = {
