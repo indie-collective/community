@@ -1,4 +1,4 @@
-import { Box, Heading, Stack, Spinner } from '@chakra-ui/react';
+import { Box, Heading, Spinner } from '@chakra-ui/react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -216,16 +216,13 @@ const EditEvent = ({ id }) => {
 
       <Navigation />
 
-      <Box width={500} margin="40px auto">
+      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
         <Heading mb={5}>Update event</Heading>
-
-        <Stack borderWidth="1px" mb={10} p={3} borderRadius={5} align="stretch">
-          <EventForm
-            defaultData={data && data.event}
-            onSubmit={handleFormSubmit}
-            loading={loadingUpdate || loadingLocation || loadingCover}
-          />
-        </Stack>
+        <EventForm
+          defaultData={data && data.event}
+          onSubmit={handleFormSubmit}
+          loading={loadingUpdate || loadingLocation || loadingCover}
+        />
       </Box>
     </div>
   );

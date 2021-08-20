@@ -61,7 +61,7 @@ const Profile = ({ id }) => {
 
       <Navigation />
 
-      <Box width={500} margin="40px auto">
+      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
         <Heading mb={5}>Profile</Heading>
 
         <Stack

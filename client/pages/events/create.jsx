@@ -1,4 +1,4 @@
-import { Box, Heading, Stack } from '@chakra-ui/react';
+import { Box, Heading } from '@chakra-ui/react';
 import { gql, useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -159,15 +159,13 @@ const CreateEvent = () => {
 
       <Navigation />
 
-      <Box width={500} margin="40px auto">
+      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
         <Heading mb={5}>Create event</Heading>
 
-        <Stack borderWidth="1px" mb={10} p={3} borderRadius={5} align="stretch">
-          <EventForm
-            onSubmit={handleFormSubmit}
-            loading={loading || loadingLocation || loadingCover}
-          />
-        </Stack>
+        <EventForm
+          onSubmit={handleFormSubmit}
+          loading={loading || loadingLocation || loadingCover}
+        />
       </Box>
     </div>
   );

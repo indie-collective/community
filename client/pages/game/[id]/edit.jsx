@@ -1,4 +1,4 @@
-import { Box, Heading, Spinner, Stack } from '@chakra-ui/react';
+import { Box, Heading, Spinner } from '@chakra-ui/react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -171,18 +171,16 @@ const EditGame = ({ id }) => {
 
       <Navigation />
 
-      <Box width={500} margin="40px auto">
+      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
         <Heading mb={5}>Update game</Heading>
 
-        <Stack borderWidth="1px" mb={10} p={3} borderRadius={5} align="stretch">
-          <GameForm
-            defaultData={data && data.game}
-            onSubmit={handleFormSubmit}
-            loading={
-              loadingUpdate || loadingTag || loadingTagLink || loadingTagUnlink
-            }
-          />
-        </Stack>
+        <GameForm
+          defaultData={data && data.game}
+          onSubmit={handleFormSubmit}
+          loading={
+            loadingUpdate || loadingTag || loadingTagLink || loadingTagUnlink
+          }
+        />
       </Box>
     </div>
   );

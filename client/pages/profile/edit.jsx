@@ -1,5 +1,5 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { Box, Heading, Spinner, Stack } from '@chakra-ui/react';
+import { Box, Heading, Spinner } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -105,16 +105,14 @@ const Profile = ({}) => {
 
       <Navigation />
 
-      <Box width={500} margin="40px auto">
+      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
         <Heading mb={5}>Profile</Heading>
 
-        <Stack borderWidth="1px" mb={10} p={3} borderRadius={5} align="stretch">
-          <ProfileForm
-            defaultData={data.currentPerson}
-            onSubmit={handleFormSubmit}
-            loading={loadingUpdate || loadingAvatar}
-          />
-        </Stack>
+        <ProfileForm
+          defaultData={data.currentPerson}
+          onSubmit={handleFormSubmit}
+          loading={loadingUpdate || loadingAvatar}
+        />
       </Box>
     </div>
   );
