@@ -98,9 +98,7 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
     control,
     watch,
     setValue,
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -145,20 +143,22 @@ const EventForm = ({ defaultData, onSubmit, loading }) => {
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.status}>
+      <FormControl gridColumn="1 / 3" isInvalid={errors.status} display="flex">
         <FormLabel htmlFor="status">Mark as canceled</FormLabel>
         <Controller
           name="status"
           control={control}
           defaultValue={status}
-          render={(props) => (
+          render={({ field: { onChange, onBlur, value, name } }) => (
             <Switch
               id="status"
+              name={name}
               colorScheme="red"
-              isChecked={props.value === 'CANCELED'}
+              isChecked={value === 'CANCELED'}
               onChange={(e) =>
-                props.onChange(e.target.checked ? 'CANCELED' : 'ONGOING')
+                onChange(e.target.checked ? 'CANCELED' : 'ONGOING')
               }
+              onBlur={onBlur}
             />
           )}
         />
