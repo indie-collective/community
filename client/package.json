@@ -12,7 +12,7 @@
     "@chakra-ui/react": "^1.6.5",
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
-    "@hookform/resolvers": "^1.0.0",
+    "@hookform/resolvers": "^2.8.0",
     "@mapbox/geo-viewport": "^0.4.1",
     "apollo-link-token-refresh": "^0.3.2",
     "apollo-upload-client": "^14.1.2",
@@ -34,7 +34,7 @@
     "remarkable": "^2.0.1",
     "remarkable-react": "^1.4.3",
     "slick-carousel": "^1.8.1",
-    "yup": "^0.29.3"
+    "yup": "^0.32.9"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
