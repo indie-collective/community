@@ -112,7 +112,7 @@ function inBounds(point, bounds) {
 
 const RETRACTED_BAND_TOP = '90%';
 
-const MovingBandRaw = ({ containerRef, header, children }) => {
+const MovingBand = React.memo(({ containerRef, header, children }) => {
   const [bandTop, setBandTop] = useState(RETRACTED_BAND_TOP);
   const bandTopRef = useRef(RETRACTED_BAND_TOP);
   const isDraggingBand = useRef(false);
@@ -225,14 +225,6 @@ const MovingBandRaw = ({ containerRef, header, children }) => {
       </Box>
       {children}
     </Flex>
-  );
-};
-
-const MovingBand = React.memo(MovingBandRaw, (prev, next) => {
-  return (
-    prev.containerRef === next.containerRef &&
-    prev.header === next.header &&
-    prev.children === next.children
   );
 });
 
