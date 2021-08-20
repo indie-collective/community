@@ -60,6 +60,54 @@ const getCitiesQuery = gql`
   }
 `;
 
+const OrgMarker = React.memo(({ id, logo, name, type }) => (
+  <Tooltip label={name} aria-label="A tooltip">
+    <Box
+      width={50}
+      height={50}
+      position="relative"
+      onClick={() => {
+        window.location.hash = id;
+      }}
+    >
+      <chakra.svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="48px"
+        height="48px"
+        viewBox="0 0 480 480"
+        color={TYPES_COLORS[type] + '.500'}
+      >
+        <defs>
+          <mask id="mask">
+            <rect x="0" y="0" width="480" height="480" fill="white" />
+            <circle cx="240" cy="200" r="120" fill="black" />
+          </mask>
+        </defs>
+
+        <path
+          d="M175 429 c-63 -60 -108 -126 -126 -187 -38 -129 104 -269 235 -232 85 24 155 108 156 188 0 55 -48 141 -120 215 -36 37 -71 67 -78 67 -7 0 -38 -23 -67 -51z"
+          fill="currentColor"
+          mask="url(#mask)"
+        />
+        {logo && (
+          <foreignObject x="80" y="40" width="320" height="320">
+            <img
+              style={{
+                backgroundColor: 'currentColor',
+                objectFit: 'cover',
+                borderRadius: '50%',
+                width: '320px',
+                height: '320px',
+              }}
+              src={logo.thumbnail_url}
+            />
+          </foreignObject>
+        )}
+      </chakra.svg>
+    </Box>
+  </Tooltip>
+));
+
 const highlight = keyframes({
   '0%': {
     transform: 'scale(1)',
@@ -345,64 +393,14 @@ const Cities = () => {
                 offset={[48 / 2, 48]}
                 cursor="pointer"
                 transformOrigin="bottom center"
-                transform={highlightedOrg === org.id && 'scale(1.2)'}
-                zIndex={highlightedOrg === org.id ? 2 : org.logo ? 1 : 0}
+                transform={org.id === highlightedOrg && 'scale(1.2)'}
+                zIndex={org.id === highlightedOrg ? 2 : org.logo ? 1 : 0}
                 _hover={{
                   zIndex: 2,
                   transform: 'scale(1.2)',
                 }}
               >
-                <Tooltip label={org.name} aria-label="A tooltip">
-                  <Box
-                    width={50}
-                    height={50}
-                    position="relative"
-                    onClick={() => {
-                      window.location.hash = org.id;
-                    }}
-                  >
-                    <chakra.svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="48px"
-                      height="48px"
-                      viewBox="0 0 480 480"
-                      color={TYPES_COLORS[org.type] + '.500'}
-                    >
-                      <defs>
-                        <mask id="mask">
-                          <rect
-                            x="0"
-                            y="0"
-                            width="480"
-                            height="480"
-                            fill="white"
-                          />
-                          <circle cx="240" cy="200" r="120" fill="black" />
-                        </mask>
-                      </defs>
-
-                      <path
-                        d="M175 429 c-63 -60 -108 -126 -126 -187 -38 -129 104 -269 235 -232 85 24 155 108 156 188 0 55 -48 141 -120 215 -36 37 -71 67 -78 67 -7 0 -38 -23 -67 -51z"
-                        fill="currentColor"
-                        mask="url(#mask)"
-                      />
-                      {org.logo && (
-                        <foreignObject x="80" y="40" width="320" height="320">
-                          <img
-                            style={{
-                              backgroundColor: 'currentColor',
-                              objectFit: 'cover',
-                              borderRadius: '50%',
-                              width: '320px',
-                              height: '320px',
-                            }}
-                            src={org.logo.thumbnail_url}
-                          />
-                        </foreignObject>
-                      )}
-                    </chakra.svg>
-                  </Box>
-                </Tooltip>
+                <OrgMarker {...org} />
               </Overlay>
             ))}
         </Map>
