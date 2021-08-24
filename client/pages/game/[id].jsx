@@ -23,6 +23,8 @@ import {
   useColorModeValue,
   Link as ChakraLink,
   useToast,
+  List,
+  ListItem,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import Head from 'next/head';
@@ -72,10 +74,13 @@ const gameQuery = gql`
         }
       }
 
-      events {
+      events(orderBy: [STARTS_AT_DESC, ENDS_AT_DESC]) {
         totalCount
         nodes {
+          id
           name
+          startsAt
+          endsAt
         }
       }
     }
@@ -281,7 +286,13 @@ const Game = ({ id, host }) => {
     return <Spinner />;
   }
 
-  const { name, site, about, images, entities, tags } = data.game;
+  const { name, site, about, images, entities, tags, events } = data.game;
+
+  const dateTimeFormat = new Intl.DateTimeFormat('en', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 
   return (
     <div>
@@ -406,6 +417,29 @@ const Game = ({ id, host }) => {
             </>
           )}
         </Grid>
+      </Box>
+
+      <Box mb={5} pl={5} pr={5}>
+        <Heading size="md" mb={2}>
+          Made/Exhibited at:
+        </Heading>
+        <List>
+          {events.nodes.map((event) => (
+            <ListItem key={event.key}>
+              <Link href={`/event/${event.id}`} passHref>
+                <ChakraLink>
+                  <time dateTime={event.startsAt + '/' + event.endsAt}>
+                    {dateTimeFormat.formatRange(
+                      new Date(event.startsAt),
+                      new Date(event.endsAt)
+                    )}
+                  </time>.{' '}
+                  {event.name}
+                </ChakraLink>
+              </Link>
+            </ListItem>
+          ))}
+        </List>
       </Box>
 
       <Box mb={5} pl={5} pr={5}>
