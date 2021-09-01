@@ -22,7 +22,7 @@
     "isomorphic-unfetch": "^3.1.0",
     "jsonwebtoken": "^8.5.1",
     "lodash.differencewith": "^4.5.0",
-    "next": "^10.0.0",
+    "next": "^11.1.1",
     "pigeon-maps": "^0.19.7",
     "pigeon-marker": "^0.3.4",
     "prop-types": "^15.7.2",
