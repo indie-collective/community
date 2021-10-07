@@ -1573,7 +1573,7 @@ d2d41235-8750-4251-af21-00d5c286ae6d	45f638bd-a8a8-4fc7-bc45-34320557bc98	2019-0
 -- Data for Name: person_account; Type: TABLE DATA; Schema: indieco_private; Owner: engleek
 --
 
-COPY indieco_private.person_account (person_id, email, password_hash, is_admin) FROM stdin;
+COPY indieco_private.person_account (person_id, email) FROM stdin;
 \.
 
 

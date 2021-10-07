@@ -408,15 +408,11 @@ create trigger game_event_updated_at before update
 create table indieco_private.person_account (
   person_id        uuid primary key references indieco.person(id) on delete cascade,
   email            text not null unique check (email ~* '^.+@.+\..+$'),
-  password_hash    text not null,
-  is_admin         boolean not null default false
 );
 
 comment on table indieco_private.person_account is 'Private information about a person’s account.';
 comment on column indieco_private.person_account.person_id is 'The id of the person associated with this account.';
 comment on column indieco_private.person_account.email is 'The email address of the person.';
-comment on column indieco_private.person_account.password_hash is 'An opaque hash of the person’s password.';
-
 
 -------------------------
 -- registration functions
@@ -424,8 +420,7 @@ comment on column indieco_private.person_account.password_hash is 'An opaque has
 create function indieco.register_person(
   first_name text,
   last_name text,
-  email text,
-  password text
+  email text
 ) returns indieco.person as $$
 declare
   person indieco.person;
@@ -434,16 +429,17 @@ begin
     (first_name, last_name)
     returning * into person;
 
-  insert into indieco_private.person_account (person_id, email, password_hash) values
-    (person.id, email, crypt(password, gen_salt('bf')));
+  insert into indieco_private.person_account (person_id, email) values
+    (person.id, email);
 
   return person;
 end;
 $$ language plpgsql strict security definer;
 
-comment on function indieco.register_person(text, text, text, text) is 'Registers a single user and creates an account in our forum.';
+comment on function indieco.register_person(text, text, text) is 'Registers a single user and creates an account.';
 
--- create role indieco_postgraphile login password 'xyz';
+-------------------------
+-- roles
 
 create role indieco_anonymous;
 -- grant indieco_anonymous to indieco_postgraphile;
@@ -451,70 +447,17 @@ create role indieco_anonymous;
 create role indieco_person;
 -- grant indieco_person to indieco_postgraphile;
 
-create type indieco.jwt_token as (
-  role text,
-  exp integer,
-  person_id uuid,
-  is_admin boolean,
-  email varchar
-);
-
-create function indieco.authenticate(
-  email text,
-  password text
-) returns indieco.jwt_token as $$
-  select (
-    'indieco_person',
-    extract(epoch from now() + interval '7 days'),
-    person_id,
-    is_admin,
-    email
-  )::indieco.jwt_token
-    from indieco_private.person_account
-    where 
-      person_account.email = $1 
-      and person_account.password_hash = crypt($2, person_account.password_hash);
-$$ language sql strict security definer;
-
-comment on function indieco.authenticate(text, text) is 'Creates a JWT token that will securely identify a person and give them certain permissions.';
-
-create function indieco.refresh_token() returns indieco.jwt_token as $$
-  select (
-    'indieco_person',
-    extract(epoch from now() + interval '7 days'),
-    person_id,
-    is_admin,
-    email
-  )::indieco.jwt_token
-    from indieco_private.person_account
-    where person_account.person_id = nullif(current_setting('jwt.claims.person_id', true), '')::uuid
-$$ language sql strict security definer;
-
-comment on function indieco.refresh_token() is 'Creates a new JWT token for an authenticated user.';
+create role indieco_admin;
 
 create function indieco.current_person() returns indieco.person as $$
-  select *
+  select indieco.person.*
   from indieco.person
-  where id = nullif(current_setting('jwt.claims.person_id', true), '')::uuid
-$$ language sql stable;
+  join indieco_private.person_account
+  on id = person_id
+  where email = nullif(current_setting('person.email', true), '')
+$$ language sql strict security definer stable;
 
-comment on function indieco.current_person() is 'Gets the person who was identified by our JWT.';
-
-create function indieco.change_password(current_password text, new_password text) 
-returns boolean as $$
-declare
-  current_person indieco.person;
-begin
-  current_person := indieco.current_person();
-  if exists (select 1 from indieco_private.person_account where person_account.person_id = current_person.id and person_account.password_hash = crypt($1, person_account.password_hash)) 
-  then
-    update indieco_private.person_account set password_hash = crypt($2, gen_salt('bf')) where person_account.person_id = current_person.id; 
-    return true;
-  else 
-    return false;
-  end if;
-end;
-$$ language plpgsql strict security definer;
+comment on function indieco.current_person() is 'Gets the person identified by the JWT.';
 
 create function indieco.city_orgs(city indieco.city) returns setof indieco.entity AS $$
   select indieco.entity.* from indieco.entity
@@ -534,7 +477,7 @@ create function indieco.city_events(city indieco.city) returns setof indieco.eve
     city.country_code = country_code
 $$ language sql stable;
 
-grant usage on schema indieco to indieco_anonymous, indieco_person;
+grant usage on schema indieco to indieco_anonymous, indieco_person, indieco_admin;
 
 grant select on table indieco.person to indieco_anonymous, indieco_person;
 grant update, delete on table indieco.person to indieco_person;
@@ -588,28 +531,34 @@ grant select on table indieco.event_participant to indieco_anonymous, indieco_pe
 grant insert, update, delete on table indieco.event_participant to indieco_person;
 
 grant execute on function indieco.person_full_name(indieco.person) to indieco_anonymous, indieco_person;
-grant execute on function indieco.authenticate(text, text) to indieco_anonymous, indieco_person;
-grant execute on function indieco.refresh_token() to indieco_person;
 grant execute on function indieco.current_person() to indieco_anonymous, indieco_person;
-grant execute on function indieco.change_password(text, text) to indieco_person;
 grant execute on function uuid_generate_v4() to indieco_person;
-
-grant execute on function indieco.register_person(text, text, text, text) to indieco_anonymous;
+grant execute on function indieco.register_person(text, text, text) to indieco_admin;
 
 grant execute on function indieco.city_orgs(indieco.city) to indieco_anonymous, indieco_person;
 
 grant execute on function indieco.city_events(indieco.city) to indieco_anonymous, indieco_person;
 
+grant indieco_anonymous to indieco_person;
+
+grant indieco_anonymous to indieco_admin;
+grant indieco_person to indieco_admin;
+
 alter table indieco.person enable row level security;
 
-create policy select_person on indieco.person for select
-  using (true);
-
 create policy update_person on indieco.person for update to indieco_person
-  using (id = current_setting('jwt.claims.person_id', true)::uuid);
+  using (id = (select id from indieco.current_person()));
 
 create policy delete_person on indieco.person for delete to indieco_person
-  using (id = current_setting('jwt.claims.person_id', true)::uuid);
+  using (id = (select id from indieco.current_person()));
+
+alter table indieco.event_participant enable row level security;
+
+create policy join_event on indieco.event_participant for insert to indieco_person
+  with check (person_id = (select id from indieco.current_person()));
+
+create policy leave_event on indieco.event_participant for insert, update, delete to indieco_person
+  using (person_id = (select id from indieco.current_person()));
 
 -- create policy insert_post on indieco.post for insert to indieco_person
 --   with check (author_id = current_setting('jwt.claims.person_id', true)::integer);
@@ -620,5 +569,6 @@ create policy delete_person on indieco.person for delete to indieco_person
 -- create policy delete_post on indieco.post for delete to indieco_person
 --   using (author_id = current_setting('jwt.claims.person_id', true)::integer);
 
+create policy admin_delete on indieco.person for delete to indieco_admin;
 
 commit;

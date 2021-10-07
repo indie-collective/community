@@ -6,6 +6,8 @@ const jimp = require('jimp');
 const AWS = require('aws-sdk');
 const expressPlayground = require('graphql-playground-middleware-express')
   .default;
+const jwt = require('express-jwt');
+const jwksRsa = require('jwks-rsa');
 
 const PostGraphileUploadFieldPlugin = require('postgraphile-plugin-upload-field');
 const PostGraphileDerivedFieldPlugin = require('postgraphile-plugin-derived-field');
@@ -13,8 +15,6 @@ const PgManyToManyPlugin = require('@graphile-contrib/pg-many-to-many');
 const PgSimplifyInflector = require('@graphile-contrib/pg-simplify-inflector');
 const ConnectionFilterPlugin = require('postgraphile-plugin-connection-filter');
 const UpsertPlugin = require('./PgUpsertPlugin');
-
-const { jwtSecret } = require('./config.json');
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -25,6 +25,7 @@ const {
   DB_PASS,
   S3_ACCESS_KEY_ID,
   S3_SECRET_ACCESS_KEY,
+  ADMIN_SECRET,
 } = process.env;
 
 const DB_URL =
@@ -44,6 +45,29 @@ const s3 = new AWS.S3({
   params: { Bucket: CDN },
 });
 
+const checkJwt = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: 'https://indie-collective.eu.auth0.com/.well-known/jwks.json',
+  }),
+  audience: 'http://localhost:4000/graphql',
+  issuer: 'https://indie-collective.eu.auth0.com/',
+  algorithms: ['RS256'],
+  credentialsRequired: false,
+});
+
+const authErrors = (err, req, res, next) => {
+  if (err.name === 'UnauthorizedError') {
+    console.log(err); // You will still want to log the error...
+    // but we don't want to send back internal operation details
+    // like a stack trace to the client!
+    res.status(err.status).json({ errors: [{ message: err.message }] });
+    res.end();
+  }
+};
+
 const app = express();
 
 const UPLOAD_DIR_NAME = 'uploads';
@@ -54,6 +78,9 @@ app.use(IMAGES_PATH, express.static(path.resolve(UPLOAD_DIR_NAME)));
 
 // Attach multipart request handling middleware
 app.use(graphqlUploadExpress());
+
+app.use('/graphql', checkJwt);
+app.use('/graphql', authErrors);
 
 app.use(
   postgraphile(DB_URL, 'indieco', {
@@ -69,9 +96,23 @@ app.use(
       ConnectionFilterPlugin,
       UpsertPlugin,
     ],
-    jwtSecret,
-    jwtPgTypeIdentifier: 'indieco.jwt_token',
-    pgDefaultRole: 'indieco_anonymous',
+    pgSettings: (req) => {
+      const settings = {};
+
+      if (req.user) {
+        settings['role'] = req.user['http://community.indieco.xyz/roles'];
+        settings['role'] = 'indieco_person';
+        settings['person.email'] =
+          req.user['http://community.indieco.xyz/email'];
+      }
+      else if (req.headers['x-admin-secret'] && req.headers['x-admin-secret'] === ADMIN_SECRET) {
+        settings['role'] = 'indieco_admin';
+      } else {
+        settings['role'] = 'indieco_anonymous';
+      }
+
+      return settings;
+    },
     graphileBuildOptions: {
       uploadFieldDefinitions: [
         {
