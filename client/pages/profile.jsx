@@ -13,9 +13,9 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
@@ -34,21 +34,16 @@ const profileQuery = gql`
   }
 `;
 
-const Profile = ({ id }) => {
+const Profile = () => {
   const { colorMode, toggleColorMode } = useColorMode();
+  const apolloClient = useApolloClient();
+
   const { loading, error, data } = useQuery(profileQuery, {
     variables: {},
   });
-  const apolloClient = useApolloClient();
-  const { push } = useRouter();
 
   if (loading) {
     return <Spinner />;
-  }
-
-  if (!data.currentPerson) {
-    push('/signin');
-    return;
   }
 
   const { fullName, about, avatar, createdAt } = data.currentPerson;
@@ -115,9 +110,8 @@ const Profile = ({ id }) => {
             variant="link"
             onClick={async (e) => {
               await apolloClient.resetStore();
-              document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
-              push('/');
+              window.location = '/api/auth/logout';
             }}
           >
             Logout
@@ -128,23 +122,4 @@ const Profile = ({ id }) => {
   );
 };
 
-Profile.getInitialProps = async (ctx) => {
-  const { data } = await ctx.apolloClient.query({
-    query: gql`
-      query isLoggedIn {
-        currentPerson {
-          id
-        }
-      }
-    `,
-  });
-
-  if (!data.currentPerson && ctx.res) {
-    ctx.res.writeHead(302, { Location: '/signin' });
-    ctx.res.end();
-  }
-
-  return {};
-};
-
-export default withApollo({ ssr: true })(Profile);
+export default withApollo({ ssr: true })(withPageAuthRequired(Profile));

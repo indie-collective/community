@@ -1,9 +1,11 @@
-import { ApolloClient, InMemoryCache, ApolloLink, Observable } from '@apollo/client';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloLink,
+  Observable,
+} from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 import { createUploadLink } from 'apollo-upload-client';
-import fetch from 'isomorphic-unfetch';
-import jwt from 'jsonwebtoken';
-import { TokenRefreshLink } from 'apollo-link-token-refresh';
 
 const isProduction = process && process.env.NODE_ENV === 'production';
 
@@ -15,34 +17,23 @@ export default function createApolloClient(initialState, ctx) {
   // The `ctx` (NextPageContext) will only be present on the server.
   // use it to extract auth headers (ctx.req) or similar.
 
-  const getToken = () => {
-    let cookies;
+  const getToken = async () => {
+    const response = await fetch('/api/token');
+    const { accessToken } = await response.json();
 
-    // JWT is in cookie for SSR
-    if (ctx && ctx.req.headers.cookie) {
-      cookies = ctx.req.headers.cookie;
-    } else if (typeof window !== 'undefined') {
-      cookies = document.cookie;
-    }
-
-    if (!/token=([^;]+)/.test(cookies)) {
-      return null;
-    }
-
-    const [, token] = cookies.match(/token=([^;]+)/);
-
-    return token;
+    return accessToken;
   };
 
   const request = async (operation) => {
-    const token = getToken();
+    const token = await getToken();
 
     if (token) {
-      operation.setContext({
+      operation.setContext((prev) => ({
         headers: {
-          authorization: `Bearer ${token}`,
+          authorization:
+            prev.headers?.authorization === '' ? '' : `Bearer ${token}`,
         },
-      });
+      }));
     }
   };
 
@@ -66,77 +57,6 @@ export default function createApolloClient(initialState, ctx) {
         };
       })
   );
-
-  const refreshLink = new TokenRefreshLink({
-    accessTokenField: 'jwtToken',
-    // No need to refresh if token exists and is still valid
-    isTokenValidOrUndefined: () => {
-      const token = getToken();
-
-      if (!token) return true;
-
-      const decodedToken = jwt.decode(token);
-
-      // token is invalid
-      if (!decodedToken) return false;
-
-      const expiresAt = decodedToken.exp * 1000;
-
-      // No need to refresh if token exists and expires in more than a day
-      if (expiresAt > Date.now() && expiresAt - Date.now() > 24 * 3600 * 1000) {
-        return true;
-      }
-
-      console.log('refresh token !!!', token, expiresAt);
-    },
-    fetchAccessToken: async () => {
-      const token = getToken();
-
-      if (!token) return false;
-
-      const response = await fetch(graphqlUrl, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: 'Bearer ' + token,
-        },
-        body: JSON.stringify({
-          query: `mutation {
-                    refreshToken(input: {}) {
-                      jwtToken
-                    }
-                  }`,
-        }),
-      });
-
-      return response.json();
-    },
-    handleFetch: (newToken) => {
-      // save new authentication token to state
-      const { exp } = jwt.decode(newToken);
-      document.cookie = `token=${newToken}; Path=/; SameSite=Strict; Expires=${new Date(
-        exp * 1000
-      )}`;
-    },
-    handleResponse: (operation, accessTokenField) => (response) => {
-      if (!response || !response.data || !response.data.refreshToken)
-        return { jwtToken: null };
-      return response.data.refreshToken;
-    },
-    handleError: (error) => {
-      console.error('Cannot refresh access token:', error);
-
-      if (ctx && ctx.req.headers.cookie) {
-        ctx.res.setHeader(
-          'Set-Cookie',
-          'token=expired; path=/; SameSite=Strict; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-        );
-      } else if (typeof window !== 'undefined') {
-        document.cookie =
-          'token=expired; Path=/; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:01 GMT';
-      }
-    },
-  });
 
   return new ApolloClient({
     ssrMode: Boolean(ctx),
@@ -167,16 +87,13 @@ export default function createApolloClient(initialState, ctx) {
             )
           );
       }),
-      refreshLink,
       requestLink,
       createUploadLink({
         uri: graphqlUrl,
-        credentials: 'same-origin',
-        fetch,
       }),
     ]),
     cache: new InMemoryCache({
-      dataIdFromObject: o => o.id,
+      dataIdFromObject: (o) => o.id,
       typePolicies: {
         Person: {
           fields: {
