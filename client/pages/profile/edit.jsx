@@ -1,4 +1,5 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 import { Box, Heading, Spinner } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -54,12 +55,16 @@ const updateProfileMutation = gql`
   }
 `;
 
-const Profile = ({}) => {
+const ProfileEdit = ({}) => {
   const { loading, error, data } = useQuery(profileQuery, {
     variables: {},
   });
-  const [uploadImage, {loading: loadingAvatar}] = useMutation(gql(uploadImageMutation));
-  const [updateProfile, {loading: loadingUpdate}] = useMutation(updateProfileMutation);
+  const [uploadImage, { loading: loadingAvatar }] = useMutation(
+    gql(uploadImageMutation)
+  );
+  const [updateProfile, { loading: loadingUpdate }] = useMutation(
+    updateProfileMutation
+  );
   const { push } = useRouter();
 
   if (loading) {
@@ -71,7 +76,12 @@ const Profile = ({}) => {
     return;
   }
 
-  const handleFormSubmit = async ({ firstName, lastName, avatar: avatarFiles, about }) => {
+  const handleFormSubmit = async ({
+    firstName,
+    lastName,
+    avatar: avatarFiles,
+    about,
+  }) => {
     let avatarId;
 
     if (avatarFiles[0]) {
@@ -118,23 +128,4 @@ const Profile = ({}) => {
   );
 };
 
-Profile.getInitialProps = async ctx => {
-  const { data } = await ctx.apolloClient.query({
-    query: gql`
-      query isLoggedIn {
-        currentPerson {
-          id
-        }
-      }
-    `,
-  });
-
-  if (!data.currentPerson && ctx.res) {
-    ctx.res.writeHead(302, { Location: '/signin' });
-    ctx.res.end();
-  }
-
-  return {};
-};
-
-export default withApollo({ ssr: true })(Profile);
+export default withApollo({ ssr: true })(withPageAuthRequired(ProfileEdit));

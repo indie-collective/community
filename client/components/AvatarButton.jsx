@@ -12,7 +12,7 @@ const AvatarButton = () => {
     return (
       <Link href="/profile">
         <a>
-          <Avatar size="sm" name={fullName} ml={5} src={avatar && avatar.url} />
+          <Avatar size="sm" name={fullName} ml={5} src={avatar} />
         </a>
       </Link>
     );

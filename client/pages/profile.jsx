@@ -78,7 +78,7 @@ const Profile = () => {
             size="2xl"
             name={fullName}
             margin="1rem"
-            src={avatar && avatar.url}
+            src={avatar?.url}
           />
 
           <Heading>{fullName}</Heading>

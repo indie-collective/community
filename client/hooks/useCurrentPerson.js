@@ -1,4 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
+import { useUser } from '@auth0/nextjs-auth0';
 
 const currentPersonQuery = gql`
   {
@@ -13,13 +14,17 @@ const currentPersonQuery = gql`
 `;
 
 export default function useCurrentPerson() {
-  const { data, loading, error } = useQuery(currentPersonQuery, {
-    fetchPolicy: 'cache-and-network',
+  const { isLoading, user } = useUser();
+  const { data } = useQuery(currentPersonQuery, {
+    fetchPolicy: 'cache-first',
+    skip: isLoading || !user,
   });
 
-  if (!loading && error) {
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-  }
+  if (!user || isLoading || !data) return null;
 
-  return (data && data.currentPerson) || null;
+  return {
+    id: data.currentPerson.id,
+    fullName: data.currentPerson.fullName,
+    avatar: data.currentPerson.avatar?.url,
+  };
 }

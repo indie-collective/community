@@ -39,7 +39,7 @@ export default class MyApp extends App {
         : localStorageManager;
 
     return (
-      <UserProvider>
+      <UserProvider user={pageProps.user}>
         <ChakraProvider theme={theme} colorModeManager={colorModeManager}>
           <Head>
             <link

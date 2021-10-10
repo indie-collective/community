@@ -100,12 +100,11 @@ app.use(
       const settings = {};
 
       if (req.user) {
-        settings['role'] = req.user['http://community.indieco.xyz/roles'];
+        settings['person.id'] = req.user.sub;
+        // settings['role'] = req.user['http://community.indieco.xyz/roles'];
         settings['role'] = 'indieco_person';
-        settings['person.email'] =
-          req.user['http://community.indieco.xyz/email'];
       }
-      else if (req.headers['x-admin-secret'] && req.headers['x-admin-secret'] === ADMIN_SECRET) {
+      else if (req.headers['x-admin-secret'] === ADMIN_SECRET) {
         settings['role'] = 'indieco_admin';
       } else {
         settings['role'] = 'indieco_anonymous';

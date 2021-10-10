@@ -406,21 +406,24 @@ create trigger game_event_updated_at before update
 -- private tables
 
 create table indieco_private.person_account (
-  person_id        uuid primary key references indieco.person(id) on delete cascade,
-  email            text not null unique check (email ~* '^.+@.+\..+$'),
+  id               text primary key,
+  person_id        uuid references indieco.person(id) not null,
+  email            text unique check (email ~* '^.+@.+\..+$'),
 );
 
 comment on table indieco_private.person_account is 'Private information about a person’s account.';
-comment on column indieco_private.person_account.person_id is 'The id of the person associated with this account.';
+comment on column indieco_private.person_account.id is 'The account id of a user.';
+comment on column indieco_private.person_account.person_id is 'The id of the public profile associated with this account.';
 comment on column indieco_private.person_account.email is 'The email address of the person.';
 
 -------------------------
 -- registration functions
 
 create function indieco.register_person(
+  id text,
   first_name text,
-  last_name text,
-  email text
+  last_name text default null,
+  email text default null
 ) returns indieco.person as $$
 declare
   person indieco.person;
@@ -429,23 +432,21 @@ begin
     (first_name, last_name)
     returning * into person;
 
-  insert into indieco_private.person_account (person_id, email) values
-    (person.id, email);
+  insert into indieco_private.person_account (id, person_id, email) values
+    (id, person.id, email);
 
   return person;
 end;
-$$ language plpgsql strict security definer;
+$$ language plpgsql security definer;
 
-comment on function indieco.register_person(text, text, text) is 'Registers a single user and creates an account.';
+comment on function indieco.register_person(text, text, text, text) is 'Registers a single user and creates an account.';
 
 -------------------------
 -- roles
 
 create role indieco_anonymous;
--- grant indieco_anonymous to indieco_postgraphile;
 
 create role indieco_person;
--- grant indieco_person to indieco_postgraphile;
 
 create role indieco_admin;
 
@@ -453,8 +454,8 @@ create function indieco.current_person() returns indieco.person as $$
   select indieco.person.*
   from indieco.person
   join indieco_private.person_account
-  on id = person_id
-  where email = nullif(current_setting('person.email', true), '')
+  on indieco.person.id = person_id
+  where indieco_private.person_account.id = nullif(current_setting('person.id', true), '')
 $$ language sql strict security definer stable;
 
 comment on function indieco.current_person() is 'Gets the person identified by the JWT.';
@@ -533,7 +534,7 @@ grant insert, update, delete on table indieco.event_participant to indieco_perso
 grant execute on function indieco.person_full_name(indieco.person) to indieco_anonymous, indieco_person;
 grant execute on function indieco.current_person() to indieco_anonymous, indieco_person;
 grant execute on function uuid_generate_v4() to indieco_person;
-grant execute on function indieco.register_person(text, text, text) to indieco_admin;
+grant execute on function indieco.register_person(text, text, text, text) to indieco_admin;
 
 grant execute on function indieco.city_orgs(indieco.city) to indieco_anonymous, indieco_person;
 
@@ -547,18 +548,18 @@ grant indieco_person to indieco_admin;
 alter table indieco.person enable row level security;
 
 create policy update_person on indieco.person for update to indieco_person
-  using (id = (select id from indieco.current_person()));
+  using (id = (select (indieco.current_person()).id));
 
 create policy delete_person on indieco.person for delete to indieco_person
-  using (id = (select id from indieco.current_person()));
+  using (id = (select (indieco.current_person()).id));
 
 alter table indieco.event_participant enable row level security;
 
 create policy join_event on indieco.event_participant for insert to indieco_person
-  with check (person_id = (select id from indieco.current_person()));
+  with check (person_id = (select (indieco.current_person()).id));
 
-create policy leave_event on indieco.event_participant for insert, update, delete to indieco_person
-  using (person_id = (select id from indieco.current_person()));
+create policy leave_event on indieco.event_participant for delete to indieco_person
+  using (person_id = (select (indieco.current_person()).id));
 
 -- create policy insert_post on indieco.post for insert to indieco_person
 --   with check (author_id = current_setting('jwt.claims.person_id', true)::integer);
