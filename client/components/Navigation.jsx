@@ -82,7 +82,7 @@ const Navigation = ({ search }) => {
       </Flex>
 
       {variant === 'mobile' && (
-        <Collapse in={isOpen}>
+        <Collapse in={isOpen} mt="24px">
           <VStack as="nav" spacing={4} ml="24px">
             <NavLink href="/games">Games</NavLink>
             <NavLink href="/orgs">Orgs</NavLink>
