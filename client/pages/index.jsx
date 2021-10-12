@@ -69,49 +69,6 @@ const homeQuery = gql`
 
 const LandingPageSkeleton = () => (
   <Box p={5} mb={5}>
-    <Box py={5} mb={10} textAlign="center">
-      <Box m="auto" width={['auto', 'auto', '75%', '50%']}>
-        <Heading mb={5} size="2xl">
-          Find Your Community
-        </Heading>
-
-        <Text mb={5}>
-          Community lets you explore indie game-focused data around the world.
-          <br />
-          Discover who, where and what has been / is being made near you through
-          crowd-sourced data.
-        </Text>
-
-        <StatGroup my={2}>
-          <Stat>
-            <StatNumber>
-              <SkeletonText noOfLines={1} w="30%" m="auto" skeletonHeight="2rem" p={1} />
-            </StatNumber>
-            <StatLabel>
-              <SkeletonText noOfLines={1} w="50%" m="auto" />
-            </StatLabel>
-          </Stat>
-
-          <Stat>
-            <StatNumber>
-              <SkeletonText noOfLines={1} w="30%" m="auto" skeletonHeight="2rem" p={1} />
-            </StatNumber>
-            <StatLabel>
-              <SkeletonText noOfLines={1} w="50%" m="auto" />
-            </StatLabel>
-          </Stat>
-
-          <Stat>
-            <StatNumber>
-              <SkeletonText noOfLines={1} w="30%" m="auto" skeletonHeight="2rem" p={1} />
-            </StatNumber>
-            <StatLabel>
-              <SkeletonText noOfLines={1} w="50%" m="auto" />
-            </StatLabel>
-          </Stat>
-        </StatGroup>
-      </Box>
-    </Box>
 
     <Box mb={10}>
       <Heading as="h3" size="xl" mb={5}>
@@ -234,38 +191,6 @@ const LandingPage = () => {
           content="Video game related events around you and all over the world."
         />
       </Head>
-
-      <Box py={5} mb={10} textAlign="center">
-        <Box m="auto" width={['auto', 'auto', '75%', '50%']}>
-          <Heading mb={5} size="2xl">
-            Find Your Community
-          </Heading>
-
-          <Text mb={5}>
-            Community lets you explore indie game-focused data around the world.
-            <br />
-            Discover who, where and what has been / is being made near you
-            through crowd-sourced data.
-          </Text>
-
-          <StatGroup my={2}>
-            <Stat>
-              <StatNumber>{games.totalCount}</StatNumber>
-              <StatLabel>games</StatLabel>
-            </Stat>
-
-            <Stat>
-              <StatNumber>{entities.totalCount}</StatNumber>
-              <StatLabel>orgs</StatLabel>
-            </Stat>
-
-            <Stat>
-              <StatNumber>{events.totalCount}</StatNumber>
-              <StatLabel>events</StatLabel>
-            </Stat>
-          </StatGroup>
-        </Box>
-      </Box>
 
       <Box mb={10}>
         <Heading as="h3" size="xl" mb={5}>
