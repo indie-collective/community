@@ -78,7 +78,7 @@ const Navigation = ({ search }) => {
           <IconButton ml={2} icon={<HamburgerIcon />} onClick={onToggle} />
         )}
 
-        <AvatarButton />
+        {variant === 'desktop' && <AvatarButton />}
       </Flex>
 
       {variant === 'mobile' && (
@@ -88,6 +88,7 @@ const Navigation = ({ search }) => {
             <NavLink href="/orgs">Orgs</NavLink>
             <NavLink href="/events">Events</NavLink>
             <NavLink href="/places">Places</NavLink>
+            <AvatarButton />
           </VStack>
         </Collapse>
       )}
