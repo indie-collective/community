@@ -19,27 +19,11 @@ const AvatarButton = () => {
   }
 
   return (
-    <>
-      <Link href="/signin">
-        <Button
-          ml={5}
-          colorScheme="teal"
-          variant="ghost"
-          aria-label="Signin"
-        >
-          Sign in
-        </Button>
-      </Link>
-      <Link href="/signup">
-        <Button
-          ml={5}
-          colorScheme="teal"
-          aria-label="Signup"
-        >
-          Sign up
-        </Button>
-      </Link>
-    </>
+    <Link href="/signin">
+      <Button ml={5} colorScheme="teal" aria-label="Signin" variant="ghost">
+        🔑
+      </Button>
+    </Link>
   );
 };
 

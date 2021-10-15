@@ -320,7 +320,7 @@ const Game = ({ id, host }) => {
 
       <Navigation />
 
-      <Box mb={5} pl={5} pr={5}>
+      <Box mb={5} pl={5} pr={5} mt={5}>
         <Heading>{name}</Heading>
         {site && (
           <Text fontSize="lg">

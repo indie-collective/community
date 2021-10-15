@@ -354,6 +354,7 @@ const Event = ({ id, host }) => {
         gap={[5, 5, 10]}
         mt={[5, 2, 5]}
         padding={[0, 5]}
+        mx={5}
       >
         <Box>
           <Box position="relative">

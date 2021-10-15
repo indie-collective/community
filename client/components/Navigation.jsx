@@ -54,7 +54,7 @@ const Navigation = ({ search }) => {
 
   return (
     <>
-      <Flex pl={5} pr={2} pt={5} alignItems="center">
+      <Flex pt={5} alignItems="center" px={5}>
         <NextLink href="/" passHref>
           <a>
             <Logo />
@@ -82,8 +82,8 @@ const Navigation = ({ search }) => {
       </Flex>
 
       {variant === 'mobile' && (
-        <Collapse in={isOpen} mt="24px">
-          <VStack as="nav" spacing={4} ml="24px">
+        <Collapse in={isOpen}>
+          <VStack as="nav" spacing={4} mt="24px">
             <NavLink href="/games">Games</NavLink>
             <NavLink href="/orgs">Orgs</NavLink>
             <NavLink href="/events">Events</NavLink>

@@ -61,7 +61,7 @@ export default class MyApp extends App {
             })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`}
           </script>
         </Head>
-        <Main maxWidth="1280px">
+        <Main maxWidth="960px">
           <AnimatePresence exitBeforeEnter>
             <Component {...pageProps} />
           </AnimatePresence>

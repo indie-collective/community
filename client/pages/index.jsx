@@ -68,7 +68,7 @@ const homeQuery = gql`
 `;
 
 const LandingPageSkeleton = () => (
-  <Box p={5} mb={5}>
+  <Box mb={5} px={5}>
 
     <Box mb={10}>
       <Heading as="h3" size="xl" mb={5}>
@@ -126,13 +126,13 @@ const LandingPageSkeleton = () => (
 
       <Fade in>
         <Grid
-          gap={3}
+          gap={5}
           templateColumns={[
             '1fr',
             'repeat(2, 1fr)',
             'repeat(3, 1fr)',
-            'repeat(4, 1fr)',
-          ]}
+            'repeat(3, 1fr)',
+        ]}
         >
           <Box minW={0}>
             <EventCardSkeleton />
@@ -164,7 +164,7 @@ const LandingPage = () => {
   const { games, entities, events, eventsToCome } = data;
 
   return (
-    <Box p={5} mb={5}>
+    <Box mb={5} px={5}>
       <Head>
         <title>Indie Collective - Community powered video game data</title>
         <meta
@@ -199,12 +199,12 @@ const LandingPage = () => {
 
         <Fade in>
           <Grid
-            gap={3}
+            gap={5}
             templateColumns={[
               '2fr',
+              'repeat(2, 1fr)',
               'repeat(3, 1fr)',
-              'repeat(4, 1fr)',
-              'repeat(6, 1fr)',
+              'repeat(3, 1fr)',
             ]}
           >
             {games.nodes.map((game) => (
