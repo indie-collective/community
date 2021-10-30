@@ -68,50 +68,7 @@ const homeQuery = gql`
 `;
 
 const LandingPageSkeleton = () => (
-  <Box p={5} mb={5}>
-    <Box py={5} mb={10} textAlign="center">
-      <Box m="auto" width={['auto', 'auto', '75%', '50%']}>
-        <Heading mb={5} size="2xl">
-          Find Your Community
-        </Heading>
-
-        <Text mb={5}>
-          Community lets you explore indie game-focused data around the world.
-          <br />
-          Discover who, where and what has been / is being made near you through
-          crowd-sourced data.
-        </Text>
-
-        <StatGroup my={2}>
-          <Stat>
-            <StatNumber>
-              <SkeletonText noOfLines={1} w="30%" m="auto" skeletonHeight="2rem" p={1} />
-            </StatNumber>
-            <StatLabel>
-              <SkeletonText noOfLines={1} w="50%" m="auto" />
-            </StatLabel>
-          </Stat>
-
-          <Stat>
-            <StatNumber>
-              <SkeletonText noOfLines={1} w="30%" m="auto" skeletonHeight="2rem" p={1} />
-            </StatNumber>
-            <StatLabel>
-              <SkeletonText noOfLines={1} w="50%" m="auto" />
-            </StatLabel>
-          </Stat>
-
-          <Stat>
-            <StatNumber>
-              <SkeletonText noOfLines={1} w="30%" m="auto" skeletonHeight="2rem" p={1} />
-            </StatNumber>
-            <StatLabel>
-              <SkeletonText noOfLines={1} w="50%" m="auto" />
-            </StatLabel>
-          </Stat>
-        </StatGroup>
-      </Box>
-    </Box>
+  <Box mb={5} px={5}>
 
     <Box mb={10}>
       <Heading as="h3" size="xl" mb={5}>
@@ -169,13 +126,13 @@ const LandingPageSkeleton = () => (
 
       <Fade in>
         <Grid
-          gap={3}
+          gap={5}
           templateColumns={[
             '1fr',
             'repeat(2, 1fr)',
             'repeat(3, 1fr)',
-            'repeat(4, 1fr)',
-          ]}
+            'repeat(3, 1fr)',
+        ]}
         >
           <Box minW={0}>
             <EventCardSkeleton />
@@ -207,7 +164,7 @@ const LandingPage = () => {
   const { games, entities, events, eventsToCome } = data;
 
   return (
-    <Box p={5} mb={5}>
+    <Box mb={5} px={5}>
       <Head>
         <title>Indie Collective - Community powered video game data</title>
         <meta
@@ -235,38 +192,6 @@ const LandingPage = () => {
         />
       </Head>
 
-      <Box py={5} mb={10} textAlign="center">
-        <Box m="auto" width={['auto', 'auto', '75%', '50%']}>
-          <Heading mb={5} size="2xl">
-            Find Your Community
-          </Heading>
-
-          <Text mb={5}>
-            Community lets you explore indie game-focused data around the world.
-            <br />
-            Discover who, where and what has been / is being made near you
-            through crowd-sourced data.
-          </Text>
-
-          <StatGroup my={2}>
-            <Stat>
-              <StatNumber>{games.totalCount}</StatNumber>
-              <StatLabel>games</StatLabel>
-            </Stat>
-
-            <Stat>
-              <StatNumber>{entities.totalCount}</StatNumber>
-              <StatLabel>orgs</StatLabel>
-            </Stat>
-
-            <Stat>
-              <StatNumber>{events.totalCount}</StatNumber>
-              <StatLabel>events</StatLabel>
-            </Stat>
-          </StatGroup>
-        </Box>
-      </Box>
-
       <Box mb={10}>
         <Heading as="h3" size="xl" mb={5}>
           Recently added games
@@ -274,12 +199,12 @@ const LandingPage = () => {
 
         <Fade in>
           <Grid
-            gap={3}
+            gap={5}
             templateColumns={[
               '2fr',
+              'repeat(2, 1fr)',
               'repeat(3, 1fr)',
-              'repeat(4, 1fr)',
-              'repeat(6, 1fr)',
+              'repeat(3, 1fr)',
             ]}
           >
             {games.nodes.map((game) => (

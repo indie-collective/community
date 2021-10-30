@@ -184,7 +184,7 @@ const Org = ({ id, host }) => {
 
       <Navigation />
 
-      <Box mt={[5, 2, 5]} padding={[0, 5]}>
+      <Box mt={[5, 2, 5]} padding={[0, 5]} px={5}>
         <Flex alignItems="center">
           <Image
             w="100px"

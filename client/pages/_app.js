@@ -1,3 +1,4 @@
+import splitbee from '@splitbee/web';
 import App from 'next/app';
 import { AnimatePresence } from 'framer-motion';
 import { Box, ChakraProvider, cookieStorageManager, localStorageManager } from '@chakra-ui/react';
@@ -9,6 +10,8 @@ import theme from '../theme';
 import 'slick-carousel/slick/slick.css';
 
 const Main = (props) => <Box as="main" mx="auto" mb={{base: 0, md: "3rem"}} {...props} />;
+
+splitbee.init()
 
 export default class MyApp extends App {
   getServerSideProps({ req }) {
@@ -61,7 +64,7 @@ export default class MyApp extends App {
             })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`}
           </script>
         </Head>
-        <Main maxWidth="1280px">
+        <Main maxWidth="960px">
           <AnimatePresence exitBeforeEnter>
             <Component {...pageProps} />
           </AnimatePresence>

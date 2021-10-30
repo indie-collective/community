@@ -54,7 +54,7 @@ const SignUp = () => {
           <Heading mb={4}>
             Hi there, {data.registerPerson.person.firstName}!
           </Heading>
-          <Text fontSize="xl">Welcome to the community!</Text>
+          <Text fontSize="xl">Welcome to the club!</Text>
           <Link href="/signin">
             <Button color="teal.500" mt="24px">
               Sign in
@@ -71,7 +71,7 @@ const SignUp = () => {
 
       <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
         <Heading textAlign="center" size="xl" fontWeight="extrabold">
-          Joining the Community
+          Join the club!
         </Heading>
         <Text mt="4" mb="8" align="center" maxW="md" fontWeight="medium">
           <Text as="span">Already have an account? </Text>

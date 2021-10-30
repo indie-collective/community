@@ -49,7 +49,18 @@ export const OrgCardSkeleton = () => (
   </Flex>
 );
 
-const OrgCard = ({ id, type, logo, name, people, games, events, onRemove, ...rest }) => {
+const OrgCard = ({
+  id,
+  type,
+  logo,
+  name,
+  location,
+  people,
+  games,
+  events,
+  onRemove,
+  ...rest
+}) => {
   const placeholder = usePlaceholder('square');
 
   const bg = useColorModeValue('gray.100', 'gray.700');
@@ -114,14 +125,7 @@ const OrgCard = ({ id, type, logo, name, people, games, events, onRemove, ...res
             fontSize="xs"
             textTransform="uppercase"
           >
-            {type === 'STUDIO' &&
-              `${games.totalCount} ${
-                games.totalCount === 1 ? 'game' : 'games'
-              }`}
-            {type !== 'STUDIO' &&
-              `${events.totalCount} ${
-                events.totalCount === 1 ? 'event' : 'events'
-              }`}
+            {location ? `${location.city}, ${location.countryCode}` : ''}
           </Box>
         </Box>
 
@@ -153,6 +157,10 @@ OrgCard.fragments = {
       type
       logo {
         thumbnail_url
+      }
+      location {
+        city
+        countryCode
       }
       people {
         totalCount
