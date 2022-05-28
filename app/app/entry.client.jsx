@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { hydrate } from 'react-dom';
+import { hydrateRoot } from 'react-dom/client';
 import { CacheProvider } from '@emotion/react';
 import { RemixBrowser } from '@remix-run/react';
 
@@ -20,9 +20,9 @@ function ClientCacheProvider({ children }) {
   );
 }
 
-hydrate(
+hydrateRoot(
+  document,
   <ClientCacheProvider>
     <RemixBrowser />
-  </ClientCacheProvider>,
-  document
+  </ClientCacheProvider>
 );

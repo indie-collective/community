@@ -1,3 +1,5 @@
+import { withEmotionCache } from '@emotion/react';
+import { Box, ChakraProvider } from '@chakra-ui/react';
 import {
   Links,
   LiveReload,
@@ -5,18 +7,36 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useCatch,
 } from '@remix-run/react';
-
+import { AnimatePresence } from 'framer-motion';
 import React, { useContext, useEffect } from 'react';
-import { withEmotionCache } from '@emotion/react';
-import { ChakraProvider } from '@chakra-ui/react';
 
 import { ServerStyleContext, ClientStyleContext } from './context';
+import theme from './theme';
+import slickStyles from 'slick-carousel/slick/slick.css'; // CSS needed for Carousel component
+import Error from './components/Error';
+
+const Main = (props) => (
+  <Box as="main" mx="auto" mb={{ base: 0, md: '3rem' }} {...props} />
+);
+
+export function links() {
+  return [{ rel: 'stylesheet', href: slickStyles }];
+}
 
 export const meta = () => ({
   charset: 'utf-8',
-  title: 'IndieCo - Community',
+  title: 'Community',
+  description: 'Video game related events around you and all over the world.',
   viewport: 'width=device-width,initial-scale=1',
+  'og:title': 'Community',
+  'og:description':
+    'Video game related events around you and all over the world.',
+  'twitter:site': '@IndieColle',
+  'twitter:title': 'Community',
+  'twitter:description':
+    'Video game related events around you and all over the world.',
 });
 
 const Document = withEmotionCache(({ children }, emotionCache) => {
@@ -68,11 +88,31 @@ const Document = withEmotionCache(({ children }, emotionCache) => {
   );
 });
 
+export function CatchBoundary() {
+  const caught = useCatch();
+
+  return (
+    <Document>
+      <ChakraProvider theme={theme}>
+        <Main maxWidth="960px">
+          <AnimatePresence exitBeforeEnter>
+            <Error statusCode={caught.status} />
+          </AnimatePresence>
+        </Main>
+      </ChakraProvider>
+    </Document>
+  );
+}
+
 export default function App() {
   return (
     <Document>
-      <ChakraProvider>
-        <Outlet />
+      <ChakraProvider theme={theme}>
+        <Main maxWidth="960px">
+          <AnimatePresence exitBeforeEnter>
+            <Outlet />
+          </AnimatePresence>
+        </Main>
       </ChakraProvider>
     </Document>
   );
