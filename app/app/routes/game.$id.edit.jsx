@@ -51,8 +51,6 @@ export async function action({ request, params }) {
 
   const data = await request.formData();
 
-  console.log('dwdsds', data.get('igdb_url'));
-
   // try {
     const [, igdb_slug] = (data.get('igdb_url') || '').match(/games\/(.+)/) || [];
 

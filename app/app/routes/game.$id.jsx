@@ -20,30 +20,24 @@ import {
   Tag,
   useColorModeValue,
   Link as ChakraLink,
-  useToast,
   List,
   ListItem,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
-import { Link, useLoaderData, useNavigate } from '@remix-run/react';
+import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import igdb from 'igdb-api-node';
 
 import { db } from '../utils/db.server';
 import Navigation from '../components/Navigation';
 import OrgCard from '../components/OrgCard';
 import SearchOrgModal from './search-org';
 import Markdown from '../components/Markdown';
+import { getIGDBGame } from '../utils/igdb.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
-
-const client = igdb(
-  process.env.IGDB_CLIENT_ID,
-  process.env.IGDB_APP_ACCESS_TOKEN,
-);
 
 export const loader = async ({ params }) => {
   const { id } = params;
@@ -81,23 +75,8 @@ export const loader = async ({ params }) => {
     },
   });
 
-  console.log(game.igdb_slug);
-
   if (game.igdb_slug) {
-    const {
-      data: [igdbGame],
-    } = await client
-      .fields([
-        'name',
-        'status',
-        'genres.*',
-        'themes.*',
-        'screenshots.*',
-        'videos.*',
-        'websites.*',
-      ])
-      .where(`slug = "${game.igdb_slug}"`)
-      .request('/games');
+    const igdbGame = await getIGDBGame(game.igdb_slug);
 
     game.igdb_game = igdbGame;
   }
@@ -130,8 +109,7 @@ export const meta = ({ data: { game }, location }) => ({
 
 const Game = () => {
   const { game, currentUser } = useLoaderData();
-  const navigate = useNavigate();
-  const toast = useToast();
+  const fetcher = useFetcher();
 
   const dzColor = useColorModeValue('gray.200', 'gray.700');
   const dzHoverColor = useColorModeValue('gray.400', 'gray.50');
@@ -255,16 +233,14 @@ const Game = () => {
               onRemove={
                 currentUser
                   ? () =>
-                      removeAuthorFromGame({
-                        variables: { gameId: id, authorId: author.id },
-                        optimisticResponse: {
-                          __typename: 'Mutation',
-                          deleteGameEntity: {
-                            __typename: 'DeleteGameEntityMutation',
-                            entity: { __typename: 'Entity', ...author },
-                          },
-                        },
-                      })
+                      fetcher.submit(
+                        { id: author.id },
+                        {
+                          method: 'post',
+                          action: `/game/${id}/companies/delete`,
+                        }
+                        // { method: 'post', action: './companies/delete' }
+                      )
                   : null
               }
             />
@@ -283,19 +259,13 @@ const Game = () => {
                 isOpen={linkAuthorIsOpen}
                 onClose={onCloseLinkAuthor}
                 excludedIds={entities.map(({ id }) => id)}
-                onSelect={
-                  (author) => {}
-                  // addAuthorToGame({
-                  //   variables: { gameId: id, authorId: author.id },
-                  //   optimisticResponse: {
-                  //     __typename: 'Mutation',
-                  //     createGameEntity: {
-                  //       __typename: 'CreateGameEntityMutation',
-                  //       entity: { __typename: 'Entity', ...author },
-                  //     },
-                  //   },
-                  // })
-                }
+                onSelect={(author) => {
+                  fetcher.submit(
+                    { id: author.id },
+                    { method: 'post', action: `/game/${id}/companies/add` }
+                    // { method: 'post', action: './companies/add' }
+                  );
+                }}
               />
             </>
           )}
@@ -310,10 +280,10 @@ const Game = () => {
           {events.map((event) => (
             <ListItem key={event.key}>
               <ChakraLink as={Link} to={`/event/${event.id}`}>
-                <time dateTime={event.startsAt + '/' + event.endsAt}>
+                <time dateTime={event.starts_at + '/' + event.ends_at}>
                   {dateTimeFormat.formatRange(
-                    new Date(event.startsAt),
-                    new Date(event.endsAt)
+                    new Date(event.starts_at),
+                    new Date(event.ends_at)
                   )}
                 </time>
                 . {event.name}
@@ -400,7 +370,7 @@ const Game = () => {
             'repeat(3, 1fr)',
           ]}
         >
-          {igdb_game?.videos.map(({ id, name, video_id }) => (
+          {igdb_game?.videos?.map(({ id, name, video_id }) => (
             <AspectRatio key={id} ratio={16 / 9}>
               <iframe
                 objectFit="cover"
@@ -423,7 +393,7 @@ const Game = () => {
 
           <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent as={Form} action={`./delete`} method="post">
               <ModalHeader>Delete Game</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
@@ -432,22 +402,11 @@ const Game = () => {
 
               <ModalFooter>
                 <Button
+                  type="submit"
                   isLoading={false}
                   loadingText="Deleting"
                   colorScheme="red"
                   mr={3}
-                  onClick={async () => {
-                    await deleteGame();
-
-                    deleteModal.onClose();
-                    navigate('/games');
-
-                    toast({
-                      title: 'Game deleted.',
-                      description: `${name} has been deleted.`,
-                      status: 'success',
-                    });
-                  }}
                 >
                   Delete
                 </Button>

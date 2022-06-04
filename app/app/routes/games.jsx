@@ -9,10 +9,8 @@ import { json } from '@remix-run/node';
 import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
-  Spinner,
   Grid,
   Button,
-  Stack,
   Tag,
   TagLabel,
   Badge,
@@ -25,10 +23,52 @@ import { AddIcon } from '@chakra-ui/icons';
 import { db } from '../utils/db.server';
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
+import { getIGDBGame } from '../utils/igdb.server';
+
+/**
+ * 
+ * @param {*} options 
+ * @returns {import('@prisma/client').game[]} games
+ */
+async function getGames(options) {
+  const games = await db.game.findMany(options);
+
+  await Promise.all(games.map(async g => {
+    if (g.igdb_slug) {
+      g.igdb_game = await getIGDBGame(g.igdb_slug);
+    }
+    else {
+      // search IGDB if there's a game with a similar name to suggest it
+    }
+
+    return g;
+  }));
+
+  return games;
+}
 
 export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
   const page = Number(searchParams.get('page') || '1');
+
+  const games = await getGames({
+    where: searchParams.has('tags')
+      ? {
+          game_tag: {
+            some: {
+              tag: {
+                name: {
+                  in: searchParams.getAll('tags'),
+                },
+              },
+            },
+          },
+        }
+      : undefined,
+    orderBy: { updated_at: 'desc' },
+    skip: (page - 1) * 10,
+    take: 10,
+  });
 
   const data = {
     tags: await db.tag.findMany({
@@ -46,26 +86,7 @@ export const loader = async ({ request }) => {
         },
       ],
     }),
-    games: await db.game.findMany({
-      where: searchParams.has('tags')
-        ? {
-            game_tag: {
-              some: {
-                tag: {
-                  name: {
-                    in: searchParams.getAll('tags'),
-                  },
-                },
-              },
-            },
-          }
-        : undefined,
-      orderBy: {
-        updated_at: 'desc',
-      },
-      skip: (page - 1) * 10,
-      take: 10,
-    }),
+    games,
     currentUser: {
       id: '1',
       username: 'admin',

@@ -524,7 +524,7 @@ const Event = () => {
 
               <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
                 <ModalOverlay />
-                <ModalContent>
+                <ModalContent as={Form} action={`./delete`} method="post">
                   <ModalHeader>Delete Event</ModalHeader>
                   <ModalCloseButton />
                   <ModalBody>
@@ -532,17 +532,15 @@ const Event = () => {
                   </ModalBody>
 
                   <ModalFooter>
-                    <Form method="POST" action={`./delete`}>
-                      <Button
-                        type='submit'
-                        isLoading={false}
-                        loadingText="Deleting"
-                        colorScheme="red"
-                        mr={3}
-                      >
-                        Delete
-                      </Button>
-                    </Form>
+                    <Button
+                      type="submit"
+                      isLoading={false}
+                      loadingText="Deleting"
+                      colorScheme="red"
+                      mr={3}
+                    >
+                      Delete
+                    </Button>
                     <Button variant="ghost" onClick={deleteModal.onClose}>
                       Cancel
                     </Button>

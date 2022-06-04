@@ -30,11 +30,13 @@ export const GameCardSkeleton = () => (
 );
 
 const GameCard = forwardRef(
-  ({ id, images = [], name, onRemove, isCompact }, ref) => {
+  ({ id, images = [], igdb_game, name, onRemove, isCompact }, ref) => {
     const placeholder = usePlaceholder();
 
     const bgColorHover = useColorModeValue('gray.100', 'gray.700');
     const overlayBgColor = useColorModeValue('#ffffffbb', '#00000088');
+
+    const image = images[0]?.thumbnail_url || igdb_game?.screenshots[0]?.url?.replace(/t_thumb/, 't_cover_big');
 
     if (isCompact) {
       return (
@@ -58,7 +60,7 @@ const GameCard = forwardRef(
                 objectFit="cover"
                 rounded="md"
                 size="100%"
-                src={images[0].thumbnail_url}
+                src={image}
                 alt=""
                 zIndex={-1}
               />
@@ -111,7 +113,7 @@ const GameCard = forwardRef(
           <Image
             size="100%"
             objectFit="cover"
-            src={images.length > 0 && images[0].thumbnail_url}
+            src={image}
             alt="Game cover"
             fallbackSrc={placeholder}
             rounded="md"

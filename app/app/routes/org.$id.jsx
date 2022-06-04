@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
-import { Link, useLoaderData, useNavigate } from '@remix-run/react';
+import { Link, useLoaderData, useNavigate, Form } from '@remix-run/react';
 import { motion } from 'framer-motion';
 
 import { db } from '../utils/db.server';
@@ -150,7 +150,9 @@ const Org = () => {
           />
 
           <Box flex="1" ml={2}>
-            <Heading noOfLines={1} title={name}>{name}</Heading>
+            <Heading noOfLines={1} title={name}>
+              {name}
+            </Heading>
             <DarkMode>
               <Badge
                 rounded={3}
@@ -281,7 +283,7 @@ const Org = () => {
 
           <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent as={Form} action={`./delete`} method="post">
               <ModalHeader>Delete Organisation</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
@@ -290,22 +292,11 @@ const Org = () => {
 
               <ModalFooter>
                 <Button
+                  type='submit'
                   isLoading={false}
                   loadingText="Deleting"
                   colorScheme="red"
                   mr={3}
-                  onClick={async () => {
-                    await deleteOrg();
-
-                    deleteModal.onClose();
-                    navigate('/orgs');
-
-                    toast({
-                      title: 'Organization deleted.',
-                      description: `${name} has been deleted.`,
-                      status: 'success',
-                    });
-                  }}
                 >
                   Delete
                 </Button>
