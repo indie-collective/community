@@ -11,12 +11,12 @@
     "@emotion/react": "^11.9.0",
     "@emotion/server": "^11.4.0",
     "@emotion/styled": "^11.8.1",
-    "@hookform/resolvers": "^2.8.0",
+    "@hookform/resolvers": "^2.9.0",
     "@mapbox/geo-viewport": "^0.4.1",
     "@prisma/client": "^3.13.0",
-    "@remix-run/node": "^0.0.0-experimental-f316d910",
-    "@remix-run/react": "^0.0.0-experimental-f316d910",
-    "@remix-run/serve": "^0.0.0-experimental-f316d910",
+    "@remix-run/node": "^0.0.0-experimental-9784dd06",
+    "@remix-run/react": "^0.0.0-experimental-9784dd06",
+    "@remix-run/serve": "^0.0.0-experimental-9784dd06",
     "aws-sdk": "^2.780.0",
     "date-fns": "^2.16.1",
     "enquire.js": "^2.1.6",
@@ -29,7 +29,7 @@
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-dropzone": "^11.0.1",
-    "react-hook-form": "^7.12.2",
+    "react-hook-form": "^7.31.3",
     "react-slick": "^0.29.0",
     "remarkable": "^2.0.1",
     "remarkable-react": "^1.4.3",
@@ -37,8 +37,8 @@
     "yup": "^0.32.9"
   },
   "devDependencies": {
-    "@remix-run/dev": "^0.0.0-experimental-f316d910",
-    "@remix-run/eslint-config": "^0.0.0-experimental-f316d910",
+    "@remix-run/dev": "^0.0.0-experimental-9784dd06",
+    "@remix-run/eslint-config": "^0.0.0-experimental-9784dd06",
     "eslint": "^8.11.0",
     "prisma": "^3.13.0"
   }
