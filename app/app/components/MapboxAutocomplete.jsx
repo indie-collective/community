@@ -61,41 +61,45 @@ const MapboxAutocomplete = ({
 
   const debouncedQuery = useDebounce(query, 300);
 
-  useEffect(async () => {
-    const header = { 'Content-Type': 'application/json' };
-    let path = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${token}&autocomplete=true`;
-
-    if (types) {
-      path += `&types=${types.join(',')}`;
-    }
-
-    if (query.length > 2) {
-      try {
-        setIsLoading(true);
-        const res = await fetch(path, { headers: header });
-
-        if (!res.ok) throw Error(res.statusText);
-        const json = await res.json();
-
+  useEffect(() => {
+    async function getLocation() {
+      const header = { 'Content-Type': 'application/json' };
+      let path = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${token}&autocomplete=true`;
+  
+      if (types) {
+        path += `&types=${types.join(',')}`;
+      }
+  
+      if (query.length > 2) {
+        try {
+          setIsLoading(true);
+          const res = await fetch(path, { headers: header });
+  
+          if (!res.ok) throw Error(res.statusText);
+          const json = await res.json();
+  
+          setIsLoading(false);
+          setError(false);
+          setQueryResults(json.features);
+  
+          if (isFirstQuery) {
+            setValue(json.features[0]);
+            setIsFirstQuery(false);
+          }
+        } catch (err) {
+          setIsLoading(false);
+          setError(true);
+          setErrorMsg('There was a problem retrieving data from mapbox');
+          setQueryResults([]);
+        }
+      } else {
         setIsLoading(false);
         setError(false);
-        setQueryResults(json.features);
-
-        if (isFirstQuery) {
-          setValue(json.features[0]);
-          setIsFirstQuery(false);
-        }
-      } catch (err) {
-        setIsLoading(false);
-        setError(true);
-        setErrorMsg('There was a problem retrieving data from mapbox');
         setQueryResults([]);
       }
-    } else {
-      setIsLoading(false);
-      setError(false);
-      setQueryResults([]);
     }
+
+    getLocation();
   }, [debouncedQuery]);
 
   return (

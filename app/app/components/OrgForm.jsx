@@ -54,7 +54,6 @@ const validationSchema = yup.object().shape({
 
 const propTypes = {
   loading: PropTypes.bool.isRequired,
-  onSubmit: PropTypes.func.isRequired,
   defaultData: PropTypes.shape({
     logo: PropTypes.any,
     type: PropTypes.oneOf(['STUDIO', 'ASSOCIATION']),
@@ -64,7 +63,7 @@ const propTypes = {
       street: PropTypes.string,
       city: PropTypes.string.isRequired,
       region: PropTypes.string.isRequired,
-      countryCode: PropTypes.string.isRequired,
+      country_code: PropTypes.string.isRequired,
       latitude: PropTypes.number.isRequired,
       longitude: PropTypes.number.isRequired,
     }),
@@ -87,7 +86,7 @@ const TYPES_COLORS = {
 
 const CustomRadio = React.forwardRef((props, ref) => {
   const { getInputProps, getCheckboxProps } = useRadio(props);
-  const { color = 'teal', value, name, ...otherProps } = omitThemingProps(
+  const { color = 'teal', value, name, isChecked, ...otherProps } = omitThemingProps(
     props
   );
 
@@ -147,7 +146,7 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
       location: {
         label: l
           ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${
-              l.countryCode
+              l.country_code
             }`
           : '',
         value: l || null,
@@ -173,6 +172,7 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
       encType="multipart/form-data"
       gridTemplateColumns="1fr 1fr"
       gap={5}
+      onSubmit={handleSubmit}
       {...rest}
     >
       <FormControl gridColumn="1 / 3">
@@ -221,7 +221,7 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
 
       <FormControl gridColumn="1 / 3" isInvalid={errors.type} isRequired>
         <FormLabel htmlFor="name">Type</FormLabel>
-        <Flex isInline {...getRootProps()}>
+        <Flex {...getRootProps()}>
           <CustomRadio
             color={TYPES_COLORS.STUDIO}
             flex="1"

@@ -16,6 +16,9 @@ export const loader = async ({ request }) => {
   const data = {
     // Removing the await enables streaming, but it seems to crash when SSR
     orgs: await db.entity.findMany({
+      include: {
+        location: true,
+      },
       orderBy: {
         updated_at: 'desc',
       },

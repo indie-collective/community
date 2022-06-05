@@ -2,6 +2,8 @@ import { Box, Heading, useToast } from '@chakra-ui/react';
 import {
   json,
   redirect,
+  unstable_composeUploadHandlers,
+  unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
 } from '@remix-run/node';
 import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
@@ -49,34 +51,50 @@ export async function action({ request, params }) {
 
   const data = await unstable_parseMultipartFormData(
     request,
-    createUploadHandler(['cover'])
+    unstable_composeUploadHandlers(
+      createUploadHandler(['cover']),
+      unstable_createMemoryUploadHandler()
+    )
   );
+
+  const location = {
+    street: data.get('street'),
+    city: data.get('city'),
+    region: data.get('region'),
+    country_code: data.get('country_code'),
+    latitude: parseFloat(data.get('latitude')),
+    longitude: parseFloat(data.get('longitude')),
+  };
 
   try {
     const event = await db.event.update({
       where: { id },
       data: {
-        name: data.get('name'),
-        status: data.get('status') || undefined,
-        starts_at: new Date(data.get('start')),
-        ends_at: new Date(data.get('end')),
-        about: data.get('about'),
-        site: data.get('site'),
+        name: data.get('name') || undefined,
+        status: data.has('canceled')
+          ? data.get('canceled')
+            ? 'canceled'
+            : 'ongoing'
+          : undefined,
+        starts_at: new Date(data.get('start')) || undefined,
+        ends_at: new Date(data.get('end')) || undefined,
+        about: data.get('about') || undefined,
+        site: data.get('site') || undefined,
         // cover: {
         //   connect: {
         //     id: data.get('cover'),
         //   }
         // },
-        // location: {
-        //   connectOrCreate: {
-        //     where: {
-        //       id: data.get('location'),
-        //     },
-        //     create: {
-
-        //     },
-        //   },
-        // },
+        location: Object.values(location).some((l) => l !== null)
+          ? {
+              connectOrCreate: {
+                where: {
+                  street_city_region_country_code_latitude_longitude: location,
+                },
+                create: location,
+              },
+            }
+          : undefined,
       },
       select: {
         id: true,
@@ -85,8 +103,10 @@ export async function action({ request, params }) {
 
     return redirect(`/event/${event.id}`);
   } catch (err) {
+    console.log(err);
+
     const values = Object.fromEntries(data);
-    return json({ error: err.message, values });
+    return json({ error: 'Updating the event failed', values });
   }
 }
 
@@ -107,6 +127,7 @@ const EditEvent = () => {
       title: 'Something went wrong',
       description: actionData?.error,
       status: 'error',
+      position: 'bottom-right',
     });
   }, [actionData?.error, transition.state === 'submitting', toast]);
 
@@ -118,7 +139,7 @@ const EditEvent = () => {
         <Heading mb={5}>Update event</Heading>
 
         <EventForm
-          method="POST"
+          method="post"
           loading={transition.state === 'submitting'}
           defaultData={actionData?.values || event}
         />

@@ -29,7 +29,7 @@ import { Form } from '@remix-run/react';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
-  status: yup.string().oneOf(['ONGOING', 'CANCELED']).default('ONGOING'),
+  canceled: yup.bool().default(false),
   about: yup.string(),
   location: yup.object({
     label: yup.string(),
@@ -61,18 +61,17 @@ const validationSchema = yup.object().shape({
 
 const propTypes = {
   loading: PropTypes.bool.isRequired,
-  onSubmit: PropTypes.func.isRequired,
   defaultData: PropTypes.shape({
     cover: PropTypes.any,
     name: PropTypes.string,
-    status: PropTypes.oneOf(['ONGOING', 'CANCELED']),
+    status: PropTypes.oneOf(['ongoing', 'canceled']),
     about: PropTypes.string,
     location: PropTypes.shape({
       id: PropTypes.string,
       street: PropTypes.string,
       city: PropTypes.string.isRequired,
       region: PropTypes.string.isRequired,
-      countryCode: PropTypes.string.isRequired,
+      country_code: PropTypes.string.isRequired,
       latitude: PropTypes.number.isRequired,
       longitude: PropTypes.number.isRequired,
     }),
@@ -90,7 +89,14 @@ const OSMServer = 'abc'.charAt(Math.floor(Math.random() * 3));
 
 const EventForm = ({ defaultData, loading, ...rest }) => {
   const placeholder = usePlaceholder();
-  const { name, status, starts_at: startsAt, ends_at: endsAt, location: l, about } = defaultData;
+  const {
+    name,
+    status,
+    starts_at: startsAt,
+    ends_at: endsAt,
+    location: l,
+    about,
+  } = defaultData;
   const coverRef = useRef();
   const [cover, setCover] = useState(defaultData.cover);
   const {
@@ -104,7 +110,7 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
     resolver: yupResolver(validationSchema),
     defaultValues: {
       name,
-      status,
+      canceled: status === 'canceled',
       start: startsAt
         ? format(new Date(startsAt), "yyyy-MM-dd'T'HH:mm")
         : undefined,
@@ -112,7 +118,7 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
       location: {
         label: l
           ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${
-              l.countryCode
+              l.country_code
             }`
           : '',
         value: l || null,
@@ -138,6 +144,7 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
         <FormLabel htmlFor="name">Name</FormLabel>
         <Input
           {...register('name')}
+          id="name"
           placeholder="Stunfest 2042, Global Game Jam Bamako, Indie Online Fest..."
         />
         <FormErrorMessage>
@@ -145,27 +152,27 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.status} display="flex">
-        <FormLabel htmlFor="status">Mark as canceled</FormLabel>
+      <FormControl
+        gridColumn="1 / 3"
+        isInvalid={errors.canceled}
+        display="flex"
+      >
+        <FormLabel htmlFor="canceled">Mark as canceled</FormLabel>
         <Controller
-          name="status"
+          name="canceled"
           control={control}
           defaultValue={status}
-          render={({ field: { onChange, onBlur, value, name } }) => (
+          render={({ field }) => (
             <Switch
-              id="status"
-              name={name}
+              {...field}
+              id="canceled"
               colorScheme="red"
-              isChecked={value === 'CANCELED'}
-              onChange={(e) =>
-                onChange(e.target.checked ? 'CANCELED' : 'ONGOING')
-              }
-              onBlur={onBlur}
+              defaultChecked={field.value}
             />
           )}
         />
         <FormErrorMessage>
-          {errors.status && errors.status.message}
+          {errors.canceled && errors.canceled.message}
         </FormErrorMessage>
       </FormControl>
 
@@ -173,6 +180,7 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
         <FormLabel htmlFor="start">Start</FormLabel>
         <Input
           {...register('start')}
+          id="start"
           type="datetime-local"
           pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
           placeholder="When does it starts?"
@@ -186,6 +194,7 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
         <FormLabel htmlFor="end">End</FormLabel>
         <Input
           {...register('end')}
+          id="end"
           type="datetime-local"
           pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
           placeholder="When does it ends?"
@@ -201,7 +210,9 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
           name="location"
           placeholder="Where is the party?"
           onClear={() => setValue('location', { label: '', value: null })}
-          render={({ field }) => <PlacesSearch {...field} />}
+          render={({ field }) => (
+            <PlacesSearch inputProps={{ id: 'location' }} {...field} />
+          )}
         />
 
         {location.value && (
@@ -286,6 +297,7 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
         <FormLabel htmlFor="about">About</FormLabel>
         <Textarea
           {...register('about')}
+          id="about"
           minH="15rem"
           resize="vertical"
           placeholder="What is it about?"

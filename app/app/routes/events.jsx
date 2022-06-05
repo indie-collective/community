@@ -45,6 +45,7 @@ export const loader = async ({ request }) => {
       include: {
         event_participant: true,
         game_event: true,
+        location: true,
       },
       orderBy: {
         starts_at: 'desc',
@@ -61,6 +62,7 @@ export const loader = async ({ request }) => {
       include: {
         event_participant: true,
         game_event: true,
+        location: true,
       },
       orderBy: {
         starts_at: 'desc',

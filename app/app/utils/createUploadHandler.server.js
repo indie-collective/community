@@ -72,14 +72,13 @@ async function uploadStreamToS3(stream, { extension }) {
 }
 
 export default function createUploadHandler(fileInputs) {
-  return function uploadHandler({name, stream, filename}) {
+  return async ({name, contentType, data, filename}) => {
     if (!fileInputs.includes(name)) {
-      stream.resume();
-      return;
+      return undefined;
     }
 
     // const uploadedImage = await uploadStreamToS3(
-    //   stream,
+    //   data,
     //   {extension: filename.split('.').pop()}
     // );
 

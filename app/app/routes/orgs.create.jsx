@@ -1,9 +1,13 @@
 import { Box, Heading, useToast } from '@chakra-ui/react';
-import { json, redirect, unstable_parseMultipartFormData } from '@remix-run/node';
+import {
+  json,
+  redirect,
+  unstable_parseMultipartFormData,
+} from '@remix-run/node';
 import { useActionData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
-import {db} from '../utils/db.server';
+import { db } from '../utils/db.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
 import Navigation from '../components/Navigation';
 import OrgForm from '../components/OrgForm';
@@ -14,6 +18,15 @@ export async function action({ request }) {
     createUploadHandler(['logo'])
   );
 
+  const location = {
+    street: data.get('street'),
+    city: data.get('city'),
+    region: data.get('region'),
+    country_code: data.get('country_code'),
+    latitude: parseFloat(data.get('latitude')),
+    longitude: parseFloat(data.get('longitude')),
+  };
+
   try {
     const org = await db.entity.create({
       data: {
@@ -21,16 +34,17 @@ export async function action({ request }) {
         type: data.get('type').toLowerCase(),
         site: data.get('site'),
         about: data.get('about'),
-        // location: {
-        //   connectOrCreate: {
-        //     where: {
-        //       id: data.get('location'),
-        //     },
-        //     create: {
-              
-        //     },
-        //   },
-        // },
+        // igdb_slug,
+        location: Object.values(location).some((l) => l !== null)
+          ? {
+              connectOrCreate: {
+                where: {
+                  street_city_region_country_code_latitude_longitude: location,
+                },
+                create: location,
+              },
+            }
+          : undefined,
         // logo: {
         //   connect: {
         //     id: data.get('logo'),
@@ -40,7 +54,7 @@ export async function action({ request }) {
       select: {
         id: true,
       },
-    })
+    });
 
     return redirect(`/org/${org.id}`);
   } catch (err) {
@@ -76,7 +90,7 @@ const CreateOrg = () => {
         <Heading mb={5}>Create organization</Heading>
 
         <OrgForm
-          method="POST"
+          method="post"
           loading={transition.state === 'submitting'}
           defaultData={actionData?.values}
         />

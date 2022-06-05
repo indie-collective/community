@@ -1,12 +1,21 @@
 import { Box, Heading, useToast } from '@chakra-ui/react';
-import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import {
+  json,
+  redirect,
+  unstable_composeUploadHandlers,
+  unstable_createMemoryUploadHandler,
+  unstable_parseMultipartFormData,
+} from '@remix-run/node';
+import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
+import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
+import createUploadHandler from '../utils/createUploadHandler.server';
 import Navigation from '../components/Navigation';
 import OrgForm from '../components/OrgForm';
 
-const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+const uuidRegex =
+  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 export const loader = async ({ params }) => {
   const { id } = params;
@@ -40,73 +49,90 @@ export const loader = async ({ params }) => {
   return json(data);
 };
 
+export async function action({ request, params }) {
+  const { id } = params;
+
+  const data = await unstable_parseMultipartFormData(
+    request,
+    unstable_composeUploadHandlers(
+      createUploadHandler(['logo']),
+      unstable_createMemoryUploadHandler()
+    )
+  );
+
+  const location = {
+    street: data.get('street'),
+    city: data.get('city'),
+    region: data.get('region'),
+    country_code: data.get('country_code'),
+    latitude: data.get('latitude') && parseFloat(data.get('latitude')),
+    longitude: data.get('longitude') && parseFloat(data.get('longitude')),
+  };
+
+  try {
+    const [, igdb_slug] =
+      (data.get('igdb_url') || '').match(/companies\/(.+)/) || [];
+
+      console.log(location)
+
+    const org = await db.entity.update({
+      where: { id },
+      data: {
+        name: data.get('name'),
+        type: data.get('type').toLowerCase(),
+        site: data.get('site'),
+        about: data.get('about'),
+        // igdb_slug,
+        location: Object.values(location).some((l) => l !== null)
+          ? {
+              connectOrCreate: {
+                where: {
+                  street_city_region_country_code_latitude_longitude: location,
+                },
+                create: location,
+              },
+            }
+          : undefined,
+        // logo: {
+        //   connect: {
+        //     id: data.get('logo'),
+        //   }
+        // }
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return redirect(`/org/${org.id}`);
+  } catch (err) {
+    console.log(err);
+
+    const values = Object.fromEntries(data);
+    return json({ error: 'Updating the organization failed', values });
+  }
+}
+
 export const meta = ({ data }) => ({
   title: `Edit "${data.org.name}" | Organizations`,
 });
 
 const EditOrg = () => {
-  const toast = useToast();
   const { org } = useLoaderData();
+  const toast = useToast();
+  const transition = useTransition();
+  const actionData = useActionData();
 
-  const { id } = org;
+  useEffect(() => {
+    if (!actionData?.error) return;
 
-  async function handleFormSubmit({
-    name,
-    type,
-    logo: logoFiles,
-    location,
-    site,
-    about,
-  }) {
-    let logoId;
-
-    if (logoFiles[0]) {
-      const response = await uploadImage({
-        variables: {
-          file: logoFiles[0],
-        },
-      });
-
-      logoId = response.data.createImage.image.id;
-    }
-
-    let locationId = null;
-
-    if (location.value && location.id) {
-      locationId = location.id;
-    } else if (location.value) {
-      try {
-        const response = await upsertLocation({
-          variables: location.value,
-        });
-
-        locationId =
-          response.data
-            .upsertLocationByStreetAndCityAndRegionAndCountryCodeAndLatitudeAndLongitude
-            .location.id;
-      } catch (err) {
-        toast({
-          title: 'Error with location',
-          description: err.message,
-          status: 'error',
-        });
-      }
-    }
-
-    const response = await updateOrg({
-      variables: {
-        id,
-        name,
-        type,
-        logoId,
-        locationId,
-        site,
-        about,
-      },
+    toast({
+      title: 'Something went wrong',
+      description: actionData?.error,
+      status: 'error',
+      position: 'bottom-right',
     });
-
-    push(`/org/${response.data.updateOrg.org.id}`);
-  }
+  }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
     <div>
@@ -116,8 +142,8 @@ const EditOrg = () => {
         <Heading mb={5}>Update organization</Heading>
 
         <OrgForm
+          method="post"
           defaultData={org}
-          onSubmit={handleFormSubmit}
           loading={false}
         />
       </Box>

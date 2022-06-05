@@ -1,11 +1,12 @@
-import { Box, Heading } from '@chakra-ui/react';
+import { Box, Heading, useToast } from '@chakra-ui/react';
 // import differenceWith from 'lodash.differencewith';
 import { json, redirect } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import Navigation from '../components/Navigation';
 import GameForm from '../components/GameForm';
+import { useEffect } from 'react';
 
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
@@ -51,10 +52,9 @@ export async function action({ request, params }) {
 
   const data = await request.formData();
 
-  // try {
-    const [, igdb_slug] = (data.get('igdb_url') || '').match(/games\/(.+)/) || [];
-
-    console.log(igdb_slug);
+  try {
+    const [, igdb_slug] =
+      (data.get('igdb_url') || '').match(/games\/(.+)/) || [];
 
     const game = await db.game.update({
       where: { id },
@@ -70,10 +70,12 @@ export async function action({ request, params }) {
     });
 
     return redirect(`/game/${game.id}`);
-  // } catch (err) {
-  //   const values = Object.fromEntries(data);
-  //   return json({ error: err.message, values });
-  // }
+  } catch (err) {
+    console.log(err);
+
+    const values = Object.fromEntries(data);
+    return json({ error: 'Updating the game failed', values });
+  }
 }
 
 export const meta = ({ data }) => ({
@@ -82,6 +84,20 @@ export const meta = ({ data }) => ({
 
 const EditGame = () => {
   const { game } = useLoaderData();
+  const toast = useToast();
+  const transition = useTransition();
+  const actionData = useActionData();
+
+  useEffect(() => {
+    if (!actionData?.error) return;
+
+    toast({
+      title: 'Something went wrong',
+      description: actionData?.error,
+      status: 'error',
+      position: 'bottom-right',
+    });
+  }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
     <div>
