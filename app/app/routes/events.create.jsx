@@ -28,8 +28,8 @@ export async function action({ request }) {
     city: data.get('city'),
     region: data.get('region'),
     country_code: data.get('country_code'),
-    latitude: parseFloat(data.get('latitude')),
-    longitude: parseFloat(data.get('longitude')),
+    latitude: parseFloat(data.get('latitude')) || null,
+    longitude: parseFloat(data.get('longitude')) || null,
   };
 
   try {
@@ -41,11 +41,11 @@ export async function action({ request }) {
         ends_at: new Date(data.get('end')),
         about: data.get('about'),
         site: data.get('site'),
-        // cover: {
-        //   connect: {
-        //     id: data.get('cover'),
-        //   }
-        // },
+        cover: {
+          connect: {
+            id: data.get('cover'),
+          }
+        },
         location: Object.values(location).some((l) => l !== null)
           ? {
               connectOrCreate: {

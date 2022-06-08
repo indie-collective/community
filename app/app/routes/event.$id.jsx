@@ -19,11 +19,10 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  useToast,
   Wrap,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, WarningTwoIcon } from '@chakra-ui/icons';
-import { Form, Link, useLoaderData } from '@remix-run/react';
+import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
 import { json } from '@remix-run/node';
 import { Map } from 'pigeon-maps';
 
@@ -74,12 +73,23 @@ export const loader = async ({ params }) => {
   });
 
   const data = {
-    event,
+    event: {
+      ...event,
+      cover: event.cover
+        ? {
+            url: `https://${process.env.CDN_HOST}/${event.cover.image_file.name}`,
+            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${event.cover.image_file.name}`,
+          }
+        : null,
+    },
     // todo: externalize to defer this?
     relatedEvents: await db.event.findMany({
       where: {
         name: {
           search: event.name.split(' ').join(' | '),
+        },
+        id: {
+          not: id,
         },
       },
       include: {
@@ -131,7 +141,7 @@ export const meta = ({ data, location }) => {
 
 const Event = () => {
   const { event, relatedEvents, currentUser } = useLoaderData();
-  const toast = useToast();
+  const fetcher = useFetcher();
   const placeholder = usePlaceholder();
   const {
     isOpen: linkGameIsOpen,
@@ -167,6 +177,13 @@ const Event = () => {
 
   const isGoing =
     currentUser && participants.some(({ id }) => id === currentUser.id);
+
+  const dateTimeFormat = new Intl.DateTimeFormat('en', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  });
 
   return (
     <div>
@@ -233,29 +250,12 @@ const Event = () => {
                 gridColumn="1"
                 textTransform="uppercase"
                 as="time"
-                dateTime={startsAt}
+                dateTime={startsAt + '/' + endsAt}
                 whiteSpace="nowrap"
               >
-                {new Date(startsAt).toLocaleString(undefined, {
-                  day: 'numeric',
-                  month: 'short',
-                  hour: 'numeric',
-                  minute: 'numeric',
-                })}{' '}
-                -{' '}
-                {new Date(endsAt).toLocaleString(
-                  undefined,
-                  new Date(startsAt).getDay() === new Date(endsAt).getDay()
-                    ? {
-                        hour: 'numeric',
-                        minute: 'numeric',
-                      }
-                    : {
-                        day: 'numeric',
-                        month: 'short',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                      }
+                {dateTimeFormat.formatRange(
+                  new Date(startsAt),
+                  new Date(endsAt)
                 )}
               </Text>
 
@@ -397,16 +397,14 @@ const Event = () => {
                       onRemove={
                         currentUser
                           ? () =>
-                              removeGameFromEvent({
-                                variables: { eventId: id, gameId: game.id },
-                                optimisticResponse: {
-                                  __typename: 'Mutation',
-                                  deleteGameEvent: {
-                                    __typename: 'DeleteGameEventMutation',
-                                    game: { __typename: 'Game', ...game },
-                                  },
-                                },
-                              })
+                              fetcher.submit(
+                                { id: game.id },
+                                {
+                                  method: 'post',
+                                  action: `/event/${id}/games/delete`,
+                                }
+                                // { method: 'post', action: './games/delete' }
+                              )
                           : null
                       }
                       isCompact
@@ -425,18 +423,16 @@ const Event = () => {
                       isOpen={linkGameIsOpen}
                       onClose={onCloseLinkGame}
                       excludedIds={games.map(({ id }) => id)}
-                      onSelect={(game) => {}
-                        // addGameToEvent({
-                        //   variables: { eventId: id, gameId: game.id },
-                        //   optimisticResponse: {
-                        //     __typename: 'Mutation',
-                        //     createGameEvent: {
-                        //       __typename: 'CreateGameEventMutation',
-                        //       game: { __typename: 'Game', ...game },
-                        //     },
-                        //   },
-                        // })
-                      }
+                      onSelect={(game) => {
+                        fetcher.submit(
+                          { id: game.id },
+                          {
+                            method: 'post',
+                            action: `/event/${id}/games/add`,
+                          }
+                          // { method: 'post', action: './games/add' }
+                        );
+                      }}
                     />
                   </>
                 )}
@@ -465,16 +461,14 @@ const Event = () => {
                     onRemove={
                       currentUser
                         ? () =>
-                            removeHostFromEvent({
-                              variables: { eventId: id, hostId: host.id },
-                              optimisticResponse: {
-                                __typename: 'Mutation',
-                                deleteEntityEvent: {
-                                  __typename: 'DeleteEntityEventMutation',
-                                  entity: { __typename: 'Entity', ...host },
-                                },
-                              },
-                            })
+                            fetcher.submit(
+                              { id: host.id },
+                              {
+                                method: 'post',
+                                action: `/event/${id}/hosts/delete`,
+                              }
+                              // { method: 'post', action: './hosts/delete' }
+                            )
                         : null
                     }
                   />
@@ -493,18 +487,13 @@ const Event = () => {
                       isOpen={linkHostIsOpen}
                       onClose={onCloseLinkHost}
                       excludedIds={entities.map(({ id }) => id)}
-                      onSelect={(host) => {}
-                        // addHostToEvent({
-                        //   variables: { eventId: id, hostId: host.id },
-                        //   optimisticResponse: {
-                        //     __typename: 'Mutation',
-                        //     createEntityEvent: {
-                        //       __typename: 'CreateEntityEventMutation',
-                        //       entity: { __typename: 'Entity', ...host },
-                        //     },
-                        //   },
-                        // })
-                      }
+                      onSelect={(host) => {
+                        fetcher.submit(
+                          { id: host.id },
+                          { method: 'post', action: `/event/${id}/hosts/add` }
+                          // { method: 'post', action: './hosts/add' }
+                        );
+                      }}
                     />
                   </>
                 )}

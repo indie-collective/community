@@ -162,7 +162,7 @@ model game_tag {
 
 model image {
   id           String         @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
-  image_file   String?
+  image_file   Json?
   created_at   DateTime?      @default(now()) @db.Timestamptz(6)
   updated_at   DateTime?      @default(now()) @db.Timestamptz(6)
   entity       entity[]

@@ -37,6 +37,12 @@ export const loader = async ({ params }) => {
     org: {
       ...org,
       type: org.type.toUpperCase(),
+      logo: org.logo
+        ? {
+            url: `https://${process.env.CDN_HOST}/${org.logo.image_file.name}`,
+            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${org.logo.image_file.name}`,
+          }
+        : null,
     },
     currentUser: {
       id: '1',
@@ -65,15 +71,13 @@ export async function action({ request, params }) {
     city: data.get('city'),
     region: data.get('region'),
     country_code: data.get('country_code'),
-    latitude: data.get('latitude') && parseFloat(data.get('latitude')),
-    longitude: data.get('longitude') && parseFloat(data.get('longitude')),
+    latitude: parseFloat(data.get('latitude')) || null,
+    longitude: parseFloat(data.get('longitude')) || null,
   };
 
   try {
     const [, igdb_slug] =
       (data.get('igdb_url') || '').match(/companies\/(.+)/) || [];
-
-      console.log(location)
 
     const org = await db.entity.update({
       where: { id },
@@ -93,11 +97,11 @@ export async function action({ request, params }) {
               },
             }
           : undefined,
-        // logo: {
-        //   connect: {
-        //     id: data.get('logo'),
-        //   }
-        // }
+        logo: {
+          connect: {
+            id: data.get('logo'),
+          }
+        }
       },
       select: {
         id: true,

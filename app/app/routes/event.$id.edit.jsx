@@ -34,7 +34,15 @@ export const loader = async ({ params }) => {
   });
 
   const data = {
-    event,
+    event: {
+      ...event,
+      cover: event.cover
+        ? {
+            url: `https://${process.env.CDN_HOST}/${event.cover.image_file.name}`,
+            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${event.cover.image_file.name}`,
+          }
+        : null,
+    },
     currentUser: {
       id: '1',
       username: 'admin',
@@ -49,24 +57,24 @@ export const loader = async ({ params }) => {
 export async function action({ request, params }) {
   const { id } = params;
 
-  const data = await unstable_parseMultipartFormData(
-    request,
-    unstable_composeUploadHandlers(
-      createUploadHandler(['cover']),
-      unstable_createMemoryUploadHandler()
-    )
-  );
-
-  const location = {
-    street: data.get('street'),
-    city: data.get('city'),
-    region: data.get('region'),
-    country_code: data.get('country_code'),
-    latitude: parseFloat(data.get('latitude')),
-    longitude: parseFloat(data.get('longitude')),
-  };
-
   try {
+    const data = await unstable_parseMultipartFormData(
+      request,
+      unstable_composeUploadHandlers(
+        createUploadHandler(['cover']),
+        unstable_createMemoryUploadHandler()
+      )
+    );
+
+    const location = {
+      street: data.get('street'),
+      city: data.get('city'),
+      region: data.get('region'),
+      country_code: data.get('country_code'),
+      latitude: parseFloat(data.get('latitude')) || null,
+      longitude: parseFloat(data.get('longitude')) || null,
+    };
+
     const event = await db.event.update({
       where: { id },
       data: {
@@ -80,11 +88,13 @@ export async function action({ request, params }) {
         ends_at: new Date(data.get('end')) || undefined,
         about: data.get('about') || undefined,
         site: data.get('site') || undefined,
-        // cover: {
-        //   connect: {
-        //     id: data.get('cover'),
-        //   }
-        // },
+        cover: data.get('cover')
+          ? {
+              connect: {
+                id: data.get('cover'),
+              },
+            }
+          : undefined,
         location: Object.values(location).some((l) => l !== null)
           ? {
               connectOrCreate: {

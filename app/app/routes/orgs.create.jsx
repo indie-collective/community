@@ -23,8 +23,8 @@ export async function action({ request }) {
     city: data.get('city'),
     region: data.get('region'),
     country_code: data.get('country_code'),
-    latitude: parseFloat(data.get('latitude')),
-    longitude: parseFloat(data.get('longitude')),
+    latitude: parseFloat(data.get('latitude')) || null,
+    longitude: parseFloat(data.get('longitude')) || null,
   };
 
   try {
@@ -45,11 +45,11 @@ export async function action({ request }) {
               },
             }
           : undefined,
-        // logo: {
-        //   connect: {
-        //     id: data.get('logo'),
-        //   }
-        // }
+        logo: {
+          connect: {
+            id: data.get('logo'),
+          }
+        }
       },
       select: {
         id: true,

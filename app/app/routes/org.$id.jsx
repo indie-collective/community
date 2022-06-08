@@ -63,38 +63,46 @@ export const loader = async({ params }) => {
       status: 404,
     });
 
-  const data = {
-    org: await db.entity.findUnique({
-      where: { id },
-      include: {
-        game_entity: {
-          include: {
-            game: true,
-          }
-        },
-        entity_event: {
-          include: {
-            event: {
-              include: {
-                game_event: true,
-                event_participant: true,
-              }
-            },
-          }
-        },
-        logo: true,
-        location: true,
+  const org = await db.entity.findUnique({
+    where: { id },
+    include: {
+      game_entity: {
+        include: {
+          game: true,
+        }
       },
-    }),
+      entity_event: {
+        include: {
+          event: {
+            include: {
+              game_event: true,
+              event_participant: true,
+            }
+          },
+        }
+      },
+      logo: true,
+      location: true,
+    },
+  });
+
+  return json({
+    org: {
+      ...org,
+      logo: org.logo
+        ? {
+            url: `https://${process.env.CDN_HOST}/${org.logo.image_file.name}`,
+            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${org.logo.image_file.name}`,
+          }
+        : null,
+    },
     currentUser: {
       id: '1',
       username: 'admin',
       name: 'John Doe',
       email: 'test@test.com',
     },
-  };
-
-  return json(data);
+  });
 };
 
 export const meta = ({ data, location }) => ({

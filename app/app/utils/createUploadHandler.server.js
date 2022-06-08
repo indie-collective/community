@@ -1,11 +1,11 @@
 import AWS from 'aws-sdk';
 import jimp from 'jimp';
 
-const { NODE_ENV, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } = process.env;
+import { db } from './db.server';
+
+const { NODE_ENV, CDN_HOST, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } = process.env;
 
 const isDev = NODE_ENV !== 'production';
-
-const CDN = `cdn${isDev ? '-dev' : ''}.indieco.xyz`;
 
 const s3 = new AWS.S3({
   endpoint: 's3.fr-par.scw.cloud',
@@ -14,19 +14,23 @@ const s3 = new AWS.S3({
   secretAccessKey: S3_SECRET_ACCESS_KEY,
   signatureVersion: 'v4',
   // s3ForcePathStyle: true,
-  params: { Bucket: CDN },
+  params: { Bucket: CDN_HOST },
 });
 
-async function uploadStreamToS3(stream, { extension }) {
+async function uploadStreamToS3(data, { extension, contentType }) {
   const timestamp = new Date().toISOString().replace(/\D/g, '');
   const newFilename = `${timestamp}.${extension}`;
 
   const chunks = [];
-  const imageBuffer = await new Promise((resolve, reject) => {
-    stream.on('data', (chunk) => chunks.push(chunk));
-    stream.on('error', reject);
-    stream.on('end', () => resolve(Buffer.concat(chunks)));
-  });
+  for await (const chunk of data) {
+    chunks.push(chunk);
+  }
+
+  const imageBuffer = Buffer.concat(chunks);
+
+  if (imageBuffer.length === 0) {
+    throw new Error('Empty');
+  }
 
   try {
     const { ETag, VersionId } = await s3
@@ -34,15 +38,15 @@ async function uploadStreamToS3(stream, { extension }) {
         ACL: 'public-read',
         Key: newFilename,
         Body: imageBuffer,
-        ContentType: mimetype,
+        ContentType: contentType,
         CacheControl: 'max-age=31536000',
       })
       .promise();
 
     const image = await jimp.read(imageBuffer);
     const { width, height } = image.bitmap;
-
-    await image.resize(jimp.AUTO, 400);
+    image.resize(jimp.AUTO, 400);
+    
     const buffer = await image.getBufferAsync(jimp.AUTO);
 
     const { ETag: thumbETag, VersionId: thumbVersionId } = await s3
@@ -67,6 +71,8 @@ async function uploadStreamToS3(stream, { extension }) {
       thumb_height: image.bitmap.height,
     };
   } catch (err) {
+    console.log(err);
+
     throw new Error('Something wrong occurred when uploading');
   }
 }
@@ -77,14 +83,31 @@ export default function createUploadHandler(fileInputs) {
       return undefined;
     }
 
-    // const uploadedImage = await uploadStreamToS3(
-    //   data,
-    //   {extension: filename.split('.').pop()}
-    // );
+    try {
+      const bucketEntry = await uploadStreamToS3(
+        data,
+        {extension: filename.split('.').pop(), contentType}
+      );
+  
+      const image = await db.image.create({
+        data: {
+          image_file: bucketEntry,
+        },
+        select: {
+          id: true,
+        },
+      });
+  
+      return image.id;
+    } catch (err) {
+      if (err.message === 'Empty') {
+        // due to memoryhandler required to avoid the nullification of everything
+        // we need to return something other than undefined or null
+        // this might change in the future
+        return '';
+      }
 
-    // TODO: create an image in the db and return the id
-
-    // return uploadedImage.id;
-    return 'myimageid';
+      throw err;
+    }
   }
 }
