@@ -38,7 +38,7 @@ const A = (props) => (
   </>
 );
 
-const Paragraph = (props) => <Text mb={2} {...props} />;
+const Paragraph = ({tight, ...props}) => <Text mb={2} {...props} />;
 
 const OrderedList = (props) => (
   <List
