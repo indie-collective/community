@@ -1,5 +1,4 @@
 import { Grid, Box, Text } from "@chakra-ui/react";
-import { Link } from "@remix-run/react";
 
 import EventCard from "./EventCard";
 
@@ -13,9 +12,7 @@ const RelatedEvents = ({events}) => {
       {events.length > 0 ? (
         events.map(event => (
           <Box key={event.id} minW={0}>
-            <Link key={event.id} to={`/event/${event.id}`}>
-              <EventCard {...event} />
-            </Link>
+            <EventCard {...event} />
           </Box>
         ))
       ) : (
