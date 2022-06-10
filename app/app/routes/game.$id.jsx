@@ -23,7 +23,12 @@ import {
   List,
   ListItem,
 } from '@chakra-ui/react';
-import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import {
+  AddIcon,
+  DeleteIcon,
+  EditIcon,
+  ExternalLinkIcon,
+} from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
 import { useCallback, useState } from 'react';
@@ -82,7 +87,17 @@ export const loader = async ({ params }) => {
   }
 
   const data = {
-    game,
+    game: {
+      ...game,
+      game_image: game.game_image.map((gameImage) => ({
+        ...gameImage,
+        image: {
+          id: gameImage.image_id,
+          url: `https://${process.env.CDN_HOST}/${gameImage.image.image_file.name}`,
+          thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${gameImage.image.image_file.name}`,
+        },
+      })),
+    },
     currentUser: {
       id: '1',
       username: 'admin',
@@ -131,22 +146,21 @@ const Game = () => {
   const onDrop = useCallback(async (acceptedFiles) => {
     setIsLoadingNewImages(true);
 
-    // await Promise.all(
-    //   acceptedFiles.map(async (file) => {
-    //     const response = await uploadImage({
-    //       variables: {
-    //         file,
-    //       },
-    //     });
+    const form = new FormData();
 
-    //     await addGameImage({
-    //       variables: {
-    //         gameId: id,
-    //         imageId: response.data.createImage.image.id,
-    //       },
-    //     });
-    //   })
-    // );
+    for (const file of acceptedFiles) {
+      form.append('images', file);
+    }
+
+    await fetcher.submit(
+      form,
+      {
+        method: 'post',
+        action: `/game/${id}/images/add`,
+        encType: 'multipart/form-data',
+      }
+      // { method: 'post', action: './images/add' }
+    );
 
     setIsLoadingNewImages(false);
   }, []);
@@ -272,26 +286,28 @@ const Game = () => {
         </Grid>
       </Box>
 
-      <Box mb={5} pl={5} pr={5}>
-        <Heading size="md" mb={2}>
-          Made/Exhibited at:
-        </Heading>
-        <List>
-          {events.map((event) => (
-            <ListItem key={event.key}>
-              <ChakraLink as={Link} to={`/event/${event.id}`}>
-                <time dateTime={event.starts_at + '/' + event.ends_at}>
-                  {dateTimeFormat.formatRange(
-                    new Date(event.starts_at),
-                    new Date(event.ends_at)
-                  )}
-                </time>
-                . {event.name}
-              </ChakraLink>
-            </ListItem>
-          ))}
-        </List>
-      </Box>
+      {events.length > 0 && (
+        <Box mb={5} pl={5} pr={5}>
+          <Heading size="md" mb={2}>
+            Made/Exhibited at:
+          </Heading>
+          <List>
+            {events.map((event) => (
+              <ListItem key={event.key}>
+                <ChakraLink as={Link} to={`/event/${event.id}`}>
+                  <time dateTime={event.starts_at + '/' + event.ends_at}>
+                    {dateTimeFormat.formatRange(
+                      new Date(event.starts_at),
+                      new Date(event.ends_at)
+                    )}
+                  </time>
+                  . {event.name}
+                </ChakraLink>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      )}
 
       <Box mb={5} pl={5} pr={5}>
         <Heading size="md" mb={2}>
@@ -315,10 +331,38 @@ const Game = () => {
               />
             </AspectRatio>
           ))}
-          {images.map(({ id, thumbnail_url }) => (
-            <AspectRatio key={id} ratio={16 / 9}>
-              <Image objectFit="cover" size="100%" src={thumbnail_url} alt="" />
-            </AspectRatio>
+          {images.map((image) => (
+            <Box key={id} position="relative">
+              <AspectRatio ratio={16 / 9}>
+                <Image
+                  objectFit="cover"
+                  size="100%"
+                  src={image.thumbnail_url}
+                  alt=""
+                />
+              </AspectRatio>
+              {currentUser && (
+                <IconButton
+                  position="absolute"
+                  bottom={2}
+                  right={2}
+                  size="xs"
+                  aria-label={`Remove image ${id}`}
+                  isRound
+                  colorScheme="red"
+                  icon={<DeleteIcon />}
+                  onClick={(e) => {
+                    e.preventDefault();
+
+                    fetcher.submit(
+                      { id: image.id },
+                      { method: 'post', action: `/game/${id}/images/delete` }
+                      // { method: 'post', action: './images/delete' }
+                    );
+                  }}
+                />
+              )}
+            </Box>
           ))}
           {currentUser && (
             <AspectRatio key={id} ratio={16 / 9}>
@@ -358,32 +402,34 @@ const Game = () => {
         </Grid>
       </Box>
 
-      <Box mb={5} pl={5} pr={5}>
-        <Heading size="md" mb={2}>
-          Videos
-        </Heading>
-        <Grid
-          gap={3}
-          templateColumns={[
-            'repeat(1, 1fr)',
-            'repeat(2, 1fr)',
-            'repeat(3, 1fr)',
-          ]}
-        >
-          {igdb_game?.videos?.map(({ id, name, video_id }) => (
-            <AspectRatio key={id} ratio={16 / 9}>
-              <iframe
-                objectFit="cover"
-                width="100%"
-                height="100%"
-                title={name}
-                src={`https://www.youtube.com/embed/${video_id}`}
-                allowFullScreen
-              />
-            </AspectRatio>
-          ))}
-        </Grid>
-      </Box>
+      {igdb_game?.videos.length > 0 && (
+        <Box mb={5} pl={5} pr={5}>
+          <Heading size="md" mb={2}>
+            Videos
+          </Heading>
+          <Grid
+            gap={3}
+            templateColumns={[
+              'repeat(1, 1fr)',
+              'repeat(2, 1fr)',
+              'repeat(3, 1fr)',
+            ]}
+          >
+            {igdb_game?.videos?.map(({ id, name, video_id }) => (
+              <AspectRatio key={id} ratio={16 / 9}>
+                <iframe
+                  objectFit="cover"
+                  width="100%"
+                  height="100%"
+                  title={name}
+                  src={`https://www.youtube.com/embed/${video_id}`}
+                  allowFullScreen
+                />
+              </AspectRatio>
+            ))}
+          </Grid>
+        </Box>
+      )}
 
       {currentUser && (
         <Box mb={5} pl={5} pr={5}>

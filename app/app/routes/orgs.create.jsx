@@ -15,7 +15,10 @@ import OrgForm from '../components/OrgForm';
 export async function action({ request }) {
   const data = await unstable_parseMultipartFormData(
     request,
-    createUploadHandler(['logo'])
+    unstable_composeUploadHandlers(
+      createUploadHandler(['logo']),
+      unstable_createMemoryUploadHandler()
+    )
   );
 
   const location = {

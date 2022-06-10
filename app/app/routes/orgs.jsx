@@ -13,17 +13,28 @@ export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
   const page = Number(searchParams.get('page') || '1');
 
-  const data = {
-    // Removing the await enables streaming, but it seems to crash when SSR
-    orgs: await db.entity.findMany({
+  const orgs = await db.entity.findMany({
       include: {
         location: true,
+        logo: true,
       },
       orderBy: {
         updated_at: 'desc',
       },
       take: PAGE_SIZE,
-    }),
+    })
+
+  const data = {
+    // Removing the await enables streaming, but it seems to crash when SSR
+    orgs: orgs.map((org) => ({
+      ...org,
+      logo: org.logo
+        ? {
+            url: `https://${process.env.CDN_HOST}/${org.logo.image_file.name}`,
+            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${org.logo.image_file.name}`,
+          }
+        : null,
+    })),
     currentUser: {
       id: '1',
       username: 'admin',
