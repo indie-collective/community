@@ -332,7 +332,7 @@ const Game = () => {
             </AspectRatio>
           ))}
           {images.map((image) => (
-            <Box key={id} position="relative">
+            <Box key={image.id} position="relative">
               <AspectRatio ratio={16 / 9}>
                 <Image
                   objectFit="cover"
@@ -364,6 +364,22 @@ const Game = () => {
               )}
             </Box>
           ))}
+          {fetcher.state === 'submitting' &&
+            fetcher.submission.action.includes('images/add') &&
+            fetcher.submission.formData.getAll('images').map((file) => (
+              <Box key={file.name} position="relative">
+                <AspectRatio ratio={16 / 9}>
+                  <Image
+                    objectFit="cover"
+                    size="100%"
+                    src={URL.createObjectURL(file)}
+                    alt=""
+                    opacity={0.5}
+                  />
+                </AspectRatio>
+                <Spinner position="absolute" inset={0} margin="auto" size="lg" />
+              </Box>
+            ))}
           {currentUser && (
             <AspectRatio key={id} ratio={16 / 9}>
               <Box
