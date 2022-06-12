@@ -10,6 +10,7 @@ import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
+import getImageLinks from '../utils/imageLinks.server';
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
@@ -21,63 +22,65 @@ export const loader = async ({ request }) => {
   const currentUser = await db.person.findFirst();
 
   const data = {
-    games: await db.game.findMany({
-      orderBy: {
-        created_at: 'desc',
-      },
-      take: 12,
-    }),
-    entities: await db.entity.findMany({
-      include: {
-        location: true,
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-      take: 12,
-    }),
-    events: await db.event.findMany({
-      include: {
-        event_participant: true,
-        game_event: true,
-        location: true,
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-      take: 12,
-    }),
-    eventsToCome: await db.event.findMany({
-      where: {
-        status: {
-          not: 'canceled',
-        },
-        ends_at: {
-          gte: new Date(),
-        },
-      },
-      include: {
-        event_participant: true,
-        game_event: true,
-        location: true,
-      },
-      orderBy: {
-        starts_at: 'asc',
-      },
-      take: 8,
-    }),
-    currentUser: {
-      id: currentUser.id,
-      firstName: currentUser.first_name,
-      lastName: currentUser.last_name,
-      avatar: null,
-      eventsToCome: await db.event.findMany({
-        where: {
-          event_participant: {
-            every: {
-              person_id: currentUser.id,
-            }
+    games: await db.game
+      .findMany({
+        include: {
+          game_image: {
+            include: {
+              image: true,
+            },
           },
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+        take: 12,
+      })
+      .then((games) =>
+        games.map((game) => ({
+          ...game,
+          images: game.game_image.map(({ image }) => getImageLinks(image)),
+        }))
+      ),
+    entities: await db.entity
+      .findMany({
+        include: {
+          location: true,
+          logo: true,
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+        take: 12,
+      })
+      .then((entities) =>
+        entities.map((entity) => ({
+          ...entity,
+          logo: entity.logo ? getImageLinks(entity.logo) : null,
+        }))
+      ),
+    events: await db.event
+      .findMany({
+        include: {
+          event_participant: true,
+          game_event: true,
+          location: true,
+          cover: true,
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+        take: 12,
+      })
+      .then((events) =>
+        events.map((event) => ({
+          ...event,
+          cover: event.cover ? getImageLinks(event.cover) : null,
+        }))
+      ),
+    eventsToCome: await db.event
+      .findMany({
+        where: {
           status: {
             not: 'canceled',
           },
@@ -89,12 +92,56 @@ export const loader = async ({ request }) => {
           event_participant: true,
           game_event: true,
           location: true,
+          cover: true,
         },
         orderBy: {
-          starts_at: 'desc',
+          starts_at: 'asc',
         },
         take: 8,
-      }),
+      })
+      .then((events) =>
+        events.map((event) => ({
+          ...event,
+          cover: event.cover ? getImageLinks(event.cover) : null,
+        }))
+      ),
+    currentUser: {
+      id: currentUser.id,
+      firstName: currentUser.first_name,
+      lastName: currentUser.last_name,
+      avatar: null,
+      eventsToCome: await db.event
+        .findMany({
+          where: {
+            event_participant: {
+              every: {
+                person_id: currentUser.id,
+              },
+            },
+            status: {
+              not: 'canceled',
+            },
+            ends_at: {
+              gte: new Date(),
+            },
+          },
+          include: {
+            event_participant: true,
+            game_event: true,
+            location: true,
+            cover: true,
+          },
+          orderBy: {
+            starts_at: 'desc',
+          },
+          take: 8,
+        })
+        .then((events) =>
+          events.map((event) => ({
+            ...event,
+            cover: event.cover ? getImageLinks(event.cover) : null,
+          }))
+        ),
     },
   };
   return json(data);

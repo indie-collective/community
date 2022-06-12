@@ -65,7 +65,7 @@ const EventCard = forwardRef(
           <Text
             textTransform="uppercase"
             noOfLines={1}
-            color={status === 'CANCELED' && 'gray.500'}
+            color={status === 'canceled' && 'gray.500'}
           >
             <Text as="time" dateTime={startsAt} title={startsAtText}>
               {startsAtText}
@@ -86,8 +86,8 @@ const EventCard = forwardRef(
             size="lg"
             noOfLines={1}
             title={name}
-            textDecoration={status === 'CANCELED' && 'line-through'}
-            color={status === 'CANCELED' && 'gray.500'}
+            textDecoration={status === 'canceled' && 'line-through'}
+            color={status === 'canceled' && 'gray.500'}
           >
             <CardLink to={`/event/${id}`}>{name}</CardLink>
           </Heading>
@@ -104,9 +104,9 @@ const EventCard = forwardRef(
               <>
                 {' '}
                 &bull; {event_participant.length}{' '}
-                {status !== 'CANCELED' &&
+                {status !== 'canceled' &&
                   (new Date(endsAt) < new Date() ? 'went' : 'going')}
-                {status === 'CANCELED' && 'were going'}
+                {status === 'canceled' && 'were going'}
               </>
             )}
           </Box>

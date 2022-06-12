@@ -35,7 +35,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 const validationSchema = yup.object().shape({
   type: yup
     .string()
-    .oneOf(['STUDIO', 'ASSOCIATION'])
+    .oneOf(['studio', 'association'])
     .required(),
   name: yup.string().required(),
   location: yup.object({
@@ -56,7 +56,7 @@ const propTypes = {
   loading: PropTypes.bool.isRequired,
   defaultData: PropTypes.shape({
     logo: PropTypes.any,
-    type: PropTypes.oneOf(['STUDIO', 'ASSOCIATION']),
+    type: PropTypes.oneOf(['studio', 'association']),
     name: PropTypes.string,
     location: PropTypes.shape({
       id: PropTypes.string,
@@ -75,13 +75,13 @@ const propTypes = {
 const defaultProps = {
   loading: false,
   defaultData: {
-    type: 'STUDIO',
+    type: 'studio',
   },
 };
 
 const TYPES_COLORS = {
-  STUDIO: 'yellow',
-  ASSOCIATION: 'green',
+  studio: 'yellow',
+  association: 'green',
 };
 
 const CustomRadio = React.forwardRef((props, ref) => {
@@ -223,20 +223,20 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
         <FormLabel htmlFor="name">Type</FormLabel>
         <Flex {...getRootProps()}>
           <CustomRadio
-            color={TYPES_COLORS.STUDIO}
+            color={TYPES_COLORS.studio}
             flex="1"
             mr={2}
             {...register('type')}
-            {...getRadioProps({ value: 'STUDIO' })}
+            {...getRadioProps({ value: 'studio' })}
           >
             Studio
           </CustomRadio>
           <CustomRadio
-            color={TYPES_COLORS.ASSOCIATION}
+            color={TYPES_COLORS.association}
             flex="1"
             value="ASSOCIATION"
             {...register('type')}
-            {...getRadioProps({ value: 'ASSOCIATION' })}
+            {...getRadioProps({ value: 'association' })}
           >
             Association
           </CustomRadio>

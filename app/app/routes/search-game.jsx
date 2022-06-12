@@ -21,27 +21,36 @@ import useDebounce from '../hooks/useDebounce';
 
 export async function loader({ request }) {
   const url = new URL(request.url);
-  const search = (url.searchParams.get('q') || '').trim().split(' ').join(' | ');
+  const search = (url.searchParams.get('q') || '')
+    .trim() // remove leading and trailing whitespaces
+    .split(' ') // split by whitespaces
+    .map((t) => `'${t}'`) // wrap each term in quotes (due to special characters)
+    .join(' | '); // join by OR
   const excludedIds = url.searchParams.get('notId');
   const excludedIdsArray = excludedIds ? excludedIds.split(',') : [];
 
-  const data = await db.game.findMany({
-    where: {
-      name: {
-        search,
+  try {
+    const data = await db.game.findMany({
+      where: {
+        name: {
+          search,
+        },
+        id: {
+          notIn: excludedIdsArray,
+        },
       },
-      id: {
-        notIn: excludedIdsArray,
+      select: {
+        id: true,
+        name: true,
       },
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-    take: 10,
-  });
+      take: 10,
+    });
 
-  return json(data);
+    return json(data);
+  } catch (err) {
+    console.error(err);
+    return json({ error: 'Something went wrong' });
+  }
 }
 
 export const SearchGameModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
@@ -49,8 +58,6 @@ export const SearchGameModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
   const games = useFetcher();
   const debouncedValue = useDebounce(value, 300);
   const initialFocusRef = useRef();
-
-  console.log(excludedIds)
 
   useEffect(() => {
     if (value.length > 2) {

@@ -1,10 +1,19 @@
-import { Button, Box, Heading, Text, Grid, Image, Fade } from '@chakra-ui/react';
+import {
+  Button,
+  Box,
+  Heading,
+  Text,
+  Grid,
+  Image,
+  Fade,
+} from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { Link, useLoaderData } from '@remix-run/react';
 import { json } from '@remix-run/node';
 import React, { useCallback, useState } from 'react';
 
 import { db } from '../utils/db.server';
+import getImageLinks from '../utils/imageLinks.server';
 import Navigation from '../components/Navigation';
 import EventCard from '../components/EventCard';
 import Carousel from '../components/Carousel';
@@ -19,23 +28,31 @@ export const loader = async ({ request }) => {
   const cursor = getCursor(searchParams);
 
   const data = {
-    events: await db.event.findMany({
-      where: {
-        ends_at: {
-          gte: new Date(),
+    events: await db.event
+      .findMany({
+        where: {
+          ends_at: {
+            gte: new Date(),
+          },
         },
-      },
-      include: {
-        event_participant: true,
-        game_event: true,
-        location: true,
-      },
-      orderBy: {
-        starts_at: 'desc',
-      },
-      cursor,
-      take: 6,
-    }),
+        include: {
+          event_participant: true,
+          game_event: true,
+          location: true,
+          cover: true,
+        },
+        orderBy: {
+          starts_at: 'desc',
+        },
+        cursor,
+        take: 6,
+      })
+      .then((events) =>
+        events.map((event) => ({
+          ...event,
+          cover: event.cover ? getImageLinks(event.cover) : null,
+        }))
+      ),
     pastEvents: await db.event.findMany({
       where: {
         ends_at: {
@@ -46,13 +63,17 @@ export const loader = async ({ request }) => {
         event_participant: true,
         game_event: true,
         location: true,
+        cover: true,
       },
       orderBy: {
         starts_at: 'desc',
       },
       skip: (page - 1) * 10,
       take: 10,
-    }),
+    }).then((events) => events.map((event) => ({
+      ...event,
+      cover: event.cover ? getImageLinks(event.cover) : null,
+    }))),
     currentUser: {
       id: '1',
       username: 'admin',

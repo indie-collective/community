@@ -111,14 +111,14 @@ const EditGame = () => {
           defaultData={{
             id: game.id,
             name: game.name,
-            igdb_url:
-              game.igdb_slug ? 'https://www.igdb.com/games/' +
-              game.igdb_slug : '',
+            igdb_url: game.igdb_slug
+              ? 'https://www.igdb.com/games/' + game.igdb_slug
+              : '',
             about: game.about,
             site: game.site,
             tags: game.game_tag.map(({ tag }) => tag),
           }}
-          loading={false}
+          loading={transition.state === 'submitting'}
         />
       </Box>
     </div>

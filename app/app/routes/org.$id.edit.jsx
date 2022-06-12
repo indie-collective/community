@@ -36,7 +36,6 @@ export const loader = async ({ params }) => {
   const data = {
     org: {
       ...org,
-      type: org.type.toUpperCase(),
       logo: org.logo
         ? {
             url: `https://${process.env.CDN_HOST}/${org.logo.image_file.name}`,
@@ -97,11 +96,11 @@ export async function action({ request, params }) {
               },
             }
           : undefined,
-        logo: {
+        logo: data.get('logo') ? {
           connect: {
             id: data.get('logo'),
           }
-        }
+        } : undefined,
       },
       select: {
         id: true,
@@ -147,8 +146,8 @@ const EditOrg = () => {
 
         <OrgForm
           method="post"
+          loading={transition.state === 'submitting'}
           defaultData={org}
-          loading={false}
         />
       </Box>
     </div>

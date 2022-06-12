@@ -31,15 +31,16 @@ import {
 } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 import { db } from '../utils/db.server';
+import { getIGDBGame } from '../utils/igdb.server';
+import getImageLinks from '../utils/imageLinks.server';
 import Navigation from '../components/Navigation';
 import OrgCard from '../components/OrgCard';
 import SearchOrgModal from './search-org';
 import Markdown from '../components/Markdown';
-import { getIGDBGame } from '../utils/igdb.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -69,7 +70,11 @@ export const loader = async ({ params }) => {
       },
       game_entity: {
         include: {
-          entity: true,
+          entity: {
+            include: {
+              logo: true,
+            }
+          },
         },
       },
       game_event: {
@@ -91,10 +96,13 @@ export const loader = async ({ params }) => {
       ...game,
       game_image: game.game_image.map((gameImage) => ({
         ...gameImage,
-        image: {
-          id: gameImage.image_id,
-          url: `https://${process.env.CDN_HOST}/${gameImage.image.image_file.name}`,
-          thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${gameImage.image.image_file.name}`,
+        image: getImageLinks(gameImage.image),
+      })),
+      game_entity: game.game_entity.map((gameEntity) => ({
+        ...gameEntity,
+        entity: {
+          ...gameEntity.entity,
+          logo: gameEntity.entity.logo ? getImageLinks(gameEntity.entity.logo) : undefined,
         },
       })),
     },
@@ -141,11 +149,8 @@ const Game = () => {
     onOpen: onOpenLinkAuthor,
     onClose: onCloseLinkAuthor,
   } = useDisclosure();
-  const [isLoadingNewImages, setIsLoadingNewImages] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles) => {
-    setIsLoadingNewImages(true);
-
     const form = new FormData();
 
     for (const file of acceptedFiles) {
@@ -161,8 +166,6 @@ const Game = () => {
       }
       // { method: 'post', action: './images/add' }
     );
-
-    setIsLoadingNewImages(false);
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
@@ -411,7 +414,7 @@ const Game = () => {
                 {...getRootProps()}
               >
                 <input {...getInputProps()} />
-                {isLoadingNewImages ? <Spinner /> : <AddIcon size="48px" />}
+                <AddIcon size="48px" />
               </Box>
             </AspectRatio>
           )}

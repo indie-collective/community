@@ -26,6 +26,7 @@ import { Link, useLoaderData, useNavigate, Form } from '@remix-run/react';
 import { motion } from 'framer-motion';
 
 import { db } from '../utils/db.server';
+import getImageLinks from '../utils/imageLinks.server';
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 import EventCard from '../components/EventCard';
@@ -33,11 +34,12 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 
 const TYPES_COLORS = {
-  STUDIO: 'yellow',
-  ASSOCIATION: 'green',
+  studio: 'yellow',
+  association: 'green',
 };
 
-const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+const uuidRegex =
+  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 const variants = {
   initial: { scale: 0.96, y: 30, opacity: 0 },
@@ -55,7 +57,7 @@ const variants = {
   },
 };
 
-export const loader = async({ params }) => {
+export const loader = async ({ params }) => {
   const { id } = params;
 
   if (!uuidRegex.test(id))
@@ -68,8 +70,16 @@ export const loader = async({ params }) => {
     include: {
       game_entity: {
         include: {
-          game: true,
-        }
+          game: {
+            include: {
+              game_image: {
+                include: {
+                  image: true,
+                }
+              },
+            },
+          },
+        },
       },
       entity_event: {
         include: {
@@ -77,18 +87,38 @@ export const loader = async({ params }) => {
             include: {
               game_event: true,
               event_participant: true,
-            }
+              cover: true,
+            },
           },
-        }
+        },
       },
       logo: true,
       location: true,
     },
   });
+  
+  // TODO: find a way to better handle relations dependencies
 
   return json({
     org: {
       ...org,
+      game_entity: org.game_entity.map((game_entity) => ({
+        ...game_entity,
+        game: {
+          ...game_entity.game,
+          images: game_entity.game.game_image.map((game_image) => ({
+            url: `https://${process.env.CDN_HOST}/${game_image.image.image_file.name}`,
+            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${game_image.image.image_file.name}`,
+          })),
+        },
+      })),
+      entity_event: org.entity_event.map((entity_event) => ({
+        ...entity_event,
+        event: {
+          ...entity_event.event,
+          cover: entity_event.event.cover ? getImageLinks(entity_event.event.cover) : undefined,
+        },
+      })),
       logo: org.logo
         ? {
             url: `https://${process.env.CDN_HOST}/${org.logo.image_file.name}`,
@@ -300,7 +330,7 @@ const Org = () => {
 
               <ModalFooter>
                 <Button
-                  type='submit'
+                  type="submit"
                   isLoading={false}
                   loadingText="Deleting"
                   colorScheme="red"
