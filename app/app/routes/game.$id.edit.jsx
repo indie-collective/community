@@ -56,6 +56,27 @@ export async function action({ request, params }) {
     const [, igdb_slug] =
       (data.get('igdb_url') || '').match(/games\/(.+)/) || [];
 
+    const tagsList =
+      data
+        .get('tags')
+        ?.split(',')
+        .map((t) => t.trim().toLowerCase()) || [];
+
+    const tags = await db.$transaction(
+      tagsList.map((tag) =>
+        db.tag.upsert({
+          where: {
+            name: tag,
+          },
+          create: {
+            name: tag,
+          },
+          update: {
+          },
+        })
+      )
+    );
+
     const game = await db.game.update({
       where: { id },
       data: {
@@ -63,6 +84,19 @@ export async function action({ request, params }) {
         about: data.get('about'),
         site: data.get('site'),
         igdb_slug,
+        game_tag: {
+          createMany: {
+            data: tags.map((tag) => ({
+              tag_id: tag.id,
+            })),
+            skipDuplicates: true,
+          },
+          deleteMany: {
+            tag_id: {
+              notIn: tags.map((t) => t.id),
+            }
+          }
+        },
       },
       select: {
         id: true,

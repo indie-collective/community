@@ -11,45 +11,49 @@ export async function action({ request }) {
   const data = await request.formData();
 
   try {
+    const tagsList =
+      data
+        .get('tags')
+        ?.split(',')
+        .map((t) => t.trim().toLowerCase()) || [];
+
+    const tags = await db.$transaction(
+      tagsList.map((tag) =>
+        db.tag.upsert({
+          where: {
+            name: tag,
+          },
+          create: {
+            name: tag,
+          },
+          update: {},
+        })
+      )
+    );
+
     const game = await db.game.create({
       data: {
         name: data.get('name'),
         about: data.get('about'),
         site: data.get('site'),
+        game_tag: {
+          createMany: {
+            data: tags.map((tag) => ({
+              tag_id: tag.id,
+            })),
+            skipDuplicates: true,
+          },
+          deleteMany: {
+            tag_id: {
+              notIn: tags.map((t) => t.id),
+            },
+          },
+        },
       },
       select: {
         id: true,
       },
     });
-
-    await Promise.all(
-      data
-        .get('tags')
-        .split(',')
-        .map((t) => t.trim().toLowerCase())
-        .map((tag) =>
-          db.tag.upsert({
-            where: {
-              name: tag,
-            },
-            create: {
-              name: tag,
-              game_tag: {
-                create: {
-                  game_id: game.id,
-                },
-              },
-            },
-            update: {
-              game_tag: {
-                create: {
-                  game_id: game.id,
-                },
-              },
-            },
-          })
-        )
-    );
 
     return redirect(`/game/${game.id}`);
   } catch (err) {
