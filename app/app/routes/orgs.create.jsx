@@ -2,6 +2,8 @@ import { Box, Heading, useToast } from '@chakra-ui/react';
 import {
   json,
   redirect,
+  unstable_composeUploadHandlers,
+  unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
 } from '@remix-run/node';
 import { useActionData, useTransition } from '@remix-run/react';
@@ -48,11 +50,11 @@ export async function action({ request }) {
               },
             }
           : undefined,
-        logo: {
+        logo: data.get('logo') ? {
           connect: {
             id: data.get('logo'),
-          }
-        }
+          },
+        } : undefined,
       },
       select: {
         id: true,
