@@ -5,15 +5,15 @@
     "start": "remix-serve build"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^2.0.1",
-    "@chakra-ui/react": "^2.1.2",
+    "@chakra-ui/icons": "^2.0.2",
+    "@chakra-ui/react": "^2.2.1",
     "@emotion/cache": "^11.7.1",
     "@emotion/react": "^11.9.0",
     "@emotion/server": "^11.4.0",
     "@emotion/styled": "^11.8.1",
     "@hookform/resolvers": "^2.9.0",
     "@mapbox/geo-viewport": "^0.4.1",
-    "@prisma/client": "^3.13.0",
+    "@prisma/client": "^3.15.2",
     "@remix-run/node": "^0.0.0-experimental-9784dd06",
     "@remix-run/react": "^0.0.0-experimental-9784dd06",
     "@remix-run/serve": "^0.0.0-experimental-9784dd06",
@@ -26,13 +26,16 @@
     "pigeon-maps": "^0.19.7",
     "pigeon-marker": "^0.3.4",
     "prop-types": "^15.8.1",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-dropzone": "^11.0.1",
     "react-hook-form": "^7.31.3",
     "react-slick": "^0.29.0",
     "remarkable": "^2.0.1",
     "remarkable-react": "^1.4.3",
+    "remix-auth": "^3.2.2",
+    "remix-auth-form": "^1.1.2",
+    "remix-auth-socials": "^1.0.2",
     "slick-carousel": "^1.8.1",
     "yup": "^0.32.9"
   },
@@ -40,6 +43,6 @@
     "@remix-run/dev": "^0.0.0-experimental-9784dd06",
     "@remix-run/eslint-config": "^0.0.0-experimental-9784dd06",
     "eslint": "^8.11.0",
-    "prisma": "^3.13.0"
+    "prisma": "^3.15.2"
   }
 }

@@ -10,6 +10,11 @@ const theme = extendTheme(
     variant: 'filled',
     components: ['Input', 'Textarea'],
   }),
+  {
+    colors: {
+      discord: '#5865F2',
+    },
+  }
 );
 
 export default theme;

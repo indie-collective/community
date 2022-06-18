@@ -1,20 +1,69 @@
 import {
   Box,
+  Divider,
   Heading,
+  HStack,
   Link as ChakraLink,
+  Stack,
   Text,
   useColorModeValue as mode,
+  useToast,
 } from '@chakra-ui/react';
-import { Link } from '@remix-run/react';
+import { json } from '@remix-run/node';
+import { Link, useActionData, useTransition } from '@remix-run/react';
+import { useEffect } from 'react'
+import { AuthorizationError } from 'remix-auth';
 
+import { authenticator } from '../utils/auth.server';
 import Navigation from '../components/Navigation';
+import OAuthButtonGroup from '../components/OAuthButtonGroup';
 import SigninForm from '../components/SigninForm';
+
+export let loader = async ({ request }) => {
+  return await authenticator.isAuthenticated(request, {
+    successRedirect: '/',
+  });
+};
+
+export let action = async ({ request }) => {
+  try {
+    return await authenticator.authenticate('user-pass', request, {
+      successRedirect: '/',
+      throwOnError: true,
+    });
+  }
+  catch (error) {
+    // Because redirects work by throwing a Response, you need to check if the
+    // caught error is a response and return it or throw it again
+    if (error instanceof Response) return error;
+    if (error instanceof AuthorizationError) {
+      return json({ error: error.message });
+    }
+
+    console.log(error);
+    return json({ error: 'Something went wrong' });
+  }
+};
 
 export const meta = () => ({
   title: 'Sign In',
 });
 
 const SignIn = () => {
+  const toast = useToast();
+  const transition = useTransition();
+  const actionData = useActionData();
+
+  useEffect(() => {
+    if (!actionData?.error) return;
+
+    toast({
+      title: 'Something went wrong',
+      description: actionData?.error,
+      status: 'error',
+    });
+  }, [actionData?.error, transition.state === 'submitting', toast]);
+
   return (
     <Box>
       <Navigation />
@@ -35,20 +84,20 @@ const SignIn = () => {
           </ChakraLink>
         </Text>
 
-        <SigninForm
-          onSubmit={async (variables) => {
-            // const { data } = await signin({ variables });
+        <Stack spacing={5}>
 
-            // if (data && data.authenticate.jwtToken !== null) {
-            //   document.cookie = `token=${data.authenticate.jwtToken};max-age=${
-            //     60 * 60 * 24 * 365
-            //   }`;
+        <SigninForm loading={transition.status === 'submitting'} />
 
-            //   push('/');
-            // }
-          }}
-          loading={false}
-        />
+        <HStack>
+          <Divider />
+          <Text fontSize="sm" whiteSpace="nowrap" color="muted">
+            or continue with
+          </Text>
+          <Divider />
+        </HStack>
+
+        <OAuthButtonGroup />
+        </Stack>
       </Box>
     </Box>
   );

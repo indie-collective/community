@@ -42,7 +42,7 @@ export const PasswordInput = forwardRef((props, ref) => {
           bg="transparent !important"
           variant="ghost"
           aria-label={isOpen ? 'Mask password' : 'Reveal password'}
-          icon={isOpen ? <ViewIcon /> : <ViewOffIcon />}
+          icon={isOpen ? <ViewOffIcon /> : <ViewIcon />}
           onClick={onClickReveal}
         />
       </InputRightElement>

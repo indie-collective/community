@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearch", "improvedQueryRaw"]
 }
 
 datasource db {
@@ -42,8 +42,8 @@ model entity_image {
   image_id   String    @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   updated_at DateTime? @default(now()) @db.Timestamptz(6)
-  entity     entity    @relation(fields: [entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  image      image     @relation(fields: [image_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  entity     entity    @relation(fields: [entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  image      image     @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([entity_id, image_id])
 }
@@ -71,7 +71,7 @@ model event {
   updated_at        DateTime?           @default(now()) @db.Timestamptz(6)
   cover_id          String?             @db.Uuid
   status            event_status        @default(ongoing)
-  cover             image?              @relation(fields: [cover_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  cover             image?              @relation(fields: [cover_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
   location          location?           @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entity_event      entity_event[]
   event_participant event_participant[]
@@ -162,7 +162,7 @@ model game_tag {
 
 model image {
   id           String         @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
-  image_file   Json?
+  image_file   Json
   created_at   DateTime?      @default(now()) @db.Timestamptz(6)
   updated_at   DateTime?      @default(now()) @db.Timestamptz(6)
   entity       entity[]
@@ -191,11 +191,15 @@ model person {
   id                String              @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
   first_name        String
   last_name         String?
+  email             String?             @unique
+  password_hash     String?
+  discord_id        String?             @unique
+  github_id         String?             @unique
   about             String?
   created_at        DateTime?           @default(now()) @db.Timestamptz(6)
   updated_at        DateTime?           @default(now()) @db.Timestamptz(6)
   avatar_id         String?             @db.Uuid
-  image             image?              @relation(fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  avatar            image?              @relation(fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entity_member     entity_member[]
   event_participant event_participant[]
   game_author       game_author[]

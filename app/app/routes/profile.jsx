@@ -13,36 +13,32 @@ import {
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
+import { Form, Link, useLoaderData } from '@remix-run/react';
 
+import { authenticator } from '../utils/auth.server';
 import Navigation from '../components/Navigation';
 
-export const loader = () => {
+export const loader = async ({request}) => {
+  const currentUser = await authenticator.isAuthenticated(request, {
+    failureRedirect: '/signin',
+  });
+
   const data = {
-    currentUser: {
-      id: '1',
-      username: 'admin',
-      name: 'John Doe',
-      email: 'test@test.com',
-      firstName: 'John',
-      lastName: 'Doe',
-      about: '',
-      avatar: null,
-    },
+    currentUser,
   };
 
   return json(data);
 }
 
 export const meta = ({data}) => ({
-  title: `${data.currentUser.name}'s profile`,
+  title: `${data.currentUser.first_name}'s profile`,
 });
 
 const Profile = () => {
   const { colorMode, toggleColorMode } = useColorMode();
 
   const { currentUser } = useLoaderData();
-  const { fullName, about, avatar } = currentUser;
+  const { email, first_name, about, avatar, discord_id, github_id } = currentUser;
 
   return (
     <div>
@@ -61,19 +57,23 @@ const Profile = () => {
           position="relative"
         >
           <Box position="absolute" alignSelf="flex-end">
-            <Link to="/profile/edit">
-              <Button leftIcon={<EditIcon />}>Edit</Button>
-            </Link>
+            <Button leftIcon={<EditIcon />} as={Link} to="/profile/edit">
+              Edit
+            </Button>
           </Box>
 
           <Avatar
             size="2xl"
-            name={fullName}
+            name={first_name}
             margin="1rem"
-            src={avatar && avatar.url}
+            src={avatar}
           />
 
-          <Heading>{fullName}</Heading>
+          <Heading as="h3">{first_name}</Heading>
+          <Heading size="md">{email}</Heading>
+
+          {discord_id && <Text>Discord</Text>}
+          {github_id && <Text>GitHub</Text>}
 
           {about && (
             <Box
@@ -91,16 +91,16 @@ const Profile = () => {
             <Switch
               id="dark-mode"
               colorScheme="teal"
-              isChecked={colorMode === 'dark'}
+              checked={colorMode === 'dark'}
               onChange={toggleColorMode}
             />
           </Flex>
         </Stack>
 
         <Stack align="center">
-          <Link to="/logout">
-            <Button variant="link">Logout</Button>
-          </Link>
+          <Form action='/logout' method='post' to="/logout">
+            <Button variant="link" type='submit'>Logout</Button>
+          </Form>
         </Stack>
       </Box>
     </div>

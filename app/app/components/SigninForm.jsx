@@ -13,6 +13,7 @@ import {
   useColorModeValue as mode,
   Flex,
 } from '@chakra-ui/react';
+import { Form } from '@remix-run/react';
 
 import { PasswordInput } from './PasswordInput';
 
@@ -23,10 +24,9 @@ const validationSchema = yup.object().shape({
 
 const propTypes = {
   loading: PropTypes.bool.isRequired,
-  onSubmit: PropTypes.func.isRequired,
 };
 
-const SigninForm = ({ loading, onSubmit }) => {
+const SigninForm = ({ loading }) => {
   const {
     handleSubmit,
     register,
@@ -39,7 +39,7 @@ const SigninForm = ({ loading, onSubmit }) => {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <Form method="post" onSubmit={handleSubmit}>
       <FormControl mb={5} isInvalid={errors.email} isRequired>
         <FormLabel htmlFor="email">Email</FormLabel>
         <Input
@@ -74,7 +74,6 @@ const SigninForm = ({ loading, onSubmit }) => {
           {errors.password && errors.password.message}
         </FormErrorMessage>
       </FormControl>
-
       <Button
         type="submit"
         display="block"
@@ -83,10 +82,11 @@ const SigninForm = ({ loading, onSubmit }) => {
         colorScheme="teal"
         isDisabled={loading}
         isLoading={loading}
+        width="100%"
       >
         Sign In
       </Button>
-    </form>
+    </Form>
   );
 };
 

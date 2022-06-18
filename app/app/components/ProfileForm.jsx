@@ -16,6 +16,7 @@ import {
   useMergeRefs,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
+import { Form } from '@remix-run/react';
 
 const validationSchema = yup.object().shape({
   firstName: yup.string().required(),
@@ -25,7 +26,6 @@ const validationSchema = yup.object().shape({
 
 const propTypes = {
   loading: PropTypes.bool,
-  onSubmit: PropTypes.func.isRequired,
   defaultData: PropTypes.shape({
     avatar: PropTypes.any,
     firstName: PropTypes.string,
@@ -39,9 +39,9 @@ const defaultProps = {
   defaultData: {},
 };
 
-const ProfileForm = ({ loading, onSubmit, defaultData }) => {
+const ProfileForm = ({ loading, defaultData, ...rest }) => {
   const avatarRef = useRef();
-  const { firstName, lastName, about } = defaultData;
+  const { email, first_name: firstName, last_name: lastName, about } = defaultData;
   const [avatar, setAvatar] = useState(defaultData.avatar);
   const {
     handleSubmit,
@@ -58,14 +58,13 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
     },
   });
 
-
   const avatarProps = register('avatar');
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit} {...rest} encType="multipart/form-data">
       <FormControl mb={5}>
         <FormLabel htmlFor="avatar" textAlign="center">
-          <Avatar size="2xl" margin="1rem" src={avatar && avatar.url}>
+          <Avatar size="2xl" margin="1rem" src={avatar}>
             <AvatarBadge size="1em" bg="white">
               <IconButton
                 aria-label="Edit avatar"
@@ -88,16 +87,31 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
             const [file] = e.target.files;
 
             if (file) {
-              setAvatar({ url: window.URL.createObjectURL(file) });
+              setAvatar(window.URL.createObjectURL(file));
             }
           }}
           accept="image/*"
         />
       </FormControl>
 
+      <FormControl mb={5}>
+        <FormLabel htmlFor="email">Email</FormLabel>
+        <Input
+          id="email"
+          name="email"
+          placeholder="jmj@indieco.xyz"
+          value={email}
+          disabled
+        />
+      </FormControl>
+
       <FormControl mb={5} isInvalid={errors.firstName} isRequired>
         <FormLabel htmlFor="firstName">First name</FormLabel>
-        <Input {...register('firstName')} id="firstName" placeholder="Jean-Michel" />
+        <Input
+          {...register('firstName')}
+          id="firstName"
+          placeholder="Jean-Michel"
+        />
         <FormErrorMessage>
           {errors.firstName && errors.firstName.message}
         </FormErrorMessage>
@@ -105,7 +119,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
 
       <FormControl mb={5} isInvalid={errors.lastName}>
         <FormLabel htmlFor="lastName">Last name</FormLabel>
-        <Input {...register('lastName')} placeholder="Jam" />
+        <Input {...register('lastName')} id="lastName" placeholder="Jam" />
         <FormErrorMessage>
           {errors.lastName && errors.lastName.message}
         </FormErrorMessage>
@@ -114,6 +128,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
       <FormControl mb={5} isInvalid={errors.about}>
         <FormLabel htmlFor="about">About</FormLabel>
         <Textarea
+          id="about"
           placeholder="What's your life like..."
           {...register('about')}
           resize="vertical"
@@ -134,7 +149,7 @@ const ProfileForm = ({ loading, onSubmit, defaultData }) => {
       >
         Save
       </Button>
-    </form>
+    </Form>
   );
 };
 

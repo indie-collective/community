@@ -10,6 +10,7 @@ import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
+import { authenticator } from '../utils/auth.server';
 import getImageLinks from '../utils/imageLinks.server';
 import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
@@ -19,7 +20,7 @@ import AuthenticatedHomePage from '../components/AuthenticatedHomePage';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 
 export const loader = async ({ request }) => {
-  const currentUser = await db.person.findFirst();
+  const currentUser = await authenticator.isAuthenticated(request);
 
   const data = {
     games: await db.game
@@ -105,11 +106,8 @@ export const loader = async ({ request }) => {
           cover: event.cover ? getImageLinks(event.cover) : null,
         }))
       ),
-    currentUser: {
-      id: currentUser.id,
-      firstName: currentUser.first_name,
-      lastName: currentUser.last_name,
-      avatar: null,
+    currentUser: currentUser ? {
+      ...currentUser,
       eventsToCome: await db.event
         .findMany({
           where: {
@@ -142,7 +140,7 @@ export const loader = async ({ request }) => {
             cover: event.cover ? getImageLinks(event.cover) : null,
           }))
         ),
-    },
+    } : null,
   };
   return json(data);
 };

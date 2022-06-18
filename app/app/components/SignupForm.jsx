@@ -11,10 +11,11 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { PasswordInput } from './PasswordInput';
+import { Form } from '@remix-run/react';
 
 const validationSchema = yup.object().shape({
   firstName: yup.string().required(),
-  lastName: yup.string().required(),
+  lastName: yup.string(),
   email: yup
     .string()
     .email()
@@ -28,10 +29,9 @@ const validationSchema = yup.object().shape({
 
 const propTypes = {
   loading: PropTypes.bool.isRequired,
-  onSubmit: PropTypes.func.isRequired,
 };
 
-const SignupForm = ({ loading, onSubmit }) => {
+const SignupForm = ({ loading, ...rest }) => {
   const {
     handleSubmit,
     register,
@@ -44,7 +44,7 @@ const SignupForm = ({ loading, onSubmit }) => {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit} {...rest}>
       <FormControl mb={5} isInvalid={errors.firstName} isRequired>
         <FormLabel htmlFor="firstName">First name</FormLabel>
         <Input
@@ -58,7 +58,7 @@ const SignupForm = ({ loading, onSubmit }) => {
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl mb={5} isInvalid={errors.lastName} isRequired>
+      <FormControl mb={5} isInvalid={errors.lastName}>
         <FormLabel htmlFor="lastName">Last name</FormLabel>
         <Input
           {...register('lastName')}
@@ -110,8 +110,7 @@ const SignupForm = ({ loading, onSubmit }) => {
 
       <Button
         type="submit"
-        display="block"
-        ml="auto"
+        width="100%"
         mt={8}
         colorScheme="teal"
         isDisabled={loading}
@@ -119,7 +118,7 @@ const SignupForm = ({ loading, onSubmit }) => {
       >
         Sign Up
       </Button>
-    </form>
+    </Form>
   );
 };
 
