@@ -1,12 +1,14 @@
 import { redirect } from "@remix-run/node";
 
 import { db } from "../utils/db.server";
+import { authenticator } from "../utils/auth.server";
 
-export async function action({ params }) {
+export async function action({ params, request }) {
   const { id } = params;
 
-  // todo check auth and replace with current user
-  const user = await db.person.findFirst();
+  const user = await authenticator.isAuthenticated(request, {
+    failureRedirect: '/signin',
+  });
 
   await db.event_participant.upsert({
     where: {
