@@ -15,7 +15,7 @@ model entity {
   about         String?
   location_id   String?         @db.Uuid
   created_at    DateTime?       @default(now()) @db.Timestamptz(6)
-  updated_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime?       @updatedAt
   logo_id       String?         @db.Uuid
   site          String?
   location      location?       @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -30,7 +30,7 @@ model entity_event {
   entity_id  String    @db.Uuid
   event_id   String    @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
   entity     entity    @relation(fields: [entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   event      event     @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -41,7 +41,7 @@ model entity_image {
   entity_id  String    @db.Uuid
   image_id   String    @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
   entity     entity    @relation(fields: [entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   image      image     @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -52,7 +52,7 @@ model entity_member {
   entity_id  String    @db.Uuid
   person_id  String    @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
   entity     entity    @relation(fields: [entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "team_member_entity_id_fkey")
   person     person    @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "team_member_person_id_fkey")
 
@@ -68,7 +68,7 @@ model event {
   starts_at         DateTime            @db.Timestamptz(6)
   ends_at           DateTime            @db.Timestamptz(6)
   created_at        DateTime?           @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime?           @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?           @updatedAt
   cover_id          String?             @db.Uuid
   status            event_status        @default(ongoing)
   cover             image?              @relation(fields: [cover_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -96,7 +96,7 @@ model game {
   site        String?
   tag_list    String[]      @db.VarChar(30)
   created_at  DateTime?     @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime?     @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime?     @updatedAt
   game_author game_author[]
   game_entity game_entity[]
   game_event  game_event[]
@@ -108,7 +108,7 @@ model game_author {
   game_id    String    @db.Uuid
   person_id  String    @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
   game       game      @relation(fields: [game_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   person     person    @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
@@ -119,7 +119,7 @@ model game_entity {
   game_id    String    @db.Uuid
   entity_id  String    @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
   entity     entity    @relation(fields: [entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   game       game      @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -131,7 +131,7 @@ model game_event {
   event_id   String    @db.Uuid
   tags       String[]  @db.VarChar(100)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
   event      event     @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   game       game      @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -142,7 +142,7 @@ model game_image {
   game_id    String    @db.Uuid
   image_id   String    @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
   game       game      @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   image      image     @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -153,7 +153,7 @@ model game_tag {
   game_id    String    @db.Uuid
   tag_id     String    @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
   game       game      @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tag        tag       @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -164,7 +164,7 @@ model image {
   id           String         @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
   image_file   Json
   created_at   DateTime?      @default(now()) @db.Timestamptz(6)
-  updated_at   DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime?      @updatedAt
   entity       entity[]
   entity_image entity_image[]
   event        event[]
@@ -177,7 +177,7 @@ model location {
   city         String
   latitude     Float?
   longitude    Float?
-  updated_at   DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime? @updatedAt
   street       String?
   country_code String    @db.Char(2)
   region       String
@@ -198,7 +198,7 @@ model person {
   github_id         String?             @unique
   about             String?
   created_at        DateTime?           @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime?           @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?           @updatedAt
   avatar_id         String?             @db.Uuid
   avatar            image?              @relation(fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entity_member     entity_member[]
@@ -210,7 +210,7 @@ model tag {
   id         String     @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
   name       String     @unique @db.VarChar(30)
   created_at DateTime?  @default(now()) @db.Timestamptz(6)
-  updated_at DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime?  @updatedAt
   game_tag   game_tag[]
 }
 
