@@ -37,21 +37,23 @@ import { useDropzone } from 'react-dropzone';
 import { db } from '../utils/db.server';
 import { getIGDBGame } from '../utils/igdb.server';
 import getImageLinks from '../utils/imageLinks.server';
-import Navigation from '../components/Navigation';
 import OrgCard from '../components/OrgCard';
 import SearchOrgModal from './search-org';
 import Markdown from '../components/Markdown';
+import { authenticator } from '../utils/auth.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-export const loader = async ({ params }) => {
+export const loader = async ({ request, params }) => {
   const { id } = params;
 
   if (!uuidRegex.test(id))
     throw new Response('Not Found', {
       status: 404,
     });
+
+  const currentUser = await authenticator.isAuthenticated(request);
 
   const game = await db.game.findUnique({
     where: {
@@ -106,12 +108,7 @@ export const loader = async ({ params }) => {
         },
       })),
     },
-    currentUser: {
-      id: '1',
-      username: 'admin',
-      name: 'John Doe',
-      email: 'test@test.com',
-    },
+    currentUser,
   };
 
   return json(data);
@@ -194,9 +191,7 @@ const Game = () => {
   });
 
   return (
-    <div>
-      <Navigation />
-
+    <>
       <Box mb={5} pl={5} pr={5} mt={5}>
         <Heading>{name}</Heading>
         {site && (
@@ -483,7 +478,7 @@ const Game = () => {
           </Modal>
         </Box>
       )}
-    </div>
+    </>
   );
 };
 

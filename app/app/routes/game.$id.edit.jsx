@@ -4,14 +4,19 @@ import { json, redirect } from '@remix-run/node';
 import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
-import Navigation from '../components/Navigation';
+import { authenticator } from '../utils/auth.server';
 import GameForm from '../components/GameForm';
 import { useEffect } from 'react';
 
-const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+const uuidRegex =
+  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-export const loader = async ({ params }) => {
+export const loader = async ({ request, params }) => {
   const { id } = params;
+
+  const currentUser = await authenticator.isAuthenticated(request, {
+    failureRedirect: `/signin?redirect=/games/${id}/edit`,
+  });
 
   if (!uuidRegex.test(id))
     throw new Response('Not Found', {
@@ -34,21 +39,18 @@ export const loader = async ({ params }) => {
     },
   });
 
-  const data = {
+  return json({
     game,
-    currentUser: {
-      id: '1',
-      username: 'admin',
-      name: 'John Doe',
-      email: 'test@test.com',
-    },
-  };
-
-  return json(data);
+    currentUser,
+  });
 };
 
 export async function action({ request, params }) {
   const { id } = params;
+
+  await authenticator.isAuthenticated(request, {
+    failureRedirect: `/signin?redirect=/games/${id}/edit`,
+  });
 
   const data = await request.formData();
 
@@ -71,8 +73,7 @@ export async function action({ request, params }) {
           create: {
             name: tag,
           },
-          update: {
-          },
+          update: {},
         })
       )
     );
@@ -94,8 +95,8 @@ export async function action({ request, params }) {
           deleteMany: {
             tag_id: {
               notIn: tags.map((t) => t.id),
-            }
-          }
+            },
+          },
         },
       },
       select: {
@@ -134,28 +135,24 @@ const EditGame = () => {
   }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
-    <div>
-      <Navigation />
+    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+      <Heading mb={5}>Update game</Heading>
 
-      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-        <Heading mb={5}>Update game</Heading>
-
-        <GameForm
-          method="post"
-          defaultData={{
-            id: game.id,
-            name: game.name,
-            igdb_url: game.igdb_slug
-              ? 'https://www.igdb.com/games/' + game.igdb_slug
-              : '',
-            about: game.about,
-            site: game.site,
-            tags: game.game_tag.map(({ tag }) => tag),
-          }}
-          loading={transition.state === 'submitting'}
-        />
-      </Box>
-    </div>
+      <GameForm
+        method="post"
+        defaultData={{
+          id: game.id,
+          name: game.name,
+          igdb_url: game.igdb_slug
+            ? 'https://www.igdb.com/games/' + game.igdb_slug
+            : '',
+          about: game.about,
+          site: game.site,
+          tags: game.game_tag.map(({ tag }) => tag),
+        }}
+        loading={transition.state === 'submitting'}
+      />
+    </Box>
   );
 };
 

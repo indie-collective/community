@@ -1,18 +1,10 @@
-import {
-  Box,
-  Heading,
-  Text,
-  Grid,
-  Image,
-  Fade,
-} from '@chakra-ui/react';
+import { Box, Heading, Text, Grid, Image, Fade } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
 import getImageLinks from '../utils/imageLinks.server';
-import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
@@ -106,41 +98,43 @@ export const loader = async ({ request }) => {
           cover: event.cover ? getImageLinks(event.cover) : null,
         }))
       ),
-    currentUser: currentUser ? {
-      ...currentUser,
-      eventsToCome: await db.event
-        .findMany({
-          where: {
-            event_participant: {
-              every: {
-                person_id: currentUser.id,
+    currentUser: currentUser
+      ? {
+          ...currentUser,
+          eventsToCome: await db.event
+            .findMany({
+              where: {
+                event_participant: {
+                  every: {
+                    person_id: currentUser.id,
+                  },
+                },
+                status: {
+                  not: 'canceled',
+                },
+                ends_at: {
+                  gte: new Date(),
+                },
               },
-            },
-            status: {
-              not: 'canceled',
-            },
-            ends_at: {
-              gte: new Date(),
-            },
-          },
-          include: {
-            event_participant: true,
-            game_event: true,
-            location: true,
-            cover: true,
-          },
-          orderBy: {
-            starts_at: 'desc',
-          },
-          take: 8,
-        })
-        .then((events) =>
-          events.map((event) => ({
-            ...event,
-            cover: event.cover ? getImageLinks(event.cover) : null,
-          }))
-        ),
-    } : null,
+              include: {
+                event_participant: true,
+                game_event: true,
+                location: true,
+                cover: true,
+              },
+              orderBy: {
+                starts_at: 'desc',
+              },
+              take: 8,
+            })
+            .then((events) =>
+              events.map((event) => ({
+                ...event,
+                cover: event.cover ? getImageLinks(event.cover) : null,
+              }))
+            ),
+        }
+      : null,
   };
   return json(data);
 };
@@ -149,12 +143,14 @@ export const meta = () => ({
   title: 'Indie Collective - Community powered video game data',
   description: 'Video game related events around you and all over the world.',
   'og:title': 'Indie Collective - Community powered video game data',
-  'og:description': 'Video game related events around you and all over the world.',
+  'og:description':
+    'Video game related events around you and all over the world.',
   'twitter:card': 'summary',
   'twitter:site': '@IndieColle',
   'twitter:title': 'Indie Collective - Community powered video game data',
-  'twitter:description': 'Video game related events around you and all over the world.',
-})
+  'twitter:description':
+    'Video game related events around you and all over the world.',
+});
 
 const LandingPage = () => {
   const { games, entities, events, eventsToCome } = useLoaderData();
@@ -249,13 +245,7 @@ const LandingPage = () => {
 const Home = () => {
   const { currentUser } = useLoaderData();
 
-  return (
-    <Box>
-      <Navigation />
-
-      {currentUser ? <AuthenticatedHomePage /> : <LandingPage />}
-    </Box>
-  );
+  return currentUser ? <AuthenticatedHomePage /> : <LandingPage />;
 };
 
 export default Home;

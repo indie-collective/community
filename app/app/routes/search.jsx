@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { json } from '@remix-run/node';
 
 import { db } from '../utils/db.server';
-import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
@@ -74,85 +73,81 @@ const SearchPage = () => {
   const hasNoResults = games.length === 0 && orgs.length === 0 && events.length === 0;
 
   return (
-    <Box>
-      <Navigation search={search} />
+    <Box p={5} mb={5}>
+      {search ? (
+        <>
+          <Heading as="h2" size="2xl" mb={5}>
+            Search results for "{search}"
+          </Heading>
 
-      <Box p={5} mb={5}>
-        {search ? (
-          <>
-            <Heading as="h2" size="2xl" mb={5}>
-              Search results for "{search}"
-            </Heading>
+          {hasNoResults ? (
+            <Text>No results found.</Text>
+          ) : (
+            <>
+              {games.length > 0 && (
+                <Box mb={10}>
+                  <Heading as="h3" size="xl" mb={5}>
+                    Games
+                  </Heading>
 
-            {hasNoResults ? (
-              <Text>No results found.</Text>
-            ) : (
-              <>
-                {games.length > 0 && (
-                  <Box mb={10}>
-                    <Heading as="h3" size="xl" mb={5}>
-                      Games
-                    </Heading>
+                  <Carousel slidesToShow={[1, 2, 3]}>
+                    {games.map((game) => (
+                      <Box key={game.id} minW={0} pr={3}>
+                        <motion.div variants={variants}>
+                          <GameCard {...game} />
+                        </motion.div>
+                      </Box>
+                    ))}
+                  </Carousel>
+                </Box>
+              )}
 
-                    <Carousel slidesToShow={[1, 2, 3]}>
-                      {games.map((game) => (
-                        <Box key={game.id} minW={0} pr={3}>
-                          <motion.div variants={variants}>
-                            <GameCard {...game} />
-                          </motion.div>
-                        </Box>
-                      ))}
-                    </Carousel>
-                  </Box>
-                )}
+              {orgs.length > 0 && (
+                <Box mb={10}>
+                  <Heading as="h3" size="xl" mb={5}>
+                    Organizations
+                  </Heading>
 
-                {orgs.length > 0 && (
-                  <Box mb={10}>
-                    <Heading as="h3" size="xl" mb={5}>
-                      Organizations
-                    </Heading>
+                  <Carousel slidesToShow={[1, 2, 3]}>
+                    {orgs.map((org) => (
+                      <Box key={org.id} minW={0} pr={3}>
+                        <motion.div variants={variants}>
+                          <OrgCard {...org} />
+                        </motion.div>
+                      </Box>
+                    ))}
+                  </Carousel>
+                </Box>
+              )}
 
-                    <Carousel slidesToShow={[1, 2, 3]}>
-                      {orgs.map((org) => (
-                        <Box key={org.id} minW={0} pr={3}>
-                          <motion.div variants={variants}>
-                            <OrgCard {...org} />
-                          </motion.div>
-                        </Box>
-                      ))}
-                    </Carousel>
-                  </Box>
-                )}
+              {events.length > 0 && (
+                <Box mb={10}>
+                  <Heading as="h3" size="xl" mb={5}>
+                    Events
+                  </Heading>
 
-                {events.length > 0 && (
-                  <Box mb={10}>
-                    <Heading as="h3" size="xl" mb={5}>
-                      Events
-                    </Heading>
-
-                    <Carousel slidesToShow={[1, 2, 3]}>
-                      {events.map((event) => (
-                        <Box key={event.id} minW={0} pr={3}>
-                          <motion.div variants={variants}>
-                            <EventCard {...event} />
-                          </motion.div>
-                        </Box>
-                      ))}
-                    </Carousel>
-                  </Box>
-                )}
-              </>
-            )}
-          </>
-        ) : (
-          <Box textAlign="center" p={20}>
-            <Text color={helpTextColor} fontSize="3xl">
-              Games, organizations and events matching your research will show
-              up here once you start typing.
-            </Text>
-          </Box>
-        )}
-      </Box>
+                  <Carousel slidesToShow={[1, 2, 3]}>
+                    {events.map((event) => (
+                      <Box key={event.id} minW={0} pr={3}>
+                        <motion.div variants={variants}>
+                          <EventCard {...event} />
+                        </motion.div>
+                      </Box>
+                    ))}
+                  </Carousel>
+                </Box>
+              )}
+            </>
+          )}
+        </>
+      ) : (
+        <Box textAlign="center" p={20}>
+          <Text color={helpTextColor} fontSize="3xl">
+            Games, organizations and events matching your research will show up
+            here once you start typing.
+          </Text>
+        </Box>
+      )}
     </Box>
   );
 };

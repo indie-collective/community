@@ -26,8 +26,8 @@ import { Link, useLoaderData, useNavigate, Form } from '@remix-run/react';
 import { motion } from 'framer-motion';
 
 import { db } from '../utils/db.server';
+import { authenticator } from '../utils/auth.server';
 import getImageLinks from '../utils/imageLinks.server';
-import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
@@ -57,13 +57,15 @@ const variants = {
   },
 };
 
-export const loader = async ({ params }) => {
+export const loader = async ({ request, params }) => {
   const { id } = params;
 
   if (!uuidRegex.test(id))
     throw new Response('Not Found', {
       status: 404,
     });
+
+  const currentUser = await authenticator.isAuthenticated(request);
 
   const org = await db.entity.findUnique({
     where: { id },
@@ -126,12 +128,7 @@ export const loader = async ({ params }) => {
           }
         : null,
     },
-    currentUser: {
-      id: '1',
-      username: 'admin',
-      name: 'John Doe',
-      email: 'test@test.com',
-    },
+    currentUser,
   });
 };
 
@@ -172,9 +169,7 @@ const Org = () => {
   const events = entity_event.map(({ event }) => event);
 
   return (
-    <div>
-      <Navigation />
-
+    <>
       <Box mt={[5, 2, 5]} padding={[0, 5]} px={5}>
         <Flex alignItems="center">
           <Image
@@ -346,7 +341,7 @@ const Org = () => {
           </Modal>
         </Box>
       )}
-    </div>
+    </>
   );
 };
 

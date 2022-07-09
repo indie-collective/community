@@ -15,7 +15,6 @@ import { Map, Overlay as BaseOverlay, ZoomControl } from 'pigeon-maps';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // import Error from '../../../client/pages/_error';
-import Navigation from '../components/Navigation';
 import OrgCard from '../components/OrgCard';
 import { useLoaderData } from '@remix-run/react';
 import { json } from '@remix-run/node';
@@ -335,8 +334,6 @@ const Places = () => {
       }}
       direction="column"
     >
-      <Navigation />
-
       <Box
         ref={containerRef}
         flex="1"

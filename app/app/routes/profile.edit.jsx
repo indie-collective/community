@@ -12,7 +12,6 @@ import { useEffect } from 'react';
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
-import Navigation from '../components/Navigation';
 import ProfileForm from '../components/ProfileForm';
 import { commitSession, getSession } from '../utils/session.server';
 import getImageLinks from '../utils/imageLinks.server';
@@ -26,7 +25,7 @@ export const loader = async ({ request }) => {
     where: { id },
     include: {
       avatar: true,
-    }
+    },
   });
 
   const data = {
@@ -67,7 +66,7 @@ export const action = async ({ request }) => {
       },
       include: {
         avatar: true,
-      }
+      },
     });
 
     delete user.password_hash;
@@ -76,7 +75,9 @@ export const action = async ({ request }) => {
     let session = await getSession(request.headers.get('cookie'));
     session.set(authenticator.sessionKey, {
       ...user,
-      avatar: user.avatar ? getImageLinks(user.avatar).thumbnail_url : undefined,
+      avatar: user.avatar
+        ? getImageLinks(user.avatar).thumbnail_url
+        : undefined,
     });
 
     return redirect(`/profile`, {
@@ -110,19 +111,15 @@ const Profile = () => {
   }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
-    <div>
-      <Navigation />
+    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+      <Heading mb={5}>Profile</Heading>
 
-      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-        <Heading mb={5}>Profile</Heading>
-
-        <ProfileForm
-          method="post"
-          loading={transition.state === 'submitting'}
-          defaultData={actionData?.values || currentUser}
-        />
-      </Box>
-    </div>
+      <ProfileForm
+        method="post"
+        loading={transition.state === 'submitting'}
+        defaultData={actionData?.values || currentUser}
+      />
+    </Box>
   );
 };
 

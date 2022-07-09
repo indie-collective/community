@@ -10,11 +10,15 @@ import { useActionData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
+import { authenticator } from '../utils/auth.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
-import Navigation from '../components/Navigation';
 import EventForm from '../components/EventForm';
 
 export async function action({ request }) {
+  await authenticator.isAuthenticated(request, {
+    failureRedirect: '/signin?redirect=/games/create',
+  });
+
   const data = await unstable_parseMultipartFormData(
     request,
     unstable_composeUploadHandlers(
@@ -44,7 +48,7 @@ export async function action({ request }) {
         cover: {
           connect: {
             id: data.get('cover'),
-          }
+          },
         },
         location: Object.values(location).some((l) => l !== null)
           ? {
@@ -69,6 +73,12 @@ export async function action({ request }) {
   }
 }
 
+export const loader = async ({ request }) => {
+  return await authenticator.isAuthenticated(request, {
+    failureRedirect: '/signin?redirect=/events/create',
+  });
+};
+
 export const meta = () => ({
   title: 'Create a new event',
 });
@@ -89,19 +99,15 @@ const CreateEvent = () => {
   }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
-    <div>
-      <Navigation />
+    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+      <Heading mb={5}>Create event</Heading>
 
-      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-        <Heading mb={5}>Create event</Heading>
-
-        <EventForm
-          method="POST"
-          loading={transition.state === 'submitting'}
-          defaultData={actionData?.values}
-        />
-      </Box>
-    </div>
+      <EventForm
+        method="POST"
+        loading={transition.state === 'submitting'}
+        defaultData={actionData?.values}
+      />
+    </Box>
   );
 };
 

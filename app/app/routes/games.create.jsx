@@ -4,10 +4,14 @@ import { useActionData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
-import Navigation from '../components/Navigation';
+import { authenticator } from '../utils/auth.server';
 import GameForm from '../components/GameForm';
 
 export async function action({ request }) {
+  await authenticator.isAuthenticated(request, {
+    failureRedirect: '/signin?redirect=/games/create',
+  });
+
   const data = await request.formData();
 
   try {
@@ -62,6 +66,14 @@ export async function action({ request }) {
   }
 }
 
+export const loader = async ({ request }) => {
+  const currentUser = await authenticator.isAuthenticated(request, {
+    failureRedirect: '/signin?redirect=/games/create',
+  });
+
+  return json({ currentUser });
+};
+
 export const meta = () => ({
   title: 'Add a game',
 });
@@ -82,19 +94,15 @@ const CreateGame = () => {
   }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
-    <div>
-      <Navigation />
+    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+      <Heading mb={5}>Create game</Heading>
 
-      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-        <Heading mb={5}>Create game</Heading>
-
-        <GameForm
-          method="POST"
-          loading={transition.state === 'submitting'}
-          defaultData={actionData?.values}
-        />
-      </Box>
-    </div>
+      <GameForm
+        method="POST"
+        loading={transition.state === 'submitting'}
+        defaultData={actionData?.values}
+      />
+    </Box>
   );
 };
 

@@ -10,11 +10,15 @@ import { useActionData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
+import { authenticator } from '../utils/auth.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
-import Navigation from '../components/Navigation';
 import OrgForm from '../components/OrgForm';
 
 export async function action({ request }) {
+  await authenticator.isAuthenticated(request, {
+    failureRedirect: '/signin?redirect=/games/create',
+  });
+
   const data = await unstable_parseMultipartFormData(
     request,
     unstable_composeUploadHandlers(
@@ -50,11 +54,13 @@ export async function action({ request }) {
               },
             }
           : undefined,
-        logo: data.get('logo') ? {
-          connect: {
-            id: data.get('logo'),
-          },
-        } : undefined,
+        logo: data.get('logo')
+          ? {
+              connect: {
+                id: data.get('logo'),
+              },
+            }
+          : undefined,
       },
       select: {
         id: true,
@@ -67,6 +73,12 @@ export async function action({ request }) {
     return json({ error: err.message, values });
   }
 }
+
+export const loader = async ({ request }) => {
+  return await authenticator.isAuthenticated(request, {
+    failureRedirect: '/signin?redirect=/orgs/create',
+  });
+};
 
 export const meta = () => ({
   title: 'Add an organization',
@@ -88,19 +100,15 @@ const CreateOrg = () => {
   }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
-    <div>
-      <Navigation />
+    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+      <Heading mb={5}>Create organization</Heading>
 
-      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-        <Heading mb={5}>Create organization</Heading>
-
-        <OrgForm
-          method="post"
-          loading={transition.state === 'submitting'}
-          defaultData={actionData?.values}
-        />
-      </Box>
-    </div>
+      <OrgForm
+        method="post"
+        loading={transition.state === 'submitting'}
+        defaultData={actionData?.values}
+      />
+    </Box>
   );
 };
 
