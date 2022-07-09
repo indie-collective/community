@@ -12,8 +12,8 @@
     "@emotion/server": "^11.4.0",
     "@emotion/styled": "^11.8.1",
     "@hookform/resolvers": "^2.9.0",
-    "@mapbox/geo-viewport": "^0.4.1",
-    "@prisma/client": "^3.15.2",
+    "@mapbox/geo-viewport": "^0.5.0",
+    "@prisma/client": "^4.0.0",
     "@remix-run/node": "^0.0.0-experimental-9784dd06",
     "@remix-run/react": "^0.0.0-experimental-9784dd06",
     "@remix-run/serve": "^0.0.0-experimental-9784dd06",
@@ -43,6 +43,6 @@
     "@remix-run/dev": "^0.0.0-experimental-9784dd06",
     "@remix-run/eslint-config": "^0.0.0-experimental-9784dd06",
     "eslint": "^8.11.0",
-    "prisma": "^3.15.2"
+    "prisma": "^4.0.0"
   }
 }
