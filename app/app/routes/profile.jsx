@@ -16,9 +16,8 @@ import { json } from '@remix-run/node';
 import { Form, Link, useLoaderData } from '@remix-run/react';
 
 import { authenticator } from '../utils/auth.server';
-import Navigation from '../components/Navigation';
 
-export const loader = async ({request}) => {
+export const loader = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {
     failureRedirect: '/signin',
   });
@@ -28,9 +27,9 @@ export const loader = async ({request}) => {
   };
 
   return json(data);
-}
+};
 
-export const meta = ({data}) => ({
+export const meta = ({ data }) => ({
   title: `${data.currentUser.first_name}'s profile`,
 });
 
@@ -38,72 +37,66 @@ const Profile = () => {
   const { colorMode, toggleColorMode } = useColorMode();
 
   const { currentUser } = useLoaderData();
-  const { email, first_name, about, avatar, discord_id, github_id } = currentUser;
+  const { email, first_name, about, avatar, discord_id, github_id } =
+    currentUser;
 
   return (
-    <div>
-      <Navigation />
+    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+      <Heading mb={5}>Profile</Heading>
 
-      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-        <Heading mb={5}>Profile</Heading>
+      <Stack
+        spacing={5}
+        borderWidth="1px"
+        mb={10}
+        p={3}
+        borderRadius={5}
+        align="center"
+        position="relative"
+      >
+        <Box position="absolute" alignSelf="flex-end">
+          <Button leftIcon={<EditIcon />} as={Link} to="/profile/edit">
+            Edit
+          </Button>
+        </Box>
 
-        <Stack
-          spacing={5}
-          borderWidth="1px"
-          mb={10}
-          p={3}
-          borderRadius={5}
-          align="center"
-          position="relative"
-        >
-          <Box position="absolute" alignSelf="flex-end">
-            <Button leftIcon={<EditIcon />} as={Link} to="/profile/edit">
-              Edit
-            </Button>
+        <Avatar size="2xl" name={first_name} margin="1rem" src={avatar} />
+
+        <Heading as="h3">{first_name}</Heading>
+        <Heading size="md">{email}</Heading>
+
+        {discord_id && <Text>Discord</Text>}
+        {github_id && <Text>GitHub</Text>}
+
+        {about && (
+          <Box
+            bg={colorMode === 'dark' ? 'gray.700' : 'gray.100'}
+            borderRadius={5}
+            alignSelf="stretch"
+            padding={5}
+          >
+            <Text>{about}</Text>
           </Box>
+        )}
 
-          <Avatar
-            size="2xl"
-            name={first_name}
-            margin="1rem"
-            src={avatar}
+        <Flex justify="center" align="center">
+          <FormLabel htmlFor="dark-mode">Dark mode</FormLabel>
+          <Switch
+            id="dark-mode"
+            colorScheme="teal"
+            checked={colorMode === 'dark'}
+            onChange={toggleColorMode}
           />
+        </Flex>
+      </Stack>
 
-          <Heading as="h3">{first_name}</Heading>
-          <Heading size="md">{email}</Heading>
-
-          {discord_id && <Text>Discord</Text>}
-          {github_id && <Text>GitHub</Text>}
-
-          {about && (
-            <Box
-              bg={colorMode === 'dark' ? 'gray.700' : 'gray.100'}
-              borderRadius={5}
-              alignSelf="stretch"
-              padding={5}
-            >
-              <Text>{about}</Text>
-            </Box>
-          )}
-
-          <Flex justify="center" align="center">
-            <FormLabel htmlFor="dark-mode">Dark mode</FormLabel>
-            <Switch
-              id="dark-mode"
-              colorScheme="teal"
-              checked={colorMode === 'dark'}
-              onChange={toggleColorMode}
-            />
-          </Flex>
-        </Stack>
-
-        <Stack align="center">
-          <Form action='/logout' method='post' to="/logout">
-            <Button variant="link" type='submit'>Logout</Button>
-          </Form>
-        </Stack>
-      </Box>
-    </div>
+      <Stack align="center">
+        <Form action="/logout" method="post" to="/logout">
+          <Button variant="link" type="submit">
+            Logout
+          </Button>
+        </Form>
+      </Stack>
+    </Box>
   );
 };
 

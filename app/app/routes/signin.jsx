@@ -11,11 +11,10 @@ import {
 } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
 import { Link, useActionData, useTransition } from '@remix-run/react';
-import { useEffect } from 'react'
+import { useEffect } from 'react';
 import { AuthorizationError } from 'remix-auth';
 
 import { authenticator } from '../utils/auth.server';
-import Navigation from '../components/Navigation';
 import OAuthButtonGroup from '../components/OAuthButtonGroup';
 import SigninForm from '../components/SigninForm';
 
@@ -31,8 +30,7 @@ export let action = async ({ request }) => {
       successRedirect: '/',
       throwOnError: true,
     });
-  }
-  catch (error) {
+  } catch (error) {
     // Because redirects work by throwing a Response, you need to check if the
     // caught error is a response and return it or throw it again
     if (error instanceof Response) return error;
@@ -65,27 +63,23 @@ const SignIn = () => {
   }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
-    <Box>
-      <Navigation />
+    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+      <Heading textAlign="center" size="xl" fontWeight="extrabold">
+        Sign in
+      </Heading>
+      <Text mt="4" mb="8" align="center" maxW="md" fontWeight="medium">
+        <Text as="span">Don&apos;t have an account? </Text>
+        <ChakraLink
+          as={Link}
+          to="/signup"
+          color={mode('teal.600', 'teal.200')}
+          fontWeight="semibold"
+        >
+          Sign up
+        </ChakraLink>
+      </Text>
 
-      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-        <Heading textAlign="center" size="xl" fontWeight="extrabold">
-          Sign in
-        </Heading>
-        <Text mt="4" mb="8" align="center" maxW="md" fontWeight="medium">
-          <Text as="span">Don&apos;t have an account? </Text>
-          <ChakraLink
-            as={Link}
-            to="/signup"
-            color={mode('teal.600', 'teal.200')}
-            fontWeight="semibold"
-          >
-            Sign up
-          </ChakraLink>
-        </Text>
-
-        <Stack spacing={5}>
-
+      <Stack spacing={5}>
         <SigninForm loading={transition.status === 'submitting'} />
 
         <HStack>
@@ -97,8 +91,7 @@ const SignIn = () => {
         </HStack>
 
         <OAuthButtonGroup />
-        </Stack>
-      </Box>
+      </Stack>
     </Box>
   );
 };

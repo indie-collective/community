@@ -4,8 +4,9 @@ import { Deferred, Link, useDeferred, useLoaderData } from '@remix-run/react';
 import { deferred } from '@remix-run/node';
 
 import { db } from '../utils/db.server';
-import Navigation from '../components/Navigation';
+import { authenticator } from '../utils/auth.server';
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
+import getImageLinks from '../utils/imageLinks.server';
 
 const PAGE_SIZE = 50;
 
@@ -13,7 +14,11 @@ export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
   const page = Number(searchParams.get('page') || '1');
 
-  const orgs = await db.entity.findMany({
+  const currentUser = await authenticator.isAuthenticated(request);
+
+  // Removing the await enables streaming, but it seems to crash when SSR
+  const orgs = await db.entity
+    .findMany({
       include: {
         location: true,
         logo: true,
@@ -23,25 +28,18 @@ export const loader = async ({ request }) => {
       },
       take: PAGE_SIZE,
     })
+    .then((orgs) =>
+      orgs.map((org) => ({
+        ...org,
+        logo: org.logo ? getImageLinks(org.logo) : null,
+      }))
+    );
 
   const data = {
-    // Removing the await enables streaming, but it seems to crash when SSR
-    orgs: orgs.map((org) => ({
-      ...org,
-      logo: org.logo
-        ? {
-            url: `https://${process.env.CDN_HOST}/${org.logo.image_file.name}`,
-            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${org.logo.image_file.name}`,
-          }
-        : null,
-    })),
-    currentUser: {
-      id: '1',
-      username: 'admin',
-      name: 'John Doe',
-      email: 'test@test.com',
-    },
+    orgs,
+    currentUser,
   };
+
   return deferred(data);
 };
 
@@ -75,47 +73,43 @@ const Orgs = () => {
   const { orgs, currentUser } = useLoaderData();
 
   return (
-    <div>
-      <Navigation />
-
-      <Box p={5}>
-        {currentUser && (
-          <Box textAlign="center">
-            <Button
-              as={Link}
-              to="/orgs/create"
-              mb={10}
-              size="lg"
-              colorScheme="teal"
-              leftIcon={<AddIcon />}
-            >
-              Add a organization
-            </Button>
-          </Box>
-        )}
-
-        <Grid
-          gap={5}
-          templateColumns={[
-            '1fr',
-            'repeat(2, 1fr)',
-            'repeat(3, 1fr)',
-            'repeat(4, 1fr)',
-          ]}
-        >
-          <Deferred
-            data={orgs}
-            fallback={[...new Array(PAGE_SIZE)].map((_, i) => (
-              <Box key={i} minW={0}>
-                <OrgCardSkeleton />
-              </Box>
-            ))}
+    <Box p={5}>
+      {currentUser && (
+        <Box textAlign="center">
+          <Button
+            as={Link}
+            to="/orgs/create"
+            mb={10}
+            size="lg"
+            colorScheme="teal"
+            leftIcon={<AddIcon />}
           >
-            <OrgsList />
-          </Deferred>
-        </Grid>
-      </Box>
-    </div>
+            Add a organization
+          </Button>
+        </Box>
+      )}
+
+      <Grid
+        gap={5}
+        templateColumns={[
+          '1fr',
+          'repeat(2, 1fr)',
+          'repeat(3, 1fr)',
+          'repeat(4, 1fr)',
+        ]}
+      >
+        <Deferred
+          data={orgs}
+          fallback={[...new Array(PAGE_SIZE)].map((_, i) => (
+            <Box key={i} minW={0}>
+              <OrgCardSkeleton />
+            </Box>
+          ))}
+        >
+          <OrgsList />
+        </Deferred>
+      </Grid>
+    </Box>
   );
 };
 

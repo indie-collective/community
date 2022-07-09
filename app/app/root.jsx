@@ -14,8 +14,10 @@ import React, { useContext, useEffect } from 'react';
 
 import { ServerStyleContext, ClientStyleContext } from './context';
 import theme from './theme';
+import { authenticator } from './utils/auth.server';
 import slickStyles from 'slick-carousel/slick/slick.css'; // CSS needed for Carousel component
 import Error from './components/Error';
+import Navigation from './components/Navigation';
 
 const Main = (props) => (
   <Box as="main" mx="auto" mb={{ base: 0, md: '3rem' }} {...props} />
@@ -104,13 +106,23 @@ export function CatchBoundary() {
   );
 }
 
+export const loader = async ({request}) => {
+  const currentUser = await authenticator.isAuthenticated(request);
+
+  return { currentUser };
+};
+
 export default function App() {
   return (
     <Document>
       <ChakraProvider theme={theme}>
         <Main maxWidth="960px">
           <AnimatePresence exitBeforeEnter>
-            <Outlet />
+            <Box>
+              <Navigation />
+
+              <Outlet />
+            </Box>
           </AnimatePresence>
         </Main>
       </ChakraProvider>
