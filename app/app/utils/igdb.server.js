@@ -6,21 +6,27 @@ export const igdb = createIGDBClient(
 );
 
 export async function getIGDBGame(slug) {
-  const {
-    data: [igdbGame],
-  } = await igdb
-    .fields([
-      'name',
-      'status',
-      'genres.*',
-      'themes.*',
-      'screenshots.*',
-      'videos.*',
-      'websites.*',
-    ])
-    .where(`slug = "${slug}"`)
-    .request('/games')
-    .catch((e) => console.log('igdb errored', e));
+  try {
+    const {
+      data: [igdbGame],
+    } = await igdb
+      .fields([
+        'name',
+        'status',
+        'genres.*',
+        'themes.*',
+        'screenshots.*',
+        'videos.*',
+        'websites.*',
+        'involved_companies.company.*',
+      ])
+      .where(`slug = "${slug}"`)
+      .request('/games')
 
-  return igdbGame;
+      return igdbGame;
+  } catch (error) {
+    console.log(`IGDB error (${slug})`, error.message);    
+  }
+
+  return undefined;
 }
