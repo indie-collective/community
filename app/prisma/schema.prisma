@@ -193,6 +193,7 @@ model person {
   last_name         String?
   email             String?             @unique
   password_hash     String?
+  isAdmin           Boolean             @default(false)
   discord_id        String?             @unique
   github_id         String?             @unique
   about             String?
