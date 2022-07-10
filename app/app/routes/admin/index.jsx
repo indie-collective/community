@@ -64,8 +64,6 @@ const Profile = () => {
 
   return (
     <div>
-      <Navigation />
-
       <Heading mb={5} mt={10}>
         Admin
       </Heading>
