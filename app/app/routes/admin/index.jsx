@@ -1,7 +1,6 @@
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import {
-  Box,
   Heading,
   Table,
   Thead,
@@ -13,11 +12,15 @@ import {
   TableCaption,
   TableContainer,
   useColorMode,
+  Icon,
+  Tooltip,
+  Switch,
 } from '@chakra-ui/react';
 
 import { authenticator } from '../../utils/auth.server';
 import Navigation from '../../components/Navigation';
 import { db } from '../../utils/db.server';
+import { formatDistanceToNow } from 'date-fns';
 
 export const loader = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {
@@ -63,55 +66,52 @@ const Profile = () => {
     <div>
       <Navigation />
 
-      <Heading mb={5} mt={10}>Admin</Heading>
+      <Heading mb={5} mt={10}>
+        Admin
+      </Heading>
 
       <TableContainer>
         <Table variant="simple">
           <TableCaption>Current users</TableCaption>
           <Thead>
             <Tr>
+              <Th>Name</Th>
               <Th>Created</Th>
-              <Th>Admin</Th>
-              <Th>First name</Th>
-              <Th>Last name</Th>
               <Th>Email</Th>
-              <Th>Discord</Th>
-              <Th>Github</Th>
+              <Th>Admin</Th>
             </Tr>
           </Thead>
           <Tbody>
             {people.map(
-              ({
-                id,
-                created_at,
-                first_name,
-                last_name,
-                email,
-                github_id,
-                discord_id,
-                isAdmin,
-              }) => (
+              ({ id, created_at, first_name, last_name, email, isAdmin }) => (
                 <Tr key={id}>
-                  <Td>{created_at}</Td>
-                  <Td>{isAdmin}</Td>
-                  <Td>{first_name}</Td>
-                  <Td>{last_name}</Td>
+                  <Td>
+                    {first_name}&nbsp;
+                    {last_name}
+                  </Td>
+                  <Td>
+                    {formatDistanceToNow(new Date(created_at), {
+                      addSuffix: true,
+                    })}
+                    &nbsp;
+                    <Tooltip label={created_at}>
+                      <Icon name="QuestionIcon" />
+                    </Tooltip>
+                  </Td>
                   <Td>{email}</Td>
-                  <Td>{discord_id}</Td>
-                  <Td>{github_id}</Td>
+                  <Td>
+                    <Switch isChecked={isAdmin} />
+                  </Td>
                 </Tr>
               )
             )}
           </Tbody>
           <Tfoot>
             <Tr>
+            <Th>Name</Th>
               <Th>Created</Th>
-              <Th>Admin</Th>
-              <Th>First name</Th>
-              <Th>Last name</Th>
               <Th>Email</Th>
-              <Th>Discord</Th>
-              <Th>Github</Th>
+              <Th>Admin</Th>
             </Tr>
           </Tfoot>
         </Table>
