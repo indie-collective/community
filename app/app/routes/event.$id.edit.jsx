@@ -11,7 +11,6 @@ import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
-import Navigation from '../components/Navigation';
 import EventForm from '../components/EventForm';
 
 const uuidRegex =
@@ -142,19 +141,15 @@ const EditEvent = () => {
   }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
-    <div>
-      <Navigation />
+    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+      <Heading mb={5}>Update event</Heading>
 
-      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-        <Heading mb={5}>Update event</Heading>
-
-        <EventForm
-          method="post"
-          loading={transition.state === 'submitting'}
-          defaultData={actionData?.values || event}
-        />
-      </Box>
-    </div>
+      <EventForm
+        method="post"
+        loading={transition.state === 'submitting'}
+        defaultData={actionData?.values || event}
+      />
+    </Box>
   );
 };
 

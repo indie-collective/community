@@ -27,9 +27,9 @@ import { json } from '@remix-run/node';
 import { Map } from 'pigeon-maps';
 
 import { db } from '../utils/db.server';
+import { authenticator } from '../utils/auth.server';
 import getImageLinks from '../utils/imageLinks.server';
 import usePlaceholder from '../hooks/usePlaceholder';
-import Navigation from '../components/Navigation';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import Markdown from '../components/Markdown';
@@ -42,13 +42,15 @@ import SearchOrgModal from './search-org';
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-export const loader = async ({ params }) => {
+export const loader = async ({ request, params }) => {
   const { id } = params;
 
   if (!uuidRegex.test(id))
     throw new Response('Not Found', {
       status: 404,
     });
+
+  const currentUser = await authenticator.isAuthenticated(request);
 
   const event = await db.event
     .findUnique({
@@ -134,7 +136,7 @@ export const loader = async ({ params }) => {
           cover: event.cover ? getImageLinks(event.cover) : null,
         }))
       ),
-    currentUser: await db.person.findFirst(),
+    currentUser,
   };
 
   return json(data);
@@ -222,367 +224,360 @@ const Event = () => {
   });
 
   return (
-    <div>
-      <Navigation />
-
-      <Grid
-        templateColumns={['1fr', '1fr', '3fr 1fr']}
-        gap={[5, 5, 10]}
-        mt={[5, 2, 5]}
-        padding={[0, 5]}
-        mx={5}
-      >
-        <Box>
-          <Box position="relative">
-            <AspectRatio ratio={3}>
-              <Image
-                size="100%"
-                objectFit="cover"
-                src={cover && cover.url}
-                alt="Event cover"
-                fallbackSrc={placeholder}
-              />
-            </AspectRatio>
-
-            <DateLabel
-              position="absolute"
-              right={2}
-              bottom={3}
-              value={new Date(startsAt)}
+    <Grid
+      templateColumns={['1fr', '1fr', '3fr 1fr']}
+      gap={[5, 5, 10]}
+      mt={[5, 2, 5]}
+      padding={[0, 5]}
+      mx={5}
+    >
+      <Box>
+        <Box position="relative">
+          <AspectRatio ratio={3}>
+            <Image
+              size="100%"
+              objectFit="cover"
+              src={cover && cover.url}
+              alt="Event cover"
+              fallbackSrc={placeholder}
             />
-          </Box>
+          </AspectRatio>
 
-          <Box
-            mb={5}
-            borderWidth={['', '1px']}
-            roundedBottom={5}
-            minHeight={!location && '100px'}
+          <DateLabel
+            position="absolute"
+            right={2}
+            bottom={3}
+            value={new Date(startsAt)}
+          />
+        </Box>
+
+        <Box
+          mb={5}
+          borderWidth={['', '1px']}
+          roundedBottom={5}
+          minHeight={!location && '100px'}
+        >
+          <Grid
+            gridTemplateColumns={['1fr', '1fr auto auto']}
+            columnGap={2}
+            padding={2}
+            color={status === 'canceled' && 'gray.500'}
           >
-            <Grid
-              gridTemplateColumns={['1fr', '1fr auto auto']}
-              columnGap={2}
-              padding={2}
-              color={status === 'canceled' && 'gray.500'}
-            >
-              {currentUser && (
-                <Link to={`/event/${id}/edit`}>
-                  <Button
-                    gridRow={['', '1']}
-                    gridColumn={[
-                      '',
-                      status === 'canceled' ? '2 / span 2' : '2 / span 1',
-                    ]}
-                    mb={[2, '0']}
-                    leftIcon={<EditIcon />}
-                    size="sm"
-                    colorScheme="teal"
-                  >
-                    Edit
-                  </Button>
-                </Link>
-              )}
-
-              <Text
-                gridColumn="1"
-                textTransform="uppercase"
-                as="time"
-                dateTime={startsAt + '/' + endsAt}
-                whiteSpace="nowrap"
-              >
-                {dateTimeFormat.formatRange(
-                  new Date(startsAt),
-                  new Date(endsAt)
-                )}
-              </Text>
-
-              <Heading
-                gridColumn="1"
-                gridRow={['', !location && '3']}
-                textDecoration={status === 'canceled' && 'line-through'}
-              >
-                {name}
-              </Heading>
-
-              {location && (
-                <Text gridColumn="1">
-                  {location.street && `${location.street}, `}
-                  {location.city}, {location.region}, {location.country_code}
-                </Text>
-              )}
-
-              {location && location.longitude && location.latitude && (
-                <Box
-                  gridColumn={[1, '1 / span 3']}
-                  height={['80px', '150px']}
-                  overflow="hidden"
-                  roundedBottom={[0, 5]}
-                  marginX={-2}
-                  mb={[2, -2]}
-                  mt={[2]}
-                >
-                  <Map
-                    defaultWidth={1200}
-                    defaultHeight={150}
-                    center={[location.latitude, location.longitude]}
-                    zoom={location.street ? 16 : 11}
-                    mouseEvents={false}
-                    touchEvents={false}
-                  ></Map>
-                </Box>
-              )}
-
-              <Box
-                textAlign="right"
-                pt={2}
-                gridColumn={['', '2 / 4']}
-                gridRow={['', '2 / span 2']}
-                alignSelf={['', 'flex-end']}
-                display={['flex', 'block']}
-                flexDirection={['row-reverse', '']}
-              >
-                <AvatarGroup size="xs" max={3} justifyContent="end">
-                  {participants.map(({ id, first_name, avatar }) => (
-                    <Avatar
-                      key={id}
-                      name={first_name}
-                      src={avatar && avatar.thumbnail_url}
-                    />
-                  ))}
-                </AvatarGroup>
-                <Text>
-                  {participants.length}{' '}
-                  {status !== 'canceled' &&
-                    (new Date(endsAt) < new Date() ? 'went' : 'going')}
-                  {status === 'canceled' && 'were going'}
-                </Text>
-              </Box>
-
-              {currentUser && status !== 'canceled' && (
-                <JoinEventButton
-                  mt={[2, '0']}
+            {currentUser && (
+              <Link to={`/event/${id}/edit`}>
+                <Button
                   gridRow={['', '1']}
-                  gridColumn={['', '3']}
+                  gridColumn={[
+                    '',
+                    status === 'canceled' ? '2 / span 2' : '2 / span 1',
+                  ]}
+                  mb={[2, '0']}
+                  leftIcon={<EditIcon />}
                   size="sm"
-                  minWidth={100}
-                  eventId={id}
-                  isGoing={isGoing}
-                >
-                  {new Date(endsAt) < new Date()
-                    ? isGoing
-                      ? 'Went'
-                      : 'I went!'
-                    : isGoing
-                    ? 'Going'
-                    : "Let's go!"}
-                </JoinEventButton>
-              )}
-            </Grid>
-          </Box>
-
-          {status === 'canceled' && (
-            <Stack
-              isInline
-              p={5}
-              m={[2, 0]}
-              mb={[5, 5]}
-              backgroundColor="red.300"
-              borderRadius={5}
-            >
-              <WarningTwoIcon size="24px" color="white" />
-              <Text as="b" color="white">
-                This event was canceled.
-              </Text>
-            </Stack>
-          )}
-
-          {about && (
-            <Box
-              m={[2, 0]}
-              mb={[5, 5]}
-              borderWidth="1px"
-              borderRadius={5}
-              padding={2}
-            >
-              <Heading as="h3" fontSize="2xl">
-                Description
-              </Heading>
-              <Markdown value={about} />
-            </Box>
-          )}
-
-          {(currentUser || games.length > 0) && (
-            <Box m={[2, 0]} mb={[5, 5]}>
-              <Heading size="md" mb={2}>
-                Games
-                <Badge
-                  verticalAlign="baseline"
-                  fontSize="md"
-                  ml={2}
-                  variant="subtle"
                   colorScheme="teal"
                 >
-                  {games.length}
-                </Badge>
-              </Heading>
-              <Wrap spacing={2}>
-                {games.map((game) => (
-                  <Box key={game.id} position="relative">
-                    <GameCard
-                      id={game.id}
-                      {...game}
-                      onRemove={
-                        currentUser
-                          ? () =>
-                              fetcher.submit(
-                                { id: game.id },
-                                {
-                                  method: 'post',
-                                  action: `/event/${id}/games/delete`,
-                                }
-                                // { method: 'post', action: './games/delete' }
-                              )
-                          : null
-                      }
-                      isCompact
-                    />
-                  </Box>
-                ))}
-                {currentUser && (
-                  <>
-                    <IconButton
-                      colorScheme="teal"
-                      aria-label="Add a game to the event"
-                      icon={<AddIcon />}
-                      onClick={onOpenLinkGame}
-                    />
-                    <SearchGameModal
-                      isOpen={linkGameIsOpen}
-                      onClose={onCloseLinkGame}
-                      excludedIds={games.map(({ id }) => id)}
-                      onSelect={(game) => {
-                        fetcher.submit(
-                          { id: game.id },
-                          {
-                            method: 'post',
-                            action: `/event/${id}/games/add`,
-                          }
-                          // { method: 'post', action: './games/add' }
-                        );
-                      }}
-                    />
-                  </>
-                )}
-              </Wrap>
-            </Box>
-          )}
+                  Edit
+                </Button>
+              </Link>
+            )}
 
-          {(currentUser || entities.length > 0) && (
-            <Box m={[2, 0]} mb={[5, 5]}>
-              <Heading size="md" mb={2}>
-                Hosts
-              </Heading>
-              <Grid
-                gap={5}
-                templateColumns={[
-                  '1fr',
-                  'repeat(2, 1fr)',
-                  'repeat(2, 1fr)',
-                  'repeat(3, 1fr)',
-                ]}
+            <Text
+              gridColumn="1"
+              textTransform="uppercase"
+              as="time"
+              dateTime={startsAt + '/' + endsAt}
+              whiteSpace="nowrap"
+            >
+              {dateTimeFormat.formatRange(new Date(startsAt), new Date(endsAt))}
+            </Text>
+
+            <Heading
+              gridColumn="1"
+              gridRow={['', !location && '3']}
+              textDecoration={status === 'canceled' && 'line-through'}
+            >
+              {name}
+            </Heading>
+
+            {location && (
+              <Text gridColumn="1">
+                {location.street && `${location.street}, `}
+                {location.city}, {location.region}, {location.country_code}
+              </Text>
+            )}
+
+            {location && location.longitude && location.latitude && (
+              <Box
+                gridColumn={[1, '1 / span 3']}
+                height={['80px', '150px']}
+                overflow="hidden"
+                roundedBottom={[0, 5]}
+                marginX={-2}
+                mb={[2, -2]}
+                mt={[2]}
               >
-                {entities.map((host) => (
-                  <OrgCard
-                    key={host.id}
-                    {...host}
+                <Map
+                  defaultWidth={1200}
+                  defaultHeight={150}
+                  center={[location.latitude, location.longitude]}
+                  zoom={location.street ? 16 : 11}
+                  mouseEvents={false}
+                  touchEvents={false}
+                ></Map>
+              </Box>
+            )}
+
+            <Box
+              textAlign="right"
+              pt={2}
+              gridColumn={['', '2 / 4']}
+              gridRow={['', '2 / span 2']}
+              alignSelf={['', 'flex-end']}
+              display={['flex', 'block']}
+              flexDirection={['row-reverse', '']}
+            >
+              <AvatarGroup size="xs" max={3} justifyContent="end">
+                {participants.map(({ id, first_name, avatar }) => (
+                  <Avatar
+                    key={id}
+                    name={first_name}
+                    src={avatar && avatar.thumbnail_url}
+                  />
+                ))}
+              </AvatarGroup>
+              <Text>
+                {participants.length}{' '}
+                {status !== 'canceled' &&
+                  (new Date(endsAt) < new Date() ? 'went' : 'going')}
+                {status === 'canceled' && 'were going'}
+              </Text>
+            </Box>
+
+            {currentUser && status !== 'canceled' && (
+              <JoinEventButton
+                mt={[2, '0']}
+                gridRow={['', '1']}
+                gridColumn={['', '3']}
+                size="sm"
+                minWidth={100}
+                eventId={id}
+                isGoing={isGoing}
+              >
+                {new Date(endsAt) < new Date()
+                  ? isGoing
+                    ? 'Went'
+                    : 'I went!'
+                  : isGoing
+                  ? 'Going'
+                  : "Let's go!"}
+              </JoinEventButton>
+            )}
+          </Grid>
+        </Box>
+
+        {status === 'canceled' && (
+          <Stack
+            isInline
+            p={5}
+            m={[2, 0]}
+            mb={[5, 5]}
+            backgroundColor="red.300"
+            borderRadius={5}
+          >
+            <WarningTwoIcon size="24px" color="white" />
+            <Text as="b" color="white">
+              This event was canceled.
+            </Text>
+          </Stack>
+        )}
+
+        {about && (
+          <Box
+            m={[2, 0]}
+            mb={[5, 5]}
+            borderWidth="1px"
+            borderRadius={5}
+            padding={2}
+          >
+            <Heading as="h3" fontSize="2xl">
+              Description
+            </Heading>
+            <Markdown value={about} />
+          </Box>
+        )}
+
+        {(currentUser || games.length > 0) && (
+          <Box m={[2, 0]} mb={[5, 5]}>
+            <Heading size="md" mb={2}>
+              Games
+              <Badge
+                verticalAlign="baseline"
+                fontSize="md"
+                ml={2}
+                variant="subtle"
+                colorScheme="teal"
+              >
+                {games.length}
+              </Badge>
+            </Heading>
+            <Wrap spacing={2}>
+              {games.map((game) => (
+                <Box key={game.id} position="relative">
+                  <GameCard
+                    id={game.id}
+                    {...game}
                     onRemove={
                       currentUser
                         ? () =>
                             fetcher.submit(
-                              { id: host.id },
+                              { id: game.id },
                               {
                                 method: 'post',
-                                action: `/event/${id}/hosts/delete`,
+                                action: `/event/${id}/games/delete`,
                               }
-                              // { method: 'post', action: './hosts/delete' }
+                              // { method: 'post', action: './games/delete' }
                             )
                         : null
                     }
+                    isCompact
                   />
-                ))}
-                {currentUser && (
-                  <>
-                    <IconButton
-                      alignSelf="center"
-                      justifySelf="flex-start"
-                      colorScheme="teal"
-                      aria-label="Add a host to the event"
-                      icon={<AddIcon />}
-                      onClick={onOpenLinkHost}
-                    />
-                    <SearchOrgModal
-                      isOpen={linkHostIsOpen}
-                      onClose={onCloseLinkHost}
-                      excludedIds={entities.map(({ id }) => id)}
-                      onSelect={(host) => {
-                        fetcher.submit(
-                          { id: host.id },
-                          { method: 'post', action: `/event/${id}/hosts/add` }
-                          // { method: 'post', action: './hosts/add' }
-                        );
-                      }}
-                    />
-                  </>
-                )}
-              </Grid>
-            </Box>
-          )}
+                </Box>
+              ))}
+              {currentUser && (
+                <>
+                  <IconButton
+                    colorScheme="teal"
+                    aria-label="Add a game to the event"
+                    icon={<AddIcon />}
+                    onClick={onOpenLinkGame}
+                  />
+                  <SearchGameModal
+                    isOpen={linkGameIsOpen}
+                    onClose={onCloseLinkGame}
+                    excludedIds={games.map(({ id }) => id)}
+                    onSelect={(game) => {
+                      fetcher.submit(
+                        { id: game.id },
+                        {
+                          method: 'post',
+                          action: `/event/${id}/games/add`,
+                        }
+                        // { method: 'post', action: './games/add' }
+                      );
+                    }}
+                  />
+                </>
+              )}
+            </Wrap>
+          </Box>
+        )}
 
-          {currentUser && (
-            <Box mb={5}>
-              <Button
-                variant="link"
-                colorScheme="red"
-                onClick={deleteModal.onOpen}
-              >
-                Delete event
-              </Button>
+        {(currentUser || entities.length > 0) && (
+          <Box m={[2, 0]} mb={[5, 5]}>
+            <Heading size="md" mb={2}>
+              Hosts
+            </Heading>
+            <Grid
+              gap={5}
+              templateColumns={[
+                '1fr',
+                'repeat(2, 1fr)',
+                'repeat(2, 1fr)',
+                'repeat(3, 1fr)',
+              ]}
+            >
+              {entities.map((host) => (
+                <OrgCard
+                  key={host.id}
+                  {...host}
+                  onRemove={
+                    currentUser
+                      ? () =>
+                          fetcher.submit(
+                            { id: host.id },
+                            {
+                              method: 'post',
+                              action: `/event/${id}/hosts/delete`,
+                            }
+                            // { method: 'post', action: './hosts/delete' }
+                          )
+                      : null
+                  }
+                />
+              ))}
+              {currentUser && (
+                <>
+                  <IconButton
+                    alignSelf="center"
+                    justifySelf="flex-start"
+                    colorScheme="teal"
+                    aria-label="Add a host to the event"
+                    icon={<AddIcon />}
+                    onClick={onOpenLinkHost}
+                  />
+                  <SearchOrgModal
+                    isOpen={linkHostIsOpen}
+                    onClose={onCloseLinkHost}
+                    excludedIds={entities.map(({ id }) => id)}
+                    onSelect={(host) => {
+                      fetcher.submit(
+                        { id: host.id },
+                        { method: 'post', action: `/event/${id}/hosts/add` }
+                        // { method: 'post', action: './hosts/add' }
+                      );
+                    }}
+                  />
+                </>
+              )}
+            </Grid>
+          </Box>
+        )}
 
-              <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
-                <ModalOverlay />
-                <ModalContent as={Form} action={`./delete`} method="post">
-                  <ModalHeader>Delete Event</ModalHeader>
-                  <ModalCloseButton />
-                  <ModalBody>
-                    <Text>Do you really want to delete {name}?</Text>
-                  </ModalBody>
+        {currentUser && (
+          <Box mb={5}>
+            <Button
+              variant="link"
+              colorScheme="red"
+              onClick={deleteModal.onOpen}
+            >
+              Delete event
+            </Button>
 
-                  <ModalFooter>
-                    <Button
-                      type="submit"
-                      isLoading={false}
-                      loadingText="Deleting"
-                      colorScheme="red"
-                      mr={3}
-                    >
-                      Delete
-                    </Button>
-                    <Button variant="ghost" onClick={deleteModal.onClose}>
-                      Cancel
-                    </Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-            </Box>
-          )}
-        </Box>
+            <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
+              <ModalOverlay />
+              <ModalContent as={Form} action={`./delete`} method="post">
+                <ModalHeader>Delete Event</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <Text>Do you really want to delete {name}?</Text>
+                </ModalBody>
 
-        <Box m={[2, 0]}>
-          <Heading>Related events</Heading>
+                <ModalFooter>
+                  <Button
+                    type="submit"
+                    isLoading={false}
+                    loadingText="Deleting"
+                    colorScheme="red"
+                    mr={3}
+                  >
+                    Delete
+                  </Button>
+                  <Button variant="ghost" onClick={deleteModal.onClose}>
+                    Cancel
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          </Box>
+        )}
+      </Box>
 
-          <RelatedEvents events={relatedEvents} />
-        </Box>
-      </Grid>
-    </div>
+      <Box m={[2, 0]}>
+        <Heading>Related events</Heading>
+
+        <RelatedEvents events={relatedEvents} />
+      </Box>
+    </Grid>
   );
 };
 

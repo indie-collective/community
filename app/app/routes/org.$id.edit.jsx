@@ -11,7 +11,6 @@ import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
-import Navigation from '../components/Navigation';
 import OrgForm from '../components/OrgForm';
 
 const uuidRegex =
@@ -96,11 +95,13 @@ export async function action({ request, params }) {
               },
             }
           : undefined,
-        logo: data.get('logo') ? {
-          connect: {
-            id: data.get('logo'),
-          }
-        } : undefined,
+        logo: data.get('logo')
+          ? {
+              connect: {
+                id: data.get('logo'),
+              },
+            }
+          : undefined,
       },
       select: {
         id: true,
@@ -138,19 +139,15 @@ const EditOrg = () => {
   }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
-    <div>
-      <Navigation />
+    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
+      <Heading mb={5}>Update organization</Heading>
 
-      <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-        <Heading mb={5}>Update organization</Heading>
-
-        <OrgForm
-          method="post"
-          loading={transition.state === 'submitting'}
-          defaultData={org}
-        />
-      </Box>
-    </div>
+      <OrgForm
+        method="post"
+        loading={transition.state === 'submitting'}
+        defaultData={org}
+      />
+    </Box>
   );
 };
 
