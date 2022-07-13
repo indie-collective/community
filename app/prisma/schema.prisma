@@ -25,7 +25,7 @@ model Entity {
 
   games         Game[]
   events        Event[]
-  members       Person[]
+  members       User[]
 }
 
 model Game {
@@ -63,7 +63,7 @@ model Event {
   coverId       String?         @db.Uuid
 
   organisers    Entity[]
-  participants  Person[]
+  participants  User[]
   games         Game[]
 }
 
@@ -75,7 +75,7 @@ model Image {
   entities         Entity[]
   games            Game[]
   events           Event[]
-  people           Person[]
+  users            User[]
 }
 
 model Location {
@@ -95,7 +95,7 @@ model Location {
   @@unique([street, city, region, countryCode, latitude, longitude])
 }
 
-model Person {
+model User {
   id               String       @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
   createdAt        DateTime?    @default(now()) @db.Timestamptz(6)
   updatedAt        DateTime?    @updatedAt
