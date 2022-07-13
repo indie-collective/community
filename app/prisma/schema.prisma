@@ -100,8 +100,7 @@ model User {
   createdAt        DateTime?    @default(now()) @db.Timestamptz(6)
   updatedAt        DateTime?    @updatedAt
 
-  firstName        String
-  lastName         String?
+  name             String
   about            String?
 
   avatar           Image?       @relation(fields: [avatarId], references: [id], onDelete: NoAction, onUpdate: NoAction)

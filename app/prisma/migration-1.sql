@@ -39,8 +39,11 @@ alter table "indieco"."User" add column password_hash text;
 alter table "indieco"."User" add column isAdmin boolean;
 alter table "indieco"."User" add column discord_id text unique;
 alter table "indieco"."User" add column github_id text unique;
+alter table "indieco"."User" rename column first_name to "name";
+alter table "indieco"."User" rename column avatar_id to "avatarId";
 alter table "indieco"."User" rename column created_at to "createdAt";
 alter table "indieco"."User" rename column updated_at to "updatedAt";
+alter table "indieco"."User" drop column last_name;
 
 alter table "indieco"."tag" rename to "Tag";
 alter table "indieco"."Tag" rename column created_at to "createdAt";
