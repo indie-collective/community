@@ -80,7 +80,6 @@ model Image {
 
 model Location {
   id               String       @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
-  createdAt        DateTime?    @default(now()) @db.Timestamptz(6)
   updatedAt        DateTime?    @updatedAt
 
   city             String
