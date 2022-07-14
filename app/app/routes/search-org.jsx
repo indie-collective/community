@@ -20,13 +20,12 @@ import { db } from '../utils/db.server';
 import useDebounce from '../hooks/useDebounce';
 
 export async function loader({ request }) {
-  const url = new URL(request.url);
-  const search = (url.searchParams.get('q') || '')
-    .trim() // remove leading and trailing whitespaces
-    .split(' ') // split by whitespaces
-    .map((t) => `'${t}'`) // wrap each term in quotes (due to special characters)
-    .join(' | '); // join by OR
-  const excludedIds = url.searchParams.get('notId');
+  const { searchParams } = new URL(request.url);
+
+  const tsquery = require('pg-tsquery')();
+  const search = tsquery(searchParams.get('q'));
+
+  const excludedIds = searchParams.get('notId');
   const excludedIdsArray = excludedIds ? excludedIds.split(',') : [];
 
   try {
