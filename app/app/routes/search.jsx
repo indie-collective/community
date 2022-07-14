@@ -1,6 +1,7 @@
 import { Box, Heading, Text, useColorModeValue } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { json } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import GameCard from '../components/GameCard';
@@ -8,7 +9,6 @@ import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 import Carousel from '../components/Carousel';
 import useDebounce from '../hooks/useDebounce';
-import { useLoaderData } from '@remix-run/react';
 
 const variants = {
   initial: { scale: 0.96, y: 30, opacity: 0 },
@@ -28,7 +28,9 @@ const variants = {
 
 export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
-  const search = searchParams.get('q').split(' ').join(' | ');
+
+  const tsquery = require('pg-tsquery')();
+  const search = tsquery(searchParams.get('q'));
 
   const data = {
     search: searchParams.get('q'),
@@ -70,7 +72,8 @@ const SearchPage = () => {
   const helpTextColor = useColorModeValue('gray.300', 'gray.600');
   const { search, games, orgs, events } = useLoaderData();
 
-  const hasNoResults = games.length === 0 && orgs.length === 0 && events.length === 0;
+  const hasNoResults =
+    games.length === 0 && orgs.length === 0 && events.length === 0;
 
   return (
     <Box p={5} mb={5}>
