@@ -14,12 +14,8 @@ import { PasswordInput } from './PasswordInput';
 import { Form } from '@remix-run/react';
 
 const validationSchema = yup.object().shape({
-  firstName: yup.string().required(),
-  lastName: yup.string(),
-  email: yup
-    .string()
-    .email()
-    .required(),
+  name: yup.string().required(),
+  email: yup.string().email().required(),
   password: yup.string().required(),
   passwordConfirmation: yup
     .string()
@@ -36,38 +32,23 @@ const SignupForm = ({ loading, ...rest }) => {
     handleSubmit,
     register,
 
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
   return (
     <Form onSubmit={handleSubmit} {...rest}>
-      <FormControl mb={5} isInvalid={errors.firstName} isRequired>
-        <FormLabel htmlFor="firstName">First name</FormLabel>
+      <FormControl mb={5} isInvalid={errors.name} isRequired>
+        <FormLabel htmlFor="name">Name</FormLabel>
         <Input
-          {...register('firstName')}
-          id="firstName"
+          {...register('name')}
+          id="name"
           type="text"
-          placeholder="Jean-Michel"
+          placeholder="Jean-Michel Jam"
         />
         <FormErrorMessage>
-          {errors.firstName && errors.firstName.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl mb={5} isInvalid={errors.lastName}>
-        <FormLabel htmlFor="lastName">Last name</FormLabel>
-        <Input
-          {...register('lastName')}
-          id="lastName"
-          type="text"
-          placeholder="Jam"
-        />
-        <FormErrorMessage>
-          {errors.lastName && errors.lastName.message}
+          {errors.name && errors.name.message}
         </FormErrorMessage>
       </FormControl>
 

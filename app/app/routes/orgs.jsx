@@ -24,7 +24,7 @@ export const loader = async ({ request }) => {
         logo: true,
       },
       orderBy: {
-        updated_at: 'desc',
+        updatedAt: 'desc',
       },
       take: PAGE_SIZE,
     })

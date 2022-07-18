@@ -33,18 +33,7 @@ export const loader = async ({ request }) => {
     });
   }
 
-  const people = await db.person.findMany({
-    select: {
-      id: true,
-      created_at: true,
-      first_name: true,
-      last_name: true,
-      email: true,
-      github_id: true,
-      discord_id: true,
-      isAdmin: true,
-    },
-  });
+  const people = await db.person.findMany();
 
   const data = {
     currentUser,

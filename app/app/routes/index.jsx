@@ -18,21 +18,17 @@ export const loader = async ({ request }) => {
     games: await db.game
       .findMany({
         include: {
-          game_image: {
-            include: {
-              image: true,
-            },
-          },
+          images: true,
         },
         orderBy: {
-          created_at: 'desc',
+          createdAt: 'desc',
         },
         take: 12,
       })
       .then((games) =>
         games.map((game) => ({
           ...game,
-          images: game.game_image.map(({ image }) => getImageLinks(image)),
+          images: game.images.map(({ image }) => getImageLinks(image)),
         }))
       ),
     entities: await db.entity
@@ -42,7 +38,7 @@ export const loader = async ({ request }) => {
           logo: true,
         },
         orderBy: {
-          created_at: 'desc',
+          createdAt: 'desc',
         },
         take: 12,
       })
@@ -55,13 +51,13 @@ export const loader = async ({ request }) => {
     events: await db.event
       .findMany({
         include: {
-          event_participant: true,
-          game_event: true,
+          participants: true,
+          games: true,
           location: true,
           cover: true,
         },
         orderBy: {
-          created_at: 'desc',
+          createdAt: 'desc',
         },
         take: 12,
       })
@@ -77,18 +73,18 @@ export const loader = async ({ request }) => {
           status: {
             not: 'canceled',
           },
-          ends_at: {
+          end: {
             gte: new Date(),
           },
         },
         include: {
-          event_participant: true,
-          game_event: true,
+          participants: true,
+          games: true,
           location: true,
           cover: true,
         },
         orderBy: {
-          starts_at: 'asc',
+          start: 'asc',
         },
         take: 8,
       })
@@ -104,26 +100,26 @@ export const loader = async ({ request }) => {
           eventsToCome: await db.event
             .findMany({
               where: {
-                event_participant: {
+                participants: {
                   every: {
-                    person_id: currentUser.id,
+                    id: currentUser.id,
                   },
                 },
                 status: {
                   not: 'canceled',
                 },
-                ends_at: {
+                end: {
                   gte: new Date(),
                 },
               },
               include: {
-                event_participant: true,
-                game_event: true,
+                participants: true,
+                games: true,
                 location: true,
                 cover: true,
               },
               orderBy: {
-                starts_at: 'desc',
+                start: 'desc',
               },
               take: 8,
             })

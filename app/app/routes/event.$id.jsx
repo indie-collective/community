@@ -56,33 +56,19 @@ export const loader = async ({ request, params }) => {
     .findUnique({
       where: { id },
       include: {
-        entity_event: {
+        organisers: {
           include: {
-            entity: {
-              include: {
-                logo: true,
-              },
-            },
+            logo: true,
           },
         },
-        game_event: {
+
+        games: {
           include: {
-            game: {
-              include: {
-                game_image: {
-                  include: {
-                    image: true,
-                  },
-                },
-              },
-            },
+            images: true,
           },
         },
-        event_participant: {
-          include: {
-            person: true,
-          },
-        },
+
+        participants: true,
         cover: true,
         location: true,
       },
@@ -90,23 +76,17 @@ export const loader = async ({ request, params }) => {
     .then((event) => ({
       ...event,
       cover: event.cover ? getImageLinks(event.cover) : null,
-      entity_event: event.entity_event.map((entity_event) => ({
-        ...entity_event,
-        entity: {
-          ...entity_event.entity,
-          logo: entity_event.entity.logo
-            ? getImageLinks(entity_event.entity.logo)
-            : undefined,
-        },
+
+      organisers: event.organisers.map((entity) => ({
+        ...entity,
+        logo: entity.logo ? getImageLinks(entity.logo) : undefined,
       })),
-      game_event: event.game_event.map((game_event) => ({
-        ...game_event,
-        game: {
-          ...game_event.game,
-          images: game_event.game.game_image
-            .slice(0, 1)
-            .map((game_image) => getImageLinks(game_image.image)),
-        },
+
+      games: event.games.map((game) => ({
+        ...game,
+        images: game.images
+          .slice(0, 1)
+          .map(getImageLinks),
       })),
     }));
 
@@ -125,8 +105,8 @@ export const loader = async ({ request, params }) => {
         },
         include: {
           cover: true,
-          game_event: true,
-          event_participant: true,
+          games: true,
+          participants: true,
         },
         take: 5,
       })
@@ -200,18 +180,14 @@ const Event = () => {
     status,
     about,
     site,
-    starts_at: startsAt,
-    ends_at: endsAt,
+    start: startsAt,
+    end: endsAt,
     location,
-    game_event,
-    entity_event,
-    event_participant,
+    games,
+    organisers,
+    participants,
     cover,
   } = event;
-
-  const games = game_event.map(({ game }) => game);
-  const entities = entity_event.map(({ entity }) => entity);
-  const participants = event_participant.map(({ person }) => person);
 
   const isGoing =
     currentUser && participants.some(({ id }) => id === currentUser.id);
@@ -472,7 +448,7 @@ const Event = () => {
           </Box>
         )}
 
-        {(currentUser || entities.length > 0) && (
+        {(currentUser || organisers.length > 0) && (
           <Box m={[2, 0]} mb={[5, 5]}>
             <Heading size="md" mb={2}>
               Hosts
@@ -486,7 +462,7 @@ const Event = () => {
                 'repeat(3, 1fr)',
               ]}
             >
-              {entities.map((host) => (
+              {organisers.map((host) => (
                 <OrgCard
                   key={host.id}
                   {...host}
@@ -518,7 +494,7 @@ const Event = () => {
                   <SearchOrgModal
                     isOpen={linkHostIsOpen}
                     onClose={onCloseLinkHost}
-                    excludedIds={entities.map(({ id }) => id)}
+                    excludedIds={organisers.map(({ id }) => id)}
                     onSelect={(host) => {
                       fetcher.submit(
                         { id: host.id },

@@ -25,15 +25,14 @@ export const action = async ({ request }) => {
   try {
     const form = await request.formData();
 
-    const user = await db.person.create({
+    const user = await db.user.create({
       data: {
-        first_name: form.get('firstName'),
-        last_name: form.get('lastName'),
+        name: form.get('name'),
         email: form.get('email'),
       },
     });
 
-    await db.$queryRaw`update indieco.person set password_hash = public.crypt(${form.get(
+    await db.$queryRaw`update indieco."User" set "passwordHash" = public.crypt(${form.get(
       'password'
     )}, public.gen_salt('bf')) where email = ${user.email}`;
 

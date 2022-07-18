@@ -60,30 +60,14 @@ export const loader = async ({ request, params }) => {
       id,
     },
     include: {
-      game_image: {
+      images: true,
+      tags: true,
+      authors: {
         include: {
-          image: true,
+          logo: true,
         },
       },
-      game_tag: {
-        include: {
-          tag: true,
-        },
-      },
-      game_entity: {
-        include: {
-          entity: {
-            include: {
-              logo: true,
-            }
-          },
-        },
-      },
-      game_event: {
-        include: {
-          event: true,
-        },
-      },
+      events: true,
     },
   });
 
@@ -96,16 +80,13 @@ export const loader = async ({ request, params }) => {
   const data = {
     game: {
       ...game,
-      game_image: game.game_image.map((gameImage) => ({
-        ...gameImage,
-        image: getImageLinks(gameImage.image),
+      images: game.images.map((image) => ({
+        ...image,
+        image: getImageLinks(image),
       })),
-      game_entity: game.game_entity.map((gameEntity) => ({
-        ...gameEntity,
-        entity: {
-          ...gameEntity.entity,
-          logo: gameEntity.entity.logo ? getImageLinks(gameEntity.entity.logo) : undefined,
-        },
+      authors: game.authors.map((author) => ({
+        ...author,
+        logo: author.logo ? getImageLinks(author.logo) : undefined,
       })),
     },
     currentUser,
@@ -119,12 +100,12 @@ export const meta = ({ data: { game }, location }) => ({
   'og:title': game.name,
   'og:description': `${game.about}.`,
   'og:url': `${location.protocol}://${location.host}/game/${game.id}`,
-  'og:image': game.game_image[0]?.image.thumbnail_url,
-  'twitter:card': game.game_image[0] ? 'summary_large_image' : 'summary',
+  'og:image': game.images[0]?.file.thumbnail_url,
+  'twitter:card': game.images[0] ? 'summary_large_image' : 'summary',
   'twitter:site': '@IndieColle',
   'twitter:title': game.name,
   'twitter:description': `${game.about}.`,
-  'twitter:image': game.game_image[0]?.image.thumbnail_url,
+  'twitter:image': game.images[0]?.file.thumbnail_url,
 });
 
 const Game = () => {
@@ -173,16 +154,8 @@ const Game = () => {
     name,
     site,
     about,
-    game_image,
-    game_entity,
-    game_tag,
-    game_event,
     igdb_game,
   } = game;
-  const images = game_image.map(({ image }) => image);
-  const tags = game_tag.map(({ tag }) => tag);
-  const entities = game_entity.map(({ entity }) => entity);
-  const events = game_event.map(({ event }) => event);
 
   const dateTimeFormat = new Intl.DateTimeFormat('en', {
     year: 'numeric',
@@ -219,7 +192,7 @@ const Game = () => {
       </Box>
 
       <Stack isInline spacing={2} mb={5} pl={5} pr={5}>
-        {tags.map((tag) => (
+        {game.tags.map((tag) => (
           <Tag colorScheme="teal">{tag.name}</Tag>
         ))}
       </Stack>
@@ -238,7 +211,7 @@ const Game = () => {
             'repeat(3, 1fr)',
           ]}
         >
-          {entities.map((author) => (
+          {game.authors.map((author) => (
             <OrgCard
               key={author.id}
               {...author}
@@ -270,7 +243,7 @@ const Game = () => {
               <SearchOrgModal
                 isOpen={linkAuthorIsOpen}
                 onClose={onCloseLinkAuthor}
-                excludedIds={entities.map(({ id }) => id)}
+                excludedIds={game.authors.map(({ id }) => id)}
                 onSelect={(author) => {
                   fetcher.submit(
                     { id: author.id },
@@ -284,7 +257,7 @@ const Game = () => {
         </Grid>
       </Box>
 
-      {events.length > 0 && (
+      {game.events.length > 0 && (
         <Box mb={5} pl={5} pr={5}>
           <Heading size="md" mb={2}>
             Made/Exhibited at:
@@ -329,7 +302,7 @@ const Game = () => {
               />
             </AspectRatio>
           ))}
-          {images.map((image) => (
+          {game.images.map((image) => (
             <Box key={image.id} position="relative">
               <AspectRatio ratio={16 / 9}>
                 <Image

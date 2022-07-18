@@ -70,30 +70,20 @@ export const loader = async ({ request, params }) => {
   const org = await db.entity.findUnique({
     where: { id },
     include: {
-      game_entity: {
+      games: {
         include: {
-          game: {
-            include: {
-              game_image: {
-                include: {
-                  image: true,
-                }
-              },
-            },
-          },
-        },
+          images: true,
+        }
       },
-      entity_event: {
+
+      events: {
         include: {
-          event: {
-            include: {
-              game_event: true,
-              event_participant: true,
-              cover: true,
-            },
-          },
-        },
+          games: true,
+          participants: true,
+          cover: true,
+        }
       },
+
       logo: true,
       location: true,
     },
@@ -104,30 +94,22 @@ export const loader = async ({ request, params }) => {
   return json({
     org: {
       ...org,
-      game_entity: org.game_entity.map((game_entity) => ({
-        ...game_entity,
-        game: {
-          ...game_entity.game,
-          images: game_entity.game.game_image.map((game_image) => ({
-            url: `https://${process.env.CDN_HOST}/${game_image.image.image_file.name}`,
-            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${game_image.image.image_file.name}`,
-          })),
-        },
+
+      games: org.games.map((game) => ({
+        ...game,
+        images: game.images.map((image) => getImageLinks(image)),
       })),
-      entity_event: org.entity_event.map((entity_event) => ({
-        ...entity_event,
-        event: {
-          ...entity_event.event,
-          cover: entity_event.event.cover ? getImageLinks(entity_event.event.cover) : undefined,
-        },
-      })),
-      logo: org.logo
-        ? {
-            url: `https://${process.env.CDN_HOST}/${org.logo.image_file.name}`,
-            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${org.logo.image_file.name}`,
-          }
-        : null,
+
+      events: org.events.map(event => ({
+        ...event,
+        cover: event.cover ? getImageLinks(event.cover) : undefined,
+      }))
     },
+
+    logo: org.logo
+      ? getImageLinks(org.logo)
+      : null,
+
     currentUser,
   });
 };
@@ -161,12 +143,9 @@ const Org = () => {
     about,
     location,
     logo,
-    game_entity,
-    entity_event,
+    games,
+    events,
   } = org;
-
-  const games = game_entity.map(({ game }) => game);
-  const events = entity_event.map(({ event }) => event);
 
   return (
     <>

@@ -20,10 +20,10 @@ const EventCard = forwardRef(
       status,
       cover,
       location,
-      game_event,
-      event_participant,
-      starts_at: startsAt,
-      ends_at: endsAt,
+      games,
+      participants,
+      start: startsAt,
+      end: endsAt,
     },
     ref
   ) => {
@@ -99,11 +99,11 @@ const EventCard = forwardRef(
             fontSize="xs"
             textTransform="uppercase"
           >
-            {game_event.length} games
-            {event_participant.length > 0 && (
+            {games.length} games
+            {participants.length > 0 && (
               <>
                 {' '}
-                &bull; {event_participant.length}{' '}
+                &bull; {participants.length}{' '}
                 {status !== 'canceled' &&
                   (new Date(endsAt) < new Date() ? 'went' : 'going')}
                 {status === 'canceled' && 'were going'}

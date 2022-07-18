@@ -57,18 +57,16 @@ export const loader = async ({ request }) => {
   const games = await getGames({
     where: searchParams.has('tags')
       ? {
-          game_tag: {
+          tags: {
             some: {
-              tag: {
-                name: {
-                  in: searchParams.getAll('tags'),
-                },
+              name: {
+                in: searchParams.getAll('tags'),
               },
             },
           },
         }
       : undefined,
-    orderBy: { updated_at: 'desc' },
+    orderBy: { updatedAt: 'desc' },
     skip: (page - 1) * 10,
     take: 10,
   });
@@ -76,11 +74,11 @@ export const loader = async ({ request }) => {
   const data = {
     tags: await db.tag.findMany({
       include: {
-        game_tag: true,
+        games: true,
       },
       orderBy: [
         {
-          game_tag: {
+          games: {
             _count: 'desc',
           },
         },
@@ -92,6 +90,7 @@ export const loader = async ({ request }) => {
     games,
     currentUser,
   };
+
   return json(data);
 };
 
@@ -193,7 +192,7 @@ const Games = () => {
         {tags.map((tag) => (
           <WrapItem key={tag.id}>
             <Tag
-              size={tag.game_tag.length < tags.length / 4 ? 'md' : 'lg'}
+              size={tag.games.length < tags.length / 4 ? 'md' : 'lg'}
               variant={selectedTags.includes(tag.name) ? 'solid' : 'outline'}
               colorScheme={selectedTags.includes(tag.name) ? 'teal' : 'gray'}
               cursor="pointer"
@@ -212,7 +211,7 @@ const Games = () => {
                 colorScheme="teal"
                 variant={selectedTags.includes(tag.name) ? 'subtle' : 'solid'}
               >
-                {tag.game_tag.length}
+                {tag.games.length}
               </Badge>
             </Tag>
           </WrapItem>

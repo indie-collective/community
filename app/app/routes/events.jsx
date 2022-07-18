@@ -33,18 +33,18 @@ export const loader = async ({ request }) => {
     events: await db.event
       .findMany({
         where: {
-          ends_at: {
+          end: {
             gte: new Date(),
           },
         },
         include: {
-          event_participant: true,
-          game_event: true,
+          participants: true,
+          games: true,
           location: true,
           cover: true,
         },
         orderBy: {
-          starts_at: 'desc',
+          start: 'desc',
         },
         cursor,
         take: 6,
@@ -58,18 +58,18 @@ export const loader = async ({ request }) => {
     pastEvents: await db.event
       .findMany({
         where: {
-          ends_at: {
+          end: {
             lt: new Date(),
           },
         },
         include: {
-          event_participant: true,
-          game_event: true,
+          participants: true,
+          games: true,
           location: true,
           cover: true,
         },
         orderBy: {
-          starts_at: 'desc',
+          start: 'desc',
         },
         skip: (page - 1) * 10,
         take: 10,
@@ -82,6 +82,9 @@ export const loader = async ({ request }) => {
       ),
     currentUser,
   };
+
+  console.log(data);
+
   return json(data);
 };
 
