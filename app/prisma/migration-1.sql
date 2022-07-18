@@ -116,6 +116,13 @@ where indieco."User".id = indieco_private.person_account.person_id;
 delete from indieco."User"
 where email is null;
 
+update indieco."User"
+set "isAdmin" = false;
+
+update indieco."User"
+set "isAdmin" = true
+where email = 'engleek@gmail.com' or email = 'yorunohikage@gmail.com';
+
 drop schema indieco_private cascade;
 
 commit;
