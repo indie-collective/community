@@ -35,10 +35,10 @@ alter table "indieco"."Location" rename column country_code to "countryCode";
 
 alter table "indieco"."person" rename to "User";
 alter table "indieco"."User" add column email text unique;
-alter table "indieco"."User" add column password_hash text;
-alter table "indieco"."User" add column isAdmin boolean;
-alter table "indieco"."User" add column discord_id text unique;
-alter table "indieco"."User" add column github_id text unique;
+alter table "indieco"."User" add column "passwordHash" text;
+alter table "indieco"."User" add column "isAdmin" boolean;
+alter table "indieco"."User" add column "discordId" text unique;
+alter table "indieco"."User" add column "githubId" text unique;
 alter table "indieco"."User" rename column first_name to "name";
 alter table "indieco"."User" rename column avatar_id to "avatarId";
 alter table "indieco"."User" rename column created_at to "createdAt";
@@ -92,5 +92,30 @@ alter table "indieco"."_GameToTag" rename column updated_at to "updatedAt";
 
 drop table "indieco"."entity_image";
 drop table "indieco"."game_author";
+
+drop trigger entity_updated_at on indieco."Entity";
+drop trigger event_updated_at on indieco."Event";
+drop trigger game_updated_at on indieco."Game";
+drop trigger image_updated_at on indieco."Image";
+drop trigger location_updated_at on indieco."Location";
+drop trigger tag_updated_at on indieco."Tag";
+drop trigger person_updated_at on indieco."User";
+drop trigger entity_event_updated_at on indieco."_EntityToEvent";
+drop trigger game_entity_updated_at on indieco."_EntityToGame";
+drop trigger entity_member_updated_at on indieco."_EntityToUser";
+drop trigger game_event_updated_at on indieco."_EventToGame";
+drop trigger game_image_updated_at on indieco."_GameToImage";
+drop trigger game_tag_updated_at on indieco."_GameToTag";
+
+update indieco."User"
+set email = indieco_private.person_account.email, 
+  "passwordHash" = indieco_private.person_account.password_hash
+from indieco_private.person_account
+where indieco."User".id = indieco_private.person_account.person_id;
+
+delete from indieco."User"
+where email is null;
+
+drop schema indieco_private cascade;
 
 commit;
