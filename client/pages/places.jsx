@@ -14,15 +14,13 @@ import {
   keyframes,
 } from '@chakra-ui/react';
 import Head from 'next/head';
-import { Map, Overlay as BaseOverlay, ZoomControl } from 'pigeon-maps';
+import { Map, Overlay, ZoomControl } from 'pigeon-maps';
 
 import Error from './_error';
 import { withApollo } from '../lib/apollo';
 import Navigation from '../components/Navigation';
 import OrgCard from '../components/OrgCard';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
-const Overlay = chakra(BaseOverlay);
 
 const TYPES_COLORS = {
   STUDIO: 'yellow',
@@ -60,12 +58,20 @@ const getCitiesQuery = gql`
   }
 `;
 
-const OrgMarker = React.memo(({ id, logo, name, type }) => (
+const OrgMarker = React.memo(({ id, logo, name, type, highlighted }) => (
   <Tooltip label={name} aria-label="A tooltip">
     <Box
       width={50}
       height={50}
       position="relative"
+      cursor="pointer"
+      transformOrigin="bottom center"
+      transform={highlighted && 'scale(1.2)'}
+      zIndex={highlighted ? 2 : logo ? 1 : 0}
+      _hover={{
+        zIndex: 2,
+        transform: 'scale(1.2)',
+      }}
       onClick={() => {
         window.location.hash = id;
       }}
@@ -391,16 +397,8 @@ const Cities = () => {
                 key={org.id}
                 anchor={[org.location.latitude, org.location.longitude]}
                 offset={[48 / 2, 48]}
-                cursor="pointer"
-                transformOrigin="bottom center"
-                transform={org.id === highlightedOrg && 'scale(1.2)'}
-                zIndex={org.id === highlightedOrg ? 2 : org.logo ? 1 : 0}
-                _hover={{
-                  zIndex: 2,
-                  transform: 'scale(1.2)',
-                }}
               >
-                <OrgMarker {...org} />
+                <OrgMarker {...org} highlighted={org.id === highlightedOrg} />
               </Overlay>
             ))}
         </Map>
