@@ -9,6 +9,7 @@ import useDebounce from '../hooks/useDebounce';
 const defaultProps = {
   defaultQuery: '',
   types: null,
+  onError: () => {},
 
   inputId: null,
   inputOnFocus: null,
@@ -19,6 +20,7 @@ const defaultProps = {
 const propTypes = {
   token: PropTypes.string.isRequired,
   onSuggestionSelect: PropTypes.func.isRequired,
+  onError: PropTypes.func,
   defaultQuery: PropTypes.string,
   types: PropTypes.arrayOf(
     PropTypes.oneOf([
@@ -46,6 +48,7 @@ const propTypes = {
 const MapboxAutocomplete = ({
   token,
   onSuggestionSelect,
+  onError,
   defaultQuery,
   types,
   placeholder,
@@ -89,7 +92,7 @@ const MapboxAutocomplete = ({
         } catch (err) {
           setIsLoading(false);
           setError(true);
-          setErrorMsg('There was a problem retrieving data from mapbox');
+          onError(err);
           setQueryResults([]);
         }
       } else {

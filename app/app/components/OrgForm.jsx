@@ -135,6 +135,8 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
     control,
     watch,
     setValue,
+    setError,
+    clearErrors,
     formState: {
       errors,
     },
@@ -258,16 +260,28 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
         </FormErrorMessage>
       </FormControl>
 
-      <FormControl gridColumn="1 / 3">
+      <FormControl gridColumn="1 / 3" isInvalid={errors.location}>
         <FormLabel htmlFor="location">Location</FormLabel>
 
         <Controller
           control={control}
           name="location"
-          placeholder="Rennes, France"
-          onClear={() => setValue('location', { label: '', value: null })}
-          render={({ field }) => <PlacesSearch {...field} />}
-          // photon
+          render={({ field }) => (
+            <PlacesSearch
+              {...field}
+              placeholder="Rennes, France"
+              onClear={() => {
+                setValue('location', { label: '', value: null });
+                clearErrors('location');
+              }}
+              onError={() => {
+                setError('location', {
+                  type: 'custom',
+                  message: 'There was a problem retrieving data.',
+                });
+              }}
+            />
+          )}
         />
 
         {location.value && (
@@ -292,6 +306,10 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
             />
           </Box>
         )}
+
+        <FormErrorMessage>
+          {errors.location && errors.location.message}
+        </FormErrorMessage>
       </FormControl>
 
       <FormControl gridColumn="1 / 3" isInvalid={errors.site}>

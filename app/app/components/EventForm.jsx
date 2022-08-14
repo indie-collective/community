@@ -105,6 +105,7 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
     control,
     watch,
     setValue,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -208,10 +209,19 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
         <Controller
           control={control}
           name="location"
-          placeholder="Where is the party?"
-          onClear={() => setValue('location', { label: '', value: null })}
           render={({ field }) => (
-            <PlacesSearch inputProps={{ id: 'location' }} {...field} />
+            <PlacesSearch
+              inputProps={{ id: 'location' }}
+              {...field}
+              placeholder="Where is the party?"
+              onClear={() => setValue('location', { label: '', value: null })}
+              onError={() => {
+                setError('location', {
+                  type: 'custom',
+                  message: 'There was a problem retrieving data.',
+                });
+              }}
+            />
           )}
         />
 

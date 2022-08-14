@@ -5,6 +5,8 @@ import MapboxAutocomplete from './MapboxAutocomplete';
 
 const propTypes = {
   onChange: PropTypes.func,
+  onClear: PropTypes.func,
+  onError: PropTypes.func,
   value: PropTypes.shape({
     label: PropTypes.string,
     value: PropTypes.shape({
@@ -18,11 +20,13 @@ const propTypes = {
 };
 
 const defaultProps = {
+  onClear: () => {},
   onChange: () => {},
+  onError: () => {},
   value: { label: '', value: null },
 };
 
-const PlacesSearch = ({ onChange, onClear, options, value, ...rest }) => {
+const PlacesSearch = ({ onChange, onClear, onError, options, value, ...rest }) => {
   const l = value.value;
 
   const [hiddenValues, setHiddenValues] = useState({});
@@ -30,7 +34,7 @@ const PlacesSearch = ({ onChange, onClear, options, value, ...rest }) => {
   return (
     <>
       {Object.entries(hiddenValues).map(([key, value]) => (
-        <input type="hidden" name={key} value={value} />
+        <input key={key} type="hidden" name={key} value={value} />
       ))}
 
       <MapboxAutocomplete
@@ -99,6 +103,7 @@ const PlacesSearch = ({ onChange, onClear, options, value, ...rest }) => {
             },
           });
         }}
+        onError={onError}
         {...rest}
       />
     </>
