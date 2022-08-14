@@ -1,3 +1,5 @@
+import { json } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
 import React from 'react';
 import {
   chakra,
@@ -11,28 +13,33 @@ import {
   useColorModeValue,
   keyframes,
 } from '@chakra-ui/react';
-import { Map, Overlay as BaseOverlay, ZoomControl } from 'pigeon-maps';
+import { Map, Overlay, ZoomControl } from 'pigeon-maps';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { db } from '../utils/db.server';
+import getImageLinks from '../utils/imageLinks.server';
 // import Error from '../../../client/pages/_error';
 import OrgCard from '../components/OrgCard';
-import { useLoaderData } from '@remix-run/react';
-import { json } from '@remix-run/node';
-import { db } from '../utils/db.server';
-
-const Overlay = chakra(BaseOverlay);
 
 const TYPES_COLORS = {
   studio: 'yellow',
   association: 'green',
 };
 
-const OrgMarker = React.memo(({ id, logo, name, type }) => (
+const OrgMarker = React.memo(({ id, logo, name, type, highlighted }) => (
   <Tooltip label={name} aria-label="A tooltip">
     <Box
       width={50}
       height={50}
       position="relative"
+      cursor="pointer"
+      transformOrigin="bottom center"
+      transform={highlighted && 'scale(1.2)'}
+      zIndex={highlighted ? 2 : logo ? 1 : 0}
+      _hover={{
+        zIndex: 2,
+        transform: 'scale(1.2)',
+      }}
       onClick={() => {
         window.location.hash = id;
       }}
@@ -58,15 +65,14 @@ const OrgMarker = React.memo(({ id, logo, name, type }) => (
         />
         {logo && (
           <foreignObject x="80" y="40" width="320" height="320">
-            <img
-              style={{
-                backgroundColor: 'currentColor',
-                objectFit: 'cover',
-                borderRadius: '50%',
-                width: '320px',
-                height: '320px',
-              }}
+            <chakra.img
               src={logo.thumbnail_url}
+              loading="lazy"
+              backgroundColor="currentColor"
+              objectFit="cover"
+              borderRadius="50%"
+              width="320px"
+              height="320px"
             />
           </foreignObject>
         )}
@@ -245,22 +251,24 @@ const MovingBand = React.memo(({ containerRef, header, children }) => {
 
 export const loader = async ({ request }) => {
   const data = {
-    orgs: await db.entity.findMany({
-      where: {
-        location: {
-          isNot: null,
+    orgs: await db.entity
+      .findMany({
+        where: {
+          location: {
+            isNot: null,
+          },
         },
-      },
-      include: {
-        location: true,
-      }
-    }),
-    currentUser: {
-      id: '1',
-      username: 'admin',
-      name: 'John Doe',
-      email: 'test@test.com',
-    },
+        include: {
+          location: true,
+          logo: true,
+        },
+      })
+      .then((orgs) =>
+        orgs.map((org) => ({
+          ...org,
+          logo: org.logo ? getImageLinks(org.logo) : null,
+        }))
+      ),
   };
   return json(data);
 };
@@ -303,13 +311,12 @@ const Places = () => {
   // TODO: see if we can prevent this from changing
   const orgsInBounds = useMemo(
     () =>
-      orgs
-        .filter((org) => {
-          if (!currentBounds || !org.location || !org.location.latitude)
-            return true;
+      orgs.filter((org) => {
+        if (!currentBounds || !org.location || !org.location.latitude)
+          return true;
 
-          return inBounds(org.location, currentBounds);
-        }),
+        return inBounds(org.location, currentBounds);
+      }),
     [orgs, currentBounds]
   );
 
@@ -324,6 +331,19 @@ const Places = () => {
     ),
     [orgsInBounds.length]
   );
+
+  const orgsMarkers = useMemo(() => {
+    return orgs.map((org) => (
+      // todo: bring back z index 2
+      <Overlay
+        key={org.id}
+        anchor={[org.location.latitude, org.location.longitude]}
+        offset={[48 / 2, 48]}
+      >
+        <OrgMarker {...org} highlighted={org.id === highlightedOrg} />
+      </Overlay>
+    ));
+  }, [orgs]);
 
   return (
     // TODO: Fix this weird hack, see margin bottom in app
@@ -351,24 +371,7 @@ const Places = () => {
           onBoundsChanged={({ bounds }) => setCurrentBounds(bounds)}
         >
           <ZoomControl />
-          {orgs.map((org) => (
-              <Overlay
-                key={org.id}
-                anchor={[org.location.latitude, org.location.longitude]}
-                offset={[48 / 2, 48]}
-                cursor="pointer"
-                transformOrigin="bottom center"
-                transform={org.id === highlightedOrg && 'scale(1.2)'}
-                zIndex={org.id === highlightedOrg ? 2 : org.logo ? 1 : 0}
-                _hover={{
-                  zIndex: 2,
-                  transform: 'scale(1.2)',
-                }}
-              >
-                <OrgMarker {...org} />
-              </Overlay>
-            ))}
-        </Map>
+        {orgsMarkers}
 
         {/* TODO: see if we can prevent change in children (see orgsInBounds) */}
         <MovingBand containerRef={containerRef} header={orgsListHeader}>
