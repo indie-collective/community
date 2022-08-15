@@ -1,5 +1,5 @@
 import { withEmotionCache } from '@emotion/react';
-import { Box, ChakraProvider } from '@chakra-ui/react';
+import { Box, ChakraProvider, Flex } from '@chakra-ui/react';
 import {
   Links,
   LiveReload,
@@ -18,9 +18,10 @@ import { authenticator } from './utils/auth.server';
 import slickStyles from 'slick-carousel/slick/slick.css'; // CSS needed for Carousel component
 import Error from './components/Error';
 import Navigation from './components/Navigation';
+import Footer from './components/Footer';
 
 const Main = (props) => (
-  <Box as="main" mx="auto" mb={{ base: 0, md: '3rem' }} {...props} />
+  <Flex as="main" direction="column" mx="auto" maxWidth="960px" minH="100vh" {...props} />
 );
 
 export function links() {
@@ -96,17 +97,17 @@ export function CatchBoundary() {
   return (
     <Document>
       <ChakraProvider theme={theme}>
-        <Main maxWidth="960px">
-          <AnimatePresence exitBeforeEnter>
+        <AnimatePresence exitBeforeEnter>
+          <Main>
             <Error statusCode={caught.status} />
-          </AnimatePresence>
-        </Main>
+          </Main>
+        </AnimatePresence>
       </ChakraProvider>
     </Document>
   );
 }
 
-export const loader = async ({request}) => {
+export const loader = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request);
 
   return { currentUser };
@@ -116,15 +117,15 @@ export default function App() {
   return (
     <Document>
       <ChakraProvider theme={theme}>
-        <Main maxWidth="960px">
-          <AnimatePresence exitBeforeEnter>
-            <Box>
-              <Navigation />
+        <AnimatePresence exitBeforeEnter>
+          <Main>
+            <Navigation />
 
-              <Outlet />
-            </Box>
-          </AnimatePresence>
-        </Main>
+            <Outlet />
+
+            <Footer />
+          </Main>
+        </AnimatePresence>
       </ChakraProvider>
     </Document>
   );
