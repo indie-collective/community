@@ -38,6 +38,7 @@
     "remix-auth-form": "^1.1.2",
     "remix-auth-socials": "^1.0.2",
     "slick-carousel": "^1.8.1",
+    "use-debounce": "^8.0.3",
     "yup": "^0.32.9"
   },
   "devDependencies": {
