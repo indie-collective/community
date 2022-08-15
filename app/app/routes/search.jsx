@@ -8,7 +8,6 @@ import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 import Carousel from '../components/Carousel';
-import useDebounce from '../hooks/useDebounce';
 
 const variants = {
   initial: { scale: 0.96, y: 30, opacity: 0 },
@@ -30,7 +29,7 @@ export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
 
   const tsquery = require('pg-tsquery')();
-  const search = tsquery(searchParams.get('q'));
+  const search = searchParams.get('q') ? tsquery(searchParams.get('q')) : '';
 
   const data = {
     search: searchParams.get('q'),
