@@ -4,6 +4,7 @@ import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
+import { getFullTextSearchQuery } from '../utils/search.server';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
@@ -28,11 +29,11 @@ const variants = {
 export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
 
-  const tsquery = require('pg-tsquery')();
-  const search = searchParams.get('q') ? tsquery(searchParams.get('q')) : '';
+  const q = searchParams.get('q');
+  const search = getFullTextSearchQuery(q);
 
   const data = {
-    search: searchParams.get('q'),
+    search: q,
     games: await db.game.findMany({
       where: {
         name: {

@@ -1,12 +1,13 @@
 import { json } from '@remix-run/node';
 
 import { db } from '../utils/db.server';
+import { getFullTextSearchQuery } from '../utils/search.server';
 
 export async function loader({ request }) {
   const { searchParams } = new URL(request.url);
 
-  const tsquery = require('pg-tsquery')();
-  const search = tsquery(searchParams.get('q'));
+  const q = searchParams.get('q');
+  const search = getFullTextSearchQuery(q);
 
   const excludedIds = searchParams.get('notId');
   const excludedIdsArray = excludedIds ? excludedIds.split(',') : [];
