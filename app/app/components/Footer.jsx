@@ -80,6 +80,7 @@ const Footer = () => (
                 isExternal
                 style={{ textDecoration: 'none' }}
                 textDecoration="none"
+                rightIcon={<ExternalLinkIcon />}
               >
                 Donate
               </Button>
@@ -103,7 +104,7 @@ const Footer = () => (
             <ButtonGroup variant="ghost">
               <IconButton
                 as="a"
-                href="https://discord.gg/"
+                href="https://discord.gg/KxZVu2ZZYs"
                 aria-label="Discord"
                 icon={<DiscordIcon />}
               />

@@ -1,3 +1,4 @@
+import { redirect } from '@remix-run/node';
 import { Authenticator } from 'remix-auth';
 import { FormStrategy } from 'remix-auth-form';
 import {
@@ -61,8 +62,6 @@ authenticator.use(
       callbackURL: `${CALLBACK_BASE_URL}/${SocialsProvider.DISCORD}/callback`,
     },
     async ({ profile }) => {
-      console.log('discord profile', profile);
-
       try {
         const user = await db.person.upsert({
           where: {
@@ -75,7 +74,6 @@ authenticator.use(
           },
           update: {},
         });
-        console.log(user);
 
         return {
           ...user,
@@ -120,3 +118,17 @@ authenticator.use(
     }
   )
 );
+
+const {isAuthenticated} = authenticator;
+
+authenticator.isAuthenticated = async function (request, options) {
+  const currentUser = await isAuthenticated.call(authenticator, request, options);
+
+  const url = new URL(request.url);
+
+  if (currentUser && !currentUser.email && url.pathname !== '/welcome') {
+    throw redirect('/welcome');
+  }
+
+  return currentUser;
+}
