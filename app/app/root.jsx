@@ -1,5 +1,5 @@
 import { withEmotionCache } from '@emotion/react';
-import { Box, ChakraProvider, Flex } from '@chakra-ui/react';
+import { ChakraProvider, Flex } from '@chakra-ui/react';
 import {
   Links,
   LiveReload,
@@ -21,7 +21,14 @@ import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 
 const Main = (props) => (
-  <Flex as="main" direction="column" mx="auto" maxWidth="960px" minH="100vh" {...props} />
+  <Flex
+    as="main"
+    direction="column"
+    mx="auto"
+    maxWidth="960px"
+    minH="100vh"
+    {...props}
+  />
 );
 
 export function links() {

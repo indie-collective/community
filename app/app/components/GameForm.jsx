@@ -65,7 +65,7 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
   return (
     <Grid
       as={Form}
-      enctype="multipart/form-data"
+      encType="multipart/form-data"
       gridTemplateColumns="1fr 1fr"
       gap={5}
       onSubmit={handleSubmit}

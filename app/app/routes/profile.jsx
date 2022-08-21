@@ -3,7 +3,6 @@ import {
   Box,
   Heading,
   Text,
-  Spinner,
   Button,
   Stack,
   Flex,
@@ -83,7 +82,7 @@ const Profile = () => {
           <Switch
             id="dark-mode"
             colorScheme="teal"
-            checked={colorMode === 'dark'}
+            isChecked={colorMode === 'dark'}
             onChange={toggleColorMode}
           />
         </Flex>

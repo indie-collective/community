@@ -22,6 +22,7 @@ import {
   Link as ChakraLink,
   List,
   ListItem,
+  chakra,
 } from '@chakra-ui/react';
 import {
   AddIcon,
@@ -75,7 +76,7 @@ export const loader = async ({ request, params }) => {
           entity: {
             include: {
               logo: true,
-            }
+            },
           },
         },
       },
@@ -104,7 +105,9 @@ export const loader = async ({ request, params }) => {
         ...gameEntity,
         entity: {
           ...gameEntity.entity,
-          logo: gameEntity.entity.logo ? getImageLinks(gameEntity.entity.logo) : undefined,
+          logo: gameEntity.entity.logo
+            ? getImageLinks(gameEntity.entity.logo)
+            : undefined,
         },
       })),
     },
@@ -220,7 +223,9 @@ const Game = () => {
 
       <Stack isInline spacing={2} mb={5} pl={5} pr={5}>
         {tags.map((tag) => (
-          <Tag colorScheme="teal">{tag.name}</Tag>
+          <Tag key={tag.id} colorScheme="teal">
+            {tag.name}
+          </Tag>
         ))}
       </Stack>
 
@@ -320,7 +325,7 @@ const Game = () => {
           ]}
         >
           {igdb_game?.screenshots.map((image) => (
-            <AspectRatio key={id} ratio={16 / 9}>
+            <AspectRatio key={image.id} ratio={16 / 9}>
               <Image
                 objectFit="cover"
                 size="100%"
@@ -375,11 +380,16 @@ const Game = () => {
                     opacity={0.5}
                   />
                 </AspectRatio>
-                <Spinner position="absolute" inset={0} margin="auto" size="lg" />
+                <Spinner
+                  position="absolute"
+                  inset={0}
+                  margin="auto"
+                  size="lg"
+                />
               </Box>
             ))}
           {currentUser && (
-            <AspectRatio key={id} ratio={16 / 9}>
+            <AspectRatio ratio={16 / 9}>
               <Box
                 transition="background-color 200ms ease-out"
                 color={isDragActive ? dzActiveColor : dzColor}
@@ -431,7 +441,7 @@ const Game = () => {
           >
             {igdb_game?.videos?.map(({ id, name, video_id }) => (
               <AspectRatio key={id} ratio={16 / 9}>
-                <iframe
+                <chakra.iframe
                   objectFit="cover"
                   width="100%"
                   height="100%"
