@@ -105,7 +105,7 @@ export const loader = async ({ request }) => {
             .findMany({
               where: {
                 event_participant: {
-                  every: {
+                  some: {
                     person_id: currentUser.id,
                   },
                 },
