@@ -6,6 +6,7 @@ import {
   DiscordStrategy,
   GitHubStrategy,
 } from 'remix-auth-socials';
+import { SteamStrategy } from 'remix-auth-steam';
 
 import { db } from './db.server';
 import getImageLinks from './imageLinks.server';
@@ -119,10 +120,48 @@ authenticator.use(
   )
 );
 
-const {isAuthenticated} = authenticator;
+authenticator.use(
+  new SteamStrategy(
+    {
+      returnURL: `${CALLBACK_BASE_URL}/steam/callback`,
+      apiKey: process.env.STEAM_API_KEY,
+    },
+    async (profile) => {
+      try {
+        // TODO: either permit not having an email or cannot sign up without one (linking or force entering an email)
+        const user = await db.person.upsert({
+          where: {
+            steam_id: profile.steamID,
+          },
+          create: {
+            steam_id: profile.steamID,
+            first_name: profile.nickname,
+          },
+          update: {},
+        });
+  
+        return {
+          ...user,
+          avatar: profile.avatar.large,
+        };
+      }
+      catch (err) {
+        console.log(err);
+        throw new Error('Error connecting to Steam');
+      }
+    }
+  ),
+  "steam"
+);
+
+const { isAuthenticated } = authenticator;
 
 authenticator.isAuthenticated = async function (request, options) {
-  const currentUser = await isAuthenticated.call(authenticator, request, options);
+  const currentUser = await isAuthenticated.call(
+    authenticator,
+    request,
+    options
+  );
 
   const url = new URL(request.url);
 
@@ -131,4 +170,4 @@ authenticator.isAuthenticated = async function (request, options) {
   }
 
   return currentUser;
-}
+};

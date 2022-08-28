@@ -36,7 +36,9 @@
     "remarkable-react": "^1.4.3",
     "remix-auth": "^3.2.2",
     "remix-auth-form": "^1.1.2",
+    "remix-auth-oauth2": "^1.2.2",
     "remix-auth-socials": "^1.0.2",
+    "remix-auth-steam": "^1.0.4",
     "slick-carousel": "^1.8.1",
     "use-debounce": "^8.0.3",
     "yup": "^0.32.9"

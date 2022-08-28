@@ -4,6 +4,7 @@ import { SocialsProvider } from 'remix-auth-socials';
 
 import { DiscordIcon } from './DiscordIcon';
 import { GitHubIcon } from './GitHubIcon';
+import { SteamIcon } from './SteamIcon';
 
 const SocialButton = ({ provider, name, icon }) => (
   <chakra.form
@@ -31,6 +32,12 @@ const OAuthButtonGroup = () => (
       name="Discord"
       provider={SocialsProvider.DISCORD}
       icon={<DiscordIcon boxSize="5" />}
+    />
+
+    <SocialButton
+      name="Steam"
+      provider="steam"
+      icon={<SteamIcon boxSize="5" />}
     />
   </ButtonGroup>
 );
