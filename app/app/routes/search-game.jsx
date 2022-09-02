@@ -107,12 +107,21 @@ export const SearchGameModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
                           backgroundColor: 'gray.600',
                           cursor: 'pointer',
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            onSelect(game);
+
+                            setValue('');
+                            onClose();
+                          }
+                        }}
                         onClick={() => {
                           onSelect(game);
 
                           setValue('');
                           onClose();
                         }}
+                        tabIndex="0"
                       >
                         {game.name}
                       </ListItem>

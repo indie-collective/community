@@ -107,12 +107,21 @@ export const SearchOrgModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
                           backgroundColor: 'gray.600',
                           cursor: 'pointer',
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            onSelect(game);
+
+                            setValue('');
+                            onClose();
+                          }
+                        }}
                         onClick={() => {
                           onSelect(org);
 
                           setValue('');
                           onClose();
                         }}
+                        tabIndex="0"
                       >
                         {org.name}
                       </ListItem>
