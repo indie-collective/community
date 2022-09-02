@@ -11,7 +11,7 @@ import {
   useBreakpointValue,
 } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
-import { Link, useLocation } from '@remix-run/react';
+import { Link, useLoaderData, useLocation } from '@remix-run/react';
 
 import Logo from '../components/Logo';
 import AvatarButton from './AvatarButton';
@@ -51,6 +51,8 @@ const Navigation = ({ search }) => {
   const { isOpen, onToggle } = useDisclosure();
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
 
+  const { currentUser } = useLoaderData();
+
   return (
     <>
       <Flex pt={5} alignItems="center" px={5}>
@@ -64,6 +66,8 @@ const Navigation = ({ search }) => {
             <NavLink href="/orgs">Orgs</NavLink>
             <NavLink href="/events">Events</NavLink>
             <NavLink href="/places">Places</NavLink>
+
+            {currentUser?.isAdmin && <NavLink href="/admin">Admin</NavLink>}
           </HStack>
         )}
 
