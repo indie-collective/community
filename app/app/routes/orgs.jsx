@@ -1,7 +1,8 @@
 import { Box, Grid, Button, Fade } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { Deferred, Link, useDeferred, useLoaderData } from '@remix-run/react';
-import { deferred } from '@remix-run/node';
+import { Link, useLoaderData } from '@remix-run/react';
+import { json } from '@remix-run/node';
+import { Suspense } from 'react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
@@ -16,7 +17,6 @@ export const loader = async ({ request }) => {
 
   const currentUser = await authenticator.isAuthenticated(request);
 
-  // Removing the await enables streaming, but it seems to crash when SSR
   const orgs = await db.entity
     .findMany({
       include: {
@@ -40,7 +40,8 @@ export const loader = async ({ request }) => {
     currentUser,
   };
 
-  return deferred(data);
+  // return deferred(data);
+  return json(data);
 };
 
 export const meta = () => ({
@@ -58,7 +59,8 @@ export const meta = () => ({
 });
 
 const OrgsList = () => {
-  const orgs = useDeferred();
+  // const orgs = useAsyncValue();
+  const { orgs = [] } = useLoaderData();
 
   return orgs.map((org) => (
     <Box key={org.id} minW={0}>
@@ -98,16 +100,17 @@ const Orgs = () => {
           'repeat(4, 1fr)',
         ]}
       >
-        <Deferred
-          data={orgs}
-          fallback={[...new Array(PAGE_SIZE)].map((_, i) => (
+        <Suspense
+          fallbackElement={[...new Array(PAGE_SIZE)].map((_, i) => (
             <Box key={i} minW={0}>
               <OrgCardSkeleton />
             </Box>
           ))}
         >
-          <OrgsList />
-        </Deferred>
+          {/* <Await resolve={orgs}> */}
+            <OrgsList />
+          {/* </Await> */}
+        </Suspense>
       </Grid>
     </Box>
   );

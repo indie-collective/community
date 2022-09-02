@@ -1,4 +1,4 @@
-import { redirect } from "@remix-run/serve";
+import { redirect } from "@remix-run/node";
 
 import { authenticator } from "../../utils/auth.server";
 
