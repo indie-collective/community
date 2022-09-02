@@ -24,7 +24,6 @@ const validationSchema = yup.object().shape({
 
 const propTypes = {
   loading: PropTypes.bool.isRequired,
-  onSubmit: PropTypes.func.isRequired,
   defaultData: PropTypes.shape({
     name: PropTypes.string,
     about: PropTypes.string,
