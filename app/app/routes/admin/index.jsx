@@ -11,16 +11,20 @@ import {
   Td,
   TableCaption,
   TableContainer,
-  useColorMode,
   Icon,
   Tooltip,
   Switch,
+  IconButton,
+  Link as ChakraLink,
+  Avatar,
 } from '@chakra-ui/react';
+import { formatDistanceToNow } from 'date-fns';
 
 import { authenticator } from '../../utils/auth.server';
-import Navigation from '../../components/Navigation';
 import { db } from '../../utils/db.server';
-import { formatDistanceToNow } from 'date-fns';
+import computePerson from '../../models/person';
+import { DiscordIcon } from '../../components/DiscordIcon';
+import { GitHubIcon } from '../../components/GitHubIcon';
 
 export const loader = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {
@@ -43,12 +47,17 @@ export const loader = async ({ request }) => {
       github_id: true,
       discord_id: true,
       isAdmin: true,
+      avatar: true,
+    },
+    orderBy: {
+      created_at: 'desc',
     },
   });
 
   const data = {
     currentUser,
-    people,
+    people: await Promise.all(people.map(computePerson)),
+    nbOfPeople: await db.person.count(),
   };
 
   return json(data);
@@ -59,8 +68,7 @@ export const meta = () => ({
 });
 
 const Profile = () => {
-  const { colorMode, toggleColorMode } = useColorMode();
-  const { currentUser, people } = useLoaderData();
+  const { currentUser, people, nbOfPeople } = useLoaderData();
 
   return (
     <div>
@@ -70,24 +78,44 @@ const Profile = () => {
 
       <TableContainer>
         <Table variant="simple">
-          <TableCaption>Current users</TableCaption>
+          <TableCaption>Current users ({nbOfPeople})</TableCaption>
           <Thead>
             <Tr>
               <Th>Name</Th>
               <Th>Created</Th>
               <Th>Email</Th>
+              <Th>Socials</Th>
               <Th>Admin</Th>
+              <Th>Restricted</Th>
             </Tr>
           </Thead>
           <Tbody>
             {people.map(
-              ({ id, created_at, first_name, last_name, email, isAdmin }) => (
+              ({
+                id,
+                created_at,
+                avatar,
+                first_name,
+                last_name,
+                email,
+                discord_id,
+                github_username,
+                isAdmin,
+                isRestricted = false,
+              }) => (
                 <Tr key={id}>
-                  <Td>
+                  <Td color={isRestricted && 'gray.500'}>
+                    <Avatar
+                      name={first_name}
+                      src={avatar && avatar.thumbnail_url}
+                      size="xs"
+                      verticalAlign="middle"
+                      mr={2}
+                    />
                     {first_name}&nbsp;
                     {last_name}
                   </Td>
-                  <Td>
+                  <Td color={isRestricted && 'gray.500'}>
                     {formatDistanceToNow(new Date(created_at), {
                       addSuffix: true,
                     })}
@@ -96,9 +124,41 @@ const Profile = () => {
                       <Icon name="QuestionIcon" />
                     </Tooltip>
                   </Td>
-                  <Td>{email}</Td>
+                  <Td color={isRestricted && 'gray.500'}>{email}</Td>
+                  <Td color={isRestricted && 'gray.500'}>
+                    {discord_id && (
+                      <IconButton
+                        as={ChakraLink}
+                        href={`https://discord.com/users/${discord_id}`}
+                        icon={<DiscordIcon />}
+                        colorScheme="discord"
+                        size="xs"
+                        isExternal
+                      />
+                    )}
+                    {github_username && (
+                      <IconButton
+                        as={ChakraLink}
+                        href={`https://github.com/${github_username}`}
+                        icon={<GitHubIcon />}
+                        colorScheme="github"
+                        size="xs"
+                        isExternal
+                      />
+                    )}
+                  </Td>
                   <Td>
-                    <Switch isChecked={isAdmin} />
+                    <Switch
+                      isChecked={isAdmin}
+                      disabled={isRestricted || currentUser.id === id}
+                    />
+                  </Td>
+                  <Td>
+                    <Switch
+                      colorScheme="red"
+                      isChecked={isRestricted}
+                      disabled={currentUser.id === id}
+                    />
                   </Td>
                 </Tr>
               )
@@ -106,10 +166,12 @@ const Profile = () => {
           </Tbody>
           <Tfoot>
             <Tr>
-            <Th>Name</Th>
+              <Th>Name</Th>
               <Th>Created</Th>
               <Th>Email</Th>
+              <Th>Socials</Th>
               <Th>Admin</Th>
+              <Th>Restricted</Th>
             </Tr>
           </Tfoot>
         </Table>
