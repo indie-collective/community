@@ -54,7 +54,7 @@ const GameCard = forwardRef(
               cursor: 'pointer',
             }}
           >
-            {images.length > 0 && (
+            {image && (
               <Image
                 position="absolute"
                 objectFit="cover"
