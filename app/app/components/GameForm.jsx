@@ -87,6 +87,8 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
         <Input
           {...register('igdb_url')}
           placeholder="https://www.igdb.com/games/super-tractor-simulator-2042"
+          type="url"
+          pattern="https://www.igdb.com\/games\/(.+)"
         />
         <FormErrorMessage>
           {errors.name && errors.name.message}
@@ -109,7 +111,11 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
 
       <FormControl gridColumn="1 / 3" isInvalid={errors.site}>
         <FormLabel htmlFor="site">Site</FormLabel>
-        <Input {...register('site')} placeholder="https://example.com" />
+        <Input
+          {...register('site')}
+          placeholder="https://example.com"
+          type="url"
+        />
         <FormErrorMessage>
           {errors.site && errors.site.message}
         </FormErrorMessage>

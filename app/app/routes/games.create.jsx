@@ -15,6 +15,9 @@ export async function action({ request }) {
   const data = await request.formData();
 
   try {
+    const [, igdb_slug = null] =
+      (data.get('igdb_url') || '').match(/games\/(.+)/) || [];
+
     const tagsList =
       data
         .get('tags')
