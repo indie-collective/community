@@ -33,10 +33,7 @@ import PossibleOrgDuplicates from '../components/PossibleOrgDuplicates';
 import usePlaceholder from '../hooks/usePlaceholder';
 
 const validationSchema = yup.object().shape({
-  type: yup
-    .string()
-    .oneOf(['studio', 'association'])
-    .required(),
+  type: yup.string().oneOf(['studio', 'association']).required(),
   name: yup.string().required(),
   location: yup.object({
     label: yup.string(),
@@ -74,9 +71,7 @@ const propTypes = {
 
 const defaultProps = {
   loading: false,
-  defaultData: {
-    type: 'studio',
-  },
+  defaultData: {},
 };
 
 const TYPES_COLORS = {
@@ -86,9 +81,13 @@ const TYPES_COLORS = {
 
 const CustomRadio = React.forwardRef((props, ref) => {
   const { getInputProps, getCheckboxProps } = useRadio(props);
-  const { color = 'teal', value, name, isChecked, ...otherProps } = omitThemingProps(
-    props
-  );
+  const {
+    color = 'teal',
+    value,
+    name,
+    isChecked,
+    ...otherProps
+  } = omitThemingProps(props);
 
   const input = getInputProps();
   const checkbox = getCheckboxProps();
@@ -128,7 +127,7 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
   const logoRef = useRef();
   const [logo, setLogo] = useState(defaultData.logo);
 
-  const { id, type, name, location: l, site, about } = defaultData;
+  const { id, type = 'studio', name, location: l, site, about } = defaultData;
   const {
     handleSubmit,
     register,
@@ -137,9 +136,7 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
     setValue,
     setError,
     clearErrors,
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
