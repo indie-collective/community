@@ -23,5 +23,11 @@ export default async function computePerson(person) {
     ...person,
     github_username,
     avatar: person.avatar ? getImageLinks(person.avatar) : undefined,
+    discord_url: person.discord_id
+      ? `https://discord.com/users/${person.discord_id}`
+      : null,
+    github_url: github_username
+      ? `https://github.com/${github_username}`
+      : null,
   };
 }

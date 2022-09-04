@@ -98,8 +98,8 @@ const Profile = () => {
                 first_name,
                 last_name,
                 email,
-                discord_id,
-                github_username,
+                discord_url,
+                github_url,
                 isAdmin,
                 isRestricted = false,
               }) => (
@@ -126,20 +126,20 @@ const Profile = () => {
                   </Td>
                   <Td color={isRestricted && 'gray.500'}>{email}</Td>
                   <Td color={isRestricted && 'gray.500'}>
-                    {discord_id && (
+                    {discord_url && (
                       <IconButton
                         as={ChakraLink}
-                        href={`https://discord.com/users/${discord_id}`}
+                        href={discord_url}
                         icon={<DiscordIcon />}
                         colorScheme="discord"
                         size="xs"
                         isExternal
                       />
                     )}
-                    {github_username && (
+                    {github_url && (
                       <IconButton
                         as={ChakraLink}
-                        href={`https://github.com/${github_username}`}
+                        href={github_url}
                         icon={<GitHubIcon />}
                         colorScheme="github"
                         size="xs"
