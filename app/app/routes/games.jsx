@@ -71,6 +71,13 @@ export const loader = async ({ request }) => {
     orderBy: { updated_at: 'desc' },
     skip: (page - 1) * 10,
     take: 10,
+    include: {
+      game_image: {
+        include: {
+          image: true,
+        },
+      },
+    },
   });
 
   const data = {
