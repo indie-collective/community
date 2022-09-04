@@ -5,24 +5,50 @@ import {
   Text,
   Button,
   Stack,
-  Flex,
   Switch,
   FormLabel,
   useColorMode,
+  ButtonGroup,
+  IconButton,
+  FormControl,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
-import { EditIcon } from '@chakra-ui/icons';
+import { EditIcon, LinkIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Form, Link, useLoaderData } from '@remix-run/react';
+import { useState } from 'react';
 
+import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
+import computePerson from '../models/person';
+import { DiscordIcon } from '../components/DiscordIcon';
+import { GitHubIcon } from '../components/GitHubIcon';
+import { SteamIcon } from '../components/SteamIcon';
 
 export const loader = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
+  const user = await db.person.findUnique({
+    where: {
+      id: currentUser.id,
+    },
+    select: {
+      id: true,
+      avatar_id: true,
+      email: true,
+      first_name: true,
+      last_name: true,
+      about: true,
+      avatar: true,
+      discord_id: true,
+      github_id: true,
+    },
+  });
+
   const data = {
-    currentUser,
+    currentUser: await computePerson(user),
   };
 
   return json(data);
@@ -32,12 +58,38 @@ export const meta = ({ data }) => ({
   title: `${data.currentUser.first_name}'s profile`,
 });
 
+const LinkSocialButton = ({ provider, icon, name }) => {
+  const [hover, setHover] = useState(false);
+
+  return (
+    <IconButton
+      as={Link}
+      aria-label={`Link ${name}`}
+      icon={hover ? <LinkIcon /> : icon}
+      opacity={hover ? 1 : 0.5}
+      colorScheme={hover ? 'green' : 'gray'}
+      to={`/auth/${provider}`}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onFocus={() => setHover(true)}
+      onBlur={() => setHover(false)}
+    />
+  );
+};
+
 const Profile = () => {
   const { colorMode, toggleColorMode } = useColorMode();
 
   const { currentUser } = useLoaderData();
-  const { email, first_name, about, avatar, discord_id, github_id } =
-    currentUser;
+  const {
+    email,
+    first_name,
+    last_name,
+    about,
+    avatar,
+    discord_url,
+    github_url,
+  } = currentUser;
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -58,13 +110,52 @@ const Profile = () => {
           </Button>
         </Box>
 
-        <Avatar size="2xl" name={first_name} margin="1rem" src={avatar} />
+        <Avatar
+          size="2xl"
+          name={first_name}
+          margin="1rem"
+          src={avatar?.thumbnail_url}
+        />
 
-        <Heading as="h3">{first_name}</Heading>
+        <Heading as="h3">
+          {first_name} {last_name}
+        </Heading>
         <Heading size="md">{email}</Heading>
 
-        {discord_id && <Text>Discord</Text>}
-        {github_id && <Text>GitHub</Text>}
+        <ButtonGroup>
+          {discord_url ? (
+            <IconButton
+              as={ChakraLink}
+              aria-label="Discord"
+              icon={<DiscordIcon />}
+              colorScheme="discord"
+              href={discord_url}
+              isExternal
+            />
+          ) : (
+            <LinkSocialButton
+              provider="discord"
+              icon={<DiscordIcon />}
+              name="Discord"
+            />
+          )}
+          {github_url ? (
+            <IconButton
+              as={ChakraLink}
+              aria-label="GitHub"
+              icon={<GitHubIcon />}
+              colorScheme="github"
+              href={github_url}
+              isExternal
+            />
+          ) : (
+            <LinkSocialButton
+              provider="github"
+              icon={<GitHubIcon />}
+              name="GitHub"
+            />
+          )}
+        </ButtonGroup>
 
         {about && (
           <Box
@@ -77,15 +168,16 @@ const Profile = () => {
           </Box>
         )}
 
-        <Flex justify="center" align="center">
-          <FormLabel htmlFor="dark-mode">Dark mode</FormLabel>
+        <FormControl display="flex" justifyContent="center" alignItems="center">
+          <FormLabel htmlFor="dark-mode" mb="0">
+            Dark mode
+          </FormLabel>
           <Switch
             id="dark-mode"
-            colorScheme="teal"
             isChecked={colorMode === 'dark'}
             onChange={toggleColorMode}
           />
-        </Flex>
+        </FormControl>
       </Stack>
 
       <Stack align="center">
