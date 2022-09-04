@@ -1,6 +1,7 @@
-import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { json, redirect } from '@remix-run/node';
+import { useLoaderData, Form, useSubmit } from '@remix-run/react';
 import {
+  chakra,
   Heading,
   Table,
   Thead,
@@ -17,6 +18,7 @@ import {
   IconButton,
   Link as ChakraLink,
   Avatar,
+  Input,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -25,6 +27,31 @@ import { db } from '../../utils/db.server';
 import computePerson from '../../models/person';
 import { DiscordIcon } from '../../components/DiscordIcon';
 import { GitHubIcon } from '../../components/GitHubIcon';
+
+export const action = async ({ request }) => {
+  const currentUser = await authenticator.isAuthenticated(request, {
+    failureRedirect: '/signin',
+  });
+
+  if (!currentUser.isAdmin) {
+    throw new Response('Forbidden', {
+      status: 403,
+    });
+  }
+
+  const data = await request.formData();
+
+  await db.person.update({
+    where: {
+      id: data.get('userId'),
+    },
+    data: {
+      isAdmin: data.get('isAdmin') === 'on',
+    },
+  });
+
+  return redirect('/admin');
+};
 
 export const loader = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {
@@ -68,6 +95,7 @@ export const meta = () => ({
 });
 
 const Profile = () => {
+  const submit = useSubmit();
   const { currentUser, people, nbOfPeople } = useLoaderData();
 
   return (
@@ -148,16 +176,28 @@ const Profile = () => {
                     )}
                   </Td>
                   <Td>
-                    <Switch
-                      isChecked={isAdmin}
-                      disabled={isRestricted || currentUser.id === id}
-                    />
+                    <chakra.form
+                      as={Form}
+                      method="post"
+                      onChange={(event) => {
+                        submit(event.currentTarget, { replace: true });
+                      }}
+                    >
+                      <Input type="hidden" name="userId" value={id} />
+                      <Switch
+                        name="isAdmin"
+                        isChecked={isAdmin}
+                        value="on"
+                        disabled={isRestricted || currentUser.id === id}
+                      />
+                    </chakra.form>
                   </Td>
                   <Td>
                     <Switch
                       colorScheme="red"
                       isChecked={isRestricted}
-                      disabled={currentUser.id === id}
+                      value="on"
+                      disabled={currentUser.id === id || isAdmin}
                     />
                   </Td>
                 </Tr>
