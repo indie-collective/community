@@ -4,7 +4,9 @@ import { useLoaderData } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
-import getImageLinks from '../utils/imageLinks.server';
+import computeEvent from '../models/event';
+import computeGame from '../models/game';
+import computeOrg from '../models/org';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
@@ -14,66 +16,73 @@ import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 export const loader = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request);
 
-  const data = {
-    games: await db.game
-      .findMany({
+  const games = await db.game.findMany({
+    include: {
+      game_image: {
         include: {
-          game_image: {
-            include: {
-              image: true,
+          image: true,
+        },
+      },
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+    take: 12,
+  });
+
+  const orgs = await db.entity.findMany({
+    include: {
+      location: true,
+      logo: true,
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+    take: 12,
+  });
+
+  const events = await db.event.findMany({
+    include: {
+      event_participant: true,
+      game_event: true,
+      location: true,
+      cover: true,
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+    take: 12,
+  });
+
+  const eventsToCome = await db.event.findMany({
+    where: {
+      status: {
+        not: 'canceled',
+      },
+      ends_at: {
+        gte: new Date(),
+      },
+    },
+    include: {
+      event_participant: true,
+      game_event: true,
+      location: true,
+      cover: true,
+    },
+    orderBy: {
+      starts_at: 'asc',
+    },
+    take: 8,
+  });
+
+  const joinedEventsToCome = currentUser
+    ? await db.event.findMany({
+        where: {
+          event_participant: {
+            some: {
+              person_id: currentUser.id,
             },
           },
-        },
-        orderBy: {
-          created_at: 'desc',
-        },
-        take: 12,
-      })
-      .then((games) =>
-        games.map((game) => ({
-          ...game,
-          images: game.game_image.map(({ image }) => getImageLinks(image)),
-        }))
-      ),
-    entities: await db.entity
-      .findMany({
-        include: {
-          location: true,
-          logo: true,
-        },
-        orderBy: {
-          created_at: 'desc',
-        },
-        take: 12,
-      })
-      .then((entities) =>
-        entities.map((entity) => ({
-          ...entity,
-          logo: entity.logo ? getImageLinks(entity.logo) : null,
-        }))
-      ),
-    events: await db.event
-      .findMany({
-        include: {
-          event_participant: true,
-          game_event: true,
-          location: true,
-          cover: true,
-        },
-        orderBy: {
-          created_at: 'desc',
-        },
-        take: 12,
-      })
-      .then((events) =>
-        events.map((event) => ({
-          ...event,
-          cover: event.cover ? getImageLinks(event.cover) : null,
-        }))
-      ),
-    eventsToCome: await db.event
-      .findMany({
-        where: {
           status: {
             not: 'canceled',
           },
@@ -88,51 +97,21 @@ export const loader = async ({ request }) => {
           cover: true,
         },
         orderBy: {
-          starts_at: 'asc',
+          starts_at: 'desc',
         },
         take: 8,
       })
-      .then((events) =>
-        events.map((event) => ({
-          ...event,
-          cover: event.cover ? getImageLinks(event.cover) : null,
-        }))
-      ),
+    : undefined;
+
+  const data = {
+    games: await Promise.all(games.map(computeGame)),
+    orgs: await Promise.all(orgs.map(computeOrg)),
+    events: await Promise.all(events.map(computeEvent)),
+    eventsToCome: await Promise.all(eventsToCome.map(computeEvent)),
     currentUser: currentUser
       ? {
           ...currentUser,
-          eventsToCome: await db.event
-            .findMany({
-              where: {
-                event_participant: {
-                  some: {
-                    person_id: currentUser.id,
-                  },
-                },
-                status: {
-                  not: 'canceled',
-                },
-                ends_at: {
-                  gte: new Date(),
-                },
-              },
-              include: {
-                event_participant: true,
-                game_event: true,
-                location: true,
-                cover: true,
-              },
-              orderBy: {
-                starts_at: 'desc',
-              },
-              take: 8,
-            })
-            .then((events) =>
-              events.map((event) => ({
-                ...event,
-                cover: event.cover ? getImageLinks(event.cover) : null,
-              }))
-            ),
+          eventsToCome: await Promise.all(joinedEventsToCome.map(computeEvent)),
         }
       : null,
   };
@@ -153,7 +132,7 @@ export const meta = () => ({
 });
 
 const LandingPage = () => {
-  const { games, entities, events, eventsToCome } = useLoaderData();
+  const { games, orgs, eventsToCome } = useLoaderData();
 
   return (
     <Box mb={5} px={5}>
@@ -197,7 +176,7 @@ const LandingPage = () => {
               'repeat(4, 1fr)',
             ]}
           >
-            {entities.map((org) => (
+            {orgs.map((org) => (
               <Box key={org.id} minW={0}>
                 <OrgCard key={org.id} {...org} />
               </Box>

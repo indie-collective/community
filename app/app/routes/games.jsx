@@ -22,31 +22,8 @@ import { AddIcon } from '@chakra-ui/icons';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
+import computeGame from '../models/game';
 import GameCard from '../components/GameCard';
-import { getIGDBGame } from '../utils/igdb.server';
-
-/**
- *
- * @param {*} options
- * @returns {import('@prisma/client').game[]} games
- */
-async function getGames(options) {
-  const games = await db.game.findMany(options);
-
-  await Promise.all(
-    games.map(async (g) => {
-      if (g.igdb_slug) {
-        g.igdb_game = await getIGDBGame(g.igdb_slug);
-      } else {
-        // search IGDB if there's a game with a similar name to suggest it
-      }
-
-      return g;
-    })
-  );
-
-  return games;
-}
 
 export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
@@ -54,7 +31,7 @@ export const loader = async ({ request }) => {
 
   const currentUser = await authenticator.isAuthenticated(request);
 
-  const games = await getGames({
+  const games = await db.game.findMany({
     where: searchParams.has('tags')
       ? {
           game_tag: {
@@ -96,7 +73,7 @@ export const loader = async ({ request }) => {
         },
       ],
     }),
-    games,
+    games: await Promise.all(games.map(computeGame)),
     currentUser,
   };
   return json(data);

@@ -18,6 +18,7 @@ import { useState, useRef, useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { getFullTextSearchQuery } from '../utils/search.server';
+import computeGame from '../models/game';
 import useDebounce from '../hooks/useDebounce';
 
 export async function loader({ request }) {
@@ -30,7 +31,7 @@ export async function loader({ request }) {
   const excludedIdsArray = excludedIds ? excludedIds.split(',') : [];
 
   try {
-    const data = await db.game.findMany({
+    const games = await db.game.findMany({
       where: {
         name: {
           search,
@@ -46,7 +47,7 @@ export async function loader({ request }) {
       take: 10,
     });
 
-    return json(data);
+    return json(await Promise.all(games.map(computeGame)));
   } catch (err) {
     console.error(err);
     return json({ error: 'Something went wrong' });

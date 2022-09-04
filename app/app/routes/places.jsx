@@ -17,7 +17,7 @@ import { Map, Overlay, ZoomControl } from 'pigeon-maps';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { db } from '../utils/db.server';
-import getImageLinks from '../utils/imageLinks.server';
+import computeOrg from '../models/org';
 // import Error from '../../../client/pages/_error';
 import OrgCard from '../components/OrgCard';
 
@@ -250,25 +250,22 @@ const MovingBand = React.memo(({ containerRef, header, children }) => {
 });
 
 export const loader = async ({ request }) => {
+  const orgs = await db.entity
+    .findMany({
+      where: {
+        location: {
+          isNot: null,
+        },
+      },
+      include: {
+        location: true,
+        logo: true,
+      },
+    })
+    .then((orgs) => orgs.map(computeOrg));
+
   const data = {
-    orgs: await db.entity
-      .findMany({
-        where: {
-          location: {
-            isNot: null,
-          },
-        },
-        include: {
-          location: true,
-          logo: true,
-        },
-      })
-      .then((orgs) =>
-        orgs.map((org) => ({
-          ...org,
-          logo: org.logo ? getImageLinks(org.logo) : null,
-        }))
-      ),
+    orgs: await Promise.all(orgs),
   };
   return json(data);
 };

@@ -1,20 +1,13 @@
-import {
-  Box,
-  Heading,
-  Text,
-  Grid,
-  Image,
-  Fade,
-} from '@chakra-ui/react';
+import { Box, Heading, Text, Grid, Image, Fade } from '@chakra-ui/react';
 import { useLoaderData } from '@remix-run/react';
 
-import GameCard  from './GameCard';
+import GameCard from './GameCard';
 import OrgCard from './OrgCard';
-import EventCard  from './EventCard';
+import EventCard from './EventCard';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 
 const AuthenticatedHomePage = () => {
-  const { games, entities, eventsToCome, currentUser } = useLoaderData();
+  const { games, orgs, eventsToCome, currentUser } = useLoaderData();
   const { firstName, eventsToCome: joinedEventsToCome } = currentUser;
 
   return (
@@ -89,7 +82,7 @@ const AuthenticatedHomePage = () => {
               'repeat(4, 1fr)',
             ]}
           >
-            {entities.map((org) => (
+            {orgs.map((org) => (
               <Box key={org.id} minW={0}>
                 <OrgCard key={org.id} {...org} />
               </Box>

@@ -27,7 +27,7 @@ import { motion } from 'framer-motion';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
-import getImageLinks from '../utils/imageLinks.server';
+import computeOrg from '../models/org';
 import GameCard from '../components/GameCard';
 import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
@@ -77,9 +77,14 @@ export const loader = async ({ request, params }) => {
               game_image: {
                 include: {
                   image: true,
-                }
+                },
               },
             },
+          },
+        },
+        orderBy: {
+          game: {
+            created_at: 'desc'
           },
         },
       },
@@ -93,41 +98,19 @@ export const loader = async ({ request, params }) => {
             },
           },
         },
+        orderBy: {
+          event: {
+            ends_at: 'desc',
+          },
+        },
       },
       logo: true,
       location: true,
     },
   });
-  
-  // TODO: find a way to better handle relations dependencies
 
   return json({
-    org: {
-      ...org,
-      game_entity: org.game_entity.map((game_entity) => ({
-        ...game_entity,
-        game: {
-          ...game_entity.game,
-          images: game_entity.game.game_image.map((game_image) => ({
-            url: `https://${process.env.CDN_HOST}/${game_image.image.image_file.name}`,
-            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${game_image.image.image_file.name}`,
-          })),
-        },
-      })),
-      entity_event: org.entity_event.map((entity_event) => ({
-        ...entity_event,
-        event: {
-          ...entity_event.event,
-          cover: entity_event.event.cover ? getImageLinks(entity_event.event.cover) : undefined,
-        },
-      })),
-      logo: org.logo
-        ? {
-            url: `https://${process.env.CDN_HOST}/${org.logo.image_file.name}`,
-            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${org.logo.image_file.name}`,
-          }
-        : null,
-    },
+    org: await computeOrg(org),
     currentUser,
   });
 };

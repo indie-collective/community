@@ -6,8 +6,8 @@ import { Suspense } from 'react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
+import computeOrg from '../models/org';
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
-import getImageLinks from '../utils/imageLinks.server';
 
 const PAGE_SIZE = 50;
 
@@ -28,15 +28,10 @@ export const loader = async ({ request }) => {
       },
       take: PAGE_SIZE,
     })
-    .then((orgs) =>
-      orgs.map((org) => ({
-        ...org,
-        logo: org.logo ? getImageLinks(org.logo) : null,
-      }))
-    );
+    .then((orgs) => orgs.map(computeOrg));
 
   const data = {
-    orgs,
+    orgs: await Promise.all(orgs),
     currentUser,
   };
 

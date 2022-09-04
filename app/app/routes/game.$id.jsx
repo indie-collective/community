@@ -36,8 +36,7 @@ import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 import { db } from '../utils/db.server';
-import { getIGDBGame } from '../utils/igdb.server';
-import getImageLinks from '../utils/imageLinks.server';
+import computeGame from '../models/game';
 import OrgCard from '../components/OrgCard';
 import SearchOrgModal from './search-org';
 import Markdown from '../components/Markdown';
@@ -53,8 +52,6 @@ export const loader = async ({ request, params }) => {
     throw new Response('Not Found', {
       status: 404,
     });
-
-  const currentUser = await authenticator.isAuthenticated(request);
 
   const game = await db.game.findUnique({
     where: {
@@ -88,47 +85,40 @@ export const loader = async ({ request, params }) => {
     },
   });
 
-  if (game.igdb_slug) {
-    const igdbGame = await getIGDBGame(game.igdb_slug);
-
-    game.igdb_game = igdbGame;
-  }
+  if (!game)
+    throw new Response('Not Found', {
+      status: 404,
+    });
 
   const data = {
-    game: {
-      ...game,
-      game_image: game.game_image.map((gameImage) => ({
-        ...gameImage,
-        image: getImageLinks(gameImage.image),
-      })),
-      game_entity: game.game_entity.map((gameEntity) => ({
-        ...gameEntity,
-        entity: {
-          ...gameEntity.entity,
-          logo: gameEntity.entity.logo
-            ? getImageLinks(gameEntity.entity.logo)
-            : undefined,
-        },
-      })),
-    },
-    currentUser,
+    game: await computeGame(game),
+    currentUser: await authenticator.isAuthenticated(request),
   };
 
   return json(data);
 };
 
-export const meta = ({ data: { game }, location }) => ({
-  title: `${game.name} - Games`,
-  'og:title': game.name,
-  'og:description': `${game.about}.`,
-  'og:url': `${location.protocol}://${location.host}/game/${game.id}`,
-  'og:image': game.game_image[0]?.image.thumbnail_url,
-  'twitter:card': game.game_image[0] ? 'summary_large_image' : 'summary',
-  'twitter:site': '@IndieColle',
-  'twitter:title': game.name,
-  'twitter:description': `${game.about}.`,
-  'twitter:image': game.game_image[0]?.image.thumbnail_url,
-});
+export const meta = ({ data, location }) => {
+  if (!data?.game)
+    return {
+      title: 'Game Not Found',
+    };
+
+  const { game } = data;
+
+  return {
+    title: `${game.name} - Games`,
+    'og:title': game.name,
+    'og:description': `${game.about}.`,
+    'og:url': `${location.protocol}://${location.host}/game/${game.id}`,
+    'og:image': game.game_image[0]?.image.thumbnail_url,
+    'twitter:card': game.game_image[0] ? 'summary_large_image' : 'summary',
+    'twitter:site': '@IndieColle',
+    'twitter:title': game.name,
+    'twitter:description': `${game.about}.`,
+    'twitter:image': game.game_image[0]?.image.thumbnail_url,
+  };
+};
 
 const Game = () => {
   const { game, currentUser } = useLoaderData();

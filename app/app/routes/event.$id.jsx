@@ -28,7 +28,7 @@ import { Map } from 'pigeon-maps';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
-import getImageLinks from '../utils/imageLinks.server';
+import computeEvent from '../models/event';
 import usePlaceholder from '../hooks/usePlaceholder';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
@@ -52,90 +52,66 @@ export const loader = async ({ request, params }) => {
 
   const currentUser = await authenticator.isAuthenticated(request);
 
-  const event = await db.event
-    .findUnique({
-      where: { id },
-      include: {
-        entity_event: {
-          include: {
-            entity: {
-              include: {
-                logo: true,
-              },
+  const event = await db.event.findUnique({
+    where: { id },
+    include: {
+      entity_event: {
+        include: {
+          entity: {
+            include: {
+              logo: true,
             },
           },
         },
-        game_event: {
-          include: {
-            game: {
-              include: {
-                game_image: {
-                  include: {
-                    image: true,
-                  },
+      },
+      game_event: {
+        include: {
+          game: {
+            include: {
+              game_image: {
+                include: {
+                  image: true,
                 },
               },
             },
           },
         },
-        event_participant: {
-          include: {
-            person: true,
+      },
+      event_participant: {
+        include: {
+          person: {
+            include: {
+              avatar: true,
+            },
           },
         },
-        cover: true,
-        location: true,
       },
-    })
-    .then((event) => ({
-      ...event,
-      cover: event.cover ? getImageLinks(event.cover) : null,
-      entity_event: event.entity_event.map((entity_event) => ({
-        ...entity_event,
-        entity: {
-          ...entity_event.entity,
-          logo: entity_event.entity.logo
-            ? getImageLinks(entity_event.entity.logo)
-            : undefined,
-        },
-      })),
-      game_event: event.game_event.map((game_event) => ({
-        ...game_event,
-        game: {
-          ...game_event.game,
-          images: game_event.game.game_image
-            .slice(0, 1)
-            .map((game_image) => getImageLinks(game_image.image)),
-        },
-      })),
-    }));
+      cover: true,
+      location: true,
+    },
+  });
+
+  const relatedEvents = await db.event.findMany({
+    where: {
+      name: {
+        search: event.name.split(' ').join(' | '),
+      },
+      id: {
+        not: id,
+      },
+    },
+    include: {
+      cover: true,
+      game_event: true,
+      event_participant: true,
+    },
+    take: 5,
+  });
 
   const data = {
-    event,
+    event: await computeEvent(event),
     // todo: externalize to defer this?
-    relatedEvents: await db.event
-      .findMany({
-        where: {
-          name: {
-            search: event.name.split(' ').join(' | '),
-          },
-          id: {
-            not: id,
-          },
-        },
-        include: {
-          cover: true,
-          game_event: true,
-          event_participant: true,
-        },
-        take: 5,
-      })
-      .then((events) =>
-        events.map((event) => ({
-          ...event,
-          cover: event.cover ? getImageLinks(event.cover) : null,
-        }))
-      ),
+    relatedEvents: await Promise.all(relatedEvents.map(computeEvent)),
     currentUser,
   };
 
