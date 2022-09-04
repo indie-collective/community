@@ -6,7 +6,7 @@ import {
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
 } from '@remix-run/node';
-import { useActionData, useTransition } from '@remix-run/react';
+import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
@@ -75,8 +75,17 @@ export async function action({ request }) {
 }
 
 export const loader = async ({ request }) => {
-  return await authenticator.isAuthenticated(request, {
-    failureRedirect: '/signin?redirect=/orgs/create',
+  const { pathname, search, searchParams } = new URL(request.url);
+
+  const currentUser = await authenticator.isAuthenticated(request, {
+    failureRedirect: `/signin?redirect=${pathname}?${search}`,
+  });
+
+  return json({
+    values: {
+      name: searchParams.get('name') || '',
+    },
+    currentUser,
   });
 };
 
@@ -87,6 +96,7 @@ export const meta = () => ({
 const CreateOrg = () => {
   const toast = useToast();
   const transition = useTransition();
+  const loaderData = useLoaderData();
   const actionData = useActionData();
 
   useEffect(() => {
@@ -106,7 +116,7 @@ const CreateOrg = () => {
       <OrgForm
         method="post"
         loading={transition.state === 'submitting'}
-        defaultData={actionData?.values}
+        defaultData={actionData?.values || loaderData?.values}
       />
     </Box>
   );

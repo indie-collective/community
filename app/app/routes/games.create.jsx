@@ -67,11 +67,18 @@ export async function action({ request }) {
 }
 
 export const loader = async ({ request }) => {
+  const { pathname, search, searchParams } = new URL(request.url);
+
   const currentUser = await authenticator.isAuthenticated(request, {
-    failureRedirect: '/signin?redirect=/games/create',
+    failureRedirect: `/signin?redirect=${pathname}?${search}`,
   });
 
-  return json({ currentUser });
+  return json({
+    values: {
+      name: searchParams.get('name') || '',
+    },
+    currentUser,
+  });
 };
 
 export const meta = () => ({
@@ -81,6 +88,7 @@ export const meta = () => ({
 const CreateGame = () => {
   const toast = useToast();
   const transition = useTransition();
+  const loaderData = useLoaderData();
   const actionData = useActionData();
 
   useEffect(() => {
@@ -100,7 +108,7 @@ const CreateGame = () => {
       <GameForm
         method="POST"
         loading={transition.state === 'submitting'}
-        defaultData={actionData?.values}
+        defaultData={actionData?.values || loaderData?.values}
       />
     </Box>
   );
