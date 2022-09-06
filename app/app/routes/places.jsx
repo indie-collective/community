@@ -289,7 +289,7 @@ const Places = () => {
   const [currentBounds, setCurrentBounds] = useState();
   const [highlightedOrg, setHighlightedOrg] = useState();
 
-  const {orgs} = useLoaderData();
+  const { orgs } = useLoaderData();
 
   useEffect(() => {
     if (!window) return;
@@ -368,23 +368,24 @@ const Places = () => {
           onBoundsChanged={({ bounds }) => setCurrentBounds(bounds)}
         >
           <ZoomControl />
-        {orgsMarkers}
+          {orgsMarkers}
 
-        {/* TODO: see if we can prevent change in children (see orgsInBounds) */}
-        <MovingBand containerRef={containerRef} header={orgsListHeader}>
-          <Box
-            flex={1}
-            overflow="auto"
-            px={3}
-            sx={{ scrollBehavior: 'smooth' }}
-          >
-            <OrgList
-              orgs={orgsInBounds}
-              onMouseEnter={handleOrgCardEnter}
-              onMouseOut={handleOrgCardOut}
-            />
-          </Box>
-        </MovingBand>
+          {/* TODO: see if we can prevent change in children (see orgsInBounds) */}
+          <MovingBand containerRef={containerRef} header={orgsListHeader}>
+            <Box
+              flex={1}
+              overflow="auto"
+              px={3}
+              sx={{ scrollBehavior: 'smooth' }}
+            >
+              <OrgList
+                orgs={orgsInBounds}
+                onMouseEnter={handleOrgCardEnter}
+                onMouseOut={handleOrgCardOut}
+              />
+            </Box>
+          </MovingBand>
+        </Map>
       </Box>
     </Flex>
   );
