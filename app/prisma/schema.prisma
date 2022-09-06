@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fieldReference"]
 }
 
 datasource db {
@@ -71,7 +71,7 @@ model event {
   updated_at        DateTime?           @updatedAt
   cover_id          String?             @db.Uuid
   status            event_status        @default(ongoing)
-  cover             image?              @relation(fields: [cover_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  cover             image?              @relation(fields: [cover_id], references: [id], onUpdate: NoAction)
   location          location?           @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entity_event      entity_event[]
   event_participant event_participant[]
@@ -92,11 +92,11 @@ model game {
   id          String        @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
   name        String
   about       String?
-  igdb_slug   String?
   site        String?
   tag_list    String[]      @db.VarChar(30)
   created_at  DateTime?     @default(now()) @db.Timestamptz(6)
   updated_at  DateTime?     @updatedAt
+  igdb_slug   String?       @unique
   game_author game_author[]
   game_entity game_entity[]
   game_event  game_event[]
@@ -162,7 +162,7 @@ model game_tag {
 
 model image {
   id           String         @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
-  image_file   Json
+  image_file   Json           @default("{}")
   created_at   DateTime?      @default(now()) @db.Timestamptz(6)
   updated_at   DateTime?      @updatedAt
   entity       entity[]
@@ -191,16 +191,16 @@ model person {
   id                String              @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
   first_name        String
   last_name         String?
-  email             String?             @unique
-  password_hash     String?
-  isAdmin           Boolean             @default(false)
-  discord_id        String?             @unique
-  github_id         String?             @unique
-  steam_id          String?             @unique
   about             String?
   created_at        DateTime?           @default(now()) @db.Timestamptz(6)
   updated_at        DateTime?           @updatedAt
   avatar_id         String?             @db.Uuid
+  discord_id        String?             @unique
+  email             String?             @unique
+  github_id         String?             @unique
+  isAdmin           Boolean             @default(false)
+  password_hash     String?
+  steam_id          String?             @unique
   avatar            image?              @relation(fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entity_member     entity_member[]
   event_participant event_participant[]
@@ -218,7 +218,6 @@ model tag {
 enum entity_type {
   studio
   association
-  organisation
 }
 
 enum event_status {
