@@ -59,6 +59,11 @@ export const loader = async ({ request }) => {
 
   const data = {
     tags: await db.tag.findMany({
+      where: {
+        game_tag: {
+          some: {},
+        },
+      },
       include: {
         game_tag: true,
       },
