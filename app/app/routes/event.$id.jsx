@@ -201,7 +201,7 @@ const Event = () => {
 
   return (
     <Grid
-      templateColumns={['1fr', '1fr', '3fr 1fr']}
+      templateColumns={['1fr', '1fr', '1fr']}
       gap={[5, 5, 10]}
       mt={[5, 2, 5]}
       padding={[0, 5]}

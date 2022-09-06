@@ -7,7 +7,7 @@ const RelatedEvents = ({events}) => {
     <Grid
       mt={[2, 2, 5]}
       gap={5}
-      gridTemplateColumns={['1fr', '1fr 1fr', '1fr']}
+      gridTemplateColumns={['1fr', '1fr 1fr', '1fr 1fr 1fr']}
     >
       {events.length > 0 ? (
         events.map(event => (
