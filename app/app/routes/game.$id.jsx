@@ -23,6 +23,7 @@ import {
   List,
   ListItem,
   chakra,
+  Flex,
 } from '@chakra-ui/react';
 import {
   AddIcon,
@@ -186,7 +187,27 @@ const Game = () => {
   return (
     <>
       <Box mb={5} pl={5} pr={5} mt={5}>
-        <Heading>{name}</Heading>
+        <Flex direction="row" align="center">
+          <Heading as="h2" noOfLines={1} title={name} size="2xl">
+            {name}
+          </Heading>
+          {currentUser && (
+            <>
+              <ChakraLink to={`/game/${id}/changes`} as={Link} ml="auto">
+                Changes History
+              </ChakraLink>
+              <Button
+                as={Link}
+                to={`/game/${id}/edit`}
+                leftIcon={<EditIcon />}
+                colorScheme="teal"
+                ml={3}
+              >
+                Edit
+              </Button>
+            </>
+          )}
+        </Flex>
         {site && (
           <Text fontSize="lg">
             <ChakraLink href={site} isExternal>
@@ -196,28 +217,20 @@ const Game = () => {
           </Text>
         )}
 
-        {currentUser && (
-          <Link to={`/game/${id}/edit`}>
-            <Button leftIcon={<EditIcon />} colorScheme="teal" mt={3}>
-              Edit
-            </Button>
-          </Link>
-        )}
-
         {about && (
           <Box mt={3}>
             <Markdown value={about} />
           </Box>
         )}
-      </Box>
 
-      <Stack isInline spacing={2} mb={5} pl={5} pr={5}>
-        {tags.map((tag) => (
-          <Tag key={tag.id} colorScheme="teal">
-            {tag.name}
-          </Tag>
-        ))}
-      </Stack>
+        <Stack isInline spacing={2} mb={5}>
+          {tags.map((tag) => (
+            <Tag key={tag.id} colorScheme="teal">
+              {tag.name}
+            </Tag>
+          ))}
+        </Stack>
+      </Box>
 
       <Box mb={5} pl={5} pr={5}>
         <Heading size="md" mb={2}>

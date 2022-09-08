@@ -14,7 +14,11 @@ import { db } from '../utils/db.server';
 
 export const loader = async () => {
   const data = {
-    gamesCount: await db.game.count(),
+    gamesCount: await db.game.count({
+      where: {
+        deleted: false,
+      },
+    }),
     entitiesCount: await db.entity.count(),
     eventsCount: await db.event.count(),
   };

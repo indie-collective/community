@@ -98,10 +98,27 @@ model game {
   updated_at  DateTime?     @updatedAt
   igdb_slug   String?       @unique
   game_author game_author[]
+  changes     game_change[]
   game_entity game_entity[]
   game_event  game_event[]
   game_image  game_image[]
   game_tag    game_tag[]
+  deleted     Boolean       @default(false)
+}
+
+model game_change {
+  operation  operation_type
+  id         String         @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name       String?
+  about      String?
+  igdb_slug  String?
+  site       String?
+  tag_list   String[]       @db.VarChar(30)
+  created_at DateTime?      @default(now()) @db.Timestamptz(6)
+  game_id    String         @db.Uuid
+  author_id  String?        @db.Uuid
+  author     person?        @relation(fields: [author_id], references: [id])
+  game       game           @relation(fields: [game_id], references: [id])
 }
 
 model game_author {
@@ -205,6 +222,7 @@ model person {
   entity_member     entity_member[]
   event_participant event_participant[]
   game_author       game_author[]
+  game_changes      game_change[]
 }
 
 model tag {
@@ -213,6 +231,12 @@ model tag {
   created_at DateTime?  @default(now()) @db.Timestamptz(6)
   updated_at DateTime?  @updatedAt
   game_tag   game_tag[]
+}
+
+enum operation_type {
+  create
+  update
+  delete
 }
 
 enum entity_type {

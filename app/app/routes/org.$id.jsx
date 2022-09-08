@@ -71,6 +71,11 @@ export const loader = async ({ request, params }) => {
     where: { id },
     include: {
       game_entity: {
+        where: {
+          game: {
+            deleted: false,
+          },
+        },
         include: {
           game: {
             include: {
@@ -92,7 +97,13 @@ export const loader = async ({ request, params }) => {
         include: {
           event: {
             include: {
-              game_event: true,
+              game_event: {
+                where: {
+                  game: {
+                    deleted: false,
+                  },
+                },
+              },
               event_participant: true,
               cover: true,
             },

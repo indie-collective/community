@@ -61,11 +61,21 @@ export const loader = async ({ request }) => {
     tags: await db.tag.findMany({
       where: {
         game_tag: {
-          some: {},
+          some: {
+            game: {
+              deleted: false,
+            }
+          },
         },
       },
       include: {
-        game_tag: true,
+        game_tag: {
+          where: {
+            game: {
+              deleted: false,
+            }
+          }
+        },
       },
       orderBy: [
         {

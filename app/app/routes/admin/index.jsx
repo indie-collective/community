@@ -1,5 +1,5 @@
 import { json, redirect } from '@remix-run/node';
-import { useLoaderData, Form, useSubmit } from '@remix-run/react';
+import { useLoaderData, Form, Link, useSubmit } from '@remix-run/react';
 import {
   chakra,
   Heading,
@@ -19,6 +19,11 @@ import {
   Link as ChakraLink,
   Avatar,
   Input,
+  Text,
+  ListItem,
+  List,
+  ListIcon,
+  Box,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -27,6 +32,7 @@ import { db } from '../../utils/db.server';
 import computePerson from '../../models/person';
 import { DiscordIcon } from '../../components/DiscordIcon';
 import { GitHubIcon } from '../../components/GitHubIcon';
+import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 export const action = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {
@@ -81,10 +87,37 @@ export const loader = async ({ request }) => {
     },
   });
 
+  const lastChanges = await db.game_change.findMany({
+    orderBy: {
+      created_at: 'desc',
+    },
+    take: 10,
+    select: {
+      id: true,
+      operation: true,
+      created_at: true,
+      game: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      author: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          isAdmin: true,
+        },
+      },
+    },
+  });
+
   const data = {
     currentUser,
     people: await Promise.all(people.map(computePerson)),
     nbOfPeople: await db.person.count(),
+    lastChanges,
   };
 
   return json(data);
@@ -94,14 +127,54 @@ export const meta = () => ({
   title: 'Community Administration',
 });
 
+const operationsColors = {
+  create: 'green.500',
+  update: 'blue.500',
+  delete: 'red.500',
+};
+
+const operationsIcons = {
+  create: AddIcon,
+  update: EditIcon,
+  delete: DeleteIcon,
+};
+
 const Profile = () => {
   const submit = useSubmit();
-  const { currentUser, people, nbOfPeople } = useLoaderData();
+  const { currentUser, people, nbOfPeople, lastChanges } = useLoaderData();
 
   return (
-    <div>
-      <Heading mb={5} mt={10}>
+    <Box mb={5} pl={5} pr={5} mt={5}>
+      <Heading as="h2" mb={5} size="2xl">
         Admin
+      </Heading>
+
+      <Heading as="h3" size="xl" mb={3} mt={5}>
+        Last changes
+      </Heading>
+
+      <List spacing={2} pl={5}>
+        {lastChanges.map(({ id, operation, author, game, created_at }) => (
+          <ListItem>
+            <ListIcon as={operationsIcons[operation]} color={operationsColors[operation]} />
+            {author.first_name} {author.last_name}{' '}
+            <ChakraLink as={Link} to={`/game/${game.id}/changes/${id}`}>
+              {operation}d
+            </ChakraLink>{' '}
+            <ChakraLink as={Link} to={`/game/${game.id}`}>
+              {game.name}
+            </ChakraLink>{' '}
+            <Text as="span" opacity={0.6}>
+              {formatDistanceToNow(new Date(created_at), {
+                addSuffix: true,
+              })}
+            </Text>
+          </ListItem>
+        ))}
+      </List>
+
+      <Heading as="h3" size="xl" mb={3} mt={5}>
+        Users
       </Heading>
 
       <TableContainer>
@@ -216,7 +289,7 @@ const Profile = () => {
           </Tfoot>
         </Table>
       </TableContainer>
-    </div>
+    </Box>
   );
 };
 

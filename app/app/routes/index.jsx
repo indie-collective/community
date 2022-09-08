@@ -44,7 +44,13 @@ export const loader = async ({ request }) => {
   const events = await db.event.findMany({
     include: {
       event_participant: true,
-      game_event: true,
+      game_event: {
+        where: {
+          game: {
+            deleted: false,
+          },
+        },
+      },
       location: true,
       cover: true,
     },
@@ -65,7 +71,13 @@ export const loader = async ({ request }) => {
     },
     include: {
       event_participant: true,
-      game_event: true,
+      game_event: {
+        where: {
+          game: {
+            deleted: false,
+          },
+        },
+      },
       location: true,
       cover: true,
     },
@@ -92,7 +104,13 @@ export const loader = async ({ request }) => {
         },
         include: {
           event_participant: true,
-          game_event: true,
+          game_event: {
+            where: {
+              game: {
+                deleted: false,
+              },
+            },
+          },
           location: true,
           cover: true,
         },

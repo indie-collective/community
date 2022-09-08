@@ -65,6 +65,11 @@ export const loader = async ({ request, params }) => {
         },
       },
       game_event: {
+        where: {
+          game: {
+            deleted: false,
+          },
+        },
         include: {
           game: {
             include: {
@@ -102,7 +107,13 @@ export const loader = async ({ request, params }) => {
     },
     include: {
       cover: true,
-      game_event: true,
+      game_event: {
+        where: {
+          game: {
+            deleted: false,
+          },
+        },
+      },
       event_participant: true,
     },
     take: 5,

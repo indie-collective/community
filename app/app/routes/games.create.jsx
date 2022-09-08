@@ -38,29 +38,29 @@ export async function action({ request }) {
       )
     );
 
-    const game = await db.game.create({
-      data: {
-        name: data.get('name'),
-        about: data.get('about'),
-        site: data.get('site'),
-        game_tag: {
-          createMany: {
-            data: tags.map((tag) => ({
-              tag_id: tag.id,
-            })),
-            skipDuplicates: true,
-          },
-          deleteMany: {
-            tag_id: {
-              notIn: tags.map((t) => t.id),
+    const [, game] = await db.$transaction([
+      db.$executeRawUnsafe(
+        `SET LOCAL indieco.current_user_id = '${currentUser.id}';`
+      ),
+      db.game.create({
+        data: {
+          name: data.get('name'),
+          about: data.get('about'),
+          site: data.get('site'),
+          igdb_slug,
+          game_tag: {
+            createMany: {
+              data: tags.map((tag) => ({
+                tag_id: tag.id,
+              })),
             },
           },
         },
-      },
-      select: {
-        id: true,
-      },
-    });
+        select: {
+          id: true,
+        },
+      }),
+    ]);
 
     return redirect(`/game/${game.id}`);
   } catch (err) {
