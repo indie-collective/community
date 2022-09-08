@@ -466,7 +466,7 @@ const Game = () => {
 
           <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
             <ModalOverlay />
-            <ModalContent as={Form} action={`./delete`} method="post">
+            <ModalContent as={Form} action={`/game/${id}/delete`} method="post">
               <ModalHeader>Delete Game</ModalHeader>
               <ModalCloseButton />
               <ModalBody>

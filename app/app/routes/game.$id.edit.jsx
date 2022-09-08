@@ -63,7 +63,8 @@ export async function action({ request, params }) {
       data
         .get('tags')
         ?.split(',')
-        .map((t) => t.trim().toLowerCase()) || [];
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean) || [];
 
     const tags = await db.$transaction(
       tagsList.map((tag) =>

@@ -1,6 +1,6 @@
 import { Box, Heading, useToast } from '@chakra-ui/react';
 import { json, redirect } from '@remix-run/node';
-import { useActionData, useTransition } from '@remix-run/react';
+import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
@@ -8,21 +8,22 @@ import { authenticator } from '../utils/auth.server';
 import GameForm from '../components/GameForm';
 
 export async function action({ request }) {
-  await authenticator.isAuthenticated(request, {
+  const currentUser = await authenticator.isAuthenticated(request, {
     failureRedirect: '/signin?redirect=/games/create',
   });
 
   const data = await request.formData();
 
+  const tagsList =
+    data
+      .get('tags')
+      ?.split(',')
+      .map((t) => t.trim().toLowerCase())
+      .filter(Boolean) || [];
+
   try {
     const [, igdb_slug = null] =
       (data.get('igdb_url') || '').match(/games\/(.+)/) || [];
-
-    const tagsList =
-      data
-        .get('tags')
-        ?.split(',')
-        .map((t) => t.trim().toLowerCase()) || [];
 
     const tags = await db.$transaction(
       tagsList.map((tag) =>
@@ -65,6 +66,7 @@ export async function action({ request }) {
     return redirect(`/game/${game.id}`);
   } catch (err) {
     const values = Object.fromEntries(data);
+    values.tags = tagsList.map((t) => ({ name: t }));
     return json({ error: err.message, values });
   }
 }
