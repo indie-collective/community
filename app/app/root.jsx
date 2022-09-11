@@ -125,13 +125,11 @@ export default function App() {
     <Document>
       <ChakraProvider theme={theme}>
         <AnimatePresence exitBeforeEnter>
+          <Navigation />
           <Main>
-            <Navigation />
-
             <Outlet />
-
-            <Footer />
           </Main>
+          <Footer />
         </AnimatePresence>
       </ChakraProvider>
     </Document>
