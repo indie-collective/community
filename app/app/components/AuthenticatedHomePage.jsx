@@ -1,21 +1,38 @@
-import { Box, Heading, Text, Grid, Image, Fade } from '@chakra-ui/react';
+import {
+  Box,
+  Heading,
+  Text,
+  Grid,
+  Image,
+  Fade,
+  useToast,
+} from '@chakra-ui/react';
 import { useLoaderData } from '@remix-run/react';
 
 import GameCard from './GameCard';
 import OrgCard from './OrgCard';
 import EventCard from './EventCard';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
+import { useEffect } from 'react';
 
 const AuthenticatedHomePage = () => {
+  const toast = useToast();
+
   const { games, orgs, eventsToCome, currentUser } = useLoaderData();
   const { firstName, eventsToCome: joinedEventsToCome } = currentUser;
 
+  useEffect(() => {
+    toast({
+      title: `Welcome back ${firstName}!`,
+      description: "Many new games and events await you…",
+      status: 'success',
+      duration: 5000,
+      isClosable: true,
+    });
+  }, []);
+
   return (
     <Box p={5} mb={5}>
-      <Heading size="2xl" mb={10}>
-        Welcome back {firstName}!
-      </Heading>
-
       {joinedEventsToCome.length > 0 && (
         <Box mb={10}>
           <Heading as="h3" size="xl" mb={5}>
@@ -52,9 +69,9 @@ const AuthenticatedHomePage = () => {
             gap={3}
             templateColumns={[
               '2fr',
+              'repeat(2, 1fr)',
               'repeat(3, 1fr)',
               'repeat(4, 1fr)',
-              'repeat(6, 1fr)',
             ]}
           >
             {games.map((game) => (
