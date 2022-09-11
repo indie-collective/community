@@ -6,6 +6,13 @@ import {
 
 const theme = extendTheme(
   {
+    styles: {
+      global: {
+        body: {
+          bg: '#F7FAFC',
+        },
+      },
+    },
     colors: {
       discord: {
         50: '#e7e9fd',
