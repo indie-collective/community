@@ -54,8 +54,8 @@ const Navigation = ({ search }) => {
   const { currentUser } = useLoaderData();
 
   return (
-    <>
-      <Flex pt={5} alignItems="center" px={5}>
+    <Box bg="white" shadow="sm">
+      <Flex px={5} py={3} alignItems="center" mx="auto" maxWidth="960px">
         <Link to="/">
           <Logo />
         </Link>
@@ -93,7 +93,7 @@ const Navigation = ({ search }) => {
           </VStack>
         </Collapse>
       )}
-    </>
+    </Box>
   );
 };
 
