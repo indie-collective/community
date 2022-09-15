@@ -27,10 +27,13 @@ export const loader = async ({ request }) => {
     orderBy: {
       created_at: 'desc',
     },
-    take: 12,
+    take: 6,
   });
 
-  const orgs = await db.entity.findMany({
+  const associations = await db.entity.findMany({
+    where: {
+      type: 'association',
+    },
     include: {
       location: true,
       logo: true,
@@ -38,7 +41,21 @@ export const loader = async ({ request }) => {
     orderBy: {
       created_at: 'desc',
     },
-    take: 12,
+    take: 6,
+  });
+
+  const studios = await db.entity.findMany({
+    where: {
+      type: 'studio',
+    },
+    include: {
+      location: true,
+      logo: true,
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+    take: 6,
   });
 
   const events = await db.event.findMany({
@@ -57,7 +74,7 @@ export const loader = async ({ request }) => {
     orderBy: {
       created_at: 'desc',
     },
-    take: 12,
+    take: 6,
   });
 
   const eventsToCome = await db.event.findMany({
@@ -84,7 +101,7 @@ export const loader = async ({ request }) => {
     orderBy: {
       starts_at: 'asc',
     },
-    take: 8,
+    take: 3,
   });
 
   const joinedEventsToCome = currentUser
@@ -123,7 +140,8 @@ export const loader = async ({ request }) => {
 
   const data = {
     games: await Promise.all(games.map(computeGame)),
-    orgs: await Promise.all(orgs.map(computeOrg)),
+    associations: await Promise.all(associations.map(computeOrg)),
+    studios: await Promise.all(studios.map(computeOrg)),
     events: await Promise.all(events.map(computeEvent)),
     eventsToCome: await Promise.all(eventsToCome.map(computeEvent)),
     currentUser: currentUser
@@ -150,23 +168,30 @@ export const meta = () => ({
 });
 
 const LandingPage = () => {
-  const { games, orgs, eventsToCome } = useLoaderData();
+  const { games, studios, associations, eventsToCome } = useLoaderData();
 
   return (
-    <Box mb={5} px={5}>
-      <Box mb={10}>
+    <Box mb={5} p={5}>
+      <Box
+        mb={5}
+        px={4}
+        py={5}
+        background="white"
+        shadow="sm"
+        borderRadius={7}
+      >
         <Heading as="h3" size="xl" mb={5}>
-          Recently added games
+          Games
         </Heading>
 
         <Fade in>
           <Grid
-            gap={5}
+            gap={3}
             templateColumns={[
               '2fr',
               'repeat(2, 1fr)',
               'repeat(3, 1fr)',
-              'repeat(3, 1fr)',
+              'repeat(4, 1fr)',
             ]}
           >
             {games.map((game) => (
@@ -178,34 +203,75 @@ const LandingPage = () => {
         </Fade>
       </Box>
 
-      <Box mb={10}>
-        <Heading as="h3" size="xl" mb={5}>
-          Recently added orgs
-        </Heading>
+      <Grid gap={5} templateColumns={['1fr', 'repeat(2, 1fr)']}>
+        <Box
+          mb={5}
+          px={4}
+          py={5}
+          background="white"
+          shadow="sm"
+          borderRadius={7}
+        >
+          <Heading as="h3" size="xl" mb={5}>
+            Studios
+          </Heading>
 
-        <Fade in>
-          <Grid
-            mb={5}
-            gap={3}
-            templateColumns={[
-              '1fr',
-              'repeat(2, 1fr)',
-              'repeat(3, 1fr)',
-              'repeat(4, 1fr)',
-            ]}
-          >
-            {orgs.map((org) => (
-              <Box key={org.id} minW={0}>
-                <OrgCard key={org.id} {...org} />
-              </Box>
-            ))}
-          </Grid>
-        </Fade>
-      </Box>
+          <Fade in>
+            <Grid
+              mb={5}
+              gap={3}
+              templateColumns={[
+                '1fr',
+                'repeat(2, 1fr)',
+                'repeat(2, 1fr)',
+                'repeat(2, 1fr)',
+              ]}
+            >
+              {studios.map((studios) => (
+                <Box key={studios.id} minW={0}>
+                  <OrgCard key={studios.id} {...studios} />
+                </Box>
+              ))}
+            </Grid>
+          </Fade>
+        </Box>
 
-      <Box>
+        <Box
+          mb={5}
+          px={4}
+          py={5}
+          background="white"
+          shadow="sm"
+          borderRadius={7}
+        >
+          <Heading as="h3" size="xl" mb={5}>
+            Associations
+          </Heading>
+
+          <Fade in>
+            <Grid
+              mb={5}
+              gap={3}
+              templateColumns={[
+                '1fr',
+                'repeat(2, 1fr)',
+                'repeat(2, 1fr)',
+                'repeat(2, 1fr)',
+              ]}
+            >
+              {associations.map((associations) => (
+                <Box key={associations.id} minW={0}>
+                  <OrgCard key={associations.id} {...associations} />
+                </Box>
+              ))}
+            </Grid>
+          </Fade>
+        </Box>
+      </Grid>
+
+      <Box px={4} py={5} background="white" shadow="sm" borderRadius={7}>
         <Heading as="h3" size="xl" mb={5}>
-          Upcoming events
+          Events
         </Heading>
 
         <Fade in>
@@ -216,7 +282,7 @@ const LandingPage = () => {
                 '1fr',
                 'repeat(2, 1fr)',
                 'repeat(3, 1fr)',
-                'repeat(4, 1fr)',
+                'repeat(3, 1fr)',
               ]}
             >
               {eventsToCome.map((event) => (
