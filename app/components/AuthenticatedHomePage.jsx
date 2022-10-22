@@ -25,7 +25,7 @@ const AuthenticatedHomePage = () => {
 
   useEffect(() => {
     toast({
-      title: `Welcome back ${firstName}!`,
+      title: firstName ? `Welcome back ${firstName}!` : 'Welcome back!',
       description: 'Many new games and events await you…',
       status: 'success',
       duration: 5000,
