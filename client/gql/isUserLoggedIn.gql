@@ -1,3 +1,0 @@
-query IsUserLoggedIn {
-  isLoggedIn @client
-}
