@@ -36,10 +36,8 @@ const Footer = () => (
         <Stack spacing={{ base: '6', md: '8' }} align="start">
           <Logo />
           <Text color="muted">
-            Community lets you explore indie game-focused data around the world.
-            <br />
-            Discover who, where and what has been / is being made near you
-            through crowd-sourced data.
+            We designed the IndieCo Community to help explore and discover indie games, studios, associations and events from around the world.
+            The project is open-source and all data is crowd-sourced! You're welcome to help us out 😀
           </Text>
         </Stack>
         <Stack
@@ -55,14 +53,14 @@ const Footer = () => (
                 <ChakraLink as={Link} to="/games">
                   Games
                 </ChakraLink>
-                <ChakraLink as={Link} to="/orgs">
-                  Orgs
+                <ChakraLink as={Link} to="/studios">
+                  Studios
+                </ChakraLink>
+                <ChakraLink as={Link} to="/associations">
+                  Associations
                 </ChakraLink>
                 <ChakraLink as={Link} to="/events">
                   Events
-                </ChakraLink>
-                <ChakraLink as={Link} to="/places">
-                  Places
                 </ChakraLink>
               </Stack>
             </Stack>
@@ -81,18 +79,6 @@ const Footer = () => (
                   Contribute <ExternalLinkIcon mx="2px" />
                 </ChakraLink>
               </Stack>
-              <Box mt={3}>
-                <Button
-                  as={ChakraLink}
-                  href="https://www.helloasso.com/associations/indie-collective/formulaires/1/en"
-                  isExternal
-                  style={{ textDecoration: 'none' }}
-                  textDecoration="none"
-                  rightIcon={<ExternalLinkIcon />}
-                >
-                  Donate
-                </Button>
-              </Box>
             </Stack>
             <Stack spacing="4" minW="36" flex="1">
               <Text fontSize="sm" fontWeight="semibold" color="subtle">
@@ -107,6 +93,12 @@ const Footer = () => (
                 </ChakraLink>
                 <ChakraLink href="https://indieco.xyz/" isExternal>
                   Website <ExternalLinkIcon mx="2px" />
+                </ChakraLink>
+                <ChakraLink
+                  href="https://www.helloasso.com/associations/indie-collective/formulaires/1/en"
+                  isExternal
+                >
+                  Donate <ExternalLinkIcon mx="2px" />
                 </ChakraLink>
               </Stack>
               <ButtonGroup variant="ghost">

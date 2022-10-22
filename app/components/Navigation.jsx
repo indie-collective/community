@@ -31,16 +31,20 @@ function NavLink(props) {
       aria-current={isActive ? 'page' : undefined}
       display="block"
       transition="all 0.3s"
-      borderBottomWidth="3px"
+      borderRadius="lg"
       fontSize="18px"
       fontWeight="semibold"
       color={useColorModeValue('gray.500', 'white')}
-      borderColor="transparent"
-      _hover={{ borderColor: useColorModeValue('gray.400', 'white') }}
+      px="10px"
+      py="5px"
+      backgroundColor="transparent"
+      _hover={{
+        backgroundColor: useColorModeValue('gray.400', 'white'),
+        color: useColorModeValue('white', 'gray.400'),
+      }}
       _activeLink={{
-        fontWeight: 'bold',
-        color: 'teal.500',
-        borderColor: 'teal.500',
+        color: 'white',
+        backgroundColor: 'teal.500',
       }}
       {...rest}
     />
@@ -63,9 +67,9 @@ const Navigation = ({ search }) => {
         {variant === 'desktop' && (
           <HStack as="nav" spacing={4} ml="24px">
             <NavLink href="/games">Games</NavLink>
-            <NavLink href="/orgs">Orgs</NavLink>
+            <NavLink href="/studios">Studios</NavLink>
+            <NavLink href="/associations">Associations</NavLink>
             <NavLink href="/events">Events</NavLink>
-            <NavLink href="/places">Places</NavLink>
 
             {currentUser?.isAdmin && <NavLink href="/admin">Admin</NavLink>}
           </HStack>
@@ -86,9 +90,12 @@ const Navigation = ({ search }) => {
         <Collapse in={isOpen}>
           <VStack as="nav" spacing={4} mt="24px">
             <NavLink href="/games">Games</NavLink>
-            <NavLink href="/orgs">Orgs</NavLink>
+            <NavLink href="/studios">Studios</NavLink>
+            <NavLink href="/associations">Associations</NavLink>
             <NavLink href="/events">Events</NavLink>
-            <NavLink href="/places">Places</NavLink>
+
+            {currentUser?.isAdmin && <NavLink href="/admin">Admin</NavLink>}
+
             <AvatarButton />
           </VStack>
         </Collapse>
