@@ -1,7 +1,13 @@
 node_modules
-yarn-error.log
 dist
 static
+/.cache
+/build
+/public/build
+.env
+!.env.example
+
+yarn-error.log
 .DS_Store
 .idea
 tmp-resolvers
