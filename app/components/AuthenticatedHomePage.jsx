@@ -6,18 +6,19 @@ import {
   Image,
   Fade,
   useToast,
-  Stack,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { useLoaderData } from '@remix-run/react';
+import { useEffect } from 'react';
 
 import GameCard from './GameCard';
 import OrgCard from './OrgCard';
 import EventCard from './EventCard';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
-import { useEffect } from 'react';
 
 const AuthenticatedHomePage = () => {
   const toast = useToast();
+  const bg = useColorModeValue('white', 'gray.900');
 
   const { games, studios, associations, eventsToCome, currentUser } =
     useLoaderData();
@@ -30,6 +31,7 @@ const AuthenticatedHomePage = () => {
       status: 'success',
       duration: 5000,
       isClosable: true,
+      position: 'bottom-right',
     });
   }, []);
 
@@ -61,14 +63,7 @@ const AuthenticatedHomePage = () => {
         </Box>
       )}
 
-      <Box
-        mb={5}
-        px={4}
-        py={5}
-        background="white"
-        shadow="sm"
-        borderRadius={7}
-      >
+      <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
         <Heading as="h3" size="xl" mb={5}>
           Games
         </Heading>
@@ -93,14 +88,7 @@ const AuthenticatedHomePage = () => {
       </Box>
 
       <Grid gap={5} templateColumns={['1fr', 'repeat(2, 1fr)']}>
-        <Box
-          mb={5}
-          px={4}
-          py={5}
-          background="white"
-          shadow="sm"
-          borderRadius={7}
-        >
+        <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
           <Heading as="h3" size="xl" mb={5}>
             Studios
           </Heading>
@@ -125,14 +113,7 @@ const AuthenticatedHomePage = () => {
           </Fade>
         </Box>
 
-        <Box
-          mb={5}
-          px={4}
-          py={5}
-          background="white"
-          shadow="sm"
-          borderRadius={7}
-        >
+        <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
           <Heading as="h3" size="xl" mb={5}>
             Associations
           </Heading>
@@ -158,7 +139,7 @@ const AuthenticatedHomePage = () => {
         </Box>
       </Grid>
 
-      <Box px={4} py={5} background="white" shadow="sm" borderRadius={7}>
+      <Box px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
         <Heading as="h3" size="xl" mb={5}>
           Events
         </Heading>

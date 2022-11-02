@@ -39,7 +39,7 @@ function NavLink(props) {
       py="5px"
       backgroundColor="transparent"
       _hover={{
-        backgroundColor: useColorModeValue('gray.400', 'white'),
+        backgroundColor: useColorModeValue('gray.400', 'gray.700'),
         color: useColorModeValue('white', 'gray.400'),
       }}
       _activeLink={{
@@ -54,11 +54,12 @@ function NavLink(props) {
 const Navigation = ({ search }) => {
   const { isOpen, onToggle } = useDisclosure();
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
+  const bg = useColorModeValue('white', 'gray.900');
 
   const { currentUser } = useLoaderData();
 
   return (
-    <Box bg="white" shadow="sm">
+    <Box bg={bg} shadow="sm">
       <Flex px={5} py={3} alignItems="center" mx="auto" maxWidth="960px">
         <Link to="/">
           <Logo />

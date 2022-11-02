@@ -3,15 +3,17 @@ import {
   withDefaultColorScheme,
   withDefaultVariant,
 } from '@chakra-ui/react';
+import { mode } from '@chakra-ui/theme-tools';
 
 const theme = extendTheme(
   {
     styles: {
-      global: {
+      global: (props) => ({
         body: {
-          bg: '#F7FAFC',
+          color: mode('gray.800', 'whiteAlpha.900')(props),
+          bg: mode('#F7FAFC', 'gray.800')(props),
         },
-      },
+      }),
     },
     colors: {
       discord: {

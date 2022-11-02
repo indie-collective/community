@@ -169,17 +169,11 @@ export const meta = () => ({
 
 const LandingPage = () => {
   const { games, studios, associations, eventsToCome } = useLoaderData();
+  const bg = useColorModeValue('white', 'gray.900');
 
   return (
     <Box mb={5} p={5}>
-      <Box
-        mb={5}
-        px={4}
-        py={5}
-        background="white"
-        shadow="sm"
-        borderRadius={7}
-      >
+      <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
         <Heading as="h3" size="xl" mb={5}>
           Games
         </Heading>
@@ -204,14 +198,7 @@ const LandingPage = () => {
       </Box>
 
       <Grid gap={5} templateColumns={['1fr', 'repeat(2, 1fr)']}>
-        <Box
-          mb={5}
-          px={4}
-          py={5}
-          background="white"
-          shadow="sm"
-          borderRadius={7}
-        >
+        <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
           <Heading as="h3" size="xl" mb={5}>
             Studios
           </Heading>
@@ -236,14 +223,7 @@ const LandingPage = () => {
           </Fade>
         </Box>
 
-        <Box
-          mb={5}
-          px={4}
-          py={5}
-          background="white"
-          shadow="sm"
-          borderRadius={7}
-        >
+        <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
           <Heading as="h3" size="xl" mb={5}>
             Associations
           </Heading>
@@ -269,7 +249,7 @@ const LandingPage = () => {
         </Box>
       </Grid>
 
-      <Box px={4} py={5} background="white" shadow="sm" borderRadius={7}>
+      <Box px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
         <Heading as="h3" size="xl" mb={5}>
           Events
         </Heading>
