@@ -19,8 +19,9 @@ import {
   ModalHeader,
   Link as ChakraLink,
   useToast,
+  Stack,
 } from '@chakra-ui/react';
-import { EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Link, useLoaderData, useNavigate, Form } from '@remix-run/react';
 import { motion } from 'framer-motion';
@@ -89,7 +90,7 @@ export const loader = async ({ request, params }) => {
         },
         orderBy: {
           game: {
-            created_at: 'desc'
+            created_at: 'desc',
           },
         },
       },
@@ -120,13 +121,19 @@ export const loader = async ({ request, params }) => {
     },
   });
 
+  if (!org) {
+    throw new Response('Not Found', {
+      status: 404,
+    });
+  }
+
   return json({
     org: await computeOrg(org),
     currentUser,
   });
 };
 
-export const meta = ({ data, location }) => ({
+export const meta = ({ data, location }) => data?.org ? ({
   title: data.org.name,
   description: `${data.org.about}.`,
   'og:title': data.org.name,
@@ -137,6 +144,8 @@ export const meta = ({ data, location }) => ({
   'twitter:title': data.org.name,
   'twitter:description': `${data.org.about}.`,
   'twitter:image': data.org.logo?.thumbnail_url,
+}) : ({
+  title: 'Organization not found!'
 });
 
 const Org = () => {
@@ -338,5 +347,26 @@ const Org = () => {
     </>
   );
 };
+
+export function CatchBoundary() {
+  return (
+    <Stack textAlign="center" mt={20}>
+      <Heading>Organization not found!</Heading>
+      <Text>Would you like to create its page?</Text>
+      <Box mt={10}>
+        <Button
+          as={Link}
+          to="/orgs/create"
+          m="auto"
+          mb={10}
+          size="lg"
+          leftIcon={<AddIcon />}
+        >
+          Add an organization
+        </Button>
+      </Box>
+    </Stack>
+  );
+}
 
 export default Org;
