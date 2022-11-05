@@ -1,5 +1,6 @@
 import { withEmotionCache } from '@emotion/react';
-import { ChakraProvider, Flex } from '@chakra-ui/react';
+import { ChakraProvider, Flex, Heading, Text } from '@chakra-ui/react';
+import { WarningIcon } from '@chakra-ui/icons';
 import {
   Links,
   LiveReload,
@@ -22,11 +23,11 @@ import Footer from './components/Footer';
 
 const Main = (props) => (
   <Flex
+    flex="1"
     as="main"
     direction="column"
     mx="auto"
     maxWidth="960px"
-    minH="100vh"
     {...props}
   />
 );
@@ -88,7 +89,9 @@ const Document = withEmotionCache(({ children }, emotionCache) => {
           />
         ))}
       </head>
-      <body>
+      <body
+        style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
+      >
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -107,6 +110,32 @@ export function CatchBoundary() {
         <AnimatePresence exitBeforeEnter>
           <Main>
             <Error statusCode={caught.status} />
+          </Main>
+        </AnimatePresence>
+      </ChakraProvider>
+    </Document>
+  );
+}
+
+export function ErrorBoundary({ error }) {
+  return (
+    <Document>
+      <ChakraProvider theme={theme}>
+        <AnimatePresence exitBeforeEnter>
+          <Main justifyContent="center">
+            <Flex
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              textAlign="center"
+              height="200px"
+            >
+              <WarningIcon boxSize="40px" mr={0} />
+              <Heading mt={4} mb={1} fontSize="lg">
+                Something went wrong!
+              </Heading>
+              <Text maxWidth="sm">{error.message}</Text>
+            </Flex>
           </Main>
         </AnimatePresence>
       </ChakraProvider>
