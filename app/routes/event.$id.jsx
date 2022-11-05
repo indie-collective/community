@@ -96,6 +96,11 @@ export const loader = async ({ request, params }) => {
     },
   });
 
+  if (!event)
+    throw new Response('Not Found', {
+      status: 404,
+    });
+
   const relatedEvents = await db.event.findMany({
     where: {
       name: {
@@ -130,7 +135,11 @@ export const loader = async ({ request, params }) => {
 };
 
 export const meta = ({ data, location }) => {
-  let description = `Event on ${new Date(data.starts_at).toLocaleString(
+  if (!data?.event) return { title: 'Event not found!' };
+
+  const { event } = data;
+
+  let description = `Event on ${new Date(event.starts_at).toLocaleString(
     'en-US',
     {
       day: 'numeric',
@@ -140,15 +149,13 @@ export const meta = ({ data, location }) => {
     }
   )}`;
 
-  if (data.location) {
-    const l = data.location;
+  if (event.location) {
+    const l = event.location;
 
     description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${
       l.region
     }, ${l.country_code}`;
   }
-
-  const { event } = data;
 
   return {
     title: `${event.name} | Events`,
@@ -567,5 +574,26 @@ const Event = () => {
     </Grid>
   );
 };
+
+export function CatchBoundary() {
+  return (
+    <Stack textAlign="center" mt={20}>
+      <Heading>Event not found!</Heading>
+      <Text>Would you like to create its page?</Text>
+      <Box mt={10}>
+        <Button
+          as={Link}
+          to="/events/create"
+          m="auto"
+          mb={10}
+          size="lg"
+          leftIcon={<AddIcon />}
+        >
+          Add an event
+        </Button>
+      </Box>
+    </Stack>
+  );
+}
 
 export default Event;
