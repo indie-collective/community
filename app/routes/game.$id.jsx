@@ -495,4 +495,25 @@ const Game = () => {
   );
 };
 
+export function CatchBoundary() {
+  return (
+    <Stack textAlign="center" mt={20}>
+      <Heading>Game not found!</Heading>
+      <Text>Would you like to create its page?</Text>
+      <Box mt={10}>
+        <Button
+          as={Link}
+          to="/games/create"
+          m="auto"
+          mb={10}
+          size="lg"
+          leftIcon={<AddIcon />}
+        >
+          Add a game
+        </Button>
+      </Box>
+    </Stack>
+  );
+}
+
 export default Game;
