@@ -21,9 +21,9 @@ function Error({ statusCode }) {
         {(statusCode && statusCodes[statusCode]) || 'An error occured!'}
       </Text>
       <Text fontSize="18px" mt={10}>
-        <Link to="/">
-          <Button colorScheme="teal" size="lg">Let's go home !</Button>
-        </Link>
+        <Button as={Link} to="/" size="lg">
+          Let's go home !
+        </Button>
       </Text>
     </Stack>
   );
