@@ -1,4 +1,4 @@
-import { Box, Heading, Text, Grid, Image, Fade } from '@chakra-ui/react';
+import { Box, Heading, Text, Grid, Image, Fade, useColorModeValue } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 
