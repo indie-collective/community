@@ -27,7 +27,7 @@ const Main = (props) => (
     as="main"
     direction="column"
     mx="auto"
-    maxWidth="960px"
+    width="960px"
     {...props}
   />
 );
