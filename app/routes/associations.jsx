@@ -1,4 +1,12 @@
-import { Box, Grid, Button, Fade } from '@chakra-ui/react';
+import {
+  Box,
+  Grid,
+  Button,
+  Fade,
+  Flex,
+  Heading,
+  Spacer,
+} from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { Link, useLoaderData } from '@remix-run/react';
 import { json } from '@remix-run/node';
@@ -74,20 +82,22 @@ const Associations = () => {
 
   return (
     <Box p={5}>
-      {currentUser && (
-        <Box textAlign="center">
+      <Flex minWidth="max-content" alignItems="center" gap="2" mb={6}>
+        <Box p="2">
+          <Heading size="2xl">Associations</Heading>
+        </Box>
+        <Spacer />
+        {currentUser && (
           <Button
             as={Link}
             to="/orgs/create"
-            mb={10}
-            size="lg"
             colorScheme="teal"
             leftIcon={<AddIcon />}
           >
             Add association
           </Button>
-        </Box>
-      )}
+        )}
+      </Flex>
 
       <Grid
         gap={5}

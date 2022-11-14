@@ -10,10 +10,13 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Grid,
+  Flex,
   Button,
+  Heading,
   Tag,
   TagLabel,
   Badge,
+  Spacer,
   Wrap,
   WrapItem,
   Fade,
@@ -64,7 +67,7 @@ export const loader = async ({ request }) => {
           some: {
             game: {
               deleted: false,
-            }
+            },
           },
         },
       },
@@ -73,8 +76,8 @@ export const loader = async ({ request }) => {
           where: {
             game: {
               deleted: false,
-            }
-          }
+            },
+          },
         },
       },
       orderBy: [
@@ -172,50 +175,53 @@ const Games = () => {
 
   return (
     <Box p={5} ref={divHeight}>
-      {currentUser && (
-        <Box textAlign="center">
+      <Flex minWidth="max-content" alignItems="center" gap="2" mb={6}>
+        <Box p="2">
+          <Heading size="2xl">Games</Heading>
+        </Box>
+        <Spacer />
+        {currentUser && (
           <Button
             as={Link}
             to="/games/create"
-            m="auto"
-            mb={10}
-            size="lg"
             colorScheme="teal"
             leftIcon={<AddIcon />}
           >
-            Add a game
+            Add game
           </Button>
-        </Box>
-      )}
+        )}
+      </Flex>
 
-      <Wrap as={Form} spacing={2} mb={5} align="flex-end" method="get">
-        {tags.map((tag) => (
-          <WrapItem key={tag.id}>
-            <Tag
-              size={tag.game_tag.length < tags.length / 4 ? 'md' : 'lg'}
-              variant={selectedTags.includes(tag.name) ? 'solid' : 'outline'}
-              colorScheme={selectedTags.includes(tag.name) ? 'teal' : 'gray'}
-              cursor="pointer"
-              _hover={{ opacity: 0.8 }}
-              onClick={() =>
-                setSearchParams({
-                  tags: selectedTags.includes(tag.name)
-                    ? selectedTags.filter((t) => t !== tag.name)
-                    : [...selectedTags, tag.name],
-                })
-              }
-            >
-              <TagLabel>{tag.name}</TagLabel>
-              <Badge
-                ml={2}
-                colorScheme="teal"
-                variant={selectedTags.includes(tag.name) ? 'subtle' : 'solid'}
+      <Wrap as={Form} spacing={2} mb={10} align="flex-end" method="get">
+        {tags
+          .filter((tag) => tag.game_tag.length > 5)
+          .map((tag) => (
+            <WrapItem key={tag.id}>
+              <Tag
+                size={tag.game_tag.length < tags.length / 4 ? 'md' : 'lg'}
+                variant={selectedTags.includes(tag.name) ? 'solid' : 'outline'}
+                colorScheme={selectedTags.includes(tag.name) ? 'teal' : 'gray'}
+                cursor="pointer"
+                _hover={{ opacity: 0.8 }}
+                onClick={() =>
+                  setSearchParams({
+                    tags: selectedTags.includes(tag.name)
+                      ? selectedTags.filter((t) => t !== tag.name)
+                      : [...selectedTags, tag.name],
+                  })
+                }
               >
-                {tag.game_tag.length}
-              </Badge>
-            </Tag>
-          </WrapItem>
-        ))}
+                <TagLabel>{tag.name}</TagLabel>
+                <Badge
+                  ml={2}
+                  colorScheme="teal"
+                  variant={selectedTags.includes(tag.name) ? 'subtle' : 'solid'}
+                >
+                  {tag.game_tag.length}
+                </Badge>
+              </Tag>
+            </WrapItem>
+          ))}
       </Wrap>
 
       <Grid

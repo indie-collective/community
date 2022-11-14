@@ -1,4 +1,12 @@
-import { Box, Grid, Button, Fade } from '@chakra-ui/react';
+import {
+  Box,
+  Grid,
+  Button,
+  Fade,
+  Flex,
+  Heading,
+  Spacer,
+} from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { Link, useLoaderData } from '@remix-run/react';
 import { json } from '@remix-run/node';
@@ -44,11 +52,9 @@ export const loader = async ({ request }) => {
 
 export const meta = () => ({
   title: 'Studios',
-  description:
-    'Video game studios around you and all over the world.',
+  description: 'Video game studios around you and all over the world.',
   'og:title': 'Studios',
-  'og:description':
-    'Video game studios around you and all over the world.',
+  'og:description': 'Video game studios around you and all over the world.',
   'twitter:card': 'summary',
   'twitter:site': '@IndieColle',
   'twitter:title': 'Studios',
@@ -74,20 +80,22 @@ const Studios = () => {
 
   return (
     <Box p={5}>
-      {currentUser && (
-        <Box textAlign="center">
+      <Flex minWidth="max-content" alignItems="center" gap="2" mb={6}>
+        <Box p="2">
+          <Heading size="2xl">Studios</Heading>
+        </Box>
+        <Spacer />
+        {currentUser && (
           <Button
             as={Link}
             to="/orgs/create"
-            mb={10}
-            size="lg"
             colorScheme="teal"
             leftIcon={<AddIcon />}
           >
-            Add a studio
+            Add studio
           </Button>
-        </Box>
-      )}
+        )}
+      </Flex>
 
       <Grid
         gap={5}
