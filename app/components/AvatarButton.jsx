@@ -1,15 +1,22 @@
-import { Button, Avatar } from '@chakra-ui/react';
+import { LockIcon } from '@chakra-ui/icons';
+import { HStack, Flex, Text, Button, Avatar } from '@chakra-ui/react';
 import { Link, useLoaderData } from '@remix-run/react';
 
 const AvatarButton = () => {
   const data = useLoaderData();
 
   if (data?.currentUser) {
-    const { first_name, avatar } = data.currentUser;
+    const { first_name, email, avatar } = data.currentUser;
 
     return (
       <Link to="/profile">
-        <Avatar size="sm" name={first_name} ml={5} src={avatar} />
+        <HStack spacing="1.5">
+          <Avatar size="md" name={first_name} src={avatar} />
+          <Flex direction="column">
+            <Text fontWeight="bold" mb="-2px">{first_name}</Text>
+            <Text fontSize="small">{email}</Text>
+          </Flex>
+        </HStack>
       </Link>
     );
   }
@@ -18,12 +25,11 @@ const AvatarButton = () => {
     <Button
       as={Link}
       to="/signin"
-      ml={2}
       colorScheme="teal"
       aria-label="Signin"
-      variant="ghost"
+      leftIcon={<LockIcon/>}
     >
-      🔑
+      Sign in
     </Button>
   );
 };
