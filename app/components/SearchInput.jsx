@@ -50,7 +50,7 @@ const SearchInput = () => {
         if (e.target.q.value === '') e.preventDefault();
       }}
     >
-      <InputGroup w="auto" ml={3}>
+      <InputGroup w="auto">
         <InputLeftElement children={<SearchIcon color="teal.500" />} />
         <Input
           ref={inputRef}
