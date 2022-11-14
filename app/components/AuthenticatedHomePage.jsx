@@ -87,7 +87,7 @@ const AuthenticatedHomePage = () => {
         </Fade>
       </Box>
 
-      <Grid gap={5} templateColumns={['1fr', 'repeat(2, 1fr)']}>
+      <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
         <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
           <Heading as="h3" size="xl" mb={5}>
             Studios
