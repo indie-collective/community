@@ -1,5 +1,12 @@
 import { withEmotionCache } from '@emotion/react';
-import { ChakraProvider, Flex, Heading, Text } from '@chakra-ui/react';
+import {
+  ChakraProvider,
+  Box,
+  Flex,
+  Heading,
+  Text,
+  useBreakpointValue,
+} from '@chakra-ui/react';
 import { WarningIcon } from '@chakra-ui/icons';
 import {
   Links,
@@ -21,16 +28,18 @@ import Error from './components/Error';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 
-const Main = (props) => (
-  <Flex
-    flex="1"
-    as="main"
-    direction="column"
-    mx="auto"
-    width="960px"
-    {...props}
-  />
-);
+const Main = (props) => {
+  const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
+  return (
+    <Flex
+      as="main"
+      flex="1"
+      direction="column"
+      ml={variant === 'mobile' ? 0 : '260px'}
+      {...props}
+    />
+  );
+};
 
 export function links() {
   return [{ rel: 'stylesheet', href: slickStyles }];
@@ -135,6 +144,7 @@ export function ErrorBoundary({ error }) {
                 Something went wrong!
               </Heading>
               <Text maxWidth="sm">{error.message}</Text>
+              <Text>{JSON.stringify(error.stack, false, 2)}</Text>
             </Flex>
           </Main>
         </AnimatePresence>
@@ -154,11 +164,15 @@ export default function App() {
     <Document>
       <ChakraProvider theme={theme}>
         <AnimatePresence exitBeforeEnter>
-          <Navigation />
-          <Main>
-            <Outlet />
-          </Main>
-          <Footer />
+          <Flex direction="column">
+            <Navigation />
+            <Main>
+              <Box minHeight="100vh">
+                <Outlet />
+              </Box>
+              <Footer />
+            </Main>
+          </Flex>
         </AnimatePresence>
       </ChakraProvider>
     </Document>
