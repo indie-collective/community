@@ -22,7 +22,7 @@ const Footer = () => {
   const bg = useColorModeValue('white', 'gray.900');
 
   return (
-    <Box bg={bg} shadow="sm" maxW="100%">
+    <Box bg={bg} shadow="sm" maxW="100%" margin={5} borderRadius={7}>
       <Container
         as="footer"
         role="contentinfo"
@@ -35,17 +35,13 @@ const Footer = () => {
           direction={{ base: 'column', md: 'row' }}
           justify="space-between"
           pt={{ base: '4', md: '8' }}
-          pb={{ base: '12', md: '16' }}
+          pb={{ base: '4', md: '6' }}
         >
           <Stack spacing={{ base: '6', md: '8' }} align="start">
             <Logo />
             <Text color="gray.400">
-              We designed the IndieCo Community to help explore and discover
-              indie games, studios, associations and events from around the
-              world.
-              <br />
-              The project is open-source and all data is crowd-sourced!
-              You're welcome to help us out 😀
+              The IndieCo Community is an open-source project. All data is crowd-sourced.
+              Welcome! Join us & help out! 😀
             </Text>
           </Stack>
           <Stack
@@ -53,25 +49,6 @@ const Footer = () => {
             spacing={{ base: '12', md: '8' }}
           >
             <Stack direction="row" spacing="8">
-              <Stack spacing="4" minW="36" flex="1">
-                <Text fontSize="sm" fontWeight="semibold" color="subtle">
-                  Community
-                </Text>
-                <Stack spacing="3" shouldWrapChildren>
-                  <ChakraLink as={Link} to="/games">
-                    Games
-                  </ChakraLink>
-                  <ChakraLink as={Link} to="/studios">
-                    Studios
-                  </ChakraLink>
-                  <ChakraLink as={Link} to="/associations">
-                    Associations
-                  </ChakraLink>
-                  <ChakraLink as={Link} to="/events">
-                    Events
-                  </ChakraLink>
-                </Stack>
-              </Stack>
               <Stack spacing="4" minW="36" flex="1">
                 <Text fontSize="sm" fontWeight="semibold" color="subtle">
                   Project
