@@ -78,12 +78,14 @@ const Navigation = ({ search }) => {
           py={2}
           justifyContent="space-between"
         >
-          <HStack spacing="2">
-            <Logo />
-            <Text fontWeight="bold" fontSize="xl">
-              Community
-            </Text>
-          </HStack>
+          <Link to="/">
+            <HStack as="span" spacing="2">
+              <Logo />
+              <Text as="span" fontWeight="bold" fontSize="xl">
+                Community
+              </Text>
+            </HStack>
+          </Link>
 
           <IconButton ml={2} icon={<HamburgerIcon />} onClick={onToggle} />
         </Flex>
@@ -137,12 +139,14 @@ const Navigation = ({ search }) => {
         top="0px"
         bottom="0px"
       >
-        <HStack spacing="2">
-          <Logo />
-          <Text fontWeight="bold" fontSize="xl">
-            Community
-          </Text>
-        </HStack>
+        <Link to="/">
+          <HStack as="span" spacing="2">
+            <Logo />
+            <Text as="span" fontWeight="bold" fontSize="xl">
+              Community
+            </Text>
+          </HStack>
+        </Link>
 
         <Box mt={3}>
           <SearchInput defaultValue={search} />
