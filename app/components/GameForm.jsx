@@ -1,4 +1,4 @@
-import { Form } from '@remix-run/react';
+import { Form, useSubmit } from '@remix-run/react';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
@@ -39,15 +39,13 @@ const defaultProps = {
 };
 
 const GameForm = ({ defaultData, loading, ...rest }) => {
+  const submit = useSubmit();
   const { id, name, igdb_url, about, site, tags = [] } = defaultData;
   const {
     handleSubmit,
     register,
     watch,
-
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -67,7 +65,13 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
       encType="multipart/form-data"
       gridTemplateColumns="1fr 1fr"
       gap={5}
-      onSubmit={handleSubmit}
+      method="post"
+      onSubmit={handleSubmit((values, event) => {
+        submit(event.nativeEvent.submitter || event.currentTarget, {
+          method: 'post',
+          replace: true,
+        });
+      })}
       {...rest}
     >
       <FormControl gridColumn="1 / 3" isInvalid={errors.name} isRequired>
