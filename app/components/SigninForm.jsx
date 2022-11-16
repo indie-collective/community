@@ -13,7 +13,7 @@ import {
   useColorModeValue as mode,
   Flex,
 } from '@chakra-ui/react';
-import { Form } from '@remix-run/react';
+import { Form, useSearchParams, useSubmit } from '@remix-run/react';
 
 import { PasswordInput } from './PasswordInput';
 
@@ -27,19 +27,27 @@ const propTypes = {
 };
 
 const SigninForm = ({ loading }) => {
+  const submit = useSubmit();
   const {
     handleSubmit,
     register,
-
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
+  const [searchParams] = useSearchParams();
+
   return (
-    <Form method="post" onSubmit={handleSubmit}>
+    <Form
+      method="post"
+      onSubmit={handleSubmit((values, event) => {
+        submit(event.nativeEvent.submitter || event.currentTarget, {
+          method: 'post',
+          replace: true,
+        });
+      })}
+    >
       <FormControl mb={5} isInvalid={errors.email} isRequired>
         <FormLabel htmlFor="email">Email</FormLabel>
         <Input
@@ -56,13 +64,15 @@ const SigninForm = ({ loading }) => {
       <FormControl id="password" mb={5} isInvalid={errors.password} isRequired>
         <Flex justify="space-between" alignItems="baseline">
           <FormLabel htmlFor="password">Password</FormLabel>
-          <Link
-            color={mode('teal.600', 'teal.200')}
-            fontWeight="semibold"
-            fontSize="sm"
-          >
-            Forgot Password?
-          </Link>
+          {searchParams.has('beta') && (
+            <Link
+              color={mode('teal.600', 'teal.200')}
+              fontWeight="semibold"
+              fontSize="sm"
+            >
+              Forgot Password?
+            </Link>
+          )}
         </Flex>
         <PasswordInput
           {...register('password')}

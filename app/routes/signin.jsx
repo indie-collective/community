@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Box,
   Divider,
   Heading,
@@ -7,11 +9,14 @@ import {
   Stack,
   Text,
   useColorModeValue as mode,
-  useToast,
 } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
-import { Link, useActionData, useTransition } from '@remix-run/react';
-import { useEffect } from 'react';
+import {
+  Link,
+  useActionData,
+  useSearchParams,
+  useTransition,
+} from '@remix-run/react';
 import { AuthorizationError } from 'remix-auth';
 
 import { authenticator } from '../utils/auth.server';
@@ -48,19 +53,10 @@ export const meta = () => ({
 });
 
 const SignIn = () => {
-  const toast = useToast();
   const transition = useTransition();
   const actionData = useActionData();
 
-  useEffect(() => {
-    if (!actionData?.error) return;
-
-    toast({
-      title: 'Something went wrong',
-      description: actionData?.error,
-      status: 'error',
-    });
-  }, [actionData?.error, transition.state === 'submitting', toast]);
+  const [searchParams] = useSearchParams();
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -80,17 +76,28 @@ const SignIn = () => {
       </Text>
 
       <Stack spacing={5}>
+        {actionData?.error && (
+          <Alert status="error" mb="10px">
+            <AlertIcon />
+            {actionData?.error}
+          </Alert>
+        )}
+
         <SigninForm loading={transition.status === 'submitting'} />
 
-        <HStack>
-          <Divider />
-          <Text fontSize="sm" whiteSpace="nowrap" color="muted">
-            or continue with
-          </Text>
-          <Divider />
-        </HStack>
+        {searchParams.has('beta') && (
+          <>
+            <HStack>
+              <Divider />
+              <Text fontSize="sm" whiteSpace="nowrap" color="muted">
+                or continue with
+              </Text>
+              <Divider />
+            </HStack>
 
-        <OAuthButtonGroup />
+            <OAuthButtonGroup />
+          </>
+        )}
       </Stack>
     </Box>
   );
