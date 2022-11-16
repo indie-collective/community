@@ -16,7 +16,7 @@ import {
   useMergeRefs,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
-import { Form } from '@remix-run/react';
+import { Form, useSubmit } from '@remix-run/react';
 
 const validationSchema = yup.object().shape({
   firstName: yup.string().required(),
@@ -43,12 +43,11 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
   const avatarRef = useRef();
   const { email, first_name: firstName, last_name: lastName, about } = defaultData;
   const [avatar, setAvatar] = useState(defaultData.avatar);
+  const submit = useSubmit();
   const {
     handleSubmit,
     register,
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -61,7 +60,17 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
   const avatarProps = register('avatar');
 
   return (
-    <Form onSubmit={handleSubmit} {...rest} encType="multipart/form-data">
+    <Form
+      method="post"
+      onSubmit={handleSubmit((values, event) => {
+        submit(event.nativeEvent.submitter || event.currentTarget, {
+          method: 'post',
+          replace: true,
+        });
+      })}
+      {...rest}
+      encType="multipart/form-data"
+    >
       <FormControl mb={5}>
         <FormLabel htmlFor="avatar" textAlign="center">
           <Avatar size="2xl" margin="1rem" src={avatar}>
@@ -99,6 +108,7 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
         <Input
           id="email"
           name="email"
+          type="email"
           placeholder="jmj@indieco.xyz"
           value={email}
           disabled
