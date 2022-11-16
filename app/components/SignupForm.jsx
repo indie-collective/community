@@ -11,15 +11,12 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { PasswordInput } from './PasswordInput';
-import { Form } from '@remix-run/react';
+import { Form, useSubmit } from '@remix-run/react';
 
 const validationSchema = yup.object().shape({
   firstName: yup.string().required(),
   lastName: yup.string(),
-  email: yup
-    .string()
-    .email()
-    .required(),
+  email: yup.string().email().required(),
   password: yup.string().required(),
   passwordConfirmation: yup
     .string()
@@ -32,19 +29,26 @@ const propTypes = {
 };
 
 const SignupForm = ({ loading, ...rest }) => {
+  const submit = useSubmit();
   const {
     handleSubmit,
     register,
-
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
   return (
-    <Form onSubmit={handleSubmit} {...rest}>
+    <Form
+      method="post"
+      onSubmit={handleSubmit((values, event) => {
+        submit(event.nativeEvent.submitter || event.currentTarget, {
+          method: 'post',
+          replace: true,
+        });
+      })}
+      {...rest}
+    >
       <FormControl mb={5} isInvalid={errors.firstName} isRequired>
         <FormLabel htmlFor="firstName">First name</FormLabel>
         <Input

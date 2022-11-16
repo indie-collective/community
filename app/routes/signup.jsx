@@ -1,14 +1,14 @@
 import {
+  Alert,
+  AlertIcon,
   Box,
   Heading,
   Text,
   Link as ChakraLink,
   useColorModeValue as mode,
-  useToast,
 } from '@chakra-ui/react';
 import { json, redirect } from '@remix-run/node';
 import { Link, useActionData, useTransition } from '@remix-run/react';
-import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
@@ -25,23 +25,33 @@ export const action = async ({ request }) => {
   try {
     const form = await request.formData();
 
+    const firstName = form.get('firstName');
+    const lastName = form.get('lastName');
+    const email = form.get('email');
+    const password = form.get('password');
+    const confirm = form.get('passwordConfirmation');
+
+    if (password !== confirm) {
+      return json({
+        error: "Password and confirmation don't match",
+      });
+    }
+
     const user = await db.person.create({
       data: {
-        first_name: form.get('firstName'),
-        last_name: form.get('lastName'),
-        email: form.get('email'),
+        first_name: firstName,
+        last_name: lastName,
+        email,
       },
     });
 
-    await db.$queryRaw`update indieco.person set password_hash = public.crypt(${form.get(
-      'password'
-    )}, public.gen_salt('bf')) where email = ${user.email}`;
+    await db.$queryRaw`update indieco.person set password_hash = public.crypt(${password}, public.gen_salt('bf')) where email = ${user.email}`;
 
     let session = await getSession(request.headers.get('cookie'));
 
     session.set(authenticator.sessionKey, user);
 
-    return redirect('/', {
+    return redirect('/welcome', {
       headers: { 'Set-Cookie': await commitSession(session) },
     });
   } catch (error) {
@@ -54,7 +64,7 @@ export const action = async ({ request }) => {
     }
 
     return json({
-      error: error.message,
+      error: 'An error occured.',
     });
   }
 };
@@ -64,21 +74,8 @@ export const meta = () => ({
 });
 
 const SignUp = () => {
-  const toast = useToast({
-    position: 'bottom-right',
-  });
   const transition = useTransition();
   const actionData = useActionData();
-
-  useEffect(() => {
-    if (!actionData?.error) return;
-
-    toast({
-      title: 'Something went wrong',
-      description: actionData?.error,
-      status: 'error',
-    });
-  }, [actionData?.error, transition.state === 'submitting', toast]);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -96,6 +93,13 @@ const SignUp = () => {
           Sign in
         </ChakraLink>
       </Text>
+
+      {actionData?.error && (
+        <Alert status="error" mb="10px">
+          <AlertIcon />
+          {actionData?.error}
+        </Alert>
+      )}
 
       <SignupForm method="post" loading={transition.state === 'submitting'} />
     </Box>
