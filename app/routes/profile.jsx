@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { EditIcon, LinkIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
-import { Form, Link, useLoaderData } from '@remix-run/react';
+import { Form, Link, useLoaderData, useSearchParams } from '@remix-run/react';
 import { useState } from 'react';
 
 import { db } from '../utils/db.server';
@@ -79,6 +79,7 @@ const LinkSocialButton = ({ provider, icon, name }) => {
 
 const Profile = () => {
   const { colorMode, toggleColorMode } = useColorMode();
+  const [searchParams] = useSearchParams();
 
   const { currentUser } = useLoaderData();
   const {
@@ -122,40 +123,42 @@ const Profile = () => {
         </Heading>
         <Heading size="md">{email}</Heading>
 
-        <ButtonGroup>
-          {discord_url ? (
-            <IconButton
-              as={ChakraLink}
-              aria-label="Discord"
-              icon={<DiscordIcon />}
-              colorScheme="discord"
-              href={discord_url}
-              isExternal
-            />
-          ) : (
-            <LinkSocialButton
-              provider="discord"
-              icon={<DiscordIcon />}
-              name="Discord"
-            />
-          )}
-          {github_url ? (
-            <IconButton
-              as={ChakraLink}
-              aria-label="GitHub"
-              icon={<GitHubIcon />}
-              colorScheme="github"
-              href={github_url}
-              isExternal
-            />
-          ) : (
-            <LinkSocialButton
-              provider="github"
-              icon={<GitHubIcon />}
-              name="GitHub"
-            />
-          )}
-        </ButtonGroup>
+        {searchParams.has('beta') && (
+          <ButtonGroup>
+            {discord_url ? (
+              <IconButton
+                as={ChakraLink}
+                aria-label="Discord"
+                icon={<DiscordIcon />}
+                colorScheme="discord"
+                href={discord_url}
+                isExternal
+              />
+            ) : (
+              <LinkSocialButton
+                provider="discord"
+                icon={<DiscordIcon />}
+                name="Discord"
+              />
+            )}
+            {github_url ? (
+              <IconButton
+                as={ChakraLink}
+                aria-label="GitHub"
+                icon={<GitHubIcon />}
+                colorScheme="github"
+                href={github_url}
+                isExternal
+              />
+            ) : (
+              <LinkSocialButton
+                provider="github"
+                icon={<GitHubIcon />}
+                name="GitHub"
+              />
+            )}
+          </ButtonGroup>
+        )}
 
         {about && (
           <Box
