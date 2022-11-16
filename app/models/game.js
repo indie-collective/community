@@ -36,19 +36,20 @@ export default async function computeGame(game) {
   if (game.igdb_slug) {
     igdb_game = await getIGDBGame(game.igdb_slug);
 
-    if (game_entity) {
+    if (igdb_game && game_entity) {
       // filter out companies that we have already
-      igdb_game.involved_companies = igdb_game.involved_companies.filter(
-        ({ company }) =>
-          // when we have igdb_slug on entity
-          // game_entity.some(({ entity }) => entity.igdb_slug === company.slug)
+      igdb_game.involved_companies =
+        igdb_game.involved_companies?.filter(
+          ({ company }) =>
+            // when we have igdb_slug on entity
+            // game_entity.some(({ entity }) => entity.igdb_slug === company.slug)
 
-          // so we do this in the meantime
-          !game_entity.some(
-            ({ entity }) =>
-              entity.name.toLowerCase() === company.name.toLowerCase()
-          )
-      );
+            // so we do this in the meantime
+            !game_entity.some(
+              ({ entity }) =>
+                entity.name.toLowerCase() === company.name.toLowerCase()
+            )
+        ) || [];
     }
   }
 
