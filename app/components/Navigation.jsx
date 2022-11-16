@@ -153,7 +153,7 @@ const Navigation = ({ search }) => {
         </Box>
 
         <Box flex="auto">
-          <VStack as="nav" spacing={1} mt={8} alignItems="start">
+          <VStack as="nav" spacing={1} mt={8} alignItems="stretch">
             <NavLink href="/">Home</NavLink>
             <NavLink href="/games">Games</NavLink>
             <NavLink href="/studios">Studios</NavLink>
