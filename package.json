@@ -1,7 +1,7 @@
 {
   "scripts": {
     "build": "remix build",
-    "deploy": "fly deploy --remote-only",
+    "deploy": "remix build && fly deploy --remote-only",
     "dev": "remix dev",
     "start": "remix-serve build"
   },
