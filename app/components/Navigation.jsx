@@ -24,13 +24,11 @@ function NavLink(props) {
   const { href, ...rest } = props;
   const location = useLocation();
 
-  const [, group] = href.split('/');
-
   let isActive = false;
   if (href === '/') {
     isActive = location.pathname === '/';
   } else {
-    isActive = location.pathname.includes(group);
+    isActive = location.pathname.startsWith(href);
   }
 
   return (
@@ -113,7 +111,8 @@ const Navigation = ({ search }) => {
           {currentUser?.isAdmin && (
             <Wrap as="nav" spacing={4} mt="10px" justify="center">
               <WrapItem>
-                <NavLink href="/admin">Admin</NavLink>
+                <NavLink href="/admin/users">Users</NavLink>
+                <NavLink href="/admin/changes">Changes</NavLink>
               </WrapItem>
             </Wrap>
           )}
@@ -166,7 +165,8 @@ const Navigation = ({ search }) => {
               <Text fontWeight="bold" color="silver" ml="-5px" mb="-5px">
                 Admin
               </Text>
-              <NavLink href="/admin">Main</NavLink>
+              <NavLink href="/admin/users">Users</NavLink>
+              <NavLink href="/admin/changes">Changes</NavLink>
             </VStack>
           )}
         </Box>
