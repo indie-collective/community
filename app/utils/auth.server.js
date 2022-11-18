@@ -16,7 +16,9 @@ import { sessionStorage } from './session.server';
 // strategies will return and will store in the session
 export let authenticator = new Authenticator(sessionStorage);
 
-const CALLBACK_BASE_URL = `http://localhost:5000/auth`;
+const port = process.env.PORT ?? 3000;
+
+const CALLBACK_BASE_URL = (process.env.BASE_URL ?? `http://localhost:${port}`) + '/auth';
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
