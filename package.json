@@ -26,6 +26,7 @@
     "framer-motion": "^6.2.9",
     "igdb-api-node": "^5.0.1",
     "jimp": "^0.16.1",
+    "memory-cache": "^0.2.0",
     "pg-tsquery": "^8.4.0",
     "pigeon-maps": "^0.19.7",
     "pigeon-marker": "^0.3.4",
