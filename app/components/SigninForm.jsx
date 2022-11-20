@@ -9,11 +9,13 @@ import {
   Input,
   FormErrorMessage,
   Button,
-  Link,
+  Link as ChakraLink,
   useColorModeValue as mode,
   Flex,
+  HStack,
+  Checkbox
 } from '@chakra-ui/react';
-import { Form, useSearchParams, useSubmit } from '@remix-run/react';
+import { Form, Link, useSearchParams, useSubmit } from '@remix-run/react';
 
 import { PasswordInput } from './PasswordInput';
 
@@ -65,13 +67,14 @@ const SigninForm = ({ loading }) => {
         <Flex justify="space-between" alignItems="baseline">
           <FormLabel htmlFor="password">Password</FormLabel>
           {searchParams.has('beta') && (
-            <Link
+            <ChakraLink
+              as={Link}
               color={mode('teal.600', 'teal.200')}
               fontWeight="semibold"
               fontSize="sm"
             >
               Forgot Password?
-            </Link>
+            </ChakraLink>
           )}
         </Flex>
         <PasswordInput
@@ -84,6 +87,19 @@ const SigninForm = ({ loading }) => {
           {errors.password && errors.password.message}
         </FormErrorMessage>
       </FormControl>
+
+      <HStack justify="space-between">
+        <Checkbox defaultChecked>Remember me</Checkbox>
+        <ChakraLink
+          as={Link}
+          to="/forgot"
+          color={mode('teal.600', 'teal.200')}
+          fontWeight="semibold"
+        >
+          Forgot password?
+        </ChakraLink>
+      </HStack>
+
       <Button
         type="submit"
         display="block"
