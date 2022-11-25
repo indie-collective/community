@@ -19,6 +19,7 @@ import {
 } from '@remix-run/react';
 import { AnimatePresence } from 'framer-motion';
 import React, { useContext, useEffect } from 'react';
+import posthog from 'posthog-js';
 
 import { ServerStyleContext, ClientStyleContext } from './context';
 import theme from './theme';
@@ -75,6 +76,13 @@ const Document = withEmotionCache(({ children }, emotionCache) => {
     });
     // reset cache to reapply global styles
     clientStyleData?.reset();
+
+    // init Posthog
+    if (process.env.NODE_ENV !== 'development') {
+      posthog.init(process.env.POSTHOG_ID, {
+        api_host: 'https://eu.posthog.com',
+      });
+    }
   }, []);
 
   return (
