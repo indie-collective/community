@@ -66,16 +66,15 @@ const SigninForm = ({ loading }) => {
       <FormControl id="password" mb={5} isInvalid={errors.password} isRequired>
         <Flex justify="space-between" alignItems="baseline">
           <FormLabel htmlFor="password">Password</FormLabel>
-          {searchParams.has('beta') && (
-            <ChakraLink
-              as={Link}
-              color={mode('teal.600', 'teal.200')}
-              fontWeight="semibold"
-              fontSize="sm"
-            >
-              Forgot Password?
-            </ChakraLink>
-          )}
+          <ChakraLink
+            as={Link}
+            to="/forgot"
+            color={mode('teal.600', 'teal.200')}
+            fontWeight="semibold"
+            fontSize="sm"
+          >
+            Forgot Password?
+          </ChakraLink>
         </Flex>
         <PasswordInput
           {...register('password')}
@@ -87,18 +86,6 @@ const SigninForm = ({ loading }) => {
           {errors.password && errors.password.message}
         </FormErrorMessage>
       </FormControl>
-
-      <HStack justify="space-between">
-        <Checkbox defaultChecked>Remember me</Checkbox>
-        <ChakraLink
-          as={Link}
-          to="/forgot"
-          color={mode('teal.600', 'teal.200')}
-          fontWeight="semibold"
-        >
-          Forgot password?
-        </ChakraLink>
-      </HStack>
 
       <Button
         type="submit"
