@@ -5,7 +5,7 @@ import {
   Grid,
   Image,
   Fade,
-  useToast,
+  // useToast,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { useLoaderData } from '@remix-run/react';
@@ -17,23 +17,23 @@ import EventCard from './EventCard';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 
 const AuthenticatedHomePage = () => {
-  const toast = useToast();
+  // const toast = useToast();
   const bg = useColorModeValue('white', 'gray.900');
 
   const { games, studios, associations, eventsToCome, currentUser } =
     useLoaderData();
   const { firstName, eventsToCome: joinedEventsToCome } = currentUser;
 
-  useEffect(() => {
-    toast({
-      title: firstName ? `Welcome back ${firstName}!` : 'Welcome back!',
-      description: 'Many new games and events await you…',
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-      position: 'bottom-right',
-    });
-  }, []);
+  // useEffect(() => {
+  //   toast({
+  //     title: firstName ? `Welcome back ${firstName}!` : 'Welcome back!',
+  //     description: 'Many new games and events await you…',
+  //     status: 'success',
+  //     duration: 5000,
+  //     isClosable: true,
+  //     position: 'bottom-right',
+  //   });
+  // }, []);
 
   return (
     <Box p={5} mb={5}>
