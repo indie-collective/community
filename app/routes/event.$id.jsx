@@ -28,6 +28,7 @@ import { Map } from 'pigeon-maps';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
+import { getFullTextSearchQuery } from '../utils/search.server';
 import computeEvent from '../models/event';
 import usePlaceholder from '../hooks/usePlaceholder';
 import GameCard from '../components/GameCard';
@@ -104,7 +105,7 @@ export const loader = async ({ request, params }) => {
   const relatedEvents = await db.event.findMany({
     where: {
       name: {
-        search: event.name.split(' ').join(' | '),
+        search: getFullTextSearchQuery(event.name),
       },
       id: {
         not: id,
