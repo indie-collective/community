@@ -369,23 +369,23 @@ const Places = () => {
         >
           <ZoomControl />
           {orgsMarkers}
-
-          {/* TODO: see if we can prevent change in children (see orgsInBounds) */}
-          <MovingBand containerRef={containerRef} header={orgsListHeader}>
-            <Box
-              flex={1}
-              overflow="auto"
-              px={3}
-              sx={{ scrollBehavior: 'smooth' }}
-            >
-              <OrgList
-                orgs={orgsInBounds}
-                onMouseEnter={handleOrgCardEnter}
-                onMouseOut={handleOrgCardOut}
-              />
-            </Box>
-          </MovingBand>
         </Map>
+
+        {/* TODO: see if we can prevent change in children (see orgsInBounds) */}
+        <MovingBand containerRef={containerRef} header={orgsListHeader}>
+          <Box
+            flex={1}
+            overflow="auto"
+            px={3}
+            sx={{ scrollBehavior: 'smooth' }}
+          >
+            <OrgList
+              orgs={orgsInBounds}
+              onMouseEnter={handleOrgCardEnter}
+              onMouseOut={handleOrgCardOut}
+            />
+          </Box>
+        </MovingBand>
       </Box>
     </Flex>
   );
