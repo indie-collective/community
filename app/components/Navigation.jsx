@@ -12,6 +12,7 @@ import {
   useBreakpointValue,
   Wrap,
   WrapItem,
+  Divider,
 } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
 import { Link, useLoaderData, useLocation } from '@remix-run/react';
@@ -131,7 +132,7 @@ const Navigation = ({ search }) => {
     <Box bg={bg} shadow="sm">
       <Flex
         direction="column"
-        px={8}
+        pl={5}
         py={8}
         position="fixed"
         width="260px"
@@ -147,12 +148,12 @@ const Navigation = ({ search }) => {
           </HStack>
         </Link>
 
-        <Box mt={3}>
+        <Box mt={5}>
           <SearchInput defaultValue={search} />
         </Box>
 
-        <Box flex="auto">
-          <VStack as="nav" spacing={1} mt={8} alignItems="stretch">
+        <Box as="nav" flex="auto">
+          <VStack as="ul" spacing={1} my={5} alignItems="stretch">
             <NavLink href="/">Home</NavLink>
             <NavLink href="/games">Games</NavLink>
             <NavLink href="/studios">Studios</NavLink>
@@ -161,13 +162,16 @@ const Navigation = ({ search }) => {
           </VStack>
 
           {currentUser?.isAdmin && (
-            <VStack as="nav" spacing={1} mt={5} alignItems="start">
-              <Text fontWeight="bold" color="silver" ml="-5px" mb="-5px">
+            <>
+              <Text fontWeight="bold" color="gray.500" px={3}>
                 Admin
               </Text>
-              <NavLink href="/admin/users">Users</NavLink>
-              <NavLink href="/admin/changes">Changes</NavLink>
-            </VStack>
+              <Divider mb={2} borderWidth={2} borderColor="gray.500" />
+              <VStack as="ul" spacing={1} alignItems="stretch">
+                <NavLink href="/admin/users">Users</NavLink>
+                <NavLink href="/admin/changes">Changes</NavLink>
+              </VStack>
+            </>
           )}
         </Box>
 
