@@ -12,7 +12,7 @@ function ClientCacheProvider({ children }) {
   function reset() {
     setCache(createEmotionCache());
   }
-
+  
   return (
     <ClientStyleContext.Provider value={{ reset }}>
       <CacheProvider value={cache}>{children}</CacheProvider>

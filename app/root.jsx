@@ -16,6 +16,8 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
+  useLoaderData,
+  useLocation,
 } from '@remix-run/react';
 import { AnimatePresence } from 'framer-motion';
 import React, { useContext, useEffect } from 'react';
@@ -76,13 +78,6 @@ const Document = withEmotionCache(({ children }, emotionCache) => {
     });
     // reset cache to reapply global styles
     clientStyleData?.reset();
-
-    // init Posthog
-    if (process.env.NODE_ENV !== 'development') {
-      posthog.init(process.env.POSTHOG_ID, {
-        api_host: 'https://eu.posthog.com',
-      });
-    }
   }, []);
 
   return (
@@ -163,11 +158,32 @@ export function ErrorBoundary({ error }) {
 
 export const loader = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request);
+  const { POSTHOG_ID, NODE_ENV } = process.env;
 
-  return { currentUser };
+  return { currentUser, ENV: { POSTHOG_ID, NODE_ENV } };
 };
 
 export default function App() {
+  const {
+    ENV: { POSTHOG_ID, NODE_ENV },
+  } = useLoaderData();
+  let location = useLocation();
+
+  useEffect(() => {
+    posthog.init(POSTHOG_ID, {
+      api_host: 'https://eu.posthog.com',
+      opt_in_site_apps: true,
+      loaded(posthog) {
+        if (NODE_ENV === 'development') posthog.opt_out_capturing();
+      },
+    });
+    console.log('NODE_ENV', NODE_ENV, POSTHOG_ID);
+  }, []);
+
+  React.useEffect(() => {
+    posthog.capture('$pageview');
+  }, [location]);
+
   return (
     <Document>
       <ChakraProvider theme={theme}>
