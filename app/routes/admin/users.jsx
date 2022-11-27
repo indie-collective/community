@@ -19,11 +19,8 @@ import {
   Link as ChakraLink,
   Avatar,
   Input,
-  Text,
-  ListItem,
-  List,
-  ListIcon,
   Box,
+  Text,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -56,7 +53,7 @@ export const action = async ({ request }) => {
     },
   });
 
-  return redirect('/admin');
+  return redirect('/admin/users');
 };
 
 export const loader = async ({ request }) => {
@@ -74,6 +71,7 @@ export const loader = async ({ request }) => {
     select: {
       id: true,
       created_at: true,
+      username: true,
       first_name: true,
       last_name: true,
       email: true,
@@ -127,18 +125,6 @@ export const meta = () => ({
   title: 'Community Administration',
 });
 
-const operationsColors = {
-  create: 'green.500',
-  update: 'blue.500',
-  delete: 'red.500',
-};
-
-const operationsIcons = {
-  create: AddIcon,
-  update: EditIcon,
-  delete: DeleteIcon,
-};
-
 const Profile = () => {
   const submit = useSubmit();
   const { currentUser, people, nbOfPeople, lastChanges } = useLoaderData();
@@ -168,6 +154,7 @@ const Profile = () => {
                 id,
                 created_at,
                 avatar,
+                username,
                 first_name,
                 last_name,
                 email,
@@ -185,8 +172,11 @@ const Profile = () => {
                       verticalAlign="middle"
                       mr={2}
                     />
-                    {first_name}&nbsp;
-                    {last_name}
+                    <b>
+                      {first_name}&nbsp;
+                      {last_name}
+                    </b>{' '}
+                    <Text as="span" color='gray.500'>{username}</Text>
                   </Td>
                   <Td color={isRestricted && 'gray.500'}>
                     {formatDistanceToNow(new Date(created_at), {
