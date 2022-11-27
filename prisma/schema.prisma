@@ -1,0 +1,260 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fieldReference"]
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model entity {
+  id            String          @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  type          entity_type?
+  name          String
+  about         String?
+  location_id   String?         @db.Uuid
+  created_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime?       @updatedAt
+  logo_id       String?         @db.Uuid
+  site          String?
+  location      location?       @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  logo          image?          @relation(fields: [logo_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  entity_event  entity_event[]
+  entity_image  entity_image[]
+  entity_member entity_member[]
+  game_entity   game_entity[]
+}
+
+model entity_event {
+  entity_id  String    @db.Uuid
+  event_id   String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
+  entity     entity    @relation(fields: [entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  event      event     @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([entity_id, event_id])
+}
+
+model entity_image {
+  entity_id  String    @db.Uuid
+  image_id   String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
+  entity     entity    @relation(fields: [entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  image      image     @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([entity_id, image_id])
+}
+
+model entity_member {
+  entity_id  String    @db.Uuid
+  person_id  String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
+  entity     entity    @relation(fields: [entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "team_member_entity_id_fkey")
+  person     person    @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "team_member_person_id_fkey")
+
+  @@id([entity_id, person_id])
+}
+
+model event {
+  id                String              @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name              String
+  about             String?
+  location_id       String?             @db.Uuid
+  site              String?
+  starts_at         DateTime            @db.Timestamptz(6)
+  ends_at           DateTime            @db.Timestamptz(6)
+  created_at        DateTime?           @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?           @updatedAt
+  cover_id          String?             @db.Uuid
+  status            event_status        @default(ongoing)
+  cover             image?              @relation(fields: [cover_id], references: [id], onUpdate: NoAction)
+  location          location?           @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  entity_event      entity_event[]
+  event_participant event_participant[]
+  game_event        game_event[]
+}
+
+model event_participant {
+  event_id  String    @db.Uuid
+  person_id String    @db.Uuid
+  joined_at DateTime? @default(now()) @db.Timestamptz(6)
+  event     event     @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  person    person    @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([event_id, person_id])
+}
+
+model game {
+  id          String        @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name        String
+  about       String?
+  site        String?
+  tag_list    String[]      @db.VarChar(30)
+  created_at  DateTime?     @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime?     @updatedAt
+  igdb_slug   String?       @unique
+  game_author game_author[]
+  changes     game_change[]
+  game_entity game_entity[]
+  game_event  game_event[]
+  game_image  game_image[]
+  game_tag    game_tag[]
+  deleted     Boolean       @default(false)
+}
+
+model game_change {
+  operation  operation_type
+  id         String         @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name       String?
+  about      String?
+  igdb_slug  String?
+  site       String?
+  tag_list   String[]       @db.VarChar(30)
+  created_at DateTime?      @default(now()) @db.Timestamptz(6)
+  game_id    String         @db.Uuid
+  author_id  String?        @db.Uuid
+  author     person?        @relation(fields: [author_id], references: [id])
+  game       game           @relation(fields: [game_id], references: [id])
+}
+
+model game_author {
+  game_id    String    @db.Uuid
+  person_id  String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
+  game       game      @relation(fields: [game_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  person     person    @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([game_id, person_id])
+}
+
+model game_entity {
+  game_id    String    @db.Uuid
+  entity_id  String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
+  entity     entity    @relation(fields: [entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  game       game      @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([game_id, entity_id])
+}
+
+model game_event {
+  game_id    String    @db.Uuid
+  event_id   String    @db.Uuid
+  tags       String[]  @db.VarChar(100)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
+  event      event     @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  game       game      @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([game_id, event_id])
+}
+
+model game_image {
+  game_id    String    @db.Uuid
+  image_id   String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
+  game       game      @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  image      image     @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([game_id, image_id])
+}
+
+model game_tag {
+  game_id    String    @db.Uuid
+  tag_id     String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt
+  game       game      @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tag        tag       @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([game_id, tag_id])
+}
+
+model image {
+  id           String         @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  image_file   Json           @default("{}")
+  created_at   DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime?      @updatedAt
+  entity       entity[]
+  entity_image entity_image[]
+  event        event[]
+  game_image   game_image[]
+  person       person[]
+}
+
+model location {
+  id           String    @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  city         String
+  latitude     Float?
+  longitude    Float?
+  updated_at   DateTime? @updatedAt
+  street       String?
+  country_code String    @db.Char(2)
+  region       String
+  entity       entity[]
+  event        event[]
+
+  @@unique([street, city, region, country_code, latitude, longitude])
+}
+
+model person {
+  id                String              @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  first_name        String
+  last_name         String?
+  about             String?
+  created_at        DateTime?           @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?           @updatedAt
+  avatar_id         String?             @db.Uuid
+  discord_id        String?             @unique
+  email             String?             @unique
+  github_id         String?             @unique
+  isAdmin           Boolean             @default(false)
+  password_hash     String?
+  steam_id          String?             @unique
+  avatar            image?              @relation(fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  entity_member     entity_member[]
+  event_participant event_participant[]
+  game_author       game_author[]
+  game_changes      game_change[]
+  tokens            reset_token[]
+}
+
+model reset_token {
+  id                String              @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  person            person              @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  person_id         String              @db.Uuid
+  token             String              @default(dbgenerated("gen_random_uuid()"))
+  created_at        DateTime?           @default(now()) @db.Timestamptz(6)
+}
+
+model tag {
+  id         String     @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name       String     @unique @db.VarChar(30)
+  created_at DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime?  @updatedAt
+  game_tag   game_tag[]
+}
+
+enum operation_type {
+  create
+  update
+  delete
+}
+
+enum entity_type {
+  studio
+  association
+}
+
+enum event_status {
+  ongoing
+  canceled
+}

@@ -1,9 +1,0 @@
-mutation createTag($name: String!) {
-  createTag(input: { tag: { name: $name }}) {
-    tag {
-      id
-      name
-      createdAt
-    }
-  }
-}
