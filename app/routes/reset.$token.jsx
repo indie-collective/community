@@ -1,21 +1,11 @@
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Heading,
-  Text,
-  Link as ChakraLink,
-  useColorModeValue as mode,
-} from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Heading } from '@chakra-ui/react';
 import { json, redirect } from '@remix-run/node';
-import { Link, useActionData, useTransition } from '@remix-run/react';
+import { useActionData, useTransition } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
-import { commitSession, getSession } from '../utils/session.server';
 import PasswordResetForm from '../components/PasswordResetForm';
 
-export const loader = async ({ request, params }) => {
+export const loader = async ({ params }) => {
   const { token } = params;
 
   const resetToken = await db.reset_token.findFirst({
@@ -35,6 +25,8 @@ export const loader = async ({ request, params }) => {
 };
 
 export const action = async ({ request, params }) => {
+  const { token } = params;
+
   try {
     const form = await request.formData();
 
@@ -55,12 +47,10 @@ export const action = async ({ request, params }) => {
         person: true,
       },
     });
-  
+
     await db.$queryRaw`update indieco.person set password_hash = public.crypt(${password}, public.gen_salt('bf')) where email = ${resetToken.person.email}`;
 
-    return redirect('/welcome', {
-      headers: { 'Set-Cookie': await commitSession(session) },
-    });
+    return redirect('/signin');
   } catch (error) {
     console.log(error);
 

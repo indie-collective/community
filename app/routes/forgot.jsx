@@ -1,18 +1,14 @@
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Heading,
-  useColorModeValue as mode,
-} from '@chakra-ui/react';
-import { json, redirect } from '@remix-run/node';
+import { Alert, AlertIcon, Box, Heading } from '@chakra-ui/react';
+import { json } from '@remix-run/node';
 import { useActionData, useTransition } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
-import { commitSession, getSession } from '../utils/session.server';
 import ForgotForm from '../components/ForgotForm';
 import { sendEmail } from '../utils/email.server';
+
+const port = process.env.PORT ?? 3000;
+const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
 export const loader = async ({ request }) => {
   return await authenticator.isAuthenticated(request, {
@@ -43,8 +39,8 @@ export const action = async ({ request }) => {
     await sendEmail({
       to: email,
       subject: 'IndieCo Community password reset',
-      text: `We've received a password reset request for this email. If this was your request, you can reset by following this link: https://community.indieco.xyz/reset/${token.token}. If not, please contact us so we can secure your account.`,
-      html: `<p>We've received a password reset request for this email.</p><p>If this was your request, you can reset by following <a href="https://community.indieco.xyz/reset/${token.token}">this link</a>.<p><p>If not, please contact us so we can secure your account.</p>`,
+      text: `We've received a password reset request for this email. If this was your request, you can reset by following this link: ${BASE_URL}/reset/${token.token}. If not, please contact us so we can secure your account.`,
+      html: `<p>We've received a password reset request for this email.</p><p>If this was your request, you can reset by following <a href="${BASE_URL}/reset/${token.token}">this link</a>.<p><p>If not, please contact us so we can secure your account.</p>`,
     });
   }
 
