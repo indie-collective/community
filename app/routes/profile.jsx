@@ -37,7 +37,7 @@ export const loader = async ({ request }) => {
     select: {
       id: true,
       avatar_id: true,
-      email: true,
+      username: true,
       first_name: true,
       last_name: true,
       about: true,
@@ -83,7 +83,7 @@ const Profile = () => {
 
   const { currentUser } = useLoaderData();
   const {
-    email,
+    username,
     first_name,
     last_name,
     about,
@@ -118,10 +118,14 @@ const Profile = () => {
           src={avatar?.thumbnail_url}
         />
 
-        <Heading as="h3">
-          {first_name} {last_name}
-        </Heading>
-        <Heading size="md">{email}</Heading>
+        <Box as="header" textAlign="center">
+          <Heading as="h3">
+            {first_name} {last_name}
+          </Heading>
+          <Heading as="span" size="sm" color="gray.500">
+            @{username}
+          </Heading>
+        </Box>
 
         {searchParams.has('beta') && (
           <ButtonGroup>

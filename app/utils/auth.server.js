@@ -73,7 +73,9 @@ authenticator.use(
           create: {
             email: profile.emails[0].value,
             discord_id: profile.id,
-            first_name: profile.displayName,
+            first_name: profile.name?.givenName || profile.displayName,
+            last_name: profile.name?.familyName,
+            username: profile.displayName,
           },
           update: {},
         });
@@ -109,7 +111,10 @@ authenticator.use(
         create: {
           email: profile.emails[0].value,
           discord_id: profile.id,
-          first_name: profile.displayName,
+          first_name: profile.name?.givenName || profile.displayName,
+          last_name: profile.name?.familyName,
+          username: profile.displayName, // github username
+          about: profile._json.bio,
         },
         update: {},
       });
@@ -137,23 +142,23 @@ authenticator.use(
           },
           create: {
             steam_id: profile.steamID,
-            first_name: profile.nickname,
+            first_name: profile.realName || profile.nickname,
+            username: profile.nickname,
           },
           update: {},
         });
-  
+
         return {
           ...user,
           avatar: profile.avatar.large,
         };
-      }
-      catch (err) {
+      } catch (err) {
         console.log(err);
         throw new Error('Error connecting to Steam');
       }
     }
   ),
-  "steam"
+  'steam'
 );
 
 const { isAuthenticated } = authenticator;
