@@ -33,7 +33,7 @@ import {
 } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 import { db } from '../utils/db.server';
@@ -45,6 +45,162 @@ import { authenticator } from '../utils/auth.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+
+const ImageGallery = ({ images, currentUser, fetcher }) => {
+  const [open, setOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        setCurrentImageIndex((currentImageIndex) => {
+          if (currentImageIndex === 0) {
+            return images.length - 1;
+          }
+          return currentImageIndex - 1;
+        });
+      }
+
+      if (event.key === 'ArrowRight') {
+        setCurrentImageIndex((currentImageIndex) => {
+          if (currentImageIndex === images.length - 1) {
+            return 0;
+          }
+          return currentImageIndex + 1;
+        });
+      }
+    });
+  }, []);
+
+  return (
+    <>
+      <Modal
+        size="cover"
+        isOpen={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+        motionPreset="slideInBottom"
+      >
+        <ModalOverlay />
+        <ModalContent margin="30px">
+          <ModalBody
+            paddingInlineStart="none"
+            paddingInlineEnd="none"
+            paddingTop="none"
+            paddingBottom="none"
+          >
+            <AspectRatio ratio={16 / 9}>
+              <Image
+                borderRadius="md"
+                objectFit="cover"
+                size="100%"
+                src={images[currentImageIndex].url}
+                alt=""
+              />
+            </AspectRatio>
+          </ModalBody>
+          <ModalCloseButton background="white" />
+        </ModalContent>
+      </Modal>
+      <Grid
+        gap={3}
+        templateColumns={['repeat(1, 1fr)', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
+      >
+        {images.map((image, index) => (
+          <Box key={image.id} position="relative">
+            <AspectRatio ratio={16 / 9}>
+              <Image
+                borderRadius="md"
+                objectFit="cover"
+                size="100%"
+                src={image.thumbnail_url}
+                alt=""
+                onClick={() => {
+                  setCurrentImageIndex(index);
+                  setOpen(true);
+                }}
+                cursor="pointer"
+              />
+            </AspectRatio>
+            {currentUser && (
+              <IconButton
+                position="absolute"
+                bottom={2}
+                right={2}
+                size="xs"
+                aria-label={`Remove image ${id}`}
+                isRound
+                colorScheme="red"
+                icon={<DeleteIcon />}
+                onClick={(e) => {
+                  e.preventDefault();
+
+                  fetcher.submit(
+                    { id: image.id },
+                    { method: 'post', action: `/game/${id}/images/delete` }
+                    // { method: 'post', action: './images/delete' }
+                  );
+                }}
+              />
+            )}
+          </Box>
+        ))}
+        {fetcher.state === 'submitting' &&
+          fetcher.submission.action.includes('images/add') &&
+          fetcher.submission.formData.getAll('images').map((file) => (
+            <Box key={file.name} position="relative">
+              <AspectRatio ratio={16 / 9}>
+                <Image
+                  objectFit="cover"
+                  size="100%"
+                  src={URL.createObjectURL(file)}
+                  alt=""
+                  opacity={0.5}
+                />
+              </AspectRatio>
+              <Spinner position="absolute" inset={0} margin="auto" size="lg" />
+            </Box>
+          ))}
+        {currentUser && (
+          <AspectRatio ratio={16 / 9}>
+            <Box
+              transition="background-color 200ms ease-out"
+              color={isDragActive ? dzActiveColor : dzColor}
+              borderColor={isDragActive ? dzActiveBorderColor : dzBorderColor}
+              _hover={
+                isDragActive
+                  ? {
+                      color: dzActiveHoverColor,
+                      borderColor: dzActiveHoverBorderColor,
+                      cursor: 'pointer',
+                    }
+                  : {
+                      color: dzHoverColor,
+                      backgroundColor: dzHoverBorderColor,
+                      cursor: 'pointer',
+                    }
+              }
+              rounded={5}
+              borderWidth={5}
+              padding={5}
+              borderStyle="dashed"
+              textAlign="center"
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              {...getRootProps()}
+            >
+              <input {...getInputProps()} />
+              <AddIcon size="48px" />
+            </Box>
+          </AspectRatio>
+        )}
+      </Grid>
+    </>
+  );
+};
 
 export const loader = async ({ request, params }) => {
   const { id } = params;
@@ -319,114 +475,11 @@ const Game = () => {
         <Heading size="md" mb={2}>
           Images
         </Heading>
-        <Grid
-          gap={3}
-          templateColumns={[
-            'repeat(1, 1fr)',
-            'repeat(2, 1fr)',
-            'repeat(3, 1fr)',
-          ]}
-        >
-          {igdb_game?.screenshots.map((image) => (
-            <AspectRatio key={image.id} ratio={16 / 9}>
-              <Image
-                objectFit="cover"
-                size="100%"
-                src={image.url.replace('t_thumb', 't_screenshot_med')}
-                alt=""
-              />
-            </AspectRatio>
-          ))}
-          {images.map((image) => (
-            <Box key={image.id} position="relative">
-              <AspectRatio ratio={16 / 9}>
-                <Image
-                  objectFit="cover"
-                  size="100%"
-                  src={image.thumbnail_url}
-                  alt=""
-                />
-              </AspectRatio>
-              {currentUser && (
-                <IconButton
-                  position="absolute"
-                  bottom={2}
-                  right={2}
-                  size="xs"
-                  aria-label={`Remove image ${id}`}
-                  isRound
-                  colorScheme="red"
-                  icon={<DeleteIcon />}
-                  onClick={(e) => {
-                    e.preventDefault();
-
-                    fetcher.submit(
-                      { id: image.id },
-                      { method: 'post', action: `/game/${id}/images/delete` }
-                      // { method: 'post', action: './images/delete' }
-                    );
-                  }}
-                />
-              )}
-            </Box>
-          ))}
-          {fetcher.state === 'submitting' &&
-            fetcher.submission.action.includes('images/add') &&
-            fetcher.submission.formData.getAll('images').map((file) => (
-              <Box key={file.name} position="relative">
-                <AspectRatio ratio={16 / 9}>
-                  <Image
-                    objectFit="cover"
-                    size="100%"
-                    src={URL.createObjectURL(file)}
-                    alt=""
-                    opacity={0.5}
-                  />
-                </AspectRatio>
-                <Spinner
-                  position="absolute"
-                  inset={0}
-                  margin="auto"
-                  size="lg"
-                />
-              </Box>
-            ))}
-          {currentUser && (
-            <AspectRatio ratio={16 / 9}>
-              <Box
-                transition="background-color 200ms ease-out"
-                color={isDragActive ? dzActiveColor : dzColor}
-                borderColor={isDragActive ? dzActiveBorderColor : dzBorderColor}
-                _hover={
-                  isDragActive
-                    ? {
-                        color: dzActiveHoverColor,
-                        borderColor: dzActiveHoverBorderColor,
-                        cursor: 'pointer',
-                      }
-                    : {
-                        color: dzHoverColor,
-                        backgroundColor: dzHoverBorderColor,
-                        cursor: 'pointer',
-                      }
-                }
-                rounded={5}
-                borderWidth={5}
-                padding={5}
-                borderStyle="dashed"
-                textAlign="center"
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                justifyContent="center"
-                {...getRootProps()}
-              >
-                <input {...getInputProps()} />
-                <AddIcon size="48px" />
-              </Box>
-            </AspectRatio>
-          )}
-        </Grid>
+        <ImageGallery
+          images={images}
+          currentUser={currentUser}
+          fetcher={fetcher}
+        />
       </Box>
 
       {igdb_game?.videos.length > 0 && (
