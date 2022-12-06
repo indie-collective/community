@@ -167,7 +167,7 @@ const Game = () => {
 
                       <Stack direction="row" align="center">
                         <Text fontSize="sm">
-                          {author.first_name} {author.last_name}
+                          {author.username}
                         </Text>
                         <Spacer />
                         <Text

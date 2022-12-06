@@ -332,11 +332,12 @@ const Event = () => {
               flexDirection={['row-reverse', '']}
             >
               <AvatarGroup size="xs" max={3} justifyContent="end">
-                {participants.map(({ id, first_name, avatar }) => (
+                {participants.map(({ id, username, avatar }) => (
                   <Avatar
                     key={id}
-                    name={first_name}
+                    name={username}
                     src={avatar && avatar.thumbnail_url}
+                    title={`@${username}`}
                   />
                 ))}
               </AvatarGroup>

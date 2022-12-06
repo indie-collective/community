@@ -6,7 +6,7 @@ const AvatarButton = () => {
   const data = useLoaderData();
 
   if (data?.currentUser) {
-    const { first_name, email, avatar } = data.currentUser;
+    const { first_name, username, avatar } = data.currentUser;
 
     return (
       <Link to="/profile">
@@ -14,7 +14,7 @@ const AvatarButton = () => {
           <Avatar size="md" name={first_name} src={avatar} />
           <Flex direction="column">
             <Text fontWeight="bold" mb="-2px">{first_name}</Text>
-            <Text fontSize="small">{email}</Text>
+            <Text fontSize="small">@{username}</Text>
           </Flex>
         </HStack>
       </Link>

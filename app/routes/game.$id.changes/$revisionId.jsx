@@ -50,8 +50,7 @@ export const loader = async ({ request, params }) => {
       author: {
         select: {
           id: true,
-          first_name: true,
-          last_name: true,
+          username: true,
         },
       },
     },
@@ -140,7 +139,7 @@ const Game = () => {
         <Button ml="auto">Restore</Button>
         {currentUser.isAdmin && (
           <Button ml={2} colorScheme="red">
-            Restore and Restrict {author.first_name} {author.last_name}
+            Restore and Restrict {author.username}
           </Button>
         )}
       </Flex>
@@ -148,7 +147,7 @@ const Game = () => {
       <TableContainer>
         <Table variant="simple">
           <TableCaption>
-            Changes made by {author.first_name} {author.last_name} on{' '}
+            Changes made by {author.username} on{' '}
             <Text as="time">
               {new Date(createdAt).toLocaleDateString('en-US', {
                 day: '2-digit',
