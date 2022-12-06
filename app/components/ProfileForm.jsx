@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -14,11 +14,16 @@ import {
   AvatarBadge,
   IconButton,
   useMergeRefs,
+  InputGroup,
+  InputRightElement,
+  Spinner,
 } from '@chakra-ui/react';
-import { EditIcon } from '@chakra-ui/icons';
-import { Form, useSubmit } from '@remix-run/react';
+import { CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
+import { Form, useFetcher, useSubmit } from '@remix-run/react';
+import debounce from 'lodash.debounce';
 
 const validationSchema = yup.object().shape({
+  username: yup.string().required(),
   firstName: yup.string().required(),
   lastName: yup.string().required(),
   about: yup.string(),
@@ -27,6 +32,7 @@ const validationSchema = yup.object().shape({
 const propTypes = {
   loading: PropTypes.bool,
   defaultData: PropTypes.shape({
+    username: PropTypes.any,
     avatar: PropTypes.any,
     firstName: PropTypes.string,
     lastName: PropTypes.string,
@@ -41,16 +47,25 @@ const defaultProps = {
 
 const ProfileForm = ({ loading, defaultData, ...rest }) => {
   const avatarRef = useRef();
-  const { email, first_name: firstName, last_name: lastName, about } = defaultData;
+  const {
+    email,
+    username,
+    first_name: firstName,
+    last_name: lastName,
+    about,
+  } = defaultData;
   const [avatar, setAvatar] = useState(defaultData.avatar);
   const submit = useSubmit();
+  const fetcher = useFetcher();
   const {
     handleSubmit,
     register,
     formState: { errors },
+    watch,
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
+      username,
       firstName,
       lastName,
       about,
@@ -58,6 +73,13 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
   });
 
   const avatarProps = register('avatar');
+
+  const checkUsernameAvailability = useCallback(
+    debounce((newUsername) => {
+      fetcher.load(`/check-username-availability?q=${newUsername}`);
+    }, 300),
+    [fetcher]
+  );
 
   return (
     <Form
@@ -113,6 +135,35 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
           value={email}
           disabled
         />
+      </FormControl>
+
+      <FormControl mb={5}>
+        <FormLabel htmlFor="username">Username</FormLabel>
+        <InputGroup>
+          <Input
+            {...register('username', {
+              onChange: e => checkUsernameAvailability(e.target.value),
+            })}
+            id="username"
+            placeholder="jeanmicheljam"
+          />
+          {fetcher.data && (
+            <InputRightElement
+              children={
+                fetcher.state === 'loading' ? (
+                  <Spinner />
+                ) : fetcher.data.available ? (
+                  <CheckIcon color="green.500" />
+                ) : (
+                  <CloseIcon color="red.500" />
+                )
+              }
+            />
+          )}
+        </InputGroup>
+        <FormErrorMessage>
+          {errors.username && errors.username.message}
+        </FormErrorMessage>
       </FormControl>
 
       <FormControl mb={5} isInvalid={errors.firstName} isRequired>

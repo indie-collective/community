@@ -122,7 +122,7 @@ export const loader = async ({ request }) => {
 };
 
 export const meta = () => ({
-  title: 'Community Administration',
+  title: 'Users - Community Administration',
 });
 
 const Profile = () => {

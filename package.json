@@ -27,6 +27,7 @@
     "framer-motion": "^6.2.9",
     "igdb-api-node": "^5.0.1",
     "jimp": "^0.16.1",
+    "lodash.debounce": "^4.0.8",
     "memory-cache": "^0.2.0",
     "pg-tsquery": "^8.4.0",
     "pigeon-maps": "^0.19.7",

@@ -86,7 +86,7 @@ export const loader = async ({ request }) => {
 };
 
 export const meta = () => ({
-  title: 'Community Administration',
+  title: 'Last Changes - Community Administration',
 });
 
 const operationsColors = {

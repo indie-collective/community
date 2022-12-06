@@ -62,6 +62,7 @@ export const action = async ({ request }) => {
         avatar_id: data.get('avatar') ? data.get('avatar') : undefined,
         first_name: data.get('firstName'),
         last_name: data.get('lastName'),
+        username: data.get('username'),
         about: data.get('about'),
       },
       include: {
