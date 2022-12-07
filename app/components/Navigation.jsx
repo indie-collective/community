@@ -161,6 +161,7 @@ const Navigation = ({ search }) => {
             <NavLink href="/studios">Studios</NavLink>
             <NavLink href="/associations">Associations</NavLink>
             <NavLink href="/events">Events</NavLink>
+            <NavLink href="/places">Places</NavLink>
           </VStack>
 
           {currentUser?.isAdmin && (

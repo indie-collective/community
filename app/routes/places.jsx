@@ -13,12 +13,13 @@ import {
   useColorModeValue,
   keyframes,
 } from '@chakra-ui/react';
-import { Map, Overlay, ZoomControl } from 'pigeon-maps';
+import { Overlay, ZoomControl } from 'pigeon-maps';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { db } from '../utils/db.server';
 import computeOrg from '../models/org';
 // import Error from '../../../client/pages/_error';
+import ClusterMap from '../components/ClusterMap';
 import OrgCard from '../components/OrgCard';
 
 const TYPES_COLORS = {
@@ -286,6 +287,8 @@ export const meta = () => ({
 
 const Places = () => {
   const containerRef = useRef();
+  const [center, setCenter] = useState([0, 0]);
+  const [zoom, setZoom] = useState(2);
   const [currentBounds, setCurrentBounds] = useState();
   const [highlightedOrg, setHighlightedOrg] = useState();
 
@@ -360,16 +363,22 @@ const Places = () => {
         h="100%"
         overflow="hidden"
       >
-        <Map
+        <ClusterMap
           defaultWidth={1240}
           defaultHeight={835}
-          center={[0, 0]}
-          zoom={2}
-          onBoundsChanged={({ bounds }) => setCurrentBounds(bounds)}
+          center={center}
+          zoom={zoom}
+          bounds={currentBounds}
+          onBoundsChanged={({ bounds, center, zoom }) => {
+            setCurrentBounds(bounds);
+            setCenter(center);
+            setZoom(zoom);
+          }}
+          maxZoom={18}
         >
           <ZoomControl />
           {orgsMarkers}
-        </Map>
+        </ClusterMap>
 
         {/* TODO: see if we can prevent change in children (see orgsInBounds) */}
         <MovingBand containerRef={containerRef} header={orgsListHeader}>

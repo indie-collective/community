@@ -31,7 +31,7 @@
     "lodash.debounce": "^4.0.8",
     "memory-cache": "^0.2.0",
     "pg-tsquery": "^8.4.0",
-    "pigeon-maps": "^0.19.7",
+    "pigeon-maps": "^0.21.3",
     "pigeon-marker": "^0.3.4",
     "posthog-js": "^1.35.0",
     "prop-types": "^15.8.1",
@@ -48,6 +48,7 @@
     "remix-auth-socials": "^2.0.5",
     "remix-auth-steam": "^1.0.4",
     "slick-carousel": "^1.8.1",
+    "supercluster": "^7.1.5",
     "use-debounce": "^8.0.3",
     "yup": "^0.32.9"
   },
