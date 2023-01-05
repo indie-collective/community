@@ -4,12 +4,14 @@ import {
   Grid,
   AspectRatio,
   Link as ChakraLink,
+  IconButton,
 } from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 
-const MotionGallery = ({ images }) => {
+const MotionGallery = ({ images, currentUser, fetcher }) => {
   const [selectedId, setSelectedId] = useState(null);
 
   return (
@@ -19,26 +21,48 @@ const MotionGallery = ({ images }) => {
         templateColumns={['repeat(1, 1fr)', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
       >
         {images.map((image, index) => (
-          <AspectRatio
-            as={motion.div}
-            key={index}
-            ratio={16 / 9}
-            layoutId={index + 1}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <Image
-              as={motion.img}
-              src={image.thumbnail_url}
-              borderRadius="md"
-              objectFit="cover"
-              size="100%"
-              cursor="pointer"
-              onClick={() => {
-                setSelectedId(index + 1);
-              }}
-            />
-          </AspectRatio>
+          <Box key={index} position="relative">
+            <AspectRatio
+              as={motion.div}
+              ratio={16 / 9}
+              layoutId={index + 1}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <Image
+                as={motion.img}
+                src={image.thumbnail_url}
+                borderRadius="md"
+                objectFit="cover"
+                size="100%"
+                cursor="pointer"
+                onClick={() => {
+                  setSelectedId(index + 1);
+                }}
+              />
+            </AspectRatio>
+            {currentUser && !image.external && (
+              <IconButton
+                position="absolute"
+                bottom={2}
+                right={2}
+                size="xs"
+                aria-label={`Remove image ${image.id}`}
+                isRound
+                colorScheme="red"
+                icon={<DeleteIcon />}
+                onClick={(e) => {
+                  e.preventDefault();
+
+                  fetcher.submit(
+                    { id: image.id },
+                    { method: 'post', action: `/game/${image.id}/images/delete` }
+                    // { method: 'post', action: './images/delete' }
+                  );
+                }}
+              />
+            )}
+          </Box>
         ))}
       </Grid>
 

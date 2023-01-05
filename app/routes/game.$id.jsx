@@ -23,11 +23,7 @@ import {
   chakra,
   Flex,
 } from '@chakra-ui/react';
-import {
-  AddIcon,
-  EditIcon,
-  ExternalLinkIcon,
-} from '@chakra-ui/icons';
+import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
 import { useCallback } from 'react';
@@ -183,6 +179,14 @@ const Game = () => {
     day: 'numeric',
   });
 
+  const igdb_images = igdb_game
+    ? igdb_game.screenshots.map((image) => ({
+        external: true,
+        url: image.url.replace('t_thumb', 't_screenshot_med'),
+        thumbnail_url: image.url,
+      }))
+    : [];
+
   return (
     <>
       <Box mb={5} pl={5} pr={5} mt={5}>
@@ -316,7 +320,7 @@ const Game = () => {
 
       <Box mb={5} pl={5} pr={5}>
         <MotionGallery
-          images={images}
+          images={images.concat(igdb_images)}
           currentUser={currentUser}
           fetcher={fetcher}
         />
