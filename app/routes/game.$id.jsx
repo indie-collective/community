@@ -37,6 +37,7 @@ import Markdown from '../components/Markdown';
 import { authenticator } from '../utils/auth.server';
 
 import MotionGallery from '../components/MotionGallery';
+import ImageUploader from '../components/ImageUploader';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -120,40 +121,11 @@ const Game = () => {
   const { game, currentUser } = useLoaderData();
   const fetcher = useFetcher();
 
-  const dzColor = useColorModeValue('gray.200', 'gray.700');
-  const dzHoverColor = useColorModeValue('gray.400', 'gray.50');
-  const dzActiveColor = useColorModeValue('teal.200', 'teal.700');
-  const dzActiveHoverColor = useColorModeValue('teal.600', 'teal.50');
-
-  const dzBorderColor = useColorModeValue('gray.200', 'gray.700');
-  const dzActiveBorderColor = useColorModeValue('teal.200', 'teal.700');
-  const dzHoverBorderColor = useColorModeValue('gray.200', 'gray.700');
-  const dzActiveHoverBorderColor = useColorModeValue('teal.600', 'teal.700');
-
   const {
     isOpen: linkAuthorIsOpen,
     onOpen: onOpenLinkAuthor,
     onClose: onCloseLinkAuthor,
   } = useDisclosure();
-
-  const onDrop = useCallback(async (acceptedFiles) => {
-    const form = new FormData();
-
-    for (const file of acceptedFiles) {
-      form.append('images', file);
-    }
-
-    await fetcher.submit(
-      form,
-      {
-        method: 'post',
-        action: `/game/${id}/images/add`,
-        encType: 'multipart/form-data',
-      }
-      // { method: 'post', action: './images/add' }
-    );
-  }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const deleteModal = useDisclosure();
 
@@ -194,6 +166,7 @@ const Game = () => {
           <Heading as="h2" noOfLines={1} title={name} size="2xl">
             {name}
           </Heading>
+
           {currentUser && (
             <>
               <ChakraLink to={`/game/${id}/changes`} as={Link} ml="auto">
@@ -211,6 +184,7 @@ const Game = () => {
             </>
           )}
         </Flex>
+
         {site && (
           <Text fontSize="lg">
             <ChakraLink href={site} isExternal>
@@ -226,7 +200,7 @@ const Game = () => {
           </Box>
         )}
 
-        <Stack isInline spacing={2} mb={5}>
+        <Stack isInline spacing={2} mt={5}>
           {tags.map((tag) => (
             <Tag key={tag.id} colorScheme="teal">
               {tag.name}
@@ -321,6 +295,11 @@ const Game = () => {
       <Box mb={5} pl={5} pr={5}>
         <MotionGallery
           images={images.concat(igdb_images)}
+          currentUser={currentUser}
+          fetcher={fetcher}
+        />
+        <ImageUploader
+          gameId={id}
           currentUser={currentUser}
           fetcher={fetcher}
         />
