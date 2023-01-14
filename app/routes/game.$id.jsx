@@ -18,18 +18,25 @@ import {
   useDisclosure,
   IconButton,
   Tag,
-  useColorModeValue,
   Link as ChakraLink,
   List,
   ListItem,
   chakra,
   Flex,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import {
   AddIcon,
   DeleteIcon,
   EditIcon,
   ExternalLinkIcon,
+  HamburgerIcon,
+  TimeIcon,
 } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
@@ -188,34 +195,54 @@ const Game = () => {
     <>
       <Box mb={5} pl={5} pr={5} mt={5}>
         <Flex direction="row" align="center">
-          <Heading as="h2" noOfLines={1} title={name} size="2xl">
+          <Heading as="h2" noOfLines={1} title={name} size="2xl" flex="auto">
             {name}
           </Heading>
+
+          {site && (
+            <IconButton
+              as={ChakraLink}
+              icon={<ExternalLinkIcon />}
+              href={site}
+              isExternal
+            />
+          )}
+
           {currentUser && (
-            <>
-              <ChakraLink to={`/game/${id}/changes`} as={Link} ml="auto">
-                Changes History
-              </ChakraLink>
-              <Button
-                as={Link}
-                to={`/game/${id}/edit`}
-                leftIcon={<EditIcon />}
-                colorScheme="teal"
-                ml={3}
-              >
-                Edit
-              </Button>
-            </>
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                aria-label="Options"
+                icon={<HamburgerIcon />}
+                variant="outline"
+                ml={2}
+              />
+              <MenuList>
+                <MenuItem
+                  as={ChakraLink}
+                  icon={<EditIcon />}
+                  href={`/game/${id}/edit`}
+                >
+                  Edit
+                </MenuItem>
+                <MenuItem
+                  as={ChakraLink}
+                  icon={<TimeIcon />}
+                  href={`/game/${id}/changes`}
+                >
+                  History
+                </MenuItem>
+                <MenuDivider />
+                <MenuItem
+                  icon={<DeleteIcon />}
+                  onClick={deleteModal.onOpen}
+                >
+                  Delete
+                </MenuItem>
+              </MenuList>
+            </Menu>
           )}
         </Flex>
-        {site && (
-          <Text fontSize="lg">
-            <ChakraLink href={site} isExternal>
-              {site.replace(/https?:\/\//, '')}
-              <ExternalLinkIcon mx="2px" />
-            </ChakraLink>
-          </Text>
-        )}
 
         {about && (
           <Box mt={3}>
@@ -459,37 +486,31 @@ const Game = () => {
       )}
 
       {currentUser && (
-        <Box mb={5} pl={5} pr={5}>
-          <Button variant="link" colorScheme="red" onClick={deleteModal.onOpen}>
-            Delete game
-          </Button>
+        <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
+          <ModalOverlay />
+          <ModalContent as={Form} action={`/game/${id}/delete`} method="post">
+            <ModalHeader>Delete Game</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Text>Do you really want to delete {name}?</Text>
+            </ModalBody>
 
-          <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
-            <ModalOverlay />
-            <ModalContent as={Form} action={`/game/${id}/delete`} method="post">
-              <ModalHeader>Delete Game</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Text>Do you really want to delete {name}?</Text>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button
-                  type="submit"
-                  isLoading={false}
-                  loadingText="Deleting"
-                  colorScheme="red"
-                  mr={3}
-                >
-                  Delete
-                </Button>
-                <Button variant="ghost" onClick={deleteModal.onClose}>
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-        </Box>
+            <ModalFooter>
+              <Button
+                type="submit"
+                isLoading={false}
+                loadingText="Deleting"
+                colorScheme="red"
+                mr={3}
+              >
+                Delete
+              </Button>
+              <Button variant="ghost" onClick={deleteModal.onClose}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       )}
     </>
   );
