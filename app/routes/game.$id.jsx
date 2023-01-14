@@ -37,7 +37,6 @@ import Markdown from '../components/Markdown';
 import { authenticator } from '../utils/auth.server';
 
 import MotionGallery from '../components/MotionGallery';
-import ImageUploader from '../components/ImageUploader';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -294,12 +293,8 @@ const Game = () => {
 
       <Box mb={5} pl={5} pr={5}>
         <MotionGallery
-          images={images.concat(igdb_images)}
-          currentUser={currentUser}
-          fetcher={fetcher}
-        />
-        <ImageUploader
           gameId={id}
+          images={images.concat(igdb_images)}
           currentUser={currentUser}
           fetcher={fetcher}
         />

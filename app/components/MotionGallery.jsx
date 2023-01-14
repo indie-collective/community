@@ -8,10 +8,11 @@ import {
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
-
 import { AnimatePresence, motion } from 'framer-motion';
 
-const MotionGallery = ({ images, currentUser, fetcher }) => {
+import ImageUploader from '../components/ImageUploader';
+
+const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
   const [selectedId, setSelectedId] = useState(null);
 
   return (
@@ -56,7 +57,10 @@ const MotionGallery = ({ images, currentUser, fetcher }) => {
 
                   fetcher.submit(
                     { id: image.id },
-                    { method: 'post', action: `/game/${image.id}/images/delete` }
+                    {
+                      method: 'post',
+                      action: `/game/${image.id}/images/delete`,
+                    }
                     // { method: 'post', action: './images/delete' }
                   );
                 }}
@@ -64,6 +68,13 @@ const MotionGallery = ({ images, currentUser, fetcher }) => {
             )}
           </Box>
         ))}
+        {currentUser && (
+          <ImageUploader
+            gameId={gameId}
+            currentUser={currentUser}
+            fetcher={fetcher}
+          />
+        )}
       </Grid>
 
       <Box
