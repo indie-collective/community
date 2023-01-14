@@ -193,9 +193,16 @@ const Game = () => {
 
   return (
     <>
-      <Box mb={5} pl={5} pr={5} mt={5}>
+      <Box m={5}>
         <Flex direction="row" align="center">
-          <Heading as="h2" noOfLines={1} title={name} size="2xl" flex="auto">
+          <Heading
+            as="h2"
+            size="2xl"
+            fontWeight="300"
+            noOfLines={1}
+            flex="auto"
+            title={name}
+          >
             {name}
           </Heading>
 
@@ -245,7 +252,7 @@ const Game = () => {
         </Flex>
 
         {about && (
-          <Box mt={3}>
+          <Box my={5} maxWidth="37em">
             <Markdown value={about} />
           </Box>
         )}
