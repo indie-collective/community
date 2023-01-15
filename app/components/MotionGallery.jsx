@@ -54,6 +54,11 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                 isRound
                 colorScheme="red"
                 icon={<DeleteIcon />}
+                isLoading={
+                  fetcher.state === 'submitting' &&
+                  fetcher.submission.action.includes('images/delete') &&
+                  fetcher.submission.formData.get('id') === image.id
+                }
                 onClick={(e) => {
                   e.preventDefault();
 
@@ -61,7 +66,7 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                     { id: image.id },
                     {
                       method: 'post',
-                      action: `/game/${image.id}/images/delete`,
+                      action: `/game/${gameId}/images/delete`,
                     }
                     // { method: 'post', action: './images/delete' }
                   );
