@@ -16,7 +16,6 @@ import {
   useDisclosure,
   IconButton,
   Tag,
-  useColorModeValue,
   Link as ChakraLink,
   List,
   ListItem,
@@ -26,16 +25,13 @@ import {
 import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
-import { useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
 
 import { db } from '../utils/db.server';
+import { authenticator } from '../utils/auth.server';
 import computeGame from '../models/game';
 import OrgCard from '../components/OrgCard';
 import SearchOrgModal from './search-org';
 import Markdown from '../components/Markdown';
-import { authenticator } from '../utils/auth.server';
-
 import MotionGallery from '../components/MotionGallery';
 
 const uuidRegex =
