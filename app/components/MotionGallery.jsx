@@ -15,7 +15,15 @@ import { AnimatePresence, motion } from 'framer-motion';
 import ImageUploader from '../components/ImageUploader';
 
 const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedUrl, setSelectedUrl] = useState(null);
+
+  const uploadingImages =
+    fetcher.state === 'submitting' &&
+    fetcher.submission.action.includes('images/add') ?
+    fetcher.submission.formData.getAll('images').map((file) => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+    })) : [];
 
   return (
     <>
@@ -23,12 +31,12 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
         gap={3}
         templateColumns={['repeat(1, 1fr)', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
       >
-        {images.map((image, index) => (
-          <Box key={index} position="relative">
+        {images.map((image) => (
+          <Box key={image.url} position="relative">
             <AspectRatio
               as={motion.div}
               ratio={16 / 9}
-              layoutId={index + 1}
+              layoutId={image.url}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
@@ -39,8 +47,9 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                 objectFit="cover"
                 size="100%"
                 cursor="pointer"
+                alt=""
                 onClick={() => {
-                  setSelectedId(index + 1);
+                  setSelectedUrl(image.url);
                 }}
               />
             </AspectRatio>
@@ -75,23 +84,38 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
             )}
           </Box>
         ))}
-        {fetcher.state === 'submitting' &&
-          fetcher.submission.action.includes('images/add') &&
-          fetcher.submission.formData.getAll('images').map((file) => (
-            <Box key={file.name} position="relative">
-              <AspectRatio ratio={16 / 9}>
-                <Image
-                  borderRadius="md"
-                  objectFit="cover"
-                  size="100%"
-                  src={URL.createObjectURL(file)}
-                  alt=""
-                  opacity={0.5}
-                />
-              </AspectRatio>
-              <Spinner position="absolute" inset={0} margin="auto" size="lg" />
-            </Box>
-          ))}
+        {uploadingImages.map((image) => (
+          <Box key={image.url} position="relative">
+            <AspectRatio
+              as={motion.div}
+              ratio={16 / 9}
+              layoutId={image.url}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <Image
+                as={motion.img}
+                src={image.url}
+                borderRadius="md"
+                objectFit="cover"
+                size="100%"
+                cursor="pointer"
+                alt=""
+                opacity={0.5}
+                onClick={() => {
+                  setSelectedUrl(image.url);
+                }}
+              />
+            </AspectRatio>
+            <Spinner
+              position="absolute"
+              inset={0}
+              margin="auto"
+              size="lg"
+              pointerEvents="none"
+            />
+          </Box>
+        ))}
         {currentUser && (
           <ImageUploader
             gameId={gameId}
@@ -104,15 +128,12 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
       <Portal>
         <Box
           position="fixed"
-          top={0}
-          left={0}
-          bottom={0}
-          right={0}
+          inset={0}
           background="black"
           transition="opacity .5s ease-out"
-          onClick={() => setSelectedId(0)}
-          opacity={selectedId > 0 ? 0.5 : 0}
-          visibility={selectedId > 0 ? 'visible' : 'hidden'}
+          onClick={() => setSelectedUrl(null)}
+          opacity={selectedUrl ? 0.5 : 0}
+          visibility={selectedUrl ? 'visible' : 'hidden'}
         />
 
         <Box
@@ -124,11 +145,11 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
           pointerEvents="none"
         >
           <AnimatePresence>
-            {selectedId && (
+            {selectedUrl && (
               <AspectRatio
                 as={motion.div}
                 ratio={16 / 9}
-                layoutId={selectedId}
+                layoutId={selectedUrl}
                 zIndex={10000}
                 maxW="calc(100vw - 30px)"
                 maxH="calc(100vh - 30px)"
@@ -138,10 +159,10 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                   borderRadius="md"
                   objectFit="cover"
                   size="100%"
-                  src={images[selectedId - 1].url}
+                  src={selectedUrl}
                   alt=""
                   onClick={() => {
-                    setSelectedId(null);
+                    setSelectedUrl(null);
                   }}
                   cursor="pointer"
                 />
