@@ -6,6 +6,7 @@ import {
   Link as ChakraLink,
   IconButton,
   Portal,
+  Spinner,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
@@ -69,6 +70,23 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
             )}
           </Box>
         ))}
+        {fetcher.state === 'submitting' &&
+          fetcher.submission.action.includes('images/add') &&
+          fetcher.submission.formData.getAll('images').map((file) => (
+            <Box key={file.name} position="relative">
+              <AspectRatio ratio={16 / 9}>
+                <Image
+                  borderRadius="md"
+                  objectFit="cover"
+                  size="100%"
+                  src={URL.createObjectURL(file)}
+                  alt=""
+                  opacity={0.5}
+                />
+              </AspectRatio>
+              <Spinner position="absolute" inset={0} margin="auto" size="lg" />
+            </Box>
+          ))}
         {currentUser && (
           <ImageUploader
             gameId={gameId}
