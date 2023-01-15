@@ -25,7 +25,7 @@ import { format } from 'date-fns';
 
 import PlacesSearch from './PlacesSearch';
 import usePlaceholder from '../hooks/usePlaceholder';
-import { Form } from '@remix-run/react';
+import { Form, useSubmit } from '@remix-run/react';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
@@ -88,6 +88,7 @@ const defaultProps = {
 const OSMServer = 'abc'.charAt(Math.floor(Math.random() * 3));
 
 const EventForm = ({ defaultData, loading, ...rest }) => {
+  const submit = useSubmit();
   const placeholder = usePlaceholder();
   const {
     name,
@@ -136,9 +137,15 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
     <Grid
       as={Form}
       encType="multipart/form-data"
-      onSubmit={handleSubmit}
       gridTemplateColumns="1fr 1fr"
       gap={5}
+      method="post"
+      onSubmit={handleSubmit((values, event) => {
+        submit(event.nativeEvent.submitter || event.currentTarget, {
+          method: 'post',
+          replace: true,
+        });
+      })}
       {...rest}
     >
       <FormControl gridColumn="1 / 3" isInvalid={errors.name} isRequired>

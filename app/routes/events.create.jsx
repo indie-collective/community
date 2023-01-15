@@ -45,11 +45,11 @@ export async function action({ request }) {
         ends_at: new Date(data.get('end')),
         about: data.get('about'),
         site: data.get('site'),
-        cover: {
+        cover: data.get('cover') ? {
           connect: {
             id: data.get('cover'),
           },
-        },
+        } : undefined,
         location: Object.values(location).some((l) => l !== null)
           ? {
               connectOrCreate: {
