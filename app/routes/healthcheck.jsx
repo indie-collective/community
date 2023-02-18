@@ -1,4 +1,4 @@
-import { prisma } from '~/db.server';
+import { db } from '../utils/db.server';
 
 export const loader = async ({ request }) => {
   try {
@@ -6,7 +6,7 @@ export const loader = async ({ request }) => {
     // if we can connect to the database and make a simple query
     // and make a HEAD request to ourselves, then we're good.
     await Promise.all([
-      prisma.game.count(),
+      db.game.count(),
       fetch(url.toString(), { method: 'HEAD' }).then((r) => {
         if (!r.ok) return Promise.reject(r);
       }),
