@@ -27,7 +27,7 @@ authenticator.use(
 
     try {
       const [user] =
-        await db.$queryRaw`select * from indieco.person p where email = ${email} and password_hash = public.crypt(${password}, p.password_hash);`;
+        await db.$queryRaw`select * from person p where email = ${email} and password_hash = public.crypt(${password}, p.password_hash);`;
 
       if (!user)
         throw new Error('User does not exist or you used wrong credentials');

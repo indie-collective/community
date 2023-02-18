@@ -23,7 +23,7 @@ export const loader = async ({ params }) => {
   // fetch country data and use right locale
 
   const cities =
-    await db.$queryRaw`select city as name, count(e.id)::int from indieco.location l left join indieco.entity e on l.id = e.location_id where country_code = ${params.code.toUpperCase()} group by city order by count desc limit 10`;
+    await db.$queryRaw`select city as name, count(e.id)::int from location l left join entity e on l.id = e.location_id where country_code = ${params.code.toUpperCase()} group by city order by count desc limit 10`;
 
   // country does not exist
   if (cities.length === 0) {
