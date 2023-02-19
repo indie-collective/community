@@ -12,7 +12,6 @@ import {
   useBreakpointValue,
   Wrap,
   WrapItem,
-  Divider,
 } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
 import { Link, useLoaderData, useLocation } from '@remix-run/react';
@@ -63,6 +62,8 @@ const Navigation = ({ search }) => {
   const { isOpen, onToggle } = useDisclosure();
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
   const bg = useColorModeValue('white', 'gray.900');
+
+  const adminSectionBgColor = useColorModeValue('gray.200', 'gray.900');
 
   const { currentUser } = useLoaderData();
 
@@ -163,7 +164,7 @@ const Navigation = ({ search }) => {
           </VStack>
 
           {currentUser?.isAdmin && (
-            <Box bg="gray.200" p={1} borderRadius="md">
+            <Box bg={adminSectionBgColor} p={1} borderRadius="md">
               <Text fontWeight="bold" color="gray.500" px={1} mb={3}>
                 Admin
               </Text>
