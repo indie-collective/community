@@ -50,7 +50,7 @@ export const loader = async ({ request }) => {
           cover: true,
         },
         orderBy: {
-          starts_at: 'desc',
+          starts_at: 'asc',
         },
         cursor,
         take: 6,

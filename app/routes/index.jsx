@@ -140,7 +140,7 @@ export const loader = async ({ request }) => {
           cover: true,
         },
         orderBy: {
-          starts_at: 'desc',
+          starts_at: 'asc',
         },
         take: 8,
       })
