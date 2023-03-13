@@ -52,7 +52,7 @@ const MapboxAutocomplete = ({
   defaultQuery,
   types,
   placeholder,
-  inputProps,
+  inputProps: inputPropsFull,
 }) => {
   const [isFirstQuery, setIsFirstQuery] = useState(!!defaultQuery);
   const [query, setQuery] = useState(defaultQuery);
@@ -68,23 +68,23 @@ const MapboxAutocomplete = ({
     async function getLocation() {
       const header = { 'Content-Type': 'application/json' };
       let path = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${token}&autocomplete=true`;
-  
+
       if (types) {
         path += `&types=${types.join(',')}`;
       }
-  
+
       if (query.length > 2) {
         try {
           setIsLoading(true);
           const res = await fetch(path, { headers: header });
-  
+
           if (!res.ok) throw Error(res.statusText);
           const json = await res.json();
-  
+
           setIsLoading(false);
           setError(false);
           setQueryResults(json.features);
-  
+
           if (isFirstQuery) {
             setValue(json.features[0]);
             setIsFirstQuery(false);
@@ -105,12 +105,15 @@ const MapboxAutocomplete = ({
     getLocation();
   }, [debouncedQuery]);
 
+  const { leftIcon, inputProps } = inputPropsFull;
+
   return (
     <SelectInput
       placeholder={placeholder || 'Search location'}
       name="location"
       items={queryResults}
       itemPredicate={(item) => item.place_name}
+      leftIcon={leftIcon}
       icon={isLoading ? <Spinner size="sm" /> : <SearchIcon />}
       onSelect={(value) => {
         setValue(value);

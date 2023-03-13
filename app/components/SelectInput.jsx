@@ -8,12 +8,14 @@ import {
   InputGroup,
   InputRightElement,
   useColorModeValue,
+  InputLeftElement,
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 
 const propTypes = {
   items: PropTypes.arrayOf(PropTypes.object),
   itemPredicate: PropTypes.func,
+  leftIcon: PropTypes.node,
   icon: PropTypes.node,
   onSelect: PropTypes.func,
   value: PropTypes.object,
@@ -31,6 +33,7 @@ const propTypes = {
 const defaultProps = {
   items: [],
   itemPredicate: (item) => item,
+  leftIcon: null,
   icon: null,
   onSelect: () => {},
 };
@@ -39,6 +42,7 @@ const SelectInput = ({
   placeholder,
   items,
   itemPredicate,
+  leftIcon,
   icon,
   inputProps,
   onSelect,
@@ -69,6 +73,7 @@ const SelectInput = ({
           }, 150);
         }}
       >
+        {leftIcon && <InputLeftElement children={leftIcon} />}
         <Input
           {...inputProps}
           placeholder={placeholder}
