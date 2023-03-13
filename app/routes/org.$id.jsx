@@ -28,10 +28,12 @@ import { motion } from 'framer-motion';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
+import countryNames from '../assets/countries.json';
 import computeOrg from '../models/org';
 import GameCard from '../components/GameCard';
 import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
+import { LocationIcon } from '../components/LocationIcon';
 import Markdown from '../components/Markdown';
 
 const TYPES_COLORS = {
@@ -206,7 +208,19 @@ const Org = () => {
             )}
             {location && (
               <Text>
-                {location.city}, {location.region}, {location.country_code}
+                <LocationIcon />{' '}
+                {location.region && (
+                  <>
+                    {location.city && <>{location.city}, </>}
+                    {location.region},{' '}
+                  </>
+                )}
+                <ChakraLink
+                  as={Link}
+                  to={`/country/${location.country_code.toLowerCase()}`}
+                >
+                  {countryNames[location.country_code]}
+                </ChakraLink>
               </Text>
             )}
           </Box>

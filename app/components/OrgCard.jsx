@@ -14,6 +14,8 @@ import {
 import { DeleteIcon } from '@chakra-ui/icons';
 
 import usePlaceholder from '../hooks/usePlaceholder';
+import countryNames from '../assets/countries.json';
+import { LocationIcon } from './LocationIcon';
 import Card from './Card';
 import CardLink from './CardLink';
 
@@ -114,17 +116,26 @@ const OrgCard = ({
             <CardLink to={`/org/${id}`}>{name}</CardLink>
           </Heading>
 
-          <Box
-            noOfLines={1}
-            title={location ? `${location.city}, ${location.country_code}` : ''}
-            color="gray.500"
-            fontWeight="semibold"
-            letterSpacing="wide"
-            fontSize="xs"
-            textTransform="uppercase"
-          >
-            {location ? `${location.city}, ${location.country_code}` : ''}
-          </Box>
+          {location && (
+            <Box
+              noOfLines={1}
+              title={
+                location.city
+                  ? `${location.city}, ${location.country_code}`
+                  : countryNames[location.country_code.toUpperCase()]
+              }
+              color="gray.500"
+              fontWeight="semibold"
+              letterSpacing="wide"
+              fontSize="xs"
+              textTransform="uppercase"
+            >
+              <LocationIcon />{' '}
+              {location.city
+                ? `${location.city}, ${location.country_code}`
+                : countryNames[location.country_code.toUpperCase()]}
+            </Box>
+          )}
         </Box>
 
         {onRemove && (
