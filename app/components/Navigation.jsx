@@ -12,7 +12,6 @@ import {
   useBreakpointValue,
   Wrap,
   WrapItem,
-  Divider,
 } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
 import { Link, useLoaderData, useLocation } from '@remix-run/react';
@@ -64,6 +63,8 @@ const Navigation = ({ search }) => {
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
   const bg = useColorModeValue('white', 'gray.900');
 
+  const adminSectionBgColor = useColorModeValue('gray.200', 'gray.900');
+
   const { currentUser } = useLoaderData();
 
   if (variant === 'mobile') {
@@ -114,6 +115,7 @@ const Navigation = ({ search }) => {
               <WrapItem>
                 <NavLink href="/admin/users">Users</NavLink>
                 <NavLink href="/admin/changes">Changes</NavLink>
+                <NavLink href="/admin/missing">Missing</NavLink>
               </WrapItem>
             </Wrap>
           )}
@@ -162,16 +164,16 @@ const Navigation = ({ search }) => {
           </VStack>
 
           {currentUser?.isAdmin && (
-            <>
-              <Text fontWeight="bold" color="gray.500" px={3}>
+            <Box bg={adminSectionBgColor} p={1} borderRadius="md">
+              <Text fontWeight="bold" color="gray.500" px={1} mb={3}>
                 Admin
               </Text>
-              <Divider mb={2} borderWidth={2} borderColor="gray.500" />
               <VStack as="ul" spacing={1} alignItems="stretch">
                 <NavLink href="/admin/users">Users</NavLink>
                 <NavLink href="/admin/changes">Changes</NavLink>
+                <NavLink href="/admin/missing">Missing</NavLink>
               </VStack>
-            </>
+            </Box>
           )}
         </Box>
 

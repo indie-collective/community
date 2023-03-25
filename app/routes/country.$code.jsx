@@ -11,19 +11,21 @@ import { json, redirect } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
+import countryNames from '../assets/countries.json';
 
 export const loader = async ({ params }) => {
   if (!params.code) {
     return redirect('/countries');
   }
 
+  const countryCode = params.code.toUpperCase();
+
   // using remix-i18n ?
   // let locale = await i18next.getLocale(request);
 
   // fetch country data and use right locale
 
-  const cities =
-    await db.$queryRaw`select city as name, count(e.id)::int from location l left join entity e on l.id = e.location_id where country_code = ${params.code.toUpperCase()} group by city order by count desc limit 10`;
+  await db.$queryRaw`select city as name, count(e.id)::int from location l left join entity e on l.id = e.location_id where country_code = ${params.code.toUpperCase()} group by city order by count desc limit 10`;
 
   // country does not exist
   if (cities.length === 0) {
@@ -39,7 +41,8 @@ export const loader = async ({ params }) => {
 
   const data = {
     country: {
-      name: params.code,
+      code: countryCode,
+      name: countryNames[countryCode],
       cities,
     },
   };
@@ -68,8 +71,9 @@ const CountriesPage = () => {
         columns={{ base: 4, sm: 5, md: 6 }}
         gap={{ base: '5', md: '6' }}
       >
-        {country.cities.map(({ name, count }) => (
+        {country.cities.map(({ code, name, count }) => (
           <LinkBox
+            key={code}
             px={{ base: '4', md: '6' }}
             py={{ base: '5', md: '6' }}
             bg="bg-surface"

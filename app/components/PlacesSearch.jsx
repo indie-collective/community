@@ -40,16 +40,16 @@ const PlacesSearch = ({ onChange, onClear, onError, options, value, ...rest }) =
       <MapboxAutocomplete
         defaultQuery={value.label}
         token="pk.eyJ1IjoiaW5kaWVjb2xsZSIsImEiOiJja21qN2dzd2kwb2d3MndxNGs4eGFyeXhnIn0.4kAFQx69wEpXRGPcsGE--Q"
-        types={[/*'country',*/ 'region', 'place', 'address' /*, 'poi'*/]}
+        types={['country', 'region', 'place', 'address' /*, 'poi'*/]}
         onSuggestionSelect={(place) => {
           if (!place) return onClear();
 
           let countryCode, region, city, street;
 
-          place.place_type.map((type) => {
+          place.place_type.forEach((type) => {
             switch (type) {
               case 'country':
-                countryCode = place.short_code;
+                countryCode = place.properties.short_code;
                 break;
               case 'region':
                 region = place.text;
@@ -66,7 +66,7 @@ const PlacesSearch = ({ onChange, onClear, onError, options, value, ...rest }) =
             }
           });
 
-          place.context.map((context) => {
+          place.context?.forEach((context) => {
             if (context.id.includes('country'))
               countryCode = context.short_code;
 
@@ -80,6 +80,16 @@ const PlacesSearch = ({ onChange, onClear, onError, options, value, ...rest }) =
               else street = address.text;
             }
           });
+
+          // there are some territories with short codes on region instead, e.g RE for Reunion Island
+          if (
+            place.context &&
+            !place.context.find((c) => c.id.includes('country'))
+          ) {
+            const region = place.context.find((c) => c.id.includes('region'));
+
+            countryCode = region.short_code;
+          }
 
           setHiddenValues({
             street,
@@ -104,6 +114,7 @@ const PlacesSearch = ({ onChange, onClear, onError, options, value, ...rest }) =
           });
         }}
         onError={onError}
+        inputProps={{ leftIcon: <LocationIcon /> }}
         {...rest}
       />
     </>

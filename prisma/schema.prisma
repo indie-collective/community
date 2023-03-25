@@ -192,13 +192,13 @@ model image {
 
 model location {
   id           String    @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
-  city         String
+  city         String?
   latitude     Float?
   longitude    Float?
   updated_at   DateTime? @updatedAt
   street       String?
   country_code String    @db.Char(2)
-  region       String
+  region       String?
   entity       entity[]
   event        event[]
 

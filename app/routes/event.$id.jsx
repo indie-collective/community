@@ -20,6 +20,7 @@ import {
   ModalBody,
   ModalFooter,
   Wrap,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, WarningTwoIcon } from '@chakra-ui/icons';
 import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
@@ -37,6 +38,7 @@ import Markdown from '../components/Markdown';
 import RelatedEvents from '../components/RelatedEvents';
 import DateLabel from '../components/DateLabel';
 import JoinEventButton from '../components/JoinEventButton';
+import { LocationIcon } from '../components/LocationIcon';
 import { SearchGameModal } from './search-game';
 import SearchOrgModal from './search-org';
 
@@ -296,8 +298,14 @@ const Event = () => {
 
             {location && (
               <Text gridColumn="1">
-                {location.street && `${location.street}, `}
-                {location.city}, {location.region}, {location.country_code}
+                <LocationIcon /> {location.street && `${location.street}, `}
+                {location.city}, {location.region},{' '}
+                <ChakraLink
+                  as={Link}
+                  to={`/country/${location.country_code.toLowerCase()}`}
+                >
+                  {location.country_code}
+                </ChakraLink>
               </Text>
             )}
 
