@@ -149,8 +149,8 @@ const Game = () => {
   const igdb_images = igdb_game
     ? igdb_game.screenshots.map((image) => ({
         external: true,
-        url: image.url.replace('t_thumb', 't_screenshot_med'),
-        thumbnail_url: image.url,
+        url: image.url.replace('t_thumb', 't_screenshot_huge'),
+        thumbnail_url: image.url.replace('t_thumb', 't_screenshot_med'),
       }))
     : [];
 
