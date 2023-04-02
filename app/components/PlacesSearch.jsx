@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
+import { LocationIcon } from './LocationIcon';
 import MapboxAutocomplete from './MapboxAutocomplete';
 
 const propTypes = {
