@@ -45,7 +45,7 @@ export const action = async ({ request }) => {
       },
     });
 
-    await db.$queryRaw`update indieco.person set password_hash = public.crypt(${password}, public.gen_salt('bf')) where email = ${user.email}`;
+    await db.$queryRaw`update person set password_hash = public.crypt(${password}, public.gen_salt('bf')) where email = ${user.email}`;
 
     let session = await getSession(request.headers.get('cookie'));
 

@@ -48,7 +48,7 @@ export const action = async ({ request, params }) => {
       },
     });
 
-    await db.$queryRaw`update indieco.person set password_hash = public.crypt(${password}, public.gen_salt('bf')) where email = ${resetToken.person.email}`;
+    await db.$queryRaw`update person set password_hash = public.crypt(${password}, public.gen_salt('bf')) where email = ${resetToken.person.email}`;
 
     return redirect('/signin');
   } catch (error) {

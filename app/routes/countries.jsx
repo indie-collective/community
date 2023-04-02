@@ -15,7 +15,7 @@ import { db } from '../utils/db.server';
 export const loader = async () => {
   const data = {
     countries:
-      await db.$queryRaw`select country_code, count(e.id)::int from indieco.location l left join indieco.entity e on l.id = e.location_id group by country_code order by count desc;`,
+      await db.$queryRaw`select country_code, count(e.id)::int from location l left join entity e on l.id = e.location_id group by country_code order by count desc;`,
   };
 
   console.log('data', data);

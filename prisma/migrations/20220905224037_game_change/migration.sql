@@ -29,11 +29,11 @@ ALTER TABLE "game_change" ADD CONSTRAINT "game_change_game_id_fkey" FOREIGN KEY 
 CREATE FUNCTION process_game_change() RETURNS TRIGGER AS $game_change$
     BEGIN
         IF (TG_OP = 'UPDATE' AND NEW.deleted IS TRUE) THEN
-            INSERT INTO game_change (operation, created_at, author_id, game_id, name, about, igdb_slug, site) SELECT 'delete', now(), current_setting('indieco.current_user_id')::uuid, OLD.id, OLD.name, OLD.about, OLD.igdb_slug, OLD.site;
+            INSERT INTO game_change (operation, created_at, author_id, game_id, name, about, igdb_slug, site) SELECT 'delete', now(), current_setting('current_user_id')::uuid, OLD.id, OLD.name, OLD.about, OLD.igdb_slug, OLD.site;
         ELSIF (TG_OP = 'UPDATE') THEN
-            insert into game_change (operation, created_at, author_id, game_id, name, about, igdb_slug, site) select 'update', now(), current_setting('indieco.current_user_id')::uuid, NEW.id, NEW.name, NEW.about, NEW.igdb_slug, NEW.site;
+            insert into game_change (operation, created_at, author_id, game_id, name, about, igdb_slug, site) select 'update', now(), current_setting('current_user_id')::uuid, NEW.id, NEW.name, NEW.about, NEW.igdb_slug, NEW.site;
         ELSIF (TG_OP = 'INSERT') THEN
-            INSERT INTO game_change (operation, created_at, author_id, game_id, name, about, igdb_slug, site) SELECT 'create', now(), current_setting('indieco.current_user_id')::uuid, NEW.id, NEW.name, NEW.about, NEW.igdb_slug, NEW.site;
+            INSERT INTO game_change (operation, created_at, author_id, game_id, name, about, igdb_slug, site) SELECT 'create', now(), current_setting('current_user_id')::uuid, NEW.id, NEW.name, NEW.about, NEW.igdb_slug, NEW.site;
         END IF;
         RETURN NULL; -- result is ignored since this is an AFTER trigger
     END;

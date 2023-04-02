@@ -33,7 +33,7 @@ CREATE FUNCTION set_default_username() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-  IF NEW.username IS NOT NULL AND (SELECT COUNT(username) FROM indieco.person WHERE username = NEW.username) = 0 THEN RETURN NEW; END IF;
+  IF NEW.username IS NOT NULL AND (SELECT COUNT(username) FROM person WHERE username = NEW.username) = 0 THEN RETURN NEW; END IF;
 
   NEW.username := concat(substring(concat(slugify(NEW.first_name), slugify(NEW.last_name)) for 26), lpad(floor(random() * (10000))::text, 4, '0'));
   RETURN NEW;
@@ -51,5 +51,5 @@ ALTER TABLE "person" ALTER COLUMN "username" SET NOT NULL;
 -- CreateIndex
 CREATE UNIQUE INDEX "person_username_key" ON "person"("username");
 
-CREATE TRIGGER "generate_username" BEFORE INSERT ON indieco.person FOR EACH ROW
+CREATE TRIGGER "generate_username" BEFORE INSERT ON person FOR EACH ROW
 EXECUTE PROCEDURE set_default_username();
