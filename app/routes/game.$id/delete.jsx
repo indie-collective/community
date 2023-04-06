@@ -12,7 +12,7 @@ export async function action({ request, params }) {
 
   await db.$transaction([
     db.$executeRawUnsafe(
-      `SET LOCAL current_user_id = '${currentUser.id}';`
+      `SET LOCAL public.current_user_id = '${currentUser.id}';`
     ),
     db.game.delete({
       where: {

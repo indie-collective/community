@@ -41,7 +41,7 @@ export async function action({ request }) {
 
     const [, game] = await db.$transaction([
       db.$executeRawUnsafe(
-        `SET LOCAL current_user_id = '${currentUser.id}';`
+        `SET LOCAL public.current_user_id = '${currentUser.id}';`
       ),
       db.game.create({
         data: {
