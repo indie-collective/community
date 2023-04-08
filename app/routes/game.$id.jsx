@@ -3,6 +3,7 @@ import {
   Stack,
   Heading,
   Text,
+  Fade,
   Grid,
   AspectRatio,
   Modal,
@@ -45,6 +46,7 @@ import OrgCard from '../components/OrgCard';
 import SearchOrgModal from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
+import EventCard from '../components/EventCard';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -255,6 +257,15 @@ const Game = () => {
       </Box>
 
       <Box background={bg} shadow="sm" borderRadius={7} padding={4} mt={5}>
+        <MotionGallery
+          gameId={id}
+          images={images.concat(igdb_images)}
+          currentUser={currentUser}
+          fetcher={fetcher}
+        />
+      </Box>
+
+      <Box background={bg} shadow="sm" borderRadius={7} padding={4} mt={5}>
         <Heading size="md" mb={2}>
           Authors
         </Heading>
@@ -319,32 +330,34 @@ const Game = () => {
           <Heading size="md" mb={2}>
             Events
           </Heading>
-          <List>
+
+          <Grid
+            gap={3}
+            templateColumns={[
+              '1fr',
+              'repeat(2, 1fr)',
+              'repeat(3, 1fr)',
+              'repeat(3, 1fr)',
+            ]}
+          >
             {events.map((event) => (
-              <ListItem key={event.key}>
-                <ChakraLink as={Link} to={`/event/${event.id}`}>
-                  <time dateTime={event.starts_at + '/' + event.ends_at}>
-                    {dateTimeFormat.formatRange(
-                      new Date(event.starts_at),
-                      new Date(event.ends_at)
-                    )}
-                  </time>
-                  . {event.name}
-                </ChakraLink>
-              </ListItem>
+              <Box key={event.id} minW={0}>
+                <EventCard
+                  id={event.id}
+                  name={event.name}
+                  status={event.status}
+                  cover={event.cover}
+                  location={event.location}
+                  game_event={[]}
+                  event_participant={[]}
+                  starts_at={event.starts_at}
+                  ends_at={event.ends_at}
+                />
+              </Box>
             ))}
-          </List>
+          </Grid>
         </Box>
       )}
-
-      <Box background={bg} shadow="sm" borderRadius={7} padding={4} mt={5}>
-        <MotionGallery
-          gameId={id}
-          images={images.concat(igdb_images)}
-          currentUser={currentUser}
-          fetcher={fetcher}
-        />
-      </Box>
 
       {igdb_game?.videos.length > 0 && (
         <Box mb={5} pl={5} pr={5}>
