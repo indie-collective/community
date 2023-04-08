@@ -21,8 +21,19 @@ import {
   ListItem,
   chakra,
   Flex,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider,
 } from '@chakra-ui/react';
-import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import {
+  AddIcon,
+  ChevronDownIcon,
+  EditIcon,
+  ExternalLinkIcon,
+  RepeatClockIcon,
+} from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
 
@@ -158,26 +169,64 @@ const Game = () => {
     <>
       <Box mb={5} pl={5} pr={5} mt={5}>
         <Flex direction="row" align="center">
-          <Heading as="h2" noOfLines={1} title={name} size="2xl">
+          <Heading as="h2" noOfLines={1} title={name} size="2xl" flex="auto">
             {name}
           </Heading>
 
           {currentUser && (
-            <>
-              <ChakraLink to={`/game/${id}/changes`} as={Link} ml="auto">
-                Changes History
-              </ChakraLink>
-              <Button
-                as={Link}
-                to={`/game/${id}/edit`}
-                leftIcon={<EditIcon />}
-                colorScheme="teal"
-                ml={3}
-              >
-                Edit
-              </Button>
-            </>
+            <Menu>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                Actions
+              </MenuButton>
+              <MenuList>
+                <MenuItem
+                  as={Link}
+                  to={`/game/${id}/edit`}
+                  icon={<EditIcon />}
+                  colorScheme="teal"
+                >
+                  Edit
+                </MenuItem>
+                <MenuItem
+                  as={Link}
+                  to={`/game/${id}/changes`}
+                  icon={<RepeatClockIcon />}
+                >
+                  History
+                </MenuItem>
+                <MenuDivider />
+                <MenuItem color="red" onClick={deleteModal.onOpen}>
+                  Delete game
+                </MenuItem>
+              </MenuList>
+            </Menu>
           )}
+
+          <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
+            <ModalOverlay />
+            <ModalContent as={Form} action={`/game/${id}/delete`} method="post">
+              <ModalHeader>Delete Game</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Text>Do you really want to delete {name}?</Text>
+              </ModalBody>
+
+              <ModalFooter>
+                <Button
+                  type="submit"
+                  isLoading={false}
+                  loadingText="Deleting"
+                  colorScheme="red"
+                  mr={3}
+                >
+                  Delete
+                </Button>
+                <Button variant="ghost" onClick={deleteModal.onClose}>
+                  Cancel
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
         </Flex>
 
         {site && (
@@ -322,40 +371,6 @@ const Game = () => {
               </AspectRatio>
             ))}
           </Grid>
-        </Box>
-      )}
-
-      {currentUser && (
-        <Box mb={5} pl={5} pr={5}>
-          <Button variant="link" colorScheme="red" onClick={deleteModal.onOpen}>
-            Delete game
-          </Button>
-
-          <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
-            <ModalOverlay />
-            <ModalContent as={Form} action={`/game/${id}/delete`} method="post">
-              <ModalHeader>Delete Game</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Text>Do you really want to delete {name}?</Text>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button
-                  type="submit"
-                  isLoading={false}
-                  loadingText="Deleting"
-                  colorScheme="red"
-                  mr={3}
-                >
-                  Delete
-                </Button>
-                <Button variant="ghost" onClick={deleteModal.onClose}>
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
         </Box>
       )}
     </>
