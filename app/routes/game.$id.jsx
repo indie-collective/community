@@ -172,15 +172,13 @@ const Game = () => {
   return (
     <Box mb={5} p={5}>
       <Flex direction="row" align="center">
-        <Heading as="h2" noOfLines={1} title={name} size="2xl" flex="auto">
+        <Heading as="h2" noOfLines={1} title={name} size="2xl" flex="auto" overflow="visible">
           {name}
         </Heading>
 
         {currentUser && (
           <Menu>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-              Actions
-            </MenuButton>
+            <MenuButton as={IconButton} icon={<ChevronDownIcon />} />
             <MenuList>
               <MenuItem
                 as={Link}
