@@ -26,6 +26,7 @@ import {
   MenuList,
   MenuItem,
   MenuDivider,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import {
   AddIcon,
@@ -126,6 +127,7 @@ export const meta = ({ data, location }) => {
 const Game = () => {
   const { game, currentUser } = useLoaderData();
   const fetcher = useFetcher();
+  const bg = useColorModeValue('white', 'gray.900');
 
   const {
     isOpen: linkAuthorIsOpen,
@@ -166,84 +168,83 @@ const Game = () => {
     : [];
 
   return (
-    <>
-      <Box mb={5} pl={5} pr={5} mt={5}>
-        <Flex direction="row" align="center">
-          <Heading as="h2" noOfLines={1} title={name} size="2xl" flex="auto">
-            {name}
-          </Heading>
+    <Box mb={5} p={5}>
+      <Flex direction="row" align="center">
+        <Heading as="h2" noOfLines={1} title={name} size="2xl" flex="auto">
+          {name}
+        </Heading>
 
-          {currentUser && (
-            <Menu>
-              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                Actions
-              </MenuButton>
-              <MenuList>
-                <MenuItem
-                  as={Link}
-                  to={`/game/${id}/edit`}
-                  icon={<EditIcon />}
-                  colorScheme="teal"
-                >
-                  Edit
-                </MenuItem>
-                <MenuItem
-                  as={Link}
-                  to={`/game/${id}/changes`}
-                  icon={<RepeatClockIcon />}
-                >
-                  History
-                </MenuItem>
-                <MenuDivider />
-                <MenuItem color="red" onClick={deleteModal.onOpen}>
-                  Delete game
-                </MenuItem>
-              </MenuList>
-            </Menu>
-          )}
+        {currentUser && (
+          <Menu>
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+              Actions
+            </MenuButton>
+            <MenuList>
+              <MenuItem
+                as={Link}
+                to={`/game/${id}/edit`}
+                icon={<EditIcon />}
+                colorScheme="teal"
+              >
+                Edit
+              </MenuItem>
+              <MenuItem
+                as={Link}
+                to={`/game/${id}/changes`}
+                icon={<RepeatClockIcon />}
+              >
+                History
+              </MenuItem>
+              <MenuDivider />
+              <MenuItem color="red" onClick={deleteModal.onOpen}>
+                Delete game
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        )}
 
-          <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
-            <ModalOverlay />
-            <ModalContent as={Form} action={`/game/${id}/delete`} method="post">
-              <ModalHeader>Delete Game</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Text>Do you really want to delete {name}?</Text>
-              </ModalBody>
+        <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
+          <ModalOverlay />
+          <ModalContent as={Form} action={`/game/${id}/delete`} method="post">
+            <ModalHeader>Delete Game</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Text>Do you really want to delete {name}?</Text>
+            </ModalBody>
 
-              <ModalFooter>
-                <Button
-                  type="submit"
-                  isLoading={false}
-                  loadingText="Deleting"
-                  colorScheme="red"
-                  mr={3}
-                >
-                  Delete
-                </Button>
-                <Button variant="ghost" onClick={deleteModal.onClose}>
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-        </Flex>
+            <ModalFooter>
+              <Button
+                type="submit"
+                isLoading={false}
+                loadingText="Deleting"
+                colorScheme="red"
+                mr={3}
+              >
+                Delete
+              </Button>
+              <Button variant="ghost" onClick={deleteModal.onClose}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </Flex>
 
+      <Box
+        background={bg}
+        maxWidth="36em"
+        shadow="sm"
+        borderRadius={7}
+        padding={4}
+        mt={5}
+      >
+        {about && <Markdown value={about} />}
         {site && (
-          <Text fontSize="lg">
-            <ChakraLink href={site} isExternal>
-              {site.replace(/https?:\/\//, '')}
-              <ExternalLinkIcon mx="2px" />
-            </ChakraLink>
-          </Text>
+          <ChakraLink href={site} isExternal>
+            Website
+            <ExternalLinkIcon mx="2px" />
+          </ChakraLink>
         )}
-
-        {about && (
-          <Box mt={3}>
-            <Markdown value={about} />
-          </Box>
-        )}
-
         <Stack isInline spacing={2} mt={5}>
           {tags.map((tag) => (
             <Tag key={tag.id} colorScheme="teal">
@@ -253,7 +254,7 @@ const Game = () => {
         </Stack>
       </Box>
 
-      <Box mb={5} pl={5} pr={5}>
+      <Box background={bg} shadow="sm" borderRadius={7} padding={4} mt={5}>
         <Heading size="md" mb={2}>
           Authors
         </Heading>
@@ -314,9 +315,9 @@ const Game = () => {
       </Box>
 
       {events.length > 0 && (
-        <Box mb={5} pl={5} pr={5}>
+        <Box background={bg} shadow="sm" borderRadius={7} padding={4} mt={5}>
           <Heading size="md" mb={2}>
-            Made/Exhibited at:
+            Events
           </Heading>
           <List>
             {events.map((event) => (
@@ -336,7 +337,7 @@ const Game = () => {
         </Box>
       )}
 
-      <Box mb={5} pl={5} pr={5}>
+      <Box background={bg} shadow="sm" borderRadius={7} padding={4} mt={5}>
         <MotionGallery
           gameId={id}
           images={images.concat(igdb_images)}
@@ -373,7 +374,7 @@ const Game = () => {
           </Grid>
         </Box>
       )}
-    </>
+    </Box>
   );
 };
 
