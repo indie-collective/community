@@ -15,6 +15,7 @@ import { DeleteIcon } from '@chakra-ui/icons';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Card from './Card';
 import CardLink from './CardLink';
+import { motion } from 'framer-motion';
 
 export const GameCardSkeleton = () => (
   <Box>
@@ -36,7 +37,9 @@ const GameCard = forwardRef(
     const bgColorHover = useColorModeValue('gray.100', 'gray.700');
     const overlayBgColor = useColorModeValue('#ffffffbb', '#00000088');
 
-    const image = images[0]?.thumbnail_url || igdb_game?.screenshots[0]?.url?.replace(/t_thumb/, 't_cover_big');
+    const image =
+      images[0]?.thumbnail_url ||
+      igdb_game?.screenshots[0]?.url?.replace(/t_thumb/, 't_cover_big');
 
     if (isCompact) {
       return (
@@ -100,16 +103,17 @@ const GameCard = forwardRef(
     }
 
     return (
-      <Card
-        isClickable
-        ref={ref}
-        _hover={{
-          backgroundColor: bgColorHover,
-          cursor: 'pointer',
-        }}
-        rounded={5}
-      >
-        <AspectRatio ratio={2}>
+      <Card as={motion.div} isClickable ref={ref} rounded={5} whileHover="grow">
+        <AspectRatio
+          ratio={2}
+          as={motion.div}
+          variants={{
+            grow: {
+              scale: 1.05,
+              boxShadow: '0 5px 10px 5px rgba(0, 0, 0, 0.05)',
+            },
+          }}
+        >
           <Image
             size="100%"
             objectFit="cover"
