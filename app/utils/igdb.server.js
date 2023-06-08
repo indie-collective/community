@@ -62,7 +62,8 @@ export async function getIGDBGame(slug) {
 
     return {
       ...igdbGame,
-      videos: igdbGame.videos || [], // weird, no videos -> no array
+      videos: igdbGame.videos || [], // no videos -> no array
+      screenshots: igdbGame.screenshots || [], // no screenshots -> no array
     };
   } catch (error) {
     console.log(`IGDB: Error when loading ${slug}`, error.message);
