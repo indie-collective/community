@@ -7,8 +7,8 @@ services:
     name: community
     env: node
     plan: free
-    buildCommand: npm ci --production=false && npm run build && npm prune --production
-    startCommand: npx prisma migrate deploy && npm run start
+    buildCommand: npm ci --production=false && npm run build && npx prisma migrate deploy && npm prune --production
+    startCommand: npm run start
     healthCheckPath: /healthcheck
     envVars:
       - key: DATABASE_URL
