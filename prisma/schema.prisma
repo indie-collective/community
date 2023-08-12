@@ -220,6 +220,7 @@ model person {
   password_hash     String?
   steam_id          String?             @unique
   username          String              @unique @db.VarChar(30)
+  avatar_oauth      String?
   avatar            image?              @relation(fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entity_member     entity_member[]
   event_participant event_participant[]

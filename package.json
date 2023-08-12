@@ -23,6 +23,7 @@
     "aws-sdk": "^2.780.0",
     "date-fns": "^2.16.1",
     "diff": "^5.1.0",
+    "discord.js": "^14.12.1",
     "enquire.js": "^2.1.6",
     "framer-motion": "^6.2.9",
     "igdb-api-node": "^5.0.1",

@@ -1,6 +1,16 @@
-import { LockIcon } from '@chakra-ui/icons';
-import { HStack, Flex, Text, Button, Avatar } from '@chakra-ui/react';
-import { Link, useLoaderData } from '@remix-run/react';
+import {
+  chakra,
+  HStack,
+  Flex,
+  Text,
+  Button,
+  Avatar,
+  VisuallyHidden,
+} from '@chakra-ui/react';
+import { Form, Link, useLoaderData } from '@remix-run/react';
+import { SocialsProvider } from 'remix-auth-socials';
+
+import { DiscordIcon } from './DiscordIcon';
 
 const AvatarButton = () => {
   const data = useLoaderData();
@@ -13,7 +23,9 @@ const AvatarButton = () => {
         <HStack spacing="1.5">
           <Avatar size="md" name={first_name} src={avatar} />
           <Flex direction="column">
-            <Text fontWeight="bold" mb="-2px">{first_name}</Text>
+            <Text fontWeight="bold" mb="-2px">
+              {first_name}
+            </Text>
             <Text fontSize="small">@{username}</Text>
           </Flex>
         </HStack>
@@ -22,15 +34,21 @@ const AvatarButton = () => {
   }
 
   return (
-    <Button
-      as={Link}
-      to="/signin"
-      colorScheme="teal"
-      aria-label="Signin"
-      leftIcon={<LockIcon/>}
+    <chakra.form
+      as={Form}
+      action={`/auth/${SocialsProvider.DISCORD}`}
+      method="post"
     >
-      Sign in
-    </Button>
+      <Button
+        type="submit"
+        colorScheme={SocialsProvider.DISCORD}
+        aria-label="Signin"
+        rightIcon={<DiscordIcon boxSize="5" />}
+        w="100%"
+      >
+        Sign in with<VisuallyHidden> Discord</VisuallyHidden>
+      </Button>
+    </chakra.form>
   );
 };
 
