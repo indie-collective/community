@@ -23,7 +23,14 @@ import {
   Link as ChakraLink,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, WarningTwoIcon } from '@chakra-ui/icons';
-import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
+import {
+  Form,
+  Link,
+  isRouteErrorResponse,
+  useFetcher,
+  useLoaderData,
+  useRouteError,
+} from '@remix-run/react';
 import { json } from '@remix-run/node';
 import { Map } from 'pigeon-maps';
 
@@ -585,25 +592,31 @@ const Event = () => {
   );
 };
 
-export function CatchBoundary() {
-  return (
-    <Stack textAlign="center" mt={20}>
-      <Heading>Event not found!</Heading>
-      <Text>Would you like to create its page?</Text>
-      <Box mt={10}>
-        <Button
-          as={Link}
-          to="/events/create"
-          m="auto"
-          mb={10}
-          size="lg"
-          leftIcon={<AddIcon />}
-        >
-          Add an event
-        </Button>
-      </Box>
-    </Stack>
-  );
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <Stack textAlign="center" mt={20}>
+        <Heading>Event not found!</Heading>
+        <Text>Would you like to create its page?</Text>
+        <Box mt={10}>
+          <Button
+            as={Link}
+            to="/events/create"
+            m="auto"
+            mb={10}
+            size="lg"
+            leftIcon={<AddIcon />}
+          >
+            Add an event
+          </Button>
+        </Box>
+      </Stack>
+    );
+  }
+
+  return <Text>Something went wrong.</Text>;
 }
 
 export default Event;

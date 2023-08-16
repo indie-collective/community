@@ -15,9 +15,10 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useCatch,
+  isRouteErrorResponse,
   useLoaderData,
   useLocation,
+  useRouteError,
 } from '@remix-run/react';
 import { AnimatePresence } from 'framer-motion';
 import React, { useContext, useEffect } from 'react';
@@ -113,23 +114,23 @@ const Document = withEmotionCache(({ children }, emotionCache) => {
   );
 });
 
-export function CatchBoundary() {
-  const caught = useCatch();
+export function ErrorBoundary() {
+  const error = useRouteError();
 
-  return (
-    <Document>
-      <ChakraProvider theme={theme}>
-        <AnimatePresence exitBeforeEnter>
-          <Main>
-            <Error statusCode={caught.status} />
-          </Main>
-        </AnimatePresence>
-      </ChakraProvider>
-    </Document>
-  );
-}
+  if (isRouteErrorResponse(error)) {
+    return (
+      <Document>
+        <ChakraProvider theme={theme}>
+          <AnimatePresence exitBeforeEnter>
+            <Main>
+              <Error statusCode={error.status} />
+            </Main>
+          </AnimatePresence>
+        </ChakraProvider>
+      </Document>
+    );
+  }
 
-export function ErrorBoundary({ error }) {
   return (
     <Document>
       <ChakraProvider theme={theme}>

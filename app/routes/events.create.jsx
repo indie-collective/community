@@ -47,11 +47,13 @@ export async function action(args) {
         ends_at: new Date(data.get('end')),
         about: data.get('about'),
         site: data.get('site'),
-        cover: data.get('cover') ? {
-          connect: {
-            id: data.get('cover'),
-          },
-        } : undefined,
+        cover: data.get('cover')
+          ? {
+              connect: {
+                id: data.get('cover'),
+              },
+            }
+          : undefined,
         location: Object.values(location).some((l) => l !== null)
           ? {
               connectOrCreate: {

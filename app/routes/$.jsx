@@ -8,10 +8,6 @@ export const loader = async () => {
   throw new Response('Not Found', { status: 404 });
 };
 
-export function CatchBoundary() {
-  return <Error statusCode={404} />;
-}
-
 export default function NotFound() {
   return <Error statusCode={404} />;
 }

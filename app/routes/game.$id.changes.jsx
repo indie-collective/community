@@ -19,7 +19,16 @@ import {
 } from '@chakra-ui/react';
 import { AddIcon, ArrowBackIcon, EditIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
-import { Link, NavLink, Outlet, useLoaderData, useMatches, useParams } from '@remix-run/react';
+import {
+  Link,
+  NavLink,
+  Outlet,
+  isRouteErrorResponse,
+  useLoaderData,
+  useMatches,
+  useParams,
+  useRouteError,
+} from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
@@ -101,7 +110,7 @@ const operationsColors = {
 
 const Game = () => {
   const { game, changes } = useLoaderData();
-  const {revisionId} = useParams()
+  const { revisionId } = useParams();
 
   const bg = useColorModeValue('gray.100', 'gray.700');
 
@@ -166,9 +175,7 @@ const Game = () => {
                       </Stack>
 
                       <Stack direction="row" align="center">
-                        <Text fontSize="sm">
-                          {author.username}
-                        </Text>
+                        <Text fontSize="sm">{author.username}</Text>
                         <Spacer />
                         <Text
                           as="time"
@@ -215,29 +222,31 @@ const Game = () => {
   );
 };
 
-export function CatchBoundary() {
-  return (
-    <Stack textAlign="center" mt={20}>
-      <Heading>Game Not Found!</Heading>
-      <Text>Would you like to create its page?</Text>
-      <Box mt={10}>
-        <Button
-          as={Link}
-          to="/games/create"
-          m="auto"
-          mb={10}
-          size="lg"
-          colorScheme="teal"
-          leftIcon={<AddIcon />}
-        >
-          Add a game
-        </Button>
-      </Box>
-    </Stack>
-  );
-}
-
 export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <Stack textAlign="center" mt={20}>
+        <Heading>Game Not Found!</Heading>
+        <Text>Would you like to create its page?</Text>
+        <Box mt={10}>
+          <Button
+            as={Link}
+            to="/games/create"
+            m="auto"
+            mb={10}
+            size="lg"
+            colorScheme="teal"
+            leftIcon={<AddIcon />}
+          >
+            Add a game
+          </Button>
+        </Box>
+      </Stack>
+    );
+  }
+
   return <Text>Something went wrong.</Text>;
 }
 

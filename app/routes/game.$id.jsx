@@ -24,7 +24,14 @@ import {
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
-import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react';
+import {
+  Form,
+  Link,
+  isRouteErrorResponse,
+  useFetcher,
+  useLoaderData,
+  useRouteError,
+} from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
@@ -362,25 +369,31 @@ const Game = () => {
   );
 };
 
-export function CatchBoundary() {
-  return (
-    <Stack textAlign="center" mt={20}>
-      <Heading>Game not found!</Heading>
-      <Text>Would you like to create its page?</Text>
-      <Box mt={10}>
-        <Button
-          as={Link}
-          to="/games/create"
-          m="auto"
-          mb={10}
-          size="lg"
-          leftIcon={<AddIcon />}
-        >
-          Add a game
-        </Button>
-      </Box>
-    </Stack>
-  );
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <Stack textAlign="center" mt={20}>
+        <Heading>Game not found!</Heading>
+        <Text>Would you like to create its page?</Text>
+        <Box mt={10}>
+          <Button
+            as={Link}
+            to="/games/create"
+            m="auto"
+            mb={10}
+            size="lg"
+            leftIcon={<AddIcon />}
+          >
+            Add a game
+          </Button>
+        </Box>
+      </Stack>
+    );
+  }
+
+  return <Text>Something went wrong.</Text>;
 }
 
 export default Game;
