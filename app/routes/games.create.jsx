@@ -4,12 +4,13 @@ import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import { authenticator, authorizer, canWrite } from '../utils/auth.server';
 import GameForm from '../components/GameForm';
 
-export async function action({ request }) {
-  const currentUser = await authenticator.isAuthenticated(request, {
-    failureRedirect: '/signin?redirect=/games/create',
+export async function action(args) {
+  const { request } = args;
+  const currentUser = await authorizer.authorize(args, {
+    rules: [canWrite],
   });
 
   const data = await request.formData();

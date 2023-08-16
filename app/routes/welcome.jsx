@@ -178,19 +178,43 @@ export default function Welcome() {
           </Button>
         </Box>
 
-        <Box>
-          <EditIcon boxSize={10} mb={5} />
-          <Heading as="h3" size="md" mb={5}>
-            Start contributing now!
-          </Heading>
-          <Text mb={2}>
-            You can edit anything! Head to the suggestion page if you don't know
-            where to start!
-          </Text>
-          <Button as={Link} to="/contribute">
-            Contribute
-          </Button>
-        </Box>
+        {currentUser.isGuildMember ? (
+          <Box>
+            <EditIcon boxSize={10} mb={5} />
+            <Heading as="h3" size="md" mb={5}>
+              Start contributing now!
+            </Heading>
+            <Text mb={2}>
+              You can edit anything! Head to the suggestion page if you don't
+              know where to start!
+            </Text>
+            <Button as={Link} to="/contribute">
+              Contribute
+            </Button>
+          </Box>
+        ) : (
+          <Box>
+            <EditIcon boxSize={10} mb={5} />
+            <Heading as="h3" size="md" mb={5}>
+              Join the Discord to contribute
+            </Heading>
+            <Text mb={2}>
+              Oh no! You're not part of Indie Collective's Discord.
+              <br />
+              Join now if you want to contribute!
+            </Text>
+            <Button
+              as={ChakraLink}
+              href=""
+              isExternal
+              style={{ textDecoration: 'none' }}
+              textDecoration="none"
+              rightIcon={<DiscordIcon />}
+            >
+              Join IC's Discord
+            </Button>
+          </Box>
+        )}
       </SimpleGrid>
     </Box>
   );

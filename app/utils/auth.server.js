@@ -1,6 +1,6 @@
 import { redirect } from '@remix-run/node';
 import { REST, Routes } from 'discord.js';
-import { Authenticator } from 'remix-auth';
+import { Authenticator, Authorizer } from 'remix-auth';
 // import { FormStrategy } from 'remix-auth-form';
 import {
   SocialsProvider,
@@ -101,8 +101,6 @@ authenticator.use(
           );
 
           // 694986277556060271 -> adhérent -> special status?
-        } else {
-          // not a member -> read only status
         }
 
         let user = await db.person.findUnique({
@@ -169,6 +167,7 @@ authenticator.use(
 
         return {
           ...user,
+          isGuildMember: !!guildMember,
           avatar,
         };
       } catch (err) {
@@ -244,6 +243,46 @@ authenticator.use(
 //   'steam'
 // );
 
+/* Global authorization rules */
+async function hasEmail({ user, request }) {
+  const url = new URL(request.url);
+
+  if (!user.email && url.pathname !== '/welcome') {
+    throw redirect('/welcome');
+  }
+
+  return true;
+}
+
+export let authorizer = new Authorizer(authenticator, [hasEmail]);
+
+/* Per route authorization rules */
+export async function canWrite({ user }) {
+  const guildMember = await rest.get(
+    Routes.guildMember(
+      '84687138729259008', // IC server
+      user.discord_id
+    )
+  );
+
+  // TODO: maybe need to check another property, have to ban someone to try
+
+  // TODO: check if user.guildMember has changed and invalidate if different
+  // throw redirect? + set cookies
+
+  return !!guildMember;
+}
+
+export async function canDelete({ user }) {
+  return (
+    await db.person.findUnique({
+      where: {
+        id: user.id,
+      },
+    })
+  ).isAdmin;
+}
+
 const { isAuthenticated } = authenticator;
 
 authenticator.isAuthenticated = async function (request, options) {
@@ -253,11 +292,29 @@ authenticator.isAuthenticated = async function (request, options) {
     options
   );
 
-  const url = new URL(request.url);
+  if (!currentUser) return currentUser;
 
-  if (currentUser && !currentUser.email && url.pathname !== '/welcome') {
-    throw redirect('/welcome');
+  // check if user still exists in the database
+  const user = await db.person.findUnique({
+    where: {
+      id: currentUser.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!user) {
+    const prevURL = new URL(request.url);
+    
+    // todo: add redirect to previous page
+    throw await authenticator.logout(request, {
+      redirectTo: '/signin?prev=' + prevURL.pathname,
+    });
   }
+
+  // this might get useless if authorized is used everywhere
+  await hasEmail({ user: currentUser, request });
 
   return currentUser;
 };

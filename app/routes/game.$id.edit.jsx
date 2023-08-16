@@ -5,7 +5,7 @@ import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import { authenticator, authorizer, canWrite } from '../utils/auth.server';
 import computeGame from '../models/game';
 import GameForm from '../components/GameForm';
 
@@ -46,11 +46,12 @@ export const loader = async ({ request, params }) => {
   });
 };
 
-export async function action({ request, params }) {
+export async function action(args) {
+  const { request, params } = args;
   const { id } = params;
 
-  const currentUser = await authenticator.isAuthenticated(request, {
-    failureRedirect: `/signin?redirect=/games/${id}/edit`,
+  const currentUser = await authorizer.authorize(args, {
+    rules: [canWrite],
   });
 
   const data = await request.formData();
