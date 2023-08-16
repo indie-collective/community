@@ -1,9 +1,15 @@
 import { redirect } from "@remix-run/node";
 
 import { db } from "../../utils/db.server";
+import { authorizer, canWrite } from '../../utils/auth.server';
 
-export async function action({ params, request }) {
+export async function action(args) {
+  const { params, request } = args;
   const { id } = params;
+
+  await authorizer.authorize(args, {
+    rules: [canWrite],
+  });
 
   const data = await request.formData();
 
@@ -11,7 +17,7 @@ export async function action({ params, request }) {
     where: {
       game_id_entity_id: {
         game_id: id,
-        entity_id: data.get("id"),
+        entity_id: data.get('id'),
       },
     },
   });

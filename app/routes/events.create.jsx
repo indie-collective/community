@@ -10,13 +10,15 @@ import { useActionData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import { authenticator, authorizer, canWrite } from '../utils/auth.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
 import EventForm from '../components/EventForm';
 
-export async function action({ request }) {
-  await authenticator.isAuthenticated(request, {
-    failureRedirect: '/signin?redirect=/games/create',
+export async function action(args) {
+  const { request } = args;
+
+  await authorizer.authorize(args, {
+    rules: [canWrite],
   });
 
   const data = await unstable_parseMultipartFormData(
@@ -45,11 +47,13 @@ export async function action({ request }) {
         ends_at: new Date(data.get('end')),
         about: data.get('about'),
         site: data.get('site'),
-        cover: data.get('cover') ? {
-          connect: {
-            id: data.get('cover'),
-          },
-        } : undefined,
+        cover: data.get('cover')
+          ? {
+              connect: {
+                id: data.get('cover'),
+              },
+            }
+          : undefined,
         location: Object.values(location).some((l) => l !== null)
           ? {
               connectOrCreate: {

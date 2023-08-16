@@ -23,7 +23,14 @@ import {
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
-import { Link, useLoaderData, useNavigate, Form } from '@remix-run/react';
+import {
+  Link,
+  useLoaderData,
+  useNavigate,
+  Form,
+  isRouteErrorResponse,
+  useRouteError,
+} from '@remix-run/react';
 import { motion } from 'framer-motion';
 
 import { db } from '../utils/db.server';
@@ -135,20 +142,23 @@ export const loader = async ({ request, params }) => {
   });
 };
 
-export const meta = ({ data, location }) => data?.org ? ({
-  title: data.org.name,
-  description: `${data.org.about}.`,
-  'og:title': data.org.name,
-  'og:description': `${data.org.about}.`,
-  'og:url': `${location.protocol}://${location.host}/org/${data.org.id}`,
-  'og:image': data.org.logo?.thumbnail_url,
-  'twitter:card': 'summary',
-  'twitter:title': data.org.name,
-  'twitter:description': `${data.org.about}.`,
-  'twitter:image': data.org.logo?.thumbnail_url,
-}) : ({
-  title: 'Organization not found!'
-});
+export const meta = ({ data, location }) =>
+  data?.org
+    ? {
+        title: data.org.name,
+        description: `${data.org.about}.`,
+        'og:title': data.org.name,
+        'og:description': `${data.org.about}.`,
+        'og:url': `${location.protocol}://${location.host}/org/${data.org.id}`,
+        'og:image': data.org.logo?.thumbnail_url,
+        'twitter:card': 'summary',
+        'twitter:title': data.org.name,
+        'twitter:description': `${data.org.about}.`,
+        'twitter:image': data.org.logo?.thumbnail_url,
+      }
+    : {
+        title: 'Organization not found!',
+      };
 
 const Org = () => {
   const navigate = useNavigate();
@@ -362,25 +372,31 @@ const Org = () => {
   );
 };
 
-export function CatchBoundary() {
-  return (
-    <Stack textAlign="center" mt={20}>
-      <Heading>Organization not found!</Heading>
-      <Text>Would you like to create its page?</Text>
-      <Box mt={10}>
-        <Button
-          as={Link}
-          to="/orgs/create"
-          m="auto"
-          mb={10}
-          size="lg"
-          leftIcon={<AddIcon />}
-        >
-          Add an organization
-        </Button>
-      </Box>
-    </Stack>
-  );
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <Stack textAlign="center" mt={20}>
+        <Heading>Organization not found!</Heading>
+        <Text>Would you like to create its page?</Text>
+        <Box mt={10}>
+          <Button
+            as={Link}
+            to="/orgs/create"
+            m="auto"
+            mb={10}
+            size="lg"
+            leftIcon={<AddIcon />}
+          >
+            Add an organization
+          </Button>
+        </Box>
+      </Stack>
+    );
+  }
+
+  return <Text>Something went wrong.</Text>;
 }
 
 export default Org;

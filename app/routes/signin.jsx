@@ -1,27 +1,33 @@
 import {
-  Alert,
-  AlertIcon,
+  chakra,
+  // Alert,
+  // AlertIcon,
   Box,
-  Divider,
+  Button,
+  // Divider,
   Heading,
-  HStack,
-  Link as ChakraLink,
-  Stack,
+  // HStack,
+  // Link as ChakraLink,
+  // Stack,
   Text,
-  useColorModeValue as mode,
+  VisuallyHidden,
+  // useColorModeValue as mode,
 } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
 import {
-  Link,
-  useActionData,
-  useSearchParams,
-  useTransition,
+  Form,
+  // Link,
+  // useActionData,
+  // useSearchParams,
+  // useTransition,
 } from '@remix-run/react';
 import { AuthorizationError } from 'remix-auth';
+import { SocialsProvider } from 'remix-auth-socials';
 
 import { authenticator } from '../utils/auth.server';
-import OAuthButtonGroup from '../components/OAuthButtonGroup';
-import SigninForm from '../components/SigninForm';
+import { DiscordIcon } from '../components/DiscordIcon';
+// import OAuthButtonGroup from '../components/OAuthButtonGroup';
+// import SigninForm from '../components/SigninForm';
 
 export let loader = async ({ request }) => {
   return await authenticator.isAuthenticated(request, {
@@ -53,17 +59,39 @@ export const meta = () => ({
 });
 
 const SignIn = () => {
-  const transition = useTransition();
-  const actionData = useActionData();
+  // const transition = useTransition();
+  // const actionData = useActionData();
 
-  const [searchParams] = useSearchParams();
+  // const [searchParams] = useSearchParams();
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
       <Heading textAlign="center" size="xl" fontWeight="extrabold">
         Sign in
       </Heading>
-      <Text mt="4" mb="8" align="center" maxW="md" fontWeight="medium">
+
+      <Text my={5}>
+        To start contributing, connect with Discord and join Indie Collective's
+        server to get write access to community.
+      </Text>
+
+      <chakra.form
+        as={Form}
+        action={`/auth/${SocialsProvider.DISCORD}`}
+        method="post"
+      >
+        <Button
+          type="submit"
+          colorScheme={SocialsProvider.DISCORD}
+          aria-label="Signin"
+          rightIcon={<DiscordIcon boxSize="5" />}
+          w="100%"
+        >
+          Sign in with<VisuallyHidden> Discord</VisuallyHidden>
+        </Button>
+      </chakra.form>
+
+      {/* <Text mt="4" mb="8" align="center" maxW="md" fontWeight="medium">
         <Text as="span">Don&apos;t have an account? </Text>
         <ChakraLink
           as={Link}
@@ -73,9 +101,9 @@ const SignIn = () => {
         >
           Sign up
         </ChakraLink>
-      </Text>
+      </Text> */}
 
-      <Stack spacing={5}>
+      {/* <Stack spacing={5}>
         {actionData?.error && (
           <Alert status="error" mb="10px">
             <AlertIcon />
@@ -98,7 +126,7 @@ const SignIn = () => {
             <OAuthButtonGroup />
           </>
         )}
-      </Stack>
+      </Stack> */}
     </Box>
   );
 };

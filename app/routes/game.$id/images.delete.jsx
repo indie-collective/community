@@ -1,9 +1,15 @@
 import { redirect } from '@remix-run/node';
 
 import { db } from '../../utils/db.server';
+import { authorizer, canDelete } from '../../utils/auth.server';
 
-export async function action({ params, request }) {
+export async function action(args) {
+  const { params, request } = args;
   const { id } = params;
+
+  await authorizer.authorize(args, {
+    rules: [canDelete],
+  });
 
   const data = await request.formData();
 

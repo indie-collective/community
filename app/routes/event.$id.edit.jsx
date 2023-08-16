@@ -10,6 +10,7 @@ import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
+import { authorizer, canWrite } from '../utils/auth.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
 import EventForm from '../components/EventForm';
 
@@ -53,8 +54,13 @@ export const loader = async ({ params }) => {
   return json(data);
 };
 
-export async function action({ request, params }) {
+export async function action(args) {
+  const { params, request } = args;
   const { id } = params;
+
+  await authorizer.authorize(args, {
+    rules: [canWrite],
+  });
 
   try {
     const data = await unstable_parseMultipartFormData(

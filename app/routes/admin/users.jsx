@@ -1,7 +1,6 @@
 import { json, redirect } from '@remix-run/node';
-import { useLoaderData, Form, Link, useSubmit } from '@remix-run/react';
+import { useLoaderData, useSubmit } from '@remix-run/react';
 import {
-  chakra,
   Heading,
   Table,
   Thead,
@@ -18,7 +17,6 @@ import {
   IconButton,
   Link as ChakraLink,
   Avatar,
-  Input,
   Box,
   Text,
 } from '@chakra-ui/react';
@@ -29,7 +27,6 @@ import { db } from '../../utils/db.server';
 import computePerson from '../../models/person';
 import { DiscordIcon } from '../../components/DiscordIcon';
 import { GitHubIcon } from '../../components/GitHubIcon';
-import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 export const action = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {
@@ -141,11 +138,16 @@ const Profile = () => {
           <Thead>
             <Tr>
               <Th>Name</Th>
-              <Th>Created</Th>
               <Th>Email</Th>
               <Th>Socials</Th>
-              <Th>Admin</Th>
-              <Th>Restricted</Th>
+              <Th>
+                <Tooltip label="Managed on Discord">
+                  <Text as="span">
+                    Admin <Icon name="QuestionIcon" />
+                  </Text>
+                </Tooltip>
+              </Th>
+              <Th>Created</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -161,10 +163,9 @@ const Profile = () => {
                 discord_url,
                 github_url,
                 isAdmin,
-                isRestricted = false,
               }) => (
                 <Tr key={id}>
-                  <Td color={isRestricted && 'gray.500'}>
+                  <Td>
                     <Avatar
                       name={first_name}
                       src={avatar && avatar.thumbnail_url}
@@ -176,19 +177,12 @@ const Profile = () => {
                       {first_name}&nbsp;
                       {last_name}
                     </b>{' '}
-                    <Text as="span" color='gray.500'>{username}</Text>
+                    <Text as="span" color={isAdmin && 'blue.500'}>
+                      {username}
+                    </Text>
                   </Td>
-                  <Td color={isRestricted && 'gray.500'}>
-                    {formatDistanceToNow(new Date(created_at), {
-                      addSuffix: true,
-                    })}
-                    &nbsp;
-                    <Tooltip label={created_at}>
-                      <Icon name="QuestionIcon" />
-                    </Tooltip>
-                  </Td>
-                  <Td color={isRestricted && 'gray.500'}>{email}</Td>
-                  <Td color={isRestricted && 'gray.500'}>
+                  <Td>{email}</Td>
+                  <Td>
                     {discord_url && (
                       <IconButton
                         as={ChakraLink}
@@ -211,29 +205,20 @@ const Profile = () => {
                     )}
                   </Td>
                   <Td>
-                    <chakra.form
-                      as={Form}
-                      method="post"
-                      onChange={(event) => {
-                        submit(event.currentTarget, { replace: true });
-                      }}
-                    >
-                      <Input type="hidden" name="userId" value={id} />
-                      <Switch
-                        name="isAdmin"
-                        isChecked={isAdmin}
-                        value="on"
-                        disabled={isRestricted || currentUser.id === id}
-                      />
-                    </chakra.form>
+                    <Switch
+                      colorScheme="blue"
+                      name="isAdmin"
+                      isChecked={isAdmin}
+                      value="on"
+                      disabled
+                    />
                   </Td>
                   <Td>
-                    <Switch
-                      colorScheme="red"
-                      isChecked={isRestricted}
-                      value="on"
-                      disabled={currentUser.id === id || isAdmin}
-                    />
+                    <time datetime={created_at} title={created_at}>
+                      {formatDistanceToNow(new Date(created_at), {
+                        addSuffix: true,
+                      })}
+                    </time>
                   </Td>
                 </Tr>
               )
@@ -242,11 +227,16 @@ const Profile = () => {
           <Tfoot>
             <Tr>
               <Th>Name</Th>
-              <Th>Created</Th>
               <Th>Email</Th>
               <Th>Socials</Th>
-              <Th>Admin</Th>
-              <Th>Restricted</Th>
+              <Th>
+                <Tooltip label="Managed on Discord">
+                  <Text as="span">
+                    Admin <Icon name="QuestionIcon" />
+                  </Text>
+                </Tooltip>
+              </Th>
+              <Th>Created</Th>
             </Tr>
           </Tfoot>
         </Table>

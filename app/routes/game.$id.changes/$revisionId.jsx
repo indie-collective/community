@@ -14,7 +14,11 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import {
+  isRouteErrorResponse,
+  useLoaderData,
+  useRouteError,
+} from '@remix-run/react';
 
 import { db } from '../../utils/db.server';
 import { authenticator } from '../../utils/auth.server';
@@ -88,15 +92,15 @@ export const loader = async ({ request, params }) => {
     diff: {
       name: diff.diffWords(
         previous?.name || '',
-        revision.operation === 'delete' ? '' : (revision.name || '')
+        revision.operation === 'delete' ? '' : revision.name || ''
       ),
       about: diff.diffWords(
         previous?.about || '',
-        revision.operation === 'delete' ? '' : (revision.about || '')
+        revision.operation === 'delete' ? '' : revision.about || ''
       ),
       site: diff.diffWords(
         previous?.site || '',
-        revision.operation === 'delete' ? '' : (revision.site || '')
+        revision.operation === 'delete' ? '' : revision.site || ''
       ),
     },
     createdAt: revision.created_at,
@@ -209,11 +213,13 @@ const Game = () => {
   );
 };
 
-export function CatchBoundary() {
-  return <Text>Revision not found.</Text>;
-}
-
 export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return <Text>Revision not found.</Text>;
+  }
+
   return <Text>Something went wrong.</Text>;
 }
 
