@@ -17,7 +17,7 @@ import EventForm from '../components/EventForm';
 export async function action(args) {
   const { request } = args;
 
-  await authorizer.authorize(args, {
+  const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
   });
 
@@ -39,36 +39,42 @@ export async function action(args) {
   };
 
   try {
-    const event = await db.event.create({
-      data: {
-        name: data.get('name'),
-        status: data.get('canceled') ? 'canceled' : 'ongoing',
-        starts_at: new Date(data.get('start')),
-        ends_at: new Date(data.get('end')),
-        about: data.get('about'),
-        site: data.get('site'),
-        cover: data.get('cover')
-          ? {
-              connect: {
-                id: data.get('cover'),
-              },
-            }
-          : undefined,
-        location: Object.values(location).some((l) => l !== null)
-          ? {
-              connectOrCreate: {
-                where: {
-                  street_city_region_country_code_latitude_longitude: location,
+    const [, event] = await db.$transaction([
+      db.$executeRawUnsafe(
+        `SET LOCAL public.current_user_id = '${currentUser.id}';`
+      ),
+
+      db.event.create({
+        data: {
+          name: data.get('name'),
+          status: data.get('canceled') ? 'canceled' : 'ongoing',
+          starts_at: new Date(data.get('start')),
+          ends_at: new Date(data.get('end')),
+          about: data.get('about'),
+          site: data.get('site'),
+          cover: data.get('cover')
+            ? {
+                connect: {
+                  id: data.get('cover'),
                 },
-                create: location,
-              },
-            }
-          : undefined,
-      },
-      select: {
-        id: true,
-      },
-    });
+              }
+            : undefined,
+          location: Object.values(location).some((l) => l !== null)
+            ? {
+                connectOrCreate: {
+                  where: {
+                    street_city_region_country_code_latitude_longitude: location,
+                  },
+                  create: location,
+                },
+              }
+            : undefined,
+        },
+        select: {
+          id: true,
+        },
+      }),
+    ]);
 
     return redirect(`/event/${event.id}`);
   } catch (err) {
