@@ -11,6 +11,10 @@ import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { authenticator, authorizer, canWrite } from '../utils/auth.server';
+import {
+  sendStudioAdded,
+  sendAssociationAdded,
+} from '../utils/discord-webhook.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
 import OrgForm from '../components/OrgForm';
 
@@ -75,6 +79,29 @@ export async function action(args) {
         },
       }),
     ]);
+
+    // DISCORD UPDATE
+    const author = {
+      name: currentUser.first_name,
+      url: null,
+      iconURL: currentUser.avatar,
+    };
+
+    if (data.get('type').toLowerCase() === 'association') {
+      sendAssociationAdded(author, {
+        title: data.get('name'),
+        description: data.get('about'),
+        url: `https://community.indieco.xyz/org/${event.id}`,
+      });
+    }
+
+    if (data.get('type').toLowerCase() === 'studio') {
+      sendStudioAdded(author, {
+        title: data.get('name'),
+        description: data.get('about'),
+        url: `https://community.indieco.xyz/org/${event.id}`,
+      });
+    }
 
     return redirect(`/org/${org.id}`);
   } catch (err) {
