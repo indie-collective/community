@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { authenticator, authorizer, canWrite } from '../utils/auth.server';
+import { sendGameAdded } from '../utils/discord-webhook.server';
 import GameForm from '../components/GameForm';
 
 export async function action(args) {
@@ -63,6 +64,19 @@ export async function action(args) {
         },
       }),
     ]);
+
+    // DISCORD UPDATE
+    const author = {
+      name: currentUser.first_name,
+      url: null,
+      iconURL: currentUser.avatar,
+    };
+
+    sendGameAdded(author, {
+      title: data.get('name'),
+      description: data.get('about'),
+      url: `https://community.indieco.xyz/game/${game.id}`,
+    });
 
     return redirect(`/game/${game.id}`);
   } catch (err) {
