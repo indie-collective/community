@@ -17,7 +17,7 @@ import OrgForm from '../components/OrgForm';
 export async function action(args) {
   const { request } = args;
 
-  await authorizer.authorize(args, {
+  const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
   });
 
@@ -39,35 +39,42 @@ export async function action(args) {
   };
 
   try {
-    const org = await db.entity.create({
-      data: {
-        name: data.get('name'),
-        type: data.get('type').toLowerCase(),
-        site: data.get('site'),
-        about: data.get('about'),
-        // igdb_slug,
-        location: Object.values(location).some((l) => l !== null)
-          ? {
-              connectOrCreate: {
-                where: {
-                  street_city_region_country_code_latitude_longitude: location,
+    const [, org] = await db.$transaction([
+      db.$executeRawUnsafe(
+        `SET LOCAL public.current_user_id = '${currentUser.id}';`
+      ),
+
+      db.entity.create({
+        data: {
+          name: data.get('name'),
+          type: data.get('type').toLowerCase(),
+          site: data.get('site'),
+          about: data.get('about'),
+          // igdb_slug,
+          location: Object.values(location).some((l) => l !== null)
+            ? {
+                connectOrCreate: {
+                  where: {
+                    street_city_region_country_code_latitude_longitude:
+                      location,
+                  },
+                  create: location,
                 },
-                create: location,
-              },
-            }
-          : undefined,
-        logo: data.get('logo')
-          ? {
-              connect: {
-                id: data.get('logo'),
-              },
-            }
-          : undefined,
-      },
-      select: {
-        id: true,
-      },
-    });
+              }
+            : undefined,
+          logo: data.get('logo')
+            ? {
+                connect: {
+                  id: data.get('logo'),
+                },
+              }
+            : undefined,
+        },
+        select: {
+          id: true,
+        },
+      }),
+    ]);
 
     return redirect(`/org/${org.id}`);
   } catch (err) {
