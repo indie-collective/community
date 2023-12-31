@@ -42,6 +42,7 @@ const CountriesPage = () => {
       >
         {countries.map(({ country_code, count }) => (
           <LinkBox
+            key={country_code}
             px={{ base: '4', md: '6' }}
             py={{ base: '5', md: '6' }}
             bg="bg-surface"
