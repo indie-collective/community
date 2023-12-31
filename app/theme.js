@@ -4,6 +4,23 @@ import {
   withDefaultVariant,
 } from '@chakra-ui/react';
 import { mode } from '@chakra-ui/theme-tools';
+import { createTheme } from '@mui/material/styles';
+import { red } from '@mui/material/colors';
+
+export const muiTheme = createTheme({
+  palette: {
+    primary: {
+      main: '#556cd6',
+    },
+    secondary: {
+      main: '#19857b',
+    },
+    error: {
+      main: red.A400,
+    },
+  },
+  shadows: Array(25).fill('none'),
+});
 
 const theme = extendTheme(
   {

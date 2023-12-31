@@ -108,6 +108,9 @@ const Navigation = ({ search }) => {
             <WrapItem>
               <NavLink href="/events">Events</NavLink>
             </WrapItem>
+            <WrapItem>
+              <NavLink href="/places">Places</NavLink>
+            </WrapItem>
           </Wrap>
 
           {currentUser?.isAdmin && (
@@ -161,6 +164,7 @@ const Navigation = ({ search }) => {
             <NavLink href="/studios">Studios</NavLink>
             <NavLink href="/associations">Associations</NavLink>
             <NavLink href="/events">Events</NavLink>
+            <NavLink href="/places">Places</NavLink>
           </VStack>
 
           {currentUser?.isAdmin && (
