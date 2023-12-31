@@ -204,6 +204,8 @@ export const meta = () => ({
   'twitter:title': 'Places',
   'twitter:description':
     'Video game related companies and organizations all over the world.',
+  viewport:
+    'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
 });
 
 const Places = () => {
@@ -311,6 +313,7 @@ const Places = () => {
             });
           }}
           maxZoom={18}
+          zoomSnap={false}
         >
           <ZoomControl />
           {orgsMarkers}
