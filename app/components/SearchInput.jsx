@@ -4,6 +4,7 @@ import {
   InputLeftElement,
   InputRightElement,
   Input,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { SmallCloseIcon, SearchIcon } from '@chakra-ui/icons';
 import { Form, useLocation, useNavigate } from '@remix-run/react';
@@ -60,7 +61,7 @@ const SearchInput = () => {
           placeholder="Search"
           defaultValue={params.get('q')}
           autoFocus={pathname === '/search'}
-          bg="white"
+          bg={useColorModeValue("white", "gray.750")}
           onChange={(e) => handleChange(e.target.value)}
         />
         {params.has('q') && (
