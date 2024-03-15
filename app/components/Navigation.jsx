@@ -11,6 +11,7 @@ import {
   useBreakpointValue,
   Wrap,
   WrapItem,
+  VisuallyHidden,
 } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
 import { Link, useLoaderData, useLocation } from '@remix-run/react';
@@ -62,14 +63,15 @@ const Navigation = ({ search }) => {
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
   const background = useColorModeValue('white', 'gray.900');
 
-  const adminSectionBgColor = useColorModeValue('gray.200', 'gray.900');
+  // const adminSectionBgColor = useColorModeValue('gray.200', 'gray.900');
 
   const { currentUser } = useLoaderData();
 
   if (variant === 'mobile') {
     return (
       <>
-        <Flex
+        <HStack
+          spacing={3}
           background={background}
           shadow="sm"
           width="100vw"
@@ -80,20 +82,18 @@ const Navigation = ({ search }) => {
           <Link to="/">
             <HStack as="span" spacing="2">
               <Logo />
-              <Text as="span" fontWeight="bold" fontSize="xl">
-                Community
-              </Text>
+              <VisuallyHidden>Community</VisuallyHidden>
             </HStack>
           </Link>
 
-          <IconButton ml={2} icon={<HamburgerIcon />} onClick={onToggle} />
-        </Flex>
-
-        <Collapse in={isOpen}>
-          <Box p={3}>
+          <Box flex="auto">
             <SearchInput defaultValue={search} />
           </Box>
 
+          <IconButton ml={2} icon={<HamburgerIcon />} onClick={onToggle} />
+        </HStack>
+
+        <Collapse in={isOpen}>
           <Wrap as="nav" spacing={4} mt="10px" justify="center">
             <WrapItem>
               <NavLink href="/games">Games</NavLink>
@@ -110,7 +110,7 @@ const Navigation = ({ search }) => {
           </Wrap>
 
           {currentUser?.isAdmin && (
-            <Wrap as="nav" spacing={4} mt="10px" justify="center">
+            <Wrap as="nav" spacing={4} my="10px" justify="center">
               <WrapItem>
                 <NavLink href="/admin/users">Users</NavLink>
                 <NavLink href="/admin/changes">Changes</NavLink>
@@ -134,6 +134,7 @@ const Navigation = ({ search }) => {
       <HStack spacing={3} py={2} px={5} maxWidth={960} width="100%" alignItems="flex-end">
         <Link to="/">
           <Logo height="48px" />
+          <VisuallyHidden>Community</VisuallyHidden>
         </Link>
 
         <Box flex="auto">
