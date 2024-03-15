@@ -180,10 +180,10 @@ const LandingPage = () => {
   const bg = useColorModeValue('white', 'gray.900');
 
   return (
-    <Box mb={5} p={5}>
+    <Box mb={5} pt={2} px={5}>
       <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
         <Heading as="h3" size="xl" mb={5}>
-          Games
+          Featured games
         </Heading>
 
         <Fade in>
@@ -193,7 +193,7 @@ const LandingPage = () => {
               '2fr',
               'repeat(2, 1fr)',
               'repeat(3, 1fr)',
-              'repeat(4, 1fr)',
+              'repeat(3, 1fr)',
             ]}
           >
             {games.map((game) => (

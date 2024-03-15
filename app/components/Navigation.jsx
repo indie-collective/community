@@ -5,7 +5,6 @@ import {
   Text,
   Link as ChakraLink,
   useColorModeValue,
-  VStack,
   Collapse,
   IconButton,
   useDisclosure,
@@ -61,7 +60,7 @@ function NavLink(props) {
 const Navigation = ({ search }) => {
   const { isOpen, onToggle } = useDisclosure();
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
-  const bg = useColorModeValue('white', 'gray.900');
+  const background = useColorModeValue('white', 'gray.900');
 
   const adminSectionBgColor = useColorModeValue('gray.200', 'gray.900');
 
@@ -71,7 +70,7 @@ const Navigation = ({ search }) => {
     return (
       <>
         <Flex
-          bg={bg}
+          background={background}
           shadow="sm"
           width="100vw"
           px={4}
@@ -108,9 +107,6 @@ const Navigation = ({ search }) => {
             <WrapItem>
               <NavLink href="/events">Events</NavLink>
             </WrapItem>
-            <WrapItem>
-              <NavLink href="/places">Places</NavLink>
-            </WrapItem>
           </Wrap>
 
           {currentUser?.isAdmin && (
@@ -123,7 +119,7 @@ const Navigation = ({ search }) => {
             </Wrap>
           )}
 
-          <Wrap as="nav" spacing={4} mt="10px" justify="center">
+          <Wrap as="nav" spacing={4} justify="center">
             <WrapItem>
               <AvatarButton />
             </WrapItem>
@@ -134,56 +130,42 @@ const Navigation = ({ search }) => {
   }
 
   return (
-    <Box bg={bg} shadow="sm">
-      <Flex
-        direction="column"
-        pl={5}
-        py={8}
-        position="fixed"
-        width="260px"
-        top="0px"
-        bottom="0px"
-      >
+    <Flex justifyContent="center" mt={5}>
+      <HStack spacing={3} py={2} px={5} maxWidth={960} width="100%" alignItems="flex-end">
         <Link to="/">
-          <HStack as="span" spacing="2">
-            <Logo />
-            <Text as="span" fontWeight="bold" fontSize="xl">
-              Community
-            </Text>
-          </HStack>
+          <Logo height="48px" />
         </Link>
 
-        <Box mt={5}>
-          <SearchInput defaultValue={search} />
+        <Box flex="auto">
+        <SearchInput defaultValue={search} />
         </Box>
 
-        <Box as="nav" flex="auto">
-          <VStack as="ul" spacing={1} my={5} alignItems="stretch">
+        {/* <Box as="nav" flex="auto">
+          <HStack as="ul" spacing={1} my={5} alignItems="stretch">
             <NavLink href="/">Home</NavLink>
             <NavLink href="/games">Games</NavLink>
             <NavLink href="/studios">Studios</NavLink>
             <NavLink href="/associations">Associations</NavLink>
             <NavLink href="/events">Events</NavLink>
-            <NavLink href="/places">Places</NavLink>
-          </VStack>
+          </HStack>
 
           {currentUser?.isAdmin && (
             <Box bg={adminSectionBgColor} p={1} borderRadius="md">
               <Text fontWeight="bold" color="gray.500" px={1} mb={3}>
                 Admin
               </Text>
-              <VStack as="ul" spacing={1} alignItems="stretch">
+              <HStack as="ul" spacing={1} alignItems="stretch">
                 <NavLink href="/admin/users">Users</NavLink>
                 <NavLink href="/admin/changes">Changes</NavLink>
                 <NavLink href="/admin/missing">Missing</NavLink>
-              </VStack>
+              </HStack>
             </Box>
           )}
-        </Box>
+        </Box> */}
 
         <AvatarButton />
-      </Flex>
-    </Box>
+      </HStack>
+    </Flex>
   );
 };
 

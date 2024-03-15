@@ -50,14 +50,17 @@ const SearchInput = () => {
         if (e.target.q.value === '') e.preventDefault();
       }}
     >
-      <InputGroup w="auto">
-        <InputLeftElement children={<SearchIcon color="teal.500" />} />
+      <InputGroup w="auto" size="lg">
+        <InputLeftElement>
+          <SearchIcon color="teal.500" />
+        </InputLeftElement>
         <Input
           ref={inputRef}
           name="q"
           placeholder="Search"
           defaultValue={params.get('q')}
           autoFocus={pathname === '/search'}
+          bg="white"
           onChange={(e) => handleChange(e.target.value)}
         />
         {params.has('q') && (
