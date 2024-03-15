@@ -8,7 +8,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
@@ -183,7 +183,7 @@ const LandingPage = () => {
     <Box mb={5} pt={2} px={5}>
       <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
         <Heading as="h3" size="xl" mb={5}>
-          Featured games
+          <Link to="/games">Features games</Link>
         </Heading>
 
         <Fade in>
@@ -208,7 +208,7 @@ const LandingPage = () => {
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
         <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
           <Heading as="h3" size="xl" mb={5}>
-            Studios
+            <Link to="/studios">Studios</Link>
           </Heading>
 
           <Fade in>
@@ -233,7 +233,7 @@ const LandingPage = () => {
 
         <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
           <Heading as="h3" size="xl" mb={5}>
-            Associations
+            <Link to="/associations">Associations</Link>
           </Heading>
 
           <Fade in>
@@ -259,7 +259,7 @@ const LandingPage = () => {
 
       <Box px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
         <Heading as="h3" size="xl" mb={5}>
-          Events
+          <Link to="/events">Events</Link>
         </Heading>
 
         <Fade in>
