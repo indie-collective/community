@@ -36,7 +36,17 @@ const GameCard = forwardRef(
     const bgColorHover = useColorModeValue('gray.100', 'gray.700');
     const overlayBgColor = useColorModeValue('#ffffffbb', '#00000088');
 
-    const image = images[0]?.thumbnail_url || igdb_game?.screenshots[0]?.url?.replace(/t_thumb/, 't_cover_big');
+    let image = images[0]?.thumbnail_url;
+    let imageSrcSet = images[0]?.thumbnail_url;
+
+    const imageFromIGDB = igdb_game?.screenshots[0]?.url;
+    if (imageFromIGDB) {
+      image = imageFromIGDB.replace(/t_thumb/, 't_cover_big');
+      imageSrcSet = `${image}, ${imageFromIGDB.replace(
+        /t_thumb/,
+        't_cover_big_2x'
+      )} 2x`;
+    }
 
     if (isCompact) {
       return (
@@ -61,6 +71,7 @@ const GameCard = forwardRef(
                 rounded="md"
                 size="100%"
                 src={image}
+                srcSet={imageSrcSet}
                 alt=""
                 zIndex={-1}
               />
@@ -116,6 +127,7 @@ const GameCard = forwardRef(
             size="100%"
             objectFit="cover"
             src={image}
+            srcSet={imageSrcSet}
             alt="Game cover"
             fallbackSrc={placeholder}
             rounded="md"
