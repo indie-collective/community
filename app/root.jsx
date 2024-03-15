@@ -39,7 +39,7 @@ const Main = (props) => {
       as="main"
       flex="1"
       direction="column"
-      ml={variant === 'mobile' ? 0 : '260px'}
+      alignItems="center"
       {...props}
     />
   );
@@ -192,7 +192,7 @@ export default function App() {
           <Flex direction="column">
             <Navigation />
             <Main>
-              <Box minHeight="100vh">
+              <Box minHeight="100vh" maxWidth={960}>
                 <Outlet />
               </Box>
               <Footer />

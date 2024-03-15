@@ -22,7 +22,7 @@ const Footer = () => {
   const bg = useColorModeValue('white', 'gray.900');
 
   return (
-    <Box bg={bg} shadow="sm" maxW="100%" margin={5} borderRadius={7}>
+    <Box bg={bg} shadow="sm" maxW="100%" mx={10} my={3} borderRadius={7}>
       <Container
         as="footer"
         role="contentinfo"
