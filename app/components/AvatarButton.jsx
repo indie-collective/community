@@ -45,6 +45,7 @@ const AvatarButton = () => {
         aria-label="Signin"
         rightIcon={<DiscordIcon boxSize="5" />}
         w="100%"
+        size="lg"
       >
         Sign in with<VisuallyHidden> Discord</VisuallyHidden>
       </Button>
