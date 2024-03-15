@@ -8,7 +8,7 @@ import {
   // useToast,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import GameCard from './GameCard';
@@ -65,7 +65,7 @@ const AuthenticatedHomePage = () => {
 
       <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
         <Heading as="h3" size="xl" mb={5}>
-          Games
+          <Link to="/games">Features games</Link>
         </Heading>
 
         <Fade in>
@@ -90,7 +90,7 @@ const AuthenticatedHomePage = () => {
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
         <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
           <Heading as="h3" size="xl" mb={5}>
-            Studios
+            <Link to="/studios">Studios</Link>
           </Heading>
 
           <Fade in>
@@ -115,7 +115,7 @@ const AuthenticatedHomePage = () => {
 
         <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
           <Heading as="h3" size="xl" mb={5}>
-            Associations
+            <Link to="/associations">Associations</Link>
           </Heading>
 
           <Fade in>
@@ -141,7 +141,7 @@ const AuthenticatedHomePage = () => {
 
       <Box px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
         <Heading as="h3" size="xl" mb={5}>
-          Events
+          <Link to="/events">Events</Link>
         </Heading>
 
         <Fade in>
