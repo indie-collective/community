@@ -192,7 +192,7 @@ export default function App() {
           <Flex direction="column">
             <Navigation />
             <Main>
-              <Box minHeight="100vh" maxWidth={960}>
+              <Box minHeight="100vh" maxWidth={960} width="100%">
                 <Outlet />
               </Box>
               <Footer />
