@@ -103,11 +103,13 @@ const GameCard = forwardRef(
       <Card
         isClickable
         ref={ref}
+        padding={2}
+        rounded={10}
+        transition="background-color 200ms ease-out"
         _hover={{
           backgroundColor: bgColorHover,
           cursor: 'pointer',
         }}
-        rounded={5}
       >
         <AspectRatio ratio={2}>
           <Image
