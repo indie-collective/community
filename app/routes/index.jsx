@@ -181,14 +181,14 @@ const LandingPage = () => {
 
   return (
     <Box mb={5} pt={2} px={5}>
-      <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
-        <Heading as="h3" size="xl" mb={5}>
-          <Link to="/games">Features games</Link>
+      <Box mb={5} px={2} pb={2} background={bg} shadow="sm" borderRadius={7} _hover={{ opacity: 1 }}>
+        <Heading as="h3" size="l" py={3} pl={2}>
+          <Link to="/games">Games</Link>
         </Heading>
 
         <Fade in>
           <Grid
-            gap={3}
+            gap={2}
             templateColumns={[
               '2fr',
               'repeat(2, 1fr)',
@@ -206,8 +206,8 @@ const LandingPage = () => {
       </Box>
 
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
-        <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
-          <Heading as="h3" size="xl" mb={5}>
+        <Box mb={5} px={2} pb={2} background={bg} shadow="sm" borderRadius={7} _hover={{ opacity: 1 }}>
+          <Heading as="h3" size="l" py={3} pl={2}>
             <Link to="/studios">Studios</Link>
           </Heading>
 
@@ -231,8 +231,8 @@ const LandingPage = () => {
           </Fade>
         </Box>
 
-        <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
-          <Heading as="h3" size="xl" mb={5}>
+        <Box mb={5} px={2} pb={2} background={bg} shadow="sm" borderRadius={7} _hover={{ opacity: 1 }}>
+          <Heading as="h3" size="l" py={3} pl={2}>
             <Link to="/associations">Associations</Link>
           </Heading>
 
@@ -258,7 +258,7 @@ const LandingPage = () => {
       </Grid>
 
       <Box px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
-        <Heading as="h3" size="xl" mb={5}>
+        <Heading as="h3" size="l" mb={5}>
           <Link to="/events">Events</Link>
         </Heading>
 
@@ -283,7 +283,8 @@ const LandingPage = () => {
             <Box mt={5} width={['auto', '50%', '35%', '25%']} mx="auto">
               <Image src={noEventsImage} alt="" />
               <Text fontSize="xl" mt={5} textAlign="center">
-                No upcoming events yet, sadly.
+                No upcoming events<br />
+                <small>(yet)</small>
               </Text>
             </Box>
           )}

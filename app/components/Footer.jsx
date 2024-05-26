@@ -40,8 +40,8 @@ const Footer = () => {
           <Stack spacing={{ base: '6', md: '8' }} align="start">
             <Logo />
             <Text color="gray.400">
-              The IndieCo Community is an open-source project. All data is crowd-sourced.
-              Welcome! Join us & help out! 😀
+              Community is an open-source project, started by Indie Collective and crowd-sourced by you!
+              Why not join in and help us get all indie games in the spotlight?
             </Text>
           </Stack>
           <Stack
