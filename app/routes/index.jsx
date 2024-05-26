@@ -114,36 +114,36 @@ export const loader = async ({ request }) => {
 
   const joinedEventsToCome = currentUser
     ? await db.event.findMany({
-        where: {
-          event_participant: {
-            some: {
-              person_id: currentUser.id,
+      where: {
+        event_participant: {
+          some: {
+            person_id: currentUser.id,
+          },
+        },
+        status: {
+          not: 'canceled',
+        },
+        ends_at: {
+          gte: new Date(),
+        },
+      },
+      include: {
+        event_participant: true,
+        game_event: {
+          where: {
+            game: {
+              deleted: false,
             },
           },
-          status: {
-            not: 'canceled',
-          },
-          ends_at: {
-            gte: new Date(),
-          },
         },
-        include: {
-          event_participant: true,
-          game_event: {
-            where: {
-              game: {
-                deleted: false,
-              },
-            },
-          },
-          location: true,
-          cover: true,
-        },
-        orderBy: {
-          starts_at: 'asc',
-        },
-        take: 8,
-      })
+        location: true,
+        cover: true,
+      },
+      orderBy: {
+        starts_at: 'asc',
+      },
+      take: 8,
+    })
     : undefined;
 
   const data = {
@@ -154,9 +154,9 @@ export const loader = async ({ request }) => {
     eventsToCome: await Promise.all(eventsToCome.map(computeEvent)),
     currentUser: currentUser
       ? {
-          ...currentUser,
-          eventsToCome: await Promise.all(joinedEventsToCome.map(computeEvent)),
-        }
+        ...currentUser,
+        eventsToCome: await Promise.all(joinedEventsToCome.map(computeEvent)),
+      }
       : null,
   };
   return json(data);
