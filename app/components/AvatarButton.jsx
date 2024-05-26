@@ -43,11 +43,10 @@ const AvatarButton = () => {
         type="submit"
         colorScheme={SocialsProvider.DISCORD}
         aria-label="Signin"
-        rightIcon={<DiscordIcon boxSize="5" />}
         w="100%"
         size="lg"
       >
-        Sign in with<VisuallyHidden> Discord</VisuallyHidden>
+        Sign in
       </Button>
     </chakra.form>
   );
