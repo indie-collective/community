@@ -69,12 +69,13 @@ const OrgCard = ({
     <Card
       id={id}
       isClickable
+      padding={2}
+      rounded={10}
       transition="background-color 200ms ease-out"
       _hover={{
         backgroundColor: bg,
         cursor: 'pointer',
       }}
-      rounded={5}
       {...rest}
     >
       <Flex position="relative" alignItems="center">
