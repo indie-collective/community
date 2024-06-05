@@ -16,6 +16,7 @@ import {
   useDisclosure,
   IconButton,
   Tag,
+  TagLabel,
   Link as ChakraLink,
   List,
   ListItem,
@@ -165,7 +166,7 @@ const Game = () => {
     <>
       <Box mb={5} pl={5} pr={5} mt={5}>
         <Flex direction="row" align="center">
-          <Heading as="h2" noOfLines={1} title={name} size="2xl">
+          <Heading as="h2" noOfLines={3} title={name} size="3xl">
             {name}
           </Heading>
 
@@ -187,32 +188,39 @@ const Game = () => {
           )}
         </Flex>
 
-        {site && (
-          <Text fontSize="lg">
-            <ChakraLink href={site} isExternal>
-              {site.replace(/https?:\/\//, '')}
-              <ExternalLinkIcon mx="2px" />
-            </ChakraLink>
-          </Text>
-        )}
-
         {about && (
-          <Box mt={3}>
+          <Box mt={3} mb={5} fontSize="xl" maxWidth="36em">
             <Markdown value={about} />
           </Box>
         )}
 
-        <Stack isInline spacing={2} mt={5}>
+        <Stack isInline spacing={2} my={2} alignItems="center">
           {tags.map((tag) => (
-            <Tag key={tag.id} colorScheme="teal">
-              {tag.name}
+            <Tag
+              key={tag.id}
+              size="lg"
+              variant="solid"
+              as={Link}
+              to={`http://localhost:3000/games?tags=${tag.name}`}
+              _hover={{ textDecoration: 'none' }}
+            >
+              <TagLabel>{tag.name}</TagLabel>
             </Tag>
           ))}
+
+          {site && (
+            <ChakraLink href={site} pl={3} isExternal>
+              <Button as="a">
+                website
+                <ExternalLinkIcon mx="2px" />
+              </Button>
+            </ChakraLink>
+          )}
         </Stack>
       </Box>
 
-      <Box mb={5} pl={5} pr={5}>
-        <Heading size="md" mb={2}>
+      <Box mt={10} mb={5} px={5}>
+        <Heading size="md" mb={2} ml={2}>
           Authors
         </Heading>
 
