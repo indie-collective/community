@@ -90,7 +90,7 @@ const Associations = () => {
         {currentUser && (
           <Button
             as={Link}
-            to="/orgs/create"
+            to="/orgs/create?type=association"
             colorScheme="teal"
             leftIcon={<AddIcon />}
           >

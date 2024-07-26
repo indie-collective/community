@@ -86,6 +86,7 @@ export const loader = async ({ request }) => {
   return json({
     values: {
       name: searchParams.get('name') || '',
+      type: searchParams.get('type'),
     },
     currentUser,
   });
