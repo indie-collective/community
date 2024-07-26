@@ -1,5 +1,6 @@
 // Mostly taken from `pigeon-cluster` but some changes needed to make it work
 
+import memoize from 'memoize-one';
 import { Map } from 'pigeon-maps';
 import React, { Component } from 'react';
 import Supercluster from 'supercluster';
@@ -7,31 +8,23 @@ import Supercluster from 'supercluster';
 import ClusterMarker from './ClusterMarker';
 
 export default class ClusterMap extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
-  componentDidMount() {
-    this.rebuildData(this.props);
-  }
-
-  rebuildData(props) {
-    const pointsMap = this.generatePointsMap(props.children);
+  rebuildData = memoize((elements) => {
+    const pointsMap = this.generatePointsMap(elements);
     const index = this.loadPoints(pointsMap);
-    this.setState({
+    return {
       pointsMap,
       index,
-    });
-  }
+    };
+  });
 
-  generatePointsMap(children) {
+  generatePointsMap(elements) {
     let pointsMap = {};
 
-    React.Children.forEach(children, (child) => {
+    elements.forEach((child) => {
       const { key, type, props } = child;
 
-      if (type.name !== 'Overlay') return;
+      // TODO: name is different when built, cannot filter out UI elements
+      // if (type.name !== 'Overlay') return;
 
       if (!key) {
         console.warn('Markers must have a key property', child);
@@ -65,20 +58,18 @@ export default class ClusterMap extends Component {
     return index;
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.children !== this.props.children) {
-      this.rebuildData(nextProps);
-    }
-  }
-
   render() {
     const { bounds, zoom, children, ...props } = this.props;
     const { ne, sw } = bounds || { ne: [0, 0], sw: [0, 0] };
     const [southLat, westLng, northLat, eastLng] = [sw[0], sw[1], ne[0], ne[1]];
 
+    const { index, pointsMap } = this.rebuildData(
+      React.Children.toArray(children)
+    );
+
     const markersAndClusters =
-      this.state.index &&
-      this.state.index.getClusters(
+      index &&
+      index.getClusters(
         [westLng, southLat, eastLng, northLat],
         Math.floor(zoom)
       );
@@ -108,7 +99,7 @@ export default class ClusterMap extends Component {
           );
         }
 
-        return this.state.pointsMap[markerOrCluster.id].vNode;
+        return pointsMap[markerOrCluster.id].vNode;
       }
     );
 
