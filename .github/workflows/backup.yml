@@ -1,0 +1,61 @@
+name: Database backup
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Runs every day at midnight UTC
+
+env:
+  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+  SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+  S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    container:
+      image: postgres:15
+    
+    steps:
+      - name: Install AWS CLI and compression tools
+        run: |
+          apt-get update
+          apt-get install -y awscli gzip
+
+      - name: Configure AWS CLI for Scaleway
+        run: |
+          aws configure set aws_access_key_id ${{ env.SCW_ACCESS_KEY }}
+          aws configure set aws_secret_access_key ${{ env.SCW_SECRET_KEY }}
+          aws configure set region fr-par
+          aws configure set output json
+
+      - name: Generate backup filename
+        id: backup
+        run: |
+          echo "filename=community-backup-$(date +'%Y-%m-%d').sql.gz" >> $GITHUB_OUTPUT
+
+      - name: Create compressed data-only backup
+        run: |
+          PGPASSWORD=${{ env.POSTGRES_PASSWORD }} pg_dump \
+            -h ${{ env.POSTGRES_HOST }} \
+            -p ${{ env.POSTGRES_PORT }} \
+            -U ${{ env.POSTGRES_USER }} \
+            -d ${{ env.POSTGRES_DB }} \
+            --data-only \
+            --no-owner \
+            --no-privileges \
+            -n public \
+            -F p \
+            | gzip > ${{ steps.backup.outputs.filename }}
+
+      - name: Upload backup to Scaleway
+        run: |
+          aws --endpoint-url https://s3.fr-par.scw.cloud s3 cp ${{ steps.backup.outputs.filename }} s3://${{ env.S3_BUCKET_NAME }}/
+
+      - name: Cleanup backup file
+        run: rm ${{ steps.backup.outputs.filename }}
