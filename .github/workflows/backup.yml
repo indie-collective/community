@@ -3,7 +3,7 @@ name: Database backup
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *' # Runs every day at midnight UTC
+    - cron: '0 0 * * SUN' # Runs every day at midnight UTC
 
 env:
   POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
