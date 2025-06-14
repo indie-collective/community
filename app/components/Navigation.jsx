@@ -115,6 +115,7 @@ const Navigation = ({ search }) => {
                 <NavLink href="/admin/users">Users</NavLink>
                 <NavLink href="/admin/changes">Changes</NavLink>
                 <NavLink href="/admin/missing">Missing</NavLink>
+                <NavLink href="/admin/tags">Tags</NavLink>
               </WrapItem>
             </Wrap>
           )}
@@ -131,14 +132,21 @@ const Navigation = ({ search }) => {
 
   return (
     <Flex justifyContent="center" mt={5}>
-      <HStack spacing={3} py={2} px={5} maxWidth={960} width="100%" alignItems="flex-end">
+      <HStack
+        spacing={3}
+        py={2}
+        px={5}
+        maxWidth={960}
+        width="100%"
+        alignItems="flex-end"
+      >
         <Link to="/">
           <Logo height="48px" />
           <VisuallyHidden>Community</VisuallyHidden>
         </Link>
 
         <Box flex="auto">
-        <SearchInput defaultValue={search} />
+          <SearchInput defaultValue={search} />
         </Box>
 
         {/* <Box as="nav" flex="auto">
@@ -159,6 +167,7 @@ const Navigation = ({ search }) => {
                 <NavLink href="/admin/users">Users</NavLink>
                 <NavLink href="/admin/changes">Changes</NavLink>
                 <NavLink href="/admin/missing">Missing</NavLink>
+                <NavLink href="/admin/tags">Tags</NavLink>
               </HStack>
             </Box>
           )}
