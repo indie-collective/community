@@ -5,7 +5,11 @@ import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { authenticator, authorizer, canWrite } from '../utils/auth.server';
+import { notifyDiscord } from '../utils/discordNotification.server';
 import GameForm from '../components/GameForm';
+
+const port = process.env.PORT ?? 3000;
+const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
 export async function action(args) {
   const { request } = args;
@@ -63,6 +67,9 @@ export async function action(args) {
         },
       }),
     ]);
+    await notifyDiscord(
+      `${currentUser.username} added game "${data.get('name')}" at ${new Date().toISOString()} - ${BASE_URL}/game/${game.id}`
+    );
 
     return redirect(`/game/${game.id}`);
   } catch (err) {

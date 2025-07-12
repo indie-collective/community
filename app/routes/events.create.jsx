@@ -11,13 +11,17 @@ import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { authenticator, authorizer, canWrite } from '../utils/auth.server';
+import { notifyDiscord } from '../utils/discordNotification.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
 import EventForm from '../components/EventForm';
+
+const port = process.env.PORT ?? 3000;
+const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
 export async function action(args) {
   const { request } = args;
 
-  await authorizer.authorize(args, {
+  const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
   });
 
@@ -69,6 +73,10 @@ export async function action(args) {
         id: true,
       },
     });
+
+    await notifyDiscord(
+      `${currentUser.username} added event "${data.get('name')}" at ${new Date().toISOString()} - ${BASE_URL}/event/${event.id}`
+    );
 
     return redirect(`/event/${event.id}`);
   } catch (err) {
