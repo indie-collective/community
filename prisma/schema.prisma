@@ -94,7 +94,6 @@ model game {
   name        String
   about       String?
   site        String?
-  tag_list    String[]      @db.VarChar(30)
   created_at  DateTime?     @default(now()) @db.Timestamptz(6)
   updated_at  DateTime?     @updatedAt
   igdb_slug   String?       @unique
@@ -114,7 +113,6 @@ model game_change {
   about      String?
   igdb_slug  String?
   site       String?
-  tag_list   String[]       @db.VarChar(30)
   created_at DateTime?      @default(now()) @db.Timestamptz(6)
   game_id    String         @db.Uuid
   author_id  String?        @db.Uuid
@@ -240,6 +238,7 @@ model reset_token {
 model tag {
   id         String     @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
   name       String     @unique @db.VarChar(30)
+  description String?
   created_at DateTime?  @default(now()) @db.Timestamptz(6)
   updated_at DateTime?  @updatedAt
   game_tag   game_tag[]
