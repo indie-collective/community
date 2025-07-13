@@ -34,6 +34,15 @@ async function getAppAccessToken() {
 }
 
 export async function getIGDBGame(slug) {
+  const cachedGame = cache.get(`igbd-${slug}`);
+
+  if (cachedGame !== null) {
+    return {
+      ...cachedGame,
+      videos: cachedGame.videos || [], // weird, no videos -> no array
+    };
+  }
+
   try {
     const { access_token: token } = await getAppAccessToken();
 
@@ -59,6 +68,8 @@ export async function getIGDBGame(slug) {
       console.log(`IGDB: No game found for '${slug}'.`)
       return undefined;
     }
+
+    cache.put(`igbd-${slug}`, igdbGame);
 
     return {
       ...igdbGame,
