@@ -6,14 +6,11 @@ import {
   Button,
   Stack,
   Switch,
-  FormLabel,
-  useColorMode,
   ButtonGroup,
   IconButton,
-  FormControl,
   Link as ChakraLink,
 } from '@chakra-ui/react';
-import { EditIcon, LinkIcon } from '@chakra-ui/icons';
+import { FiEdit, FiLink } from 'react-icons/fi';
 import { json } from '@remix-run/node';
 import { Form, Link, useLoaderData, useSearchParams } from '@remix-run/react';
 import { useState } from 'react';
@@ -65,7 +62,7 @@ const LinkSocialButton = ({ provider, icon, name }) => {
     <IconButton
       as={Link}
       aria-label={`Link ${name}`}
-      icon={hover ? <LinkIcon /> : icon}
+      icon={hover ? <FiLink /> : icon}
       opacity={hover ? 1 : 0.5}
       colorScheme={hover ? 'green' : 'gray'}
       to={`/auth/${provider}`}
@@ -78,7 +75,6 @@ const LinkSocialButton = ({ provider, icon, name }) => {
 };
 
 const Profile = () => {
-  const { colorMode, toggleColorMode } = useColorMode();
   const [searchParams] = useSearchParams();
 
   const { currentUser } = useLoaderData();
@@ -106,7 +102,7 @@ const Profile = () => {
         position="relative"
       >
         <Box position="absolute" alignSelf="flex-end">
-          <Button leftIcon={<EditIcon />} as={Link} to="/profile/edit">
+          <Button leftIcon={<FiEdit />} as={Link} to="/profile/edit">
             Edit
           </Button>
         </Box>
@@ -136,7 +132,8 @@ const Profile = () => {
                 icon={<DiscordIcon />}
                 colorScheme="discord"
                 href={discord_url}
-                isExternal
+                target="_blank"
+                rel="noopener noreferrer"
               />
             ) : (
               <LinkSocialButton
@@ -152,7 +149,8 @@ const Profile = () => {
                 icon={<GitHubIcon />}
                 colorScheme="github"
                 href={github_url}
-                isExternal
+                target="_blank"
+                rel="noopener noreferrer"
               />
             ) : (
               <LinkSocialButton
@@ -175,7 +173,7 @@ const Profile = () => {
           </Box>
         )}
 
-        <FormControl display="flex" justifyContent="center" alignItems="center">
+        <Field.Root display="flex" justifyContent="center" alignItems="center">
           <FormLabel htmlFor="dark-mode" mb="0">
             Dark mode
           </FormLabel>
@@ -184,7 +182,7 @@ const Profile = () => {
             isChecked={colorMode === 'dark'}
             onChange={toggleColorMode}
           />
-        </FormControl>
+        </Field.Root>
       </Stack>
 
       <Stack align="center">

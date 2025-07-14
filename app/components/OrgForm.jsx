@@ -5,10 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
   Input,
-  FormErrorMessage,
   Button,
   Textarea,
   Grid,
@@ -17,14 +14,11 @@ import {
   AspectRatio,
   Image,
   useRadioGroup,
-  useRadio,
-  useStyleConfig,
-  useButtonGroup,
   Flex,
-  omitThemingProps,
-  useMergeRefs,
+  Field,
 } from '@chakra-ui/react';
-import { EditIcon } from '@chakra-ui/icons';
+import { useMergeRefs } from '../hooks/useMergeRefs';
+import { FiEdit } from 'react-icons/fi';
 import { Map } from 'pigeon-maps';
 import { viewport } from '@mapbox/geo-viewport';
 
@@ -174,7 +168,7 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
       onSubmit={handleSubmit}
       {...rest}
     >
-      <FormControl gridColumn="1 / 3">
+      <Field.Root gridColumn="1 / 3">
         <FormLabel htmlFor="Logo">Logo</FormLabel>
 
         <Box position="relative" w="25%">
@@ -194,9 +188,9 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
             right={2}
             bottom={2}
             aria-label="Edit logo"
-            icon={<EditIcon />}
+            icon={<FiEdit />}
             colorScheme="teal"
-            isRound
+            borderRadius="full"
             onClick={() => logoRef.current.click()}
           />
         </Box>
@@ -216,9 +210,9 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
           }}
           accept="image/*"
         />
-      </FormControl>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.type} isRequired>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.type} isRequired>
         <FormLabel htmlFor="name">Type</FormLabel>
         <Flex {...getRootProps()}>
           <CustomRadio
@@ -240,24 +234,24 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
             Association
           </CustomRadio>
         </Flex>
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.type && errors.type.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.name} isRequired>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.name} isRequired>
         <FormLabel htmlFor="name">Name</FormLabel>
         <Input
           {...register('name')}
           placeholder="Indie Collective, Electronic Darts..."
         />
         <PossibleOrgDuplicates value={newOrgName} ignoredId={id} />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.name && errors.name.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.location}>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.location}>
         <FormLabel htmlFor="location">Location</FormLabel>
 
         <Controller
@@ -304,20 +298,20 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
           </Box>
         )}
 
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.location && errors.location.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.site}>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.site}>
         <FormLabel htmlFor="site">Site</FormLabel>
         <Input {...register('site')} placeholder="https://example.com" />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.site && errors.site.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.about}>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.about}>
         <FormLabel htmlFor="about">About</FormLabel>
         <Textarea
           {...register('about')}
@@ -326,10 +320,10 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
           placeholder="What is this organization doing?"
           whiteSpace="pre-wrap"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.about && errors.about.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
       <Button
         gridColumn="1 / 3"

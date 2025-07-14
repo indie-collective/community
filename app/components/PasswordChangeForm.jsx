@@ -4,11 +4,9 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
   Input,
-  FormErrorMessage,
   Button,
+  Field,
 } from '@chakra-ui/react';
 import { PasswordInput } from './PasswordInput';
 import { Form, useSubmit } from '@remix-run/react';
@@ -47,41 +45,41 @@ const PasswordChangeForm = ({ loading, ...rest }) => {
       })}
       {...rest}
     >
-      <FormControl mb={5} isInvalid={errors.oldPassword} isRequired>
+      <Field.Root mb={5} isInvalid={errors.oldPassword} isRequired>
         <FormLabel htmlFor="oldPassword">Current Password</FormLabel>
         <PasswordInput
           {...register('oldPassword')}
           id="oldPassword"
           placeholder="SoS3cr3t"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.oldPassword && errors.oldPassword.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl mb={5} isInvalid={errors.password} isRequired>
+      <Field.Root mb={5} isInvalid={errors.password} isRequired>
         <FormLabel htmlFor="password">New Password</FormLabel>
         <PasswordInput
           {...register('password')}
           id="password"
           placeholder="SoS3cr3t 2"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.password && errors.password.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl mb={5} isInvalid={errors.passwordConfirmation} isRequired>
+      <Field.Root mb={5} isInvalid={errors.passwordConfirmation} isRequired>
         <FormLabel htmlFor="password2">Password confirmation</FormLabel>
         <PasswordInput
           {...register('passwordConfirmation')}
           id="passwordConfirmation"
           placeholder="SoS3cr3t 2"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.passwordConfirmation && errors.passwordConfirmation.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
       <Button
         type="submit"

@@ -7,10 +7,9 @@ import {
   IconButton,
   Text,
   Heading,
-  useColorModeValue,
   Skeleton,
 } from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
+import { FiTrash2 } from 'react-icons/fi';
 
 import usePlaceholder from '../hooks/usePlaceholder';
 import Card from './Card';
@@ -33,8 +32,8 @@ const GameCard = forwardRef(
   ({ id, images = [], igdb_game, name, onRemove, isCompact }, ref) => {
     const placeholder = usePlaceholder();
 
-    const bgColorHover = useColorModeValue('gray.100', 'gray.700');
-    const overlayBgColor = useColorModeValue('#ffffffbb', '#00000088');
+    const bgColorHover = 'gray.100';
+    const overlayBgColor = '#ffffffbb';
 
     let image = images[0]?.thumbnail_url;
     let imageSrcSet = images[0]?.thumbnail_url;
@@ -94,9 +93,9 @@ const GameCard = forwardRef(
                   ml={2}
                   size="xs"
                   aria-label={`Remove ${name}`}
-                  isRound
+                  borderRadius="full"
                   colorScheme="red"
-                  icon={<DeleteIcon />}
+                  icon={<FiTrash2 />}
                   onClick={(e) => {
                     e.preventDefault();
 

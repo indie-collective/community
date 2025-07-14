@@ -1,12 +1,6 @@
 import { json } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
   ListItem,
   List,
   Input,
@@ -73,70 +67,62 @@ export const SearchGameModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
   }, [debouncedValue]);
 
   return (
-    <Modal initialFocusRef={initialFocusRef} isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Search Game</ModalHeader>
-        <ModalCloseButton />
+    <Box>
+      <games.Form method="get" action="/search-game">
+        {excludedIds.map((id) => (
+          <Input key={id} type="hidden" name="notId" value={id} />
+        ))}
 
-        <ModalBody>
-          <games.Form method="get" action="/search-game">
-            {excludedIds.map((id) => (
-              <Input key={id} type="hidden" name="notId" value={id} />
-            ))}
+        <Input
+          ref={initialFocusRef}
+          type="text"
+          name="q"
+          placeholder="Search a game..."
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          mb={2}
+        />
+        {games.data && (
+          <Box>
+            {games.data.error ? (
+              <Text>Failed to load games :(</Text>
+            ) : games.data.length ? (
+              <List mb={2}>
+                {games.data.map((game) => (
+                  <ListItem
+                    p={2}
+                    key={game.id}
+                    _hover={{
+                      backgroundColor: 'gray.600',
+                      cursor: 'pointer',
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        onSelect(game);
 
-            <Input
-              ref={initialFocusRef}
-              type="text"
-              name="q"
-              placeholder="Search a game..."
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              mb={2}
-            />
-            {games.data && (
-              <Box>
-                {games.data.error ? (
-                  <Text>Failed to load games :(</Text>
-                ) : games.data.length ? (
-                  <List mb={2}>
-                    {games.data.map((game) => (
-                      <ListItem
-                        p={2}
-                        key={game.id}
-                        _hover={{
-                          backgroundColor: 'gray.600',
-                          cursor: 'pointer',
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            onSelect(game);
+                        setValue('');
+                        onClose();
+                      }
+                    }}
+                    onClick={() => {
+                      onSelect(game);
 
-                            setValue('');
-                            onClose();
-                          }
-                        }}
-                        onClick={() => {
-                          onSelect(game);
-
-                          setValue('');
-                          onClose();
-                        }}
-                        tabIndex="0"
-                      >
-                        {game.name}
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Text>No results has been found.</Text>
-                )}
-              </Box>
+                      setValue('');
+                      onClose();
+                    }}
+                    tabIndex="0"
+                  >
+                    {game.name}
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Text>No results has been found.</Text>
             )}
-          </games.Form>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+          </Box>
+        )}
+      </games.Form>
+    </Box>
   );
 };
 

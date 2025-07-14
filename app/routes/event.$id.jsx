@@ -12,17 +12,9 @@ import {
   IconButton,
   useDisclosure,
   Badge,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Wrap,
   Link as ChakraLink,
 } from '@chakra-ui/react';
-import { AddIcon, EditIcon, WarningTwoIcon } from '@chakra-ui/icons';
+import { FiPlus, FiEdit, FiAlertTriangle } from 'react-icons/fi';
 import {
   Form,
   Link,
@@ -276,7 +268,7 @@ const Event = () => {
                     status === 'canceled' ? '2 / span 2' : '2 / span 1',
                   ]}
                   mb={[2, '0']}
-                  leftIcon={<EditIcon />}
+                  leftIcon={<FiEdit />}
                   size="sm"
                   colorScheme="teal"
                 >
@@ -395,7 +387,7 @@ const Event = () => {
             backgroundColor="red.300"
             borderRadius={5}
           >
-            <WarningTwoIcon size="24px" color="white" />
+            <FiAlertTriangle size="24px" color="white" />
             <Text as="b" color="white">
               This event was canceled.
             </Text>
@@ -459,7 +451,7 @@ const Event = () => {
                   <IconButton
                     colorScheme="teal"
                     aria-label="Add a game to the event"
-                    icon={<AddIcon />}
+                    icon={<FiPlus />}
                     onClick={onOpenLinkGame}
                   />
                   <SearchGameModal
@@ -523,7 +515,7 @@ const Event = () => {
                     justifySelf="flex-start"
                     colorScheme="teal"
                     aria-label="Add a host to the event"
-                    icon={<AddIcon />}
+                    icon={<FiPlus />}
                     onClick={onOpenLinkHost}
                   />
                   <SearchOrgModal
@@ -553,32 +545,6 @@ const Event = () => {
             >
               Delete event
             </Button>
-
-            <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
-              <ModalOverlay />
-              <ModalContent as={Form} action={`./delete`} method="post">
-                <ModalHeader>Delete Event</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                  <Text>Do you really want to delete {name}?</Text>
-                </ModalBody>
-
-                <ModalFooter>
-                  <Button
-                    type="submit"
-                    isLoading={false}
-                    loadingText="Deleting"
-                    colorScheme="red"
-                    mr={3}
-                  >
-                    Delete
-                  </Button>
-                  <Button variant="ghost" onClick={deleteModal.onClose}>
-                    Cancel
-                  </Button>
-                </ModalFooter>
-              </ModalContent>
-            </Modal>
           </Box>
         )}
       </Box>
@@ -607,7 +573,7 @@ export function ErrorBoundary() {
             m="auto"
             mb={10}
             size="lg"
-            leftIcon={<AddIcon />}
+            leftIcon={<FiPlus />}
           >
             Add an event
           </Button>

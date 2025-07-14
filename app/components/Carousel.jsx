@@ -1,8 +1,8 @@
-import { IconButton, useTheme, Box, Spinner } from '@chakra-ui/react';
+import { IconButton, Box, Spinner } from '@chakra-ui/react';
 import React, { useState, useEffect, Children, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import SlickSlider from 'react-slick';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 // import dynamic from 'next/dynamic'
 
 const canUseDOM = () =>
@@ -20,8 +20,8 @@ const PrevArrow = ({ onClick, className }) =>
       colorScheme="teal"
       aria-label="Previous"
       fontSize="2xl"
-      icon={<ChevronLeftIcon />}
-      isRound
+      icon={<FiChevronLeft />}
+      borderRadius="full"
       position="absolute"
       left="-15px"
       top={0}
@@ -38,8 +38,8 @@ const NextArrow = ({ onClick, className }) =>
       colorScheme="teal"
       aria-label="Next"
       fontSize="2xl"
-      icon={<ChevronRightIcon />}
-      isRound
+      icon={<FiChevronRight />}
+      borderRadius="full"
       position="absolute"
       right="-15px"
       top={0}
@@ -56,10 +56,9 @@ const Carousel = ({
   loadingMore,
   ...rest
 }) => {
-  const theme = useTheme();
   const [isClient, setIsClient] = useState(false);
 
-  const breakpoints = Object.values(theme.breakpoints);
+  const breakpoints = ["48em", "62em", "80em"];
 
   // dynamic import breaks the dynamic rendering of elements
   // const SlickSlider = dynamic(import('react-slick'), {

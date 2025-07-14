@@ -4,7 +4,6 @@ import {
   Text,
   StatGroup,
   StatLabel,
-  StatNumber,
   Stat,
 } from '@chakra-ui/react';
 import { json } from '@remix-run/node';

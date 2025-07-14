@@ -4,8 +4,6 @@ import {
   Text,
   Grid,
   Image,
-  Fade,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
@@ -177,7 +175,7 @@ export const meta = () => ({
 
 const LandingPage = () => {
   const { games, studios, associations, eventsToCome } = useLoaderData();
-  const bg = useColorModeValue('white', 'gray.900');
+  const bg = 'white';
 
   return (
     <Box mb={5} pt={2} px={5}>
@@ -186,23 +184,21 @@ const LandingPage = () => {
           <Link to="/games">Games</Link>
         </Heading>
 
-        <Fade in>
-          <Grid
-            gap={2}
-            templateColumns={[
-              '2fr',
-              'repeat(2, 1fr)',
-              'repeat(3, 1fr)',
-              'repeat(3, 1fr)',
-            ]}
-          >
-            {games.map((game) => (
-              <Box key={game.id} minW={0}>
-                <GameCard {...game} />
-              </Box>
-            ))}
-          </Grid>
-        </Fade>
+        <Grid
+          gap={2}
+          templateColumns={[
+            '2fr',
+            'repeat(2, 1fr)',
+            'repeat(3, 1fr)',
+            'repeat(3, 1fr)',
+          ]}
+        >
+          {games.map((game) => (
+            <Box key={game.id} minW={0}>
+              <GameCard {...game} />
+            </Box>
+          ))}
+        </Grid>
       </Box>
 
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
@@ -211,24 +207,22 @@ const LandingPage = () => {
             <Link to="/studios">Studios</Link>
           </Heading>
 
-          <Fade in>
-            <Grid
-              mb={5}
-              gap={3}
-              templateColumns={[
-                '1fr',
-                'repeat(2, 1fr)',
-                'repeat(2, 1fr)',
-                'repeat(2, 1fr)',
-              ]}
-            >
-              {studios.map((studios) => (
-                <Box key={studios.id} minW={0}>
-                  <OrgCard key={studios.id} {...studios} />
-                </Box>
-              ))}
-            </Grid>
-          </Fade>
+          <Grid
+            mb={5}
+            gap={3}
+            templateColumns={[
+              '1fr',
+              'repeat(2, 1fr)',
+              'repeat(2, 1fr)',
+              'repeat(2, 1fr)',
+            ]}
+          >
+            {studios.map((studios) => (
+              <Box key={studios.id} minW={0}>
+                <OrgCard key={studios.id} {...studios} />
+              </Box>
+            ))}
+          </Grid>
         </Box>
 
         <Box mb={5} px={2} pb={2} background={bg} shadow="sm" borderRadius={7} _hover={{ opacity: 1 }}>
@@ -236,24 +230,22 @@ const LandingPage = () => {
             <Link to="/associations">Associations</Link>
           </Heading>
 
-          <Fade in>
-            <Grid
-              mb={5}
-              gap={3}
-              templateColumns={[
-                '1fr',
-                'repeat(2, 1fr)',
-                'repeat(2, 1fr)',
-                'repeat(2, 1fr)',
-              ]}
-            >
-              {associations.map((associations) => (
-                <Box key={associations.id} minW={0}>
-                  <OrgCard key={associations.id} {...associations} />
-                </Box>
-              ))}
-            </Grid>
-          </Fade>
+          <Grid
+            mb={5}
+            gap={3}
+            templateColumns={[
+              '1fr',
+              'repeat(2, 1fr)',
+              'repeat(2, 1fr)',
+              'repeat(2, 1fr)',
+            ]}
+          >
+            {associations.map((associations) => (
+              <Box key={associations.id} minW={0}>
+                <OrgCard key={associations.id} {...associations} />
+              </Box>
+            ))}
+          </Grid>
         </Box>
       </Grid>
 
@@ -262,8 +254,7 @@ const LandingPage = () => {
           <Link to="/events">Events</Link>
         </Heading>
 
-        <Fade in>
-          {eventsToCome.length > 0 ? (
+        {eventsToCome.length > 0 ? (
             <Grid
               gap={3}
               templateColumns={[
@@ -288,7 +279,6 @@ const LandingPage = () => {
               </Text>
             </Box>
           )}
-        </Fade>
       </Box>
     </Box>
   );

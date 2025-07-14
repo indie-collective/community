@@ -1,9 +1,8 @@
 import React from 'react';
-import { useColorModeValue } from '@chakra-ui/react';
 
 const Logo = ({ height = 40 }) => {
-  const IColor = useColorModeValue('#054f45', '#ffffff');
-  const CColor = useColorModeValue('#149c88', '#ffffff');
+  const IColor = '#054f45';
+  const CColor = '#149c88';
 
   return (
     <svg viewBox="0 0 377.99998 288" height={height}>

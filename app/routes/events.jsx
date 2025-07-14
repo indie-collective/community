@@ -5,9 +5,8 @@ import {
   Text,
   Grid,
   Image,
-  Fade,
 } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
+import { FiPlus } from 'react-icons/fi';
 import { Link, useLoaderData } from '@remix-run/react';
 import { json } from '@remix-run/node';
 import React, { useCallback, useState } from 'react';
@@ -130,9 +129,7 @@ const Events = () => {
         {events.length > 0 ? (
           events.map((event) => (
             <Box key={event.id} minW={0} pr={3}>
-              <Fade in>
-                <EventCard {...event} />
-              </Fade>
+              <EventCard {...event} />
             </Box>
           ))
         ) : (
@@ -153,7 +150,7 @@ const Events = () => {
             mt={10}
             size="lg"
             colorScheme="teal"
-            leftIcon={<AddIcon />}
+            leftIcon={<FiPlus />}
           >
             Add an event
           </Button>

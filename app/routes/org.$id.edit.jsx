@@ -1,4 +1,4 @@
-import { Box, Heading, useToast } from '@chakra-ui/react';
+import { Box, Heading } from '@chakra-ui/react';
 import {
   json,
   redirect,
@@ -130,20 +130,13 @@ export const meta = ({ data }) => ({
 
 const EditOrg = () => {
   const { org } = useLoaderData();
-  const toast = useToast();
   const transition = useTransition();
   const actionData = useActionData();
 
   useEffect(() => {
     if (!actionData?.error) return;
 
-    toast({
-      title: 'Something went wrong',
-      description: actionData?.error,
-      status: 'error',
-      position: 'bottom-right',
-    });
-  }, [actionData?.error, transition.state === 'submitting', toast]);
+  }, [actionData?.error, transition.state === 'submitting']);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>

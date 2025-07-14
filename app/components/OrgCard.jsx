@@ -5,13 +5,11 @@ import {
   Image,
   Flex,
   Heading,
-  DarkMode,
   IconButton,
-  useColorModeValue,
   Skeleton,
   SkeletonText,
 } from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
+import { FiTrash2 } from 'react-icons/fi';
 
 import usePlaceholder from '../hooks/usePlaceholder';
 import countryNames from '../assets/countries.json';
@@ -63,7 +61,7 @@ const OrgCard = ({
 }) => {
   const placeholder = usePlaceholder('square');
 
-  const bg = useColorModeValue('gray.100', 'gray.700');
+  const bg = 'gray.100';
 
   return (
     <Card
@@ -96,20 +94,18 @@ const OrgCard = ({
             rounded={3}
           />
 
-          <DarkMode>
-            <Badge
-              position="absolute"
-              bottom={0}
-              textAlign="center"
-              width="100%"
-              rounded={3}
-              variant="solid"
-              colorScheme={TYPES_COLORS[type]}
-              fontSize="0.55em"
-            >
-              {TYPES_ABBR[type]}
-            </Badge>
-          </DarkMode>
+          <Badge
+            position="absolute"
+            bottom={0}
+            textAlign="center"
+            width="100%"
+            rounded={3}
+            variant="solid"
+            colorScheme={TYPES_COLORS[type]}
+            fontSize="0.55em"
+          >
+            {TYPES_ABBR[type]}
+          </Badge>
         </Flex>
 
         <Box flex="1">
@@ -144,9 +140,9 @@ const OrgCard = ({
             mx={5}
             size="xs"
             aria-label={`Remove ${name}`}
-            isRound
+            borderRadius="full"
             colorScheme="red"
-            icon={<DeleteIcon />}
+            icon={<FiTrash2 />}
             onClick={(e) => {
               e.preventDefault();
 

@@ -1,13 +1,11 @@
 import {
-  chakra,
   HStack,
   Flex,
   Text,
   Button,
   Avatar,
-  VisuallyHidden,
 } from '@chakra-ui/react';
-import { Form, Link, useLoaderData } from '@remix-run/react';
+import { Form as RemixForm, Link, useLoaderData } from '@remix-run/react';
 import { SocialsProvider } from 'remix-auth-socials';
 
 import { DiscordIcon } from './DiscordIcon';
@@ -34,8 +32,7 @@ const AvatarButton = () => {
   }
 
   return (
-    <chakra.form
-      as={Form}
+    <RemixForm
       action={`/auth/${SocialsProvider.DISCORD}`}
       method="post"
     >
@@ -48,7 +45,7 @@ const AvatarButton = () => {
       >
         Sign in
       </Button>
-    </chakra.form>
+    </RemixForm>
   );
 };
 

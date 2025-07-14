@@ -8,14 +8,11 @@ import {
   StatGroup,
   Stat,
   StatLabel,
-  StatNumber,
   Menu,
-  MenuList,
   MenuItem,
-  MenuButton,
   HStack,
 } from '@chakra-ui/react';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { FiChevronDown } from 'react-icons/fi';
 
 import { authenticator } from '../../utils/auth.server';
 import { db } from '../../utils/db.server';
@@ -147,7 +144,7 @@ const Missing = () => {
             <Menu>
               <MenuButton
                 as={IconButton}
-                icon={<ChevronDownIcon />}
+                icon={<FiChevronDown />}
                 size="lg"
               />
               <MenuList>
@@ -168,7 +165,7 @@ const Missing = () => {
             <Menu>
               <MenuButton
                 as={IconButton}
-                icon={<ChevronDownIcon />}
+                icon={<FiChevronDown />}
                 size="lg"
               />
               <MenuList>
@@ -189,7 +186,7 @@ const Missing = () => {
             <Menu>
               <MenuButton
                 as={IconButton}
-                icon={<ChevronDownIcon />}
+                icon={<FiChevronDown />}
                 size="lg"
               />
               <MenuList>
@@ -216,7 +213,7 @@ const Missing = () => {
             <Menu>
               <MenuButton
                 as={IconButton}
-                icon={<ChevronDownIcon />}
+                icon={<FiChevronDown />}
                 size="lg"
               />
               <MenuList>
@@ -237,7 +234,7 @@ const Missing = () => {
             <Menu>
               <MenuButton
                 as={IconButton}
-                icon={<ChevronDownIcon />}
+                icon={<FiChevronDown />}
                 size="lg"
               />
               <MenuList>

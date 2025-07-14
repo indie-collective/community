@@ -19,9 +19,8 @@ import {
   Spacer,
   Wrap,
   WrapItem,
-  Fade,
 } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
+import { FiPlus } from 'react-icons/fi';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
@@ -185,7 +184,7 @@ const Games = () => {
             as={Link}
             to="/games/create"
             colorScheme="teal"
-            leftIcon={<AddIcon />}
+            leftIcon={<FiPlus />}
           >
             Add game
           </Button>
@@ -235,9 +234,7 @@ const Games = () => {
       >
         {games.map((game) => (
           <Box key={game.id} minW={0}>
-            <Fade in>
-              <GameCard {...game} />
-            </Fade>
+            <GameCard {...game} />
           </Box>
         ))}
       </Grid>

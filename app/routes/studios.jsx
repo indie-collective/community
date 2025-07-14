@@ -2,12 +2,11 @@ import {
   Box,
   Grid,
   Button,
-  Fade,
   Flex,
   Heading,
   Spacer,
 } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
+import { FiPlus } from 'react-icons/fi';
 import { Link, useLoaderData } from '@remix-run/react';
 import { json } from '@remix-run/node';
 import { Suspense } from 'react';
@@ -68,9 +67,7 @@ const OrgsList = () => {
 
   return studios.map((studio) => (
     <Box key={studio.id} minW={0}>
-      <Fade in>
-        <OrgCard {...studio} />
-      </Fade>
+      <OrgCard {...studio} />
     </Box>
   ));
 };
@@ -90,7 +87,7 @@ const Studios = () => {
             as={Link}
             to="/orgs/create"
             colorScheme="teal"
-            leftIcon={<AddIcon />}
+            leftIcon={<FiPlus />}
           >
             Add studio
           </Button>

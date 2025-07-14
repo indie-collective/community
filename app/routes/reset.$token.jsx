@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Heading } from '@chakra-ui/react';
+import { Alert, Box, Heading } from '@chakra-ui/react';
 import { json, redirect } from '@remix-run/node';
 import { useActionData, useTransition } from '@remix-run/react';
 
@@ -76,7 +76,6 @@ const Reset = () => {
 
       {actionData?.error && (
         <Alert status="error" mb="10px">
-          <AlertIcon />
           {actionData?.error}
         </Alert>
       )}

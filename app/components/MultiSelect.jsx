@@ -22,10 +22,10 @@ import {
   TagCloseButton,
   TagLabel,
   Text,
-  useColorModeValue,
   VStack,
 } from '@chakra-ui/react';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { useColorModeValue } from '~/components/ui/color-mode';
+import { FiChevronDown } from 'react-icons/fi';
 
 const fruits = [
   { value: 'apple', label: 'Apple' },
@@ -246,7 +246,7 @@ function CreateablePicker(props) {
               {...getToggleButtonProps()}
               aria-label={'toggle menu'}
             >
-              &#8595;
+              <FiChevronDown />
             </Button>
           </InputRightElement>
         </InputGroup>

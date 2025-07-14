@@ -1,5 +1,4 @@
-import { Box, Heading, Text, useColorModeValue } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
+import { Box, Heading, Text } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 
@@ -10,21 +9,7 @@ import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 import Carousel from '../components/Carousel';
 
-const variants = {
-  initial: { scale: 0.96, y: 30, opacity: 0 },
-  enter: {
-    scale: 1,
-    y: 0,
-    opacity: 1,
-    transition: { duration: 0.5, ease: [0.48, 0.15, 0.25, 0.96] },
-  },
-  exit: {
-    scale: 0.6,
-    y: 100,
-    opacity: 0,
-    transition: { duration: 0.2, ease: [0.48, 0.15, 0.25, 0.96] },
-  },
-};
+
 
 export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
@@ -75,7 +60,7 @@ export const meta = ({ data }) => ({
 });
 
 const SearchPage = () => {
-  const helpTextColor = useColorModeValue('gray.300', 'gray.600');
+  const helpTextColor = 'gray.300';
   const { search, games, orgs, events } = useLoaderData();
 
   const hasNoResults =
@@ -102,9 +87,7 @@ const SearchPage = () => {
                   <Carousel slidesToShow={[1, 2, 3]}>
                     {games.map((game) => (
                       <Box key={game.id} minW={0} pr={3}>
-                        <motion.div variants={variants}>
-                          <GameCard {...game} />
-                        </motion.div>
+                        <GameCard {...game} />
                       </Box>
                     ))}
                   </Carousel>
@@ -120,9 +103,7 @@ const SearchPage = () => {
                   <Carousel slidesToShow={[1, 2, 3]}>
                     {orgs.map((org) => (
                       <Box key={org.id} minW={0} pr={3}>
-                        <motion.div variants={variants}>
-                          <OrgCard {...org} />
-                        </motion.div>
+                        <OrgCard {...org} />
                       </Box>
                     ))}
                   </Carousel>
@@ -138,9 +119,7 @@ const SearchPage = () => {
                   <Carousel slidesToShow={[1, 2, 3]}>
                     {events.map((event) => (
                       <Box key={event.id} minW={0} pr={3}>
-                        <motion.div variants={variants}>
-                          <EventCard {...event} />
-                        </motion.div>
+                        <EventCard {...event} />
                       </Box>
                     ))}
                   </Carousel>

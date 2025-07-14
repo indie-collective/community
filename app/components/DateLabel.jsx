@@ -1,7 +1,7 @@
-import { Box, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 
 const DateLabel = ({ value, ...rest }) => {
-  const bg = useColorModeValue('#f2f2f2ab', '#282828aa');
+  const bg = '#f2f2f2ab';
 
   return (
     <Box

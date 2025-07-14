@@ -5,13 +5,6 @@ import {
   Text,
   Grid,
   AspectRatio,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
   Button,
   useDisclosure,
   IconButton,
@@ -22,7 +15,7 @@ import {
   chakra,
   Flex,
 } from '@chakra-ui/react';
-import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { FiPlus, FiEdit, FiExternalLink } from 'react-icons/fi';
 import { json } from '@remix-run/node';
 import {
   Form,
@@ -177,7 +170,7 @@ const Game = () => {
               <Button
                 as={Link}
                 to={`/game/${id}/edit`}
-                leftIcon={<EditIcon />}
+                leftIcon={<FiEdit />}
                 colorScheme="teal"
                 ml={3}
               >
@@ -189,9 +182,9 @@ const Game = () => {
 
         {site && (
           <Text fontSize="lg">
-            <ChakraLink href={site} isExternal>
+            <ChakraLink href={site} target="_blank" rel="noopener noreferrer">
               {site.replace(/https?:\/\//, '')}
-              <ExternalLinkIcon mx="2px" />
+              <FiExternalLink style={{ display: 'inline' }} />
             </ChakraLink>
           </Text>
         )}
@@ -251,7 +244,7 @@ const Game = () => {
                 justifySelf="flex-start"
                 colorScheme="teal"
                 aria-label="Add an author to the game"
-                icon={<AddIcon />}
+                icon={<FiPlus />}
                 onClick={onOpenLinkAuthor}
               />
               <SearchOrgModal
@@ -337,32 +330,6 @@ const Game = () => {
           <Button variant="link" colorScheme="red" onClick={deleteModal.onOpen}>
             Delete game
           </Button>
-
-          <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
-            <ModalOverlay />
-            <ModalContent as={Form} action={`/game/${id}/delete`} method="post">
-              <ModalHeader>Delete Game</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Text>Do you really want to delete {name}?</Text>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button
-                  type="submit"
-                  isLoading={false}
-                  loadingText="Deleting"
-                  colorScheme="red"
-                  mr={3}
-                >
-                  Delete
-                </Button>
-                <Button variant="ghost" onClick={deleteModal.onClose}>
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
         </Box>
       )}
     </>
@@ -384,7 +351,7 @@ export function ErrorBoundary() {
             m="auto"
             mb={10}
             size="lg"
-            leftIcon={<AddIcon />}
+            leftIcon={<FiPlus />}
           >
             Add a game
           </Button>

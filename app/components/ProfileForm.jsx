@@ -4,21 +4,17 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
+  Field,
   Input,
-  FormErrorMessage,
   Button,
   Textarea,
   Avatar,
-  AvatarBadge,
   IconButton,
-  useMergeRefs,
   InputGroup,
-  InputRightElement,
   Spinner,
 } from '@chakra-ui/react';
-import { CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
+import { useMergeRefs } from '../hooks/useMergeRefs';
+import { FiCheck, FiX, FiEdit } from 'react-icons/fi';
 import { Form, useFetcher, useSubmit } from '@remix-run/react';
 import debounce from 'lodash.debounce';
 
@@ -93,20 +89,20 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
       {...rest}
       encType="multipart/form-data"
     >
-      <FormControl mb={5}>
-        <FormLabel htmlFor="avatar" textAlign="center">
+      <Field.Root mb={5}>
+        <Field.Label htmlFor="avatar" textAlign="center">
           <Avatar size="2xl" margin="1rem" src={avatar}>
-            <AvatarBadge size="1em" bg="white">
+            <Avatar.Badge size="1em" bg="white">
               <IconButton
                 aria-label="Edit avatar"
-                icon={<EditIcon />}
+                icon={<FiEdit />}
                 colorScheme="teal"
-                isRound
+                borderRadius="full"
                 onClick={() => avatarRef.current.click()}
               />
-            </AvatarBadge>
+            </Avatar.Badge>
           </Avatar>
-        </FormLabel>
+        </Field.Label>
 
         <Input
           display="none"
@@ -123,10 +119,10 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
           }}
           accept="image/*"
         />
-      </FormControl>
+      </Field.Root>
 
-      <FormControl mb={5}>
-        <FormLabel htmlFor="email">Email</FormLabel>
+      <Field.Root mb={5}>
+        <Field.Label htmlFor="email">Email</Field.Label>
         <Input
           id="email"
           name="email"
@@ -135,10 +131,10 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
           value={email}
           disabled
         />
-      </FormControl>
+      </Field.Root>
 
-      <FormControl mb={5}>
-        <FormLabel htmlFor="username">Username</FormLabel>
+      <Field.Root mb={5}>
+        <Field.Label htmlFor="username">Username</Field.Label>
         <InputGroup>
           <Input
             {...register('username', {
@@ -148,46 +144,46 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
             placeholder="jeanmicheljam"
           />
           {fetcher.data && (
-            <InputRightElement
+            <Input.RightElement
               children={
                 fetcher.state === 'loading' ? (
                   <Spinner />
                 ) : fetcher.data.available ? (
-                  <CheckIcon color="green.500" />
+                  <FiCheck color="green.500" />
                 ) : (
-                  <CloseIcon color="red.500" />
+                  <FiX color="red.500" />
                 )
               }
             />
           )}
         </InputGroup>
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.username && errors.username.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl mb={5} isInvalid={errors.firstName} isRequired>
-        <FormLabel htmlFor="firstName">First name</FormLabel>
+      <Field.Root mb={5} isInvalid={errors.firstName} isRequired>
+        <Field.Label htmlFor="firstName">First name</Field.Label>
         <Input
           {...register('firstName')}
           id="firstName"
           placeholder="Jean-Michel"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.firstName && errors.firstName.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl mb={5} isInvalid={errors.lastName}>
-        <FormLabel htmlFor="lastName">Last name</FormLabel>
+      <Field.Root mb={5} isInvalid={errors.lastName}>
+        <Field.Label htmlFor="lastName">Last name</Field.Label>
         <Input {...register('lastName')} id="lastName" placeholder="Jam" />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.lastName && errors.lastName.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl mb={5} isInvalid={errors.about}>
-        <FormLabel htmlFor="about">About</FormLabel>
+      <Field.Root mb={5} isInvalid={errors.about}>
+        <Field.Label htmlFor="about">About</Field.Label>
         <Textarea
           id="about"
           placeholder="What's your life like..."
@@ -195,10 +191,10 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
           resize="vertical"
           whiteSpace="pre-wrap"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.about && errors.about.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
       <Button
         type="submit"

@@ -1,5 +1,5 @@
-import { Box, Grid, Button, Fade } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
+import { Box, Grid, Button } from '@chakra-ui/react';
+import { FiPlus } from 'react-icons/fi';
 import { Link, useLoaderData } from '@remix-run/react';
 import { json } from '@remix-run/node';
 import { Suspense } from 'react';
@@ -59,9 +59,7 @@ const OrgsList = () => {
 
   return orgs.map((org) => (
     <Box key={org.id} minW={0}>
-      <Fade in>
-        <OrgCard {...org} />
-      </Fade>
+      <OrgCard {...org} />
     </Box>
   ));
 };
@@ -79,7 +77,7 @@ const Orgs = () => {
             mb={10}
             size="lg"
             colorScheme="teal"
-            leftIcon={<AddIcon />}
+            leftIcon={<FiPlus />}
           >
             Add a organization
           </Button>

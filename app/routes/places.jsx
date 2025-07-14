@@ -9,7 +9,6 @@ import {
   Heading,
   Tooltip,
   useBreakpointValue,
-  keyframes,
   usePrevious,
 } from '@chakra-ui/react';
 import { Overlay, ZoomControl } from 'pigeon-maps';
@@ -84,21 +83,7 @@ const OrgMarker = React.memo(
   )
 );
 
-const highlight = keyframes({
-  '0%': {
-    transform: 'scale(1)',
-  },
 
-  '50%': {
-    transform: 'scale(0.9)',
-    boxShadow:
-      '0 0 0 1px rgba(16, 22, 26, 0.1), 0 4px 8px rgba(16, 22, 26, 0.2), 0 18px 46px 6px rgba(16, 22, 26, 0.2)',
-  },
-
-  '100%': {
-    transform: 'scale(1)',
-  },
-});
 
 const Row = ({ index, data, style }) => (
   <div key={data.orgs[index].id} style={style}>
@@ -112,10 +97,6 @@ const Row = ({ index, data, style }) => (
       {...data.orgs[index]}
       onMouseEnter={() => data.onMouseEnter(data.orgs[index])}
       onMouseOut={() => data.onMouseOut(data.orgs[index])}
-      animation={
-        data.selectedId === data.orgs[index].id &&
-        `${highlight} 500ms ease-in-out 500ms`
-      }
     />
   </div>
 );

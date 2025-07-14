@@ -2,12 +2,11 @@ import {
   Box,
   Grid,
   Button,
-  Fade,
   Flex,
   Heading,
   Spacer,
 } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
+import { FiPlus } from 'react-icons/fi';
 import { Link, useLoaderData } from '@remix-run/react';
 import { json } from '@remix-run/node';
 import { Suspense } from 'react';
@@ -70,9 +69,7 @@ const OrgsList = () => {
 
   return associations.map((association) => (
     <Box key={association.id} minW={0}>
-      <Fade in>
-        <OrgCard {...association} />
-      </Fade>
+      <OrgCard {...association} />
     </Box>
   ));
 };
@@ -92,7 +89,7 @@ const Associations = () => {
             as={Link}
             to="/orgs/create"
             colorScheme="teal"
-            leftIcon={<AddIcon />}
+            leftIcon={<FiPlus />}
           >
             Add association
           </Button>

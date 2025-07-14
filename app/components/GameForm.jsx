@@ -5,13 +5,11 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
   Input,
-  FormErrorMessage,
   Button,
   Textarea,
   Grid,
+  Field,
 } from '@chakra-ui/react';
 
 import PossibleGameDuplicates from '../components/PossibleGameDuplicates';
@@ -74,19 +72,19 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
       })}
       {...rest}
     >
-      <FormControl gridColumn="1 / 3" isInvalid={errors.name} isRequired>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.name} isRequired>
         <FormLabel htmlFor="name">Name</FormLabel>
         <Input
           {...register('name')}
           placeholder="Super Tractor Simulator 2042, Assassin's Greed..."
         />
         <PossibleGameDuplicates value={newGameName} ignoredId={id} />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.name && errors.name.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.name}>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.name}>
         <FormLabel htmlFor="igdb_url">IGDB</FormLabel>
         <Input
           {...register('igdb_url')}
@@ -94,12 +92,12 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
           type="url"
           pattern="https://www.igdb.com\/games\/(.+)"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.name && errors.name.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.about}>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.about}>
         <FormLabel htmlFor="about">About</FormLabel>
         <Textarea
           {...register('about')}
@@ -108,33 +106,33 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
           placeholder="What is it about?"
           whiteSpace="pre-wrap"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.about && errors.about.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.site}>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.site}>
         <FormLabel htmlFor="site">Site</FormLabel>
         <Input
           {...register('site')}
           placeholder="https://example.com"
           type="url"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.site && errors.site.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.tags}>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.tags}>
         <FormLabel htmlFor="site">Tags</FormLabel>
         <Input
           {...register('tags')}
           placeholder="action, mystery, multiplayer"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.tags && errors.tags.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
       <Button
         gridColumn="1 / 3"

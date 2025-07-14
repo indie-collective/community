@@ -1,15 +1,9 @@
-import {
-  IconButton,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  Input,
-  useColorModeValue,
-} from '@chakra-ui/react';
-import { SmallCloseIcon, SearchIcon } from '@chakra-ui/icons';
+import { IconButton, InputGroup, Input } from '@chakra-ui/react';
+import { FiX, FiSearch } from 'react-icons/fi';
 import { Form, useLocation, useNavigate } from '@remix-run/react';
 import React, { useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { useColorModeValue } from '../components/ui/color-mode';
 
 const propTypes = {};
 
@@ -51,29 +45,32 @@ const SearchInput = () => {
         if (e.target.q.value === '') e.preventDefault();
       }}
     >
-      <InputGroup w="auto" size="lg">
-        <InputLeftElement>
-          <SearchIcon color="teal.500" />
-        </InputLeftElement>
+      <InputGroup
+        w="auto"
+        size="lg"
+        startAddon={<FiSearch color="teal.500" />}
+        endAddon={
+          params.has('q') && (
+            <InputRightElement>
+              <IconButton
+                aria-label="Clear search"
+                variant="ghost"
+                icon={<FiX />}
+                onClick={() => handleChange('')}
+              />
+            </InputRightElement>
+          )
+        }
+      >
         <Input
           ref={inputRef}
           name="q"
           placeholder="Search"
           defaultValue={params.get('q')}
           autoFocus={pathname === '/search'}
-          bg={useColorModeValue("white", "gray.750")}
+          bg={useColorModeValue('white', 'gray.750')}
           onChange={(e) => handleChange(e.target.value)}
         />
-        {params.has('q') && (
-          <InputRightElement>
-            <IconButton
-              aria-label="Clear search"
-              variant="ghost"
-              icon={<SmallCloseIcon />}
-              onClick={() => handleChange('')}
-            />
-          </InputRightElement>
-        )}
       </InputGroup>
     </Form>
   );

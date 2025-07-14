@@ -1,4 +1,4 @@
-import { Box, Heading, useToast } from '@chakra-ui/react';
+import { Box, Heading } from '@chakra-ui/react';
 // import differenceWith from 'lodash.differencewith';
 import { json, redirect } from '@remix-run/node';
 import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
@@ -127,20 +127,13 @@ export const meta = ({ data }) => ({
 
 const EditGame = () => {
   const { game } = useLoaderData();
-  const toast = useToast();
   const transition = useTransition();
   const actionData = useActionData();
 
   useEffect(() => {
     if (!actionData?.error) return;
 
-    toast({
-      title: 'Something went wrong',
-      description: actionData?.error,
-      status: 'error',
-      position: 'bottom-right',
-    });
-  }, [actionData?.error, transition.state === 'submitting', toast]);
+  }, [actionData?.error, transition.state === 'submitting']);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>

@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/react';
-import { CheckIcon } from '@chakra-ui/icons';
+import { FiCheck } from 'react-icons/fi';
 import { Form, useTransition } from '@remix-run/react';
 
 const JoinEventButton = ({
@@ -16,7 +16,7 @@ const JoinEventButton = ({
       <Button
         variant={isGoing ? 'solid' : 'outline'}
         colorScheme="teal"
-        leftIcon={isGoing ? <CheckIcon /> : null}
+        leftIcon={isGoing ? <FiCheck /> : null}
         {...rest}
         type="submit"
         disabled={transition.state === 'submitting'}

@@ -1,18 +1,18 @@
-import { Box, AspectRatio, Image, Spinner, useColorModeValue } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
+import { Box, AspectRatio, Image, Spinner } from '@chakra-ui/react';
+import { FiPlus } from 'react-icons/fi';
 import { useDropzone } from 'react-dropzone';
 import { useCallback } from 'react';
 
 const ImageUploader = ({ gameId, currentUser, fetcher }) => {
-  const dzColor = useColorModeValue('gray.200', 'gray.700');
-  const dzHoverColor = useColorModeValue('gray.400', 'gray.50');
-  const dzActiveColor = useColorModeValue('teal.200', 'teal.700');
-  const dzActiveHoverColor = useColorModeValue('teal.600', 'teal.50');
+  const dzColor = 'gray.200';
+  const dzHoverColor = 'gray.400';
+  const dzActiveColor = 'teal.200';
+  const dzActiveHoverColor = 'teal.600';
 
-  const dzBorderColor = useColorModeValue('gray.200', 'gray.700');
-  const dzActiveBorderColor = useColorModeValue('teal.200', 'teal.700');
-  const dzHoverBorderColor = useColorModeValue('gray.200', 'gray.700');
-  const dzActiveHoverBorderColor = useColorModeValue('teal.600', 'teal.700');
+  const dzBorderColor = 'gray.200';
+  const dzActiveBorderColor = 'teal.200';
+  const dzHoverBorderColor = 'gray.200';
+  const dzActiveHoverBorderColor = 'teal.600';
 
   const onDrop = useCallback(async (acceptedFiles) => {
     const form = new FormData();
@@ -86,7 +86,7 @@ const ImageUploader = ({ gameId, currentUser, fetcher }) => {
           {...getRootProps()}
         >
           <input {...getInputProps()} />
-          <AddIcon size="48px" />
+          <FiPlus size="48px" />
         </Box>
       </AspectRatio>
     );

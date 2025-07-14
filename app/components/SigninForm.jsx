@@ -4,18 +4,16 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
   Input,
-  FormErrorMessage,
   Button,
   Link as ChakraLink,
-  useColorModeValue as mode,
   Flex,
   HStack,
-  Checkbox
+  Checkbox,
+  Field,
 } from '@chakra-ui/react';
 import { Form, Link, useSearchParams, useSubmit } from '@remix-run/react';
+import { useColorModeValue } from '~/components/ui/color-mode';
 
 import { PasswordInput } from './PasswordInput';
 
@@ -50,7 +48,7 @@ const SigninForm = ({ loading }) => {
         });
       })}
     >
-      <FormControl mb={5} isInvalid={errors.email} isRequired>
+      <Field.Root mb={5} isInvalid={errors.email} isRequired>
         <FormLabel htmlFor="email">Email</FormLabel>
         <Input
           {...register('email')}
@@ -58,18 +56,18 @@ const SigninForm = ({ loading }) => {
           type="email"
           placeholder="jmj@indieco.xyz"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.email && errors.email.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl id="password" mb={5} isInvalid={errors.password} isRequired>
+      <Field.Root id="password" mb={5} isInvalid={errors.password} isRequired>
         <Flex justify="space-between" alignItems="baseline">
           <FormLabel htmlFor="password">Password</FormLabel>
           <ChakraLink
             as={Link}
             to="/forgot"
-            color={mode('teal.600', 'teal.200')}
+            color={useColorModeValue('teal.600', 'teal.200')}
             fontWeight="semibold"
             fontSize="sm"
           >
@@ -82,10 +80,10 @@ const SigninForm = ({ loading }) => {
           placeholder="SoS3cr3t"
         />
 
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.password && errors.password.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
       <Button
         type="submit"

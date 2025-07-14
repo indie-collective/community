@@ -4,24 +4,15 @@ import {
   Heading,
   Spinner,
   Badge,
-  DarkMode,
   Grid,
   Image,
   Flex,
   Button,
   useDisclosure,
-  ModalOverlay,
-  ModalContent,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Modal,
-  ModalHeader,
   Link as ChakraLink,
-  useToast,
   Stack,
 } from '@chakra-ui/react';
-import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { FiEdit, FiExternalLink, FiPlus, FiAlertTriangle } from 'react-icons/fi';
 import { json } from '@remix-run/node';
 import {
   Link,
@@ -31,7 +22,7 @@ import {
   isRouteErrorResponse,
   useRouteError,
 } from '@remix-run/react';
-import { motion } from 'framer-motion';
+
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
@@ -51,21 +42,7 @@ const TYPES_COLORS = {
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-const variants = {
-  initial: { scale: 0.96, y: 30, opacity: 0 },
-  enter: {
-    scale: 1,
-    y: 0,
-    opacity: 1,
-    transition: { duration: 0.5, ease: [0.48, 0.15, 0.25, 0.96] },
-  },
-  exit: {
-    scale: 0.6,
-    y: 100,
-    opacity: 0,
-    transition: { duration: 0.2, ease: [0.48, 0.15, 0.25, 0.96] },
-  },
-};
+
 
 export const loader = async ({ request, params }) => {
   const { id } = params;
@@ -163,7 +140,6 @@ export const meta = ({ data, location }) =>
 const Org = () => {
   const navigate = useNavigate();
   const placeholder = usePlaceholder('square');
-  const toast = useToast();
   const { org, currentUser } = useLoaderData();
 
   const deleteModal = useDisclosure();
@@ -201,19 +177,17 @@ const Org = () => {
             <Heading noOfLines={1} title={name}>
               {name}
             </Heading>
-            <DarkMode>
-              <Badge
-                rounded={3}
-                variant="solid"
-                colorScheme={TYPES_COLORS[type]}
-              >
-                {type}
-              </Badge>
-            </DarkMode>
+            <Badge
+            rounded={3}
+            variant="solid"
+            colorScheme={TYPES_COLORS[type]}
+          >
+            {type}
+          </Badge>
             {site && (
-              <ChakraLink href={site} isExternal ml={2}>
+              <ChakraLink href={site} target="_blank" rel="noopener noreferrer" ml={2}>
                 {site.replace(/https?:\/\//, '')}
-                <ExternalLinkIcon mx="2px" />
+                <FiExternalLink style={{ display: 'inline' }} />
               </ChakraLink>
             )}
             {location && (
@@ -238,7 +212,7 @@ const Org = () => {
 
         {currentUser && (
           <Link to={`/org/${id}/edit`}>
-            <Button leftIcon={<EditIcon />} colorScheme="teal" mt={3}>
+            <Button leftIcon={<FiEdit />} colorScheme="teal" mt={3}>
               Edit
             </Button>
           </Link>
@@ -266,30 +240,21 @@ const Org = () => {
             </Badge>
           </Heading>
 
-          <motion.div
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+          <Grid
+            gap={3}
+            templateColumns={[
+              'repeat(2, 1fr)',
+              'repeat(2, 1fr)',
+              'repeat(3, 1fr)',
+              'repeat(4, 1fr)',
+            ]}
           >
-            <Grid
-              gap={3}
-              templateColumns={[
-                'repeat(2, 1fr)',
-                'repeat(2, 1fr)',
-                'repeat(3, 1fr)',
-                'repeat(4, 1fr)',
-              ]}
-            >
-              {games.map((game) => (
-                <Box minW={0} key={game.id}>
-                  <motion.div variants={variants}>
-                    <GameCard {...game} />
-                  </motion.div>
-                </Box>
-              ))}
-            </Grid>
-          </motion.div>
+            {games.map((game) => (
+              <Box minW={0} key={game.id}>
+                <GameCard {...game} />
+              </Box>
+            ))}
+          </Grid>
         </Box>
       )}
 
@@ -308,30 +273,21 @@ const Org = () => {
             </Badge>
           </Heading>
 
-          <motion.div
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+          <Grid
+            gap={3}
+            templateColumns={[
+              'repeat(2, 1fr)',
+              'repeat(2, 1fr)',
+              'repeat(3, 1fr)',
+              'repeat(4, 1fr)',
+            ]}
           >
-            <Grid
-              gap={3}
-              templateColumns={[
-                'repeat(2, 1fr)',
-                'repeat(2, 1fr)',
-                'repeat(3, 1fr)',
-                'repeat(4, 1fr)',
-              ]}
-            >
-              {events.map((event) => (
-                <Box minW={0} key={event.id}>
-                  <motion.div variants={variants}>
-                    <EventCard {...event} />
-                  </motion.div>
-                </Box>
-              ))}
-            </Grid>
-          </motion.div>
+            {events.map((event) => (
+              <Box minW={0} key={event.id}>
+                <EventCard {...event} />
+              </Box>
+            ))}
+          </Grid>
         </Box>
       )}
 
@@ -387,7 +343,7 @@ export function ErrorBoundary() {
             m="auto"
             mb={10}
             size="lg"
-            leftIcon={<AddIcon />}
+            leftIcon={<FiPlus />}
           >
             Add an organization
           </Button>

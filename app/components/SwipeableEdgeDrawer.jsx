@@ -1,8 +1,6 @@
 import {
   Box,
   Button,
-  useColorMode,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
@@ -11,6 +9,7 @@ import {
   ThemeProvider as MUIThemeProvider,
   THEME_ID,
 } from '@mui/material/styles';
+import { useColorModeValue } from '../components/ui/color-mode';
 
 import theme, { muiTheme } from '../theme';
 
