@@ -6,14 +6,13 @@ import {
   Text,
   ListItem,
   List,
-  ListIcon,
   Box,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
 import { authenticator } from '../../utils/auth.server';
 import { db } from '../../utils/db.server';
-import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { FiPlus, FiTrash2, FiEdit } from 'react-icons/fi';
 
 export const action = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {
@@ -96,9 +95,9 @@ const operationsColors = {
 };
 
 const operationsIcons = {
-  create: AddIcon,
-  update: EditIcon,
-  delete: DeleteIcon,
+  create: FiPlus,
+  update: FiEdit,
+  delete: FiTrash2,
 };
 
 const Profile = () => {

@@ -3,11 +3,10 @@ import {
   IconButton,
   Input,
   InputGroup,
-  InputRightElement,
   useDisclosure,
-  useMergeRefs,
 } from '@chakra-ui/react';
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { useMergeRefs } from '../hooks/useMergeRefs';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 export const PasswordInput = forwardRef((props, ref) => {
   const { isOpen, onToggle } = useDisclosure();
@@ -42,7 +41,7 @@ export const PasswordInput = forwardRef((props, ref) => {
           bg="transparent !important"
           variant="ghost"
           aria-label={isOpen ? 'Mask password' : 'Reveal password'}
-          icon={isOpen ? <ViewOffIcon /> : <ViewIcon />}
+          icon={isOpen ? <FiEyeOff /> : <FiEye />}
           onClick={onClickReveal}
         />
       </InputRightElement>

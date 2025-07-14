@@ -1,13 +1,11 @@
 import { withEmotionCache } from '@emotion/react';
 import {
-  ChakraProvider,
   Box,
   Flex,
   Heading,
   Text,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { WarningIcon } from '@chakra-ui/icons';
 import {
   Links,
   LiveReload,
@@ -20,17 +18,17 @@ import {
   useLocation,
   useRouteError,
 } from '@remix-run/react';
-import { AnimatePresence } from 'framer-motion';
 import React, { useContext, useEffect } from 'react';
 import posthog from 'posthog-js';
 
 import { ServerStyleContext, ClientStyleContext } from './context';
-import theme from './theme';
+import system from './theme';
 import { authenticator } from './utils/auth.server';
 import slickStyles from 'slick-carousel/slick/slick.css'; // CSS needed for Carousel component
 import Error from './components/Error';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
+import { Provider } from './components/ui/provider';
 
 const Main = (props) => {
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
@@ -120,39 +118,34 @@ export function ErrorBoundary() {
   if (isRouteErrorResponse(error)) {
     return (
       <Document>
-        <ChakraProvider theme={theme}>
-          <AnimatePresence exitBeforeEnter>
-            <Main>
-              <Error statusCode={error.status} />
-            </Main>
-          </AnimatePresence>
-        </ChakraProvider>
+        <Provider value={system}>
+          <Main>
+            <Error statusCode={error.status} />
+          </Main>
+        </Provider>
       </Document>
     );
   }
 
   return (
     <Document>
-      <ChakraProvider theme={theme}>
-        <AnimatePresence exitBeforeEnter>
-          <Main justifyContent="center">
-            <Flex
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              textAlign="center"
-              height="200px"
-            >
-              <WarningIcon boxSize="40px" mr={0} />
-              <Heading mt={4} mb={1} fontSize="lg">
-                Something went wrong!
-              </Heading>
-              <Text maxWidth="sm">{error.message}</Text>
-              <Text>{JSON.stringify(error.stack, false, 2)}</Text>
-            </Flex>
-          </Main>
-        </AnimatePresence>
-      </ChakraProvider>
+      <Provider value={system}>
+        <Main justifyContent="center">
+          <Flex
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+            height="200px"
+          >
+            <Heading mt={4} mb={1} fontSize="lg">
+              Something went wrong!
+            </Heading>
+            <Text maxWidth="sm">{error.message}</Text>
+            <Text>{JSON.stringify(error.stack, false, 2)}</Text>
+          </Flex>
+        </Main>
+      </Provider>
     </Document>
   );
 }
@@ -187,19 +180,17 @@ export default function App() {
 
   return (
     <Document>
-      <ChakraProvider theme={theme}>
-        <AnimatePresence exitBeforeEnter>
-          <Flex direction="column">
-            <Navigation />
-            <Main>
-              <Box minHeight="100vh" maxWidth={960} width="100%">
-                <Outlet />
-              </Box>
-              <Footer />
-            </Main>
-          </Flex>
-        </AnimatePresence>
-      </ChakraProvider>
+      <Provider value={system}>
+        <Flex direction="column">
+          <Navigation />
+          <Main>
+            <Box minHeight="100vh" maxWidth={960} width="100%">
+              <Outlet />
+            </Box>
+            <Footer />
+          </Main>
+        </Flex>
+      </Provider>
     </Document>
   );
 }

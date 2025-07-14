@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { SearchIcon } from '@chakra-ui/icons';
+import { FiSearch } from 'react-icons/fi';
 
 import SelectInput from './SelectInput';
 import useDebounce from '../hooks/useDebounce';
@@ -117,7 +117,7 @@ const PhotonAutocomplete = ({
             return name;
         }
       }}
-      icon={<SearchIcon />}
+      icon={<FiSearch />}
       onSelect={(value) => {
         setValue(value);
         onSuggestionSelect(value);

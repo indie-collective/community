@@ -8,9 +8,8 @@ import {
   Portal,
   Spinner,
 } from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
+import { FiTrash2 } from 'react-icons/fi';
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 
 import ImageUploader from '../components/ImageUploader';
 
@@ -34,14 +33,11 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
         {images.map((image) => (
           <Box key={image.url} position="relative">
             <AspectRatio
-              as={motion.div}
               ratio={16 / 9}
-              layoutId={image.url}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               <Image
-                as={motion.img}
                 src={image.thumbnail_url}
                 borderRadius="md"
                 objectFit="cover"
@@ -60,7 +56,7 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                 right={2}
                 size="xs"
                 aria-label={`Remove image ${image.id}`}
-                isRound
+                borderRadius="full"
                 colorScheme="red"
                 icon={<DeleteIcon />}
                 isLoading={
@@ -87,14 +83,11 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
         {uploadingImages.map((image) => (
           <Box key={image.url} position="relative">
             <AspectRatio
-              as={motion.div}
               ratio={16 / 9}
-              layoutId={image.url}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               <Image
-                as={motion.img}
                 src={image.url}
                 borderRadius="md"
                 objectFit="cover"
@@ -144,18 +137,14 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
           right="15px"
           pointerEvents="none"
         >
-          <AnimatePresence>
             {selectedUrl && (
               <AspectRatio
-                as={motion.div}
                 ratio={16 / 9}
-                layoutId={selectedUrl}
                 zIndex={10000}
                 maxW="calc(100vw - 30px)"
                 maxH="calc(100vh - 30px)"
               >
                 <Image
-                  as={motion.img}
                   borderRadius="md"
                   objectFit="cover"
                   size="100%"
@@ -168,7 +157,6 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                 />
               </AspectRatio>
             )}
-          </AnimatePresence>
         </Box>
       </Portal>
     </>

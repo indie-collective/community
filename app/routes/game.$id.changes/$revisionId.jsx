@@ -3,14 +3,8 @@ import {
   Heading,
   Text,
   Button,
-  TableContainer,
   Table,
   TableCaption,
-  Thead,
-  Tr,
-  Td,
-  Th,
-  Tbody,
   Flex,
 } from '@chakra-ui/react';
 import { json } from '@remix-run/node';

@@ -5,7 +5,6 @@ import {
   AspectRatio,
   Image,
   Heading,
-  useColorModeValue,
 } from '@chakra-ui/react';
 
 import usePlaceholder from '../hooks/usePlaceholder';
@@ -29,7 +28,7 @@ const EventCard = forwardRef(
   ) => {
     const placeholder = usePlaceholder();
 
-    const bg = useColorModeValue('gray.100', 'gray.700');
+    const bg = 'gray.100';
 
     const startsAtText = new Date(startsAt).toLocaleString(undefined, {
       day: 'numeric',

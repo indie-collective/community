@@ -1,11 +1,9 @@
-import { EditIcon, ExternalLinkIcon, StarIcon } from '@chakra-ui/icons';
+import { FiEdit, FiExternalLink, FiStar } from 'react-icons/fi';
 import {
   Box,
   Button,
   Checkbox,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
+  Field,
   Heading,
   Input,
   Link as ChakraLink,
@@ -103,7 +101,7 @@ export default function Welcome() {
 
         <Box maxWidth="lg" m="auto">
           <Form method="post">
-            <FormControl mb={5} isInvalid={actionData?.errors.email} isRequired>
+            <Field.Root mb={5} isInvalid={actionData?.errors.email} isRequired>
               <FormLabel htmlFor="email">Email</FormLabel>
               <Input
                 type="email"
@@ -111,14 +109,14 @@ export default function Welcome() {
                 placeholder="test@example.com"
                 defaultValue={actionData?.values.email}
               />
-              <FormErrorMessage>{actionData?.errors.email}</FormErrorMessage>
-            </FormControl>
+              <Field.ErrorText>{actionData?.errors.email}</Field.ErrorText>
+            </Field.Root>
 
-            <FormControl mb={10} isRequired>
+            <Field.Root mb={10} isRequired>
               <Checkbox>
                 I agree with to give my soul to Indie Collective
               </Checkbox>
-            </FormControl>
+            </Field.Root>
 
             <Button
               type="submit"
@@ -144,7 +142,7 @@ export default function Welcome() {
 
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} columnGap={8} rowGap={16}>
         <Box>
-          <StarIcon boxSize={10} mb={5} />
+          <FiStar boxSize={10} mb={5} />
           <Heading as="h3" size="md" mb={5}>
             Personalize your profile
           </Heading>
@@ -169,10 +167,11 @@ export default function Welcome() {
           <Button
             as={ChakraLink}
             href="https://discord.gg/KxZVu2ZZYs"
-            isExternal
+            target="_blank"
+            rel="noopener noreferrer"
             style={{ textDecoration: 'none' }}
             textDecoration="none"
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={<FiExternalLink />}
           >
             Check our Discord
           </Button>
@@ -180,7 +179,7 @@ export default function Welcome() {
 
         {currentUser.isGuildMember ? (
           <Box>
-            <EditIcon boxSize={10} mb={5} />
+            <FiEdit boxSize={10} mb={5} />
             <Heading as="h3" size="md" mb={5}>
               Start contributing now!
             </Heading>
@@ -194,7 +193,7 @@ export default function Welcome() {
           </Box>
         ) : (
           <Box>
-            <EditIcon boxSize={10} mb={5} />
+            <FiEdit boxSize={10} mb={5} />
             <Heading as="h3" size="md" mb={5}>
               Join the Discord to contribute
             </Heading>

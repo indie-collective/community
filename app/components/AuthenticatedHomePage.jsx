@@ -4,10 +4,8 @@ import {
   Text,
   Grid,
   Image,
-  Fade,
-  // useToast,
-  useColorModeValue,
 } from '@chakra-ui/react';
+import { useColorModeValue } from '../components/ui/color-mode';
 import { Link, useLoaderData } from '@remix-run/react';
 import { useEffect } from 'react';
 
@@ -54,9 +52,7 @@ const AuthenticatedHomePage = () => {
           >
             {joinedEventsToCome.map((event) => (
               <Box key={event.id} minW={0}>
-                <Fade in>
-                  <EventCard {...event} />
-                </Fade>
+                <EventCard {...event} />
               </Box>
             ))}
           </Grid>
@@ -68,23 +64,21 @@ const AuthenticatedHomePage = () => {
           <Link to="/games">Features games</Link>
         </Heading>
 
-        <Fade in>
-          <Grid
-            gap={3}
-            templateColumns={[
-              '2fr',
-              'repeat(2, 1fr)',
-              'repeat(3, 1fr)',
-              'repeat(4, 1fr)',
-            ]}
-          >
-            {games.map((game) => (
-              <Box key={game.id} minW={0}>
-                <GameCard {...game} />
-              </Box>
-            ))}
-          </Grid>
-        </Fade>
+        <Grid
+          gap={3}
+          templateColumns={[
+            '2fr',
+            'repeat(2, 1fr)',
+            'repeat(3, 1fr)',
+            'repeat(4, 1fr)',
+          ]}
+        >
+          {games.map((game) => (
+            <Box key={game.id} minW={0}>
+              <GameCard {...game} />
+            </Box>
+          ))}
+        </Grid>
       </Box>
 
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
@@ -93,8 +87,7 @@ const AuthenticatedHomePage = () => {
             <Link to="/studios">Studios</Link>
           </Heading>
 
-          <Fade in>
-            <Grid
+          <Grid
               mb={5}
               gap={3}
               templateColumns={[
@@ -110,7 +103,6 @@ const AuthenticatedHomePage = () => {
                 </Box>
               ))}
             </Grid>
-          </Fade>
         </Box>
 
         <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
@@ -118,8 +110,7 @@ const AuthenticatedHomePage = () => {
             <Link to="/associations">Associations</Link>
           </Heading>
 
-          <Fade in>
-            <Grid
+          <Grid
               mb={5}
               gap={3}
               templateColumns={[
@@ -135,7 +126,6 @@ const AuthenticatedHomePage = () => {
                 </Box>
               ))}
             </Grid>
-          </Fade>
         </Box>
       </Grid>
 
@@ -144,8 +134,7 @@ const AuthenticatedHomePage = () => {
           <Link to="/events">Events</Link>
         </Heading>
 
-        <Fade in>
-          {eventsToCome.length > 0 ? (
+        {eventsToCome.length > 0 ? (
             <Grid
               gap={3}
               templateColumns={[
@@ -169,7 +158,6 @@ const AuthenticatedHomePage = () => {
               </Text>
             </Box>
           )}
-        </Fade>
       </Box>
     </Box>
   );

@@ -4,8 +4,6 @@ import {
   HStack,
   Text,
   Link as ChakraLink,
-  useColorModeValue,
-  Collapse,
   IconButton,
   useDisclosure,
   useBreakpointValue,
@@ -13,8 +11,9 @@ import {
   WrapItem,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { HamburgerIcon } from '@chakra-ui/icons';
+import { FiMenu } from 'react-icons/fi';
 import { Link, useLoaderData, useLocation } from '@remix-run/react';
+import { useColorModeValue } from '../components/ui/color-mode';
 
 import Logo from '../components/Logo';
 import AvatarButton from './AvatarButton';
@@ -41,13 +40,13 @@ function NavLink(props) {
       borderRadius="md"
       fontSize="18px"
       fontWeight="semibold"
-      color={useColorModeValue('gray.500', 'white')}
+      color={'gray.500'}
       px="10px"
       py="5px"
       backgroundColor="transparent"
       _hover={{
-        backgroundColor: useColorModeValue('gray.400', 'gray.700'),
-        color: useColorModeValue('white', 'gray.400'),
+        backgroundColor: 'gray.400',
+        color: 'white',
       }}
       _activeLink={{
         color: 'white',
@@ -61,7 +60,7 @@ function NavLink(props) {
 const Navigation = ({ search }) => {
   const { isOpen, onToggle } = useDisclosure();
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
-  const background = useColorModeValue('white', 'gray.900');
+  const background = 'white';
 
   // const adminSectionBgColor = useColorModeValue('gray.200', 'gray.900');
 
@@ -90,41 +89,39 @@ const Navigation = ({ search }) => {
             <SearchInput defaultValue={search} />
           </Box>
 
-          <IconButton ml={2} icon={<HamburgerIcon />} onClick={onToggle} />
+          <IconButton ml={2} icon={<FiMenu />} onClick={onToggle} />
         </HStack>
 
-        <Collapse in={isOpen}>
-          <Wrap as="nav" spacing={4} mt="10px" justify="center">
+        <Wrap as="nav" spacing={4} mt="10px" justify="center">
+          <WrapItem>
+            <NavLink href="/games">Games</NavLink>
+          </WrapItem>
+          <WrapItem>
+            <NavLink href="/studios">Studios</NavLink>
+          </WrapItem>
+          <WrapItem>
+            <NavLink href="/associations">Associations</NavLink>
+          </WrapItem>
+          <WrapItem>
+            <NavLink href="/events">Events</NavLink>
+          </WrapItem>
+        </Wrap>
+
+        {currentUser?.isAdmin && (
+          <Wrap as="nav" spacing={4} my="10px" justify="center">
             <WrapItem>
-              <NavLink href="/games">Games</NavLink>
-            </WrapItem>
-            <WrapItem>
-              <NavLink href="/studios">Studios</NavLink>
-            </WrapItem>
-            <WrapItem>
-              <NavLink href="/associations">Associations</NavLink>
-            </WrapItem>
-            <WrapItem>
-              <NavLink href="/events">Events</NavLink>
+              <NavLink href="/admin/users">Users</NavLink>
+              <NavLink href="/admin/changes">Changes</NavLink>
+              <NavLink href="/admin/missing">Missing</NavLink>
             </WrapItem>
           </Wrap>
+        )}
 
-          {currentUser?.isAdmin && (
-            <Wrap as="nav" spacing={4} my="10px" justify="center">
-              <WrapItem>
-                <NavLink href="/admin/users">Users</NavLink>
-                <NavLink href="/admin/changes">Changes</NavLink>
-                <NavLink href="/admin/missing">Missing</NavLink>
-              </WrapItem>
-            </Wrap>
-          )}
-
-          <Wrap as="nav" spacing={4} justify="center">
-            <WrapItem>
-              <AvatarButton />
-            </WrapItem>
-          </Wrap>
-        </Collapse>
+        <Wrap as="nav" spacing={4} justify="center">
+          <WrapItem>
+            <AvatarButton />
+          </WrapItem>
+        </Wrap>
       </>
     );
   }

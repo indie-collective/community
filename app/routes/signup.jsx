@@ -1,11 +1,9 @@
 import {
   Alert,
-  AlertIcon,
   Box,
   Heading,
   Text,
   Link as ChakraLink,
-  useColorModeValue as mode,
 } from '@chakra-ui/react';
 import { json, redirect } from '@remix-run/node';
 import { Link, useActionData, useTransition } from '@remix-run/react';
@@ -87,7 +85,7 @@ const SignUp = () => {
         <ChakraLink
           as={Link}
           to="/signin"
-          color={mode('teal.600', 'teal.200')}
+          color={'teal.600'}
           fontWeight="semibold"
         >
           Sign in
@@ -96,7 +94,6 @@ const SignUp = () => {
 
       {actionData?.error && (
         <Alert status="error" mb="10px">
-          <AlertIcon />
           {actionData?.error}
         </Alert>
       )}

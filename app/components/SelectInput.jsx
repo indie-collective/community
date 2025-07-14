@@ -6,11 +6,9 @@ import {
   Button,
   Text,
   InputGroup,
-  InputRightElement,
-  useColorModeValue,
-  InputLeftElement,
 } from '@chakra-ui/react';
-import { CloseIcon } from '@chakra-ui/icons';
+import { FiX } from 'react-icons/fi';
+import { useColorModeValue } from '../components/ui/color-mode';
 
 const propTypes = {
   items: PropTypes.arrayOf(PropTypes.object),
@@ -87,7 +85,7 @@ const SelectInput = ({
         <InputRightElement
           children={
             selected ? (
-              <CloseIcon
+              <FiX
                 boxSize="25px"
                 color={iconColor}
                 borderRadius="0.5em"

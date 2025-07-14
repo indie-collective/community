@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Spinner } from '@chakra-ui/react';
-import { SearchIcon } from '@chakra-ui/icons';
+import { FiSearch } from 'react-icons/fi';
 
 import SelectInput from './SelectInput';
 import useDebounce from '../hooks/useDebounce';
@@ -114,7 +114,7 @@ const MapboxAutocomplete = ({
       items={queryResults}
       itemPredicate={(item) => item.place_name}
       leftIcon={leftIcon}
-      icon={isLoading ? <Spinner size="sm" /> : <SearchIcon />}
+      icon={isLoading ? <Spinner size="sm" /> : <FiSearch />}
       onSelect={(value) => {
         setValue(value);
         onSuggestionSelect(value);

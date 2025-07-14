@@ -4,11 +4,9 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
   Input,
-  FormErrorMessage,
   Button,
+  Field,
 } from '@chakra-ui/react';
 import { PasswordInput } from './PasswordInput';
 import { Form, useSubmit } from '@remix-run/react';
@@ -49,7 +47,7 @@ const SignupForm = ({ loading, ...rest }) => {
       })}
       {...rest}
     >
-      <FormControl mb={5} isInvalid={errors.firstName} isRequired>
+      <Field.Root mb={5} isInvalid={errors.firstName} isRequired>
         <FormLabel htmlFor="firstName">First name</FormLabel>
         <Input
           {...register('firstName')}
@@ -57,12 +55,12 @@ const SignupForm = ({ loading, ...rest }) => {
           type="text"
           placeholder="Jean-Michel"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.firstName && errors.firstName.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl mb={5} isInvalid={errors.lastName}>
+      <Field.Root mb={5} isInvalid={errors.lastName}>
         <FormLabel htmlFor="lastName">Last name</FormLabel>
         <Input
           {...register('lastName')}
@@ -70,12 +68,12 @@ const SignupForm = ({ loading, ...rest }) => {
           type="text"
           placeholder="Jam"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.lastName && errors.lastName.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl mb={5} isInvalid={errors.email} isRequired>
+      <Field.Root mb={5} isInvalid={errors.email} isRequired>
         <FormLabel htmlFor="email">Email</FormLabel>
         <Input
           {...register('email')}
@@ -83,34 +81,34 @@ const SignupForm = ({ loading, ...rest }) => {
           type="email"
           placeholder="jmj@indieco.xyz"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.email && errors.email.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl mb={5} isInvalid={errors.password} isRequired>
+      <Field.Root mb={5} isInvalid={errors.password} isRequired>
         <FormLabel htmlFor="password">Password</FormLabel>
         <PasswordInput
           {...register('password')}
           id="password"
           placeholder="SoS3cr3t"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.password && errors.password.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl mb={5} isInvalid={errors.passwordConfirmation} isRequired>
+      <Field.Root mb={5} isInvalid={errors.passwordConfirmation} isRequired>
         <FormLabel htmlFor="password2">Password confirmation</FormLabel>
         <PasswordInput
           {...register('passwordConfirmation')}
           id="passwordConfirmation"
           placeholder="SoS3cr3t"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.passwordConfirmation && errors.passwordConfirmation.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
       <Button
         type="submit"

@@ -4,10 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
   Input,
-  FormErrorMessage,
   Button,
   Textarea,
   AspectRatio,
@@ -16,9 +13,10 @@ import {
   Box,
   Grid,
   Switch,
-  useMergeRefs,
+  Field,
 } from '@chakra-ui/react';
-import { EditIcon } from '@chakra-ui/icons';
+import { useMergeRefs } from '../hooks/useMergeRefs';
+import { FiEdit } from 'react-icons/fi';
 import { Map } from 'pigeon-maps';
 import { viewport } from '@mapbox/geo-viewport';
 import { format } from 'date-fns';
@@ -148,24 +146,24 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
       })}
       {...rest}
     >
-      <FormControl gridColumn="1 / 3" isInvalid={errors.name} isRequired>
-        <FormLabel htmlFor="name">Name</FormLabel>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.name} isRequired>
+        <Field.Label htmlFor="name">Name</Field.Label>
         <Input
           {...register('name')}
           id="name"
           placeholder="Stunfest 2042, Global Game Jam Bamako, Indie Online Fest..."
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.name && errors.name.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl
+      <Field.Root
         gridColumn="1 / 3"
         isInvalid={errors.canceled}
         display="flex"
       >
-        <FormLabel htmlFor="canceled">Mark as canceled</FormLabel>
+        <Field.Label htmlFor="canceled">Mark as canceled</Field.Label>
         <Controller
           name="canceled"
           control={control}
@@ -179,13 +177,13 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
             />
           )}
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.canceled && errors.canceled.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl isInvalid={errors.start} isRequired>
-        <FormLabel htmlFor="start">Start</FormLabel>
+      <Field.Root isInvalid={errors.start} isRequired>
+        <Field.Label htmlFor="start">Start</Field.Label>
         <Input
           {...register('start')}
           id="start"
@@ -193,13 +191,13 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
           pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
           placeholder="When does it starts?"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.start && errors.start.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
-      <FormControl gridColumn="2 / 3" isInvalid={errors.end} isRequired>
-        <FormLabel htmlFor="end">End</FormLabel>
+      <Field.Root gridColumn="2 / 3" isInvalid={errors.end} isRequired>
+        <Field.Label htmlFor="end">End</Field.Label>
         <Input
           {...register('end')}
           id="end"
@@ -207,11 +205,11 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
           pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
           placeholder="When does it ends?"
         />
-        <FormErrorMessage>{errors.end && errors.end.message}</FormErrorMessage>
-      </FormControl>
+        <Field.ErrorText>{errors.end && errors.end.message}</Field.ErrorText>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3">
-        <FormLabel htmlFor="location">Location</FormLabel>
+      <Field.Root gridColumn="1 / 3">
+        <Field.Label htmlFor="location">Location</Field.Label>
 
         <Controller
           control={control}
@@ -264,10 +262,10 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
             />
           </Box>
         )}
-      </FormControl>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3">
-        <FormLabel htmlFor="cover">Cover</FormLabel>
+      <Field.Root gridColumn="1 / 3">
+        <Field.Label htmlFor="cover">Cover</Field.Label>
 
         <Box position="relative">
           <AspectRatio ratio={3} onClick={() => coverRef.current.click()}>
@@ -286,19 +284,19 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
             right={2}
             bottom={2}
             aria-label="Edit cover"
-            icon={<EditIcon />}
+            icon={<FiEdit />}
             colorScheme="teal"
-            isRound
+            borderRadius="full"
             onClick={() => coverRef.current.click()}
           />
         </Box>
 
         <Input
-          {...coverProps}
-          ref={useMergeRefs(coverRef, coverProps.ref)}
           display="none"
           type="file"
           id="cover"
+          name="cover"
+          ref={useMergeRefs(coverRef, coverProps.ref)}
           onChange={(e) => {
             const [file] = e.target.files;
 
@@ -308,10 +306,10 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
           }}
           accept="image/*"
         />
-      </FormControl>
+      </Field.Root>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.about}>
-        <FormLabel htmlFor="about">About</FormLabel>
+      <Field.Root gridColumn="1 / 3" isInvalid={errors.about}>
+        <Field.Label htmlFor="about">About</Field.Label>
         <Textarea
           {...register('about')}
           id="about"
@@ -320,10 +318,10 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
           placeholder="What is it about?"
           whiteSpace="pre-wrap"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.about && errors.about.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
       <Button
         gridColumn="1 / 3"

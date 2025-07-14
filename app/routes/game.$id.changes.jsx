@@ -11,13 +11,11 @@ import {
   LinkOverlay,
   Badge,
   Spacer,
-  useColorModeValue,
   Alert,
-  AlertIcon,
   AlertTitle,
   AlertDescription,
 } from '@chakra-ui/react';
-import { AddIcon, ArrowBackIcon, EditIcon } from '@chakra-ui/icons';
+import { FiPlus, FiArrowLeft, FiEdit } from 'react-icons/fi';
 import { json } from '@remix-run/node';
 import {
   Link,
@@ -112,7 +110,7 @@ const Game = () => {
   const { game, changes } = useLoaderData();
   const { revisionId } = useParams();
 
-  const bg = useColorModeValue('gray.100', 'gray.700');
+  const bg = 'gray.100';
 
   const { id, name } = game;
 
@@ -120,7 +118,7 @@ const Game = () => {
     <>
       <Box mb={5} pl={5} pr={5} mt={5}>
         <ChakraLink as={Link} to={`/game/${id}`}>
-          <ArrowBackIcon />
+          <FiArrowLeft />
           Back to game page
         </ChakraLink>
         <Flex direction="row" align="baseline" mt={5}>
@@ -131,7 +129,7 @@ const Game = () => {
           <Button
             as={Link}
             to={`/game/${id}/edit`}
-            leftIcon={<EditIcon />}
+            leftIcon={<FiEdit />}
             ml="auto"
           >
             Edit game
@@ -208,7 +206,6 @@ const Game = () => {
             height="200px"
             rounded={5}
           >
-            <AlertIcon boxSize="40px" mr={0} />
             <AlertTitle mt={4} mb={1} fontSize="lg">
               No changes!
             </AlertTitle>
@@ -238,7 +235,7 @@ export function ErrorBoundary() {
             mb={10}
             size="lg"
             colorScheme="teal"
-            leftIcon={<AddIcon />}
+            leftIcon={<FiPlus />}
           >
             Add a game
           </Button>

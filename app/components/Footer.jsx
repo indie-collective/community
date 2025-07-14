@@ -1,4 +1,4 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { FiExternalLink } from 'react-icons/fi';
 import {
   Box,
   Button,
@@ -8,7 +8,6 @@ import {
   Link as ChakraLink,
   Stack,
   Text,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { Link } from '@remix-run/react';
 import * as React from 'react';
@@ -19,7 +18,7 @@ import { GitHubIcon } from './GitHubIcon';
 import { TwitterIcon } from './TwitterIcon';
 
 const Footer = () => {
-  const bg = useColorModeValue('white', 'gray.900');
+  const bg = 'white';
 
   return (
     <Box bg={bg} shadow="sm" maxW="100%" mx={10} my={3} borderRadius={7}>
@@ -57,24 +56,26 @@ const Footer = () => {
                   <ChakraLink as={Link} to="/about">
                     About
                   </ChakraLink>
-                  <ChakraLink href="https://discord.gg/KxZVu2ZZYs" isExternal>
-                    Feedback <ExternalLinkIcon mx="2px" />
+                  <ChakraLink href="https://discord.gg/KxZVu2ZZYs" target="_blank" rel="noopener noreferrer">
+                    Feedback <FiExternalLink style={{ display: 'inline' }} />
                   </ChakraLink>
                   <ChakraLink
                     href="https://github.com/indie-collective/community"
-                    isExternal
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    Contribute <ExternalLinkIcon mx="2px" />
+                    Contribute <FiExternalLink style={{ display: 'inline' }} />
                   </ChakraLink>
                 </Stack>
                 <Box mt={3}>
                   <Button
                     as={ChakraLink}
                     href="https://www.helloasso.com/associations/indie-collective/formulaires/1/en"
-                    isExternal
+                    target="_blank"
+                    rel="noopener noreferrer"
                     style={{ textDecoration: 'none' }}
                     textDecoration="none"
-                    rightIcon={<ExternalLinkIcon />}
+                    rightIcon={<FiExternalLink />}
                   >
                     Donate
                   </Button>
@@ -91,8 +92,8 @@ const Footer = () => {
                   >
                     Community page
                   </ChakraLink>
-                  <ChakraLink href="https://indieco.xyz/" isExternal>
-                    Website <ExternalLinkIcon mx="2px" />
+                  <ChakraLink href="https://indieco.xyz/" target="_blank" rel="noopener noreferrer">
+                    Website <FiExternalLink style={{ display: 'inline' }} />
                   </ChakraLink>
                 </Stack>
                 <ButtonGroup variant="ghost">

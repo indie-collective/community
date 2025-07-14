@@ -1,12 +1,6 @@
 import { json } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
   ListItem,
   List,
   Input,
@@ -72,42 +66,36 @@ export const SearchOrgModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
   }, [debouncedValue]);
 
   return (
-    <Modal initialFocusRef={initialFocusRef} isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Search Org</ModalHeader>
-        <ModalCloseButton />
+    <Box>
+      <orgs.Form method="get" action="/search-org">
+        {excludedIds.map((id) => (
+          <Input key={id} type="hidden" name="notId" value={id} />
+        ))}
 
-        <ModalBody>
-          <orgs.Form method="get" action="/search-org">
-            {excludedIds.map((id) => (
-              <Input key={id} type="hidden" name="notId" value={id} />
-            ))}
-
-            <Input
-              ref={initialFocusRef}
-              type="text"
-              name="q"
-              placeholder="Search a org..."
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              mb={2}
-            />
-            {orgs.data && (
-              <Box>
-                {orgs.data.error ? (
-                  <Text>Failed to load orgs :(</Text>
-                ) : orgs.data.length ? (
-                  <List mb={2}>
-                    {orgs.data.map((org) => (
-                      <ListItem
-                        p={2}
-                        key={org.id}
-                        _hover={{
+        <Input
+          ref={initialFocusRef}
+          type="text"
+          name="q"
+          placeholder="Search a org..."
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          mb={2}
+        />
+        {orgs.data && (
+          <Box>
+            {orgs.data.error ? (
+              <Text>Failed to load orgs :(</Text>
+            ) : orgs.data.length ? (
+              <List mb={2}>
+                {orgs.data.map((org) => (
+                  <ListItem
+                    p={2}
+                    key={org.id}
+                    _hover={{
                           backgroundColor: 'gray.600',
                           cursor: 'pointer',
                         }}
-                        onKeyDown={(e) => {
+                    onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             onSelect(game);
 
@@ -115,27 +103,25 @@ export const SearchOrgModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
                             onClose();
                           }
                         }}
-                        onClick={() => {
+                    onClick={() => {
                           onSelect(org);
 
                           setValue('');
                           onClose();
                         }}
-                        tabIndex="0"
-                      >
-                        {org.name}
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Text>No results has been found.</Text>
-                )}
-              </Box>
+                    tabIndex="0"
+                  >
+                    {org.name}
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Text>No results has been found.</Text>
             )}
-          </orgs.Form>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+          </Box>
+        )}
+      </orgs.Form>
+    </Box>
   );
 };
 

@@ -4,11 +4,9 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
   Input,
-  FormErrorMessage,
   Button,
+  Field,
 } from '@chakra-ui/react';
 import { Form, useSubmit } from '@remix-run/react';
 
@@ -40,18 +38,18 @@ const ForgotForm = ({ loading }) => {
         });
       })}
     >
-      <FormControl mb={5} isInvalid={errors.email} isRequired>
-        <FormLabel htmlFor="email">Email</FormLabel>
+      <Field.Root mb={5} isInvalid={errors.email} isRequired>
+        <Field.Label htmlFor="email">Email</Field.Label>
         <Input
           {...register('email')}
           id="email"
           type="email"
           placeholder="jmj@indieco.xyz"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.email && errors.email.message}
-        </FormErrorMessage>
-      </FormControl>
+        </Field.ErrorText>
+      </Field.Root>
 
       <Button
         type="submit"

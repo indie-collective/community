@@ -5,11 +5,10 @@ import {
   Text,
   Link,
   Box,
-  Divider,
   List,
   ListItem,
 } from '@chakra-ui/react';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { FiExternalLink } from 'react-icons/fi';
 
 const Blockquote = (props) => (
   <Box
@@ -28,13 +27,13 @@ const ImgLink = ({ title, alt, src }) => (
     <Link href={src} title={title}>
       {alt}
     </Link>{' '}
-    <ExternalLinkIcon />
+    <FiExternalLink />
   </>
 );
 
 const A = (props) => (
   <>
-    <Link {...props} /> <ExternalLinkIcon />
+    <Link {...props} /> <FiExternalLink />
   </>
 );
 
@@ -71,7 +70,6 @@ md.renderer = new RemarkableReactRenderer({
   components: {
     a: A,
     blockquote: Blockquote,
-    hr: Divider,
     p: Paragraph,
     ol: OrderedList,
     ul: UnorderedList,
