@@ -39,7 +39,7 @@ import computeGame from '../models/game';
 import OrgCard from '../components/OrgCard';
 import SearchOrgModal from './search-org';
 import Markdown from '../components/Markdown';
-import MotionGallery from '../components/MotionGallery';
+import HeroGallery from '../components/HeroGallery';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -295,7 +295,7 @@ const Game = () => {
       )}
 
       <Box mb={5} pl={5} pr={5}>
-        <MotionGallery
+        <HeroGallery
           gameId={id}
           images={images.concat(igdb_images)}
           currentUser={currentUser}
