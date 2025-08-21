@@ -12,6 +12,8 @@ import {
   Button,
   Textarea,
   Grid,
+  FormHelperText,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
 
 import PossibleGameDuplicates from '../components/PossibleGameDuplicates';
@@ -94,6 +96,18 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
           type="url"
           pattern="https://www.igdb.com\/games\/(.+)"
         />
+        {newGameName && (
+          <FormHelperText>
+            You might want to search{' '}
+            <ChakraLink
+              href={`https://www.igdb.com/search?utf8=%E2%9C%93&q=${newGameName}`}
+              isExternal
+            >
+              here
+            </ChakraLink>
+            .
+          </FormHelperText>
+        )}
         <FormErrorMessage>
           {errors.name && errors.name.message}
         </FormErrorMessage>
@@ -120,6 +134,9 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
           placeholder="https://example.com"
           type="url"
         />
+        <FormHelperText>
+          Official game website, otherwise Steam, itch.io...
+        </FormHelperText>
         <FormErrorMessage>
           {errors.site && errors.site.message}
         </FormErrorMessage>

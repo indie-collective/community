@@ -88,7 +88,7 @@ const Studios = () => {
         {currentUser && (
           <Button
             as={Link}
-            to="/orgs/create"
+            to="/orgs/create?type=studio"
             colorScheme="teal"
             leftIcon={<AddIcon />}
           >
