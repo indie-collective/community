@@ -11,6 +11,8 @@ import {
 import usePlaceholder from '../hooks/usePlaceholder';
 import Card from './Card';
 import CardLink from './CardLink';
+import { DateIcon } from './DateIcon';
+import { LocationIcon } from './LocationIcon';
 
 const EventCard = forwardRef(
   (
@@ -41,6 +43,8 @@ const EventCard = forwardRef(
     return (
       <Card
         isClickable
+        padding={2}
+        rounded={10}
         href={`/event/${id}`}
         ref={ref}
         transition="background-color 200ms ease-out"
@@ -48,7 +52,6 @@ const EventCard = forwardRef(
           backgroundColor: bg,
           cursor: 'pointer',
         }}
-        rounded={5}
       >
         <AspectRatio ratio={2}>
           <Image
@@ -62,29 +65,9 @@ const EventCard = forwardRef(
         </AspectRatio>
 
         <Box padding={2}>
-          <Text
-            textTransform="uppercase"
-            noOfLines={1}
-            color={status === 'canceled' && 'gray.500'}
-          >
-            <Text as="time" dateTime={startsAt} title={startsAtText}>
-              {startsAtText}
-            </Text>
-            {location && (
-              <>
-                {' '}
-                •{' '}
-                <Text title={location.city} as="span">
-                  {location.city}
-                </Text>
-              </>
-            )}
-          </Text>
-
           <Heading
             as="h3"
             size="lg"
-            noOfLines={1}
             title={name}
             textDecoration={status === 'canceled' && 'line-through'}
             color={status === 'canceled' && 'gray.500'}
@@ -93,23 +76,40 @@ const EventCard = forwardRef(
           </Heading>
 
           <Box
+            marginTop={1}
+            noOfLines={1}
             color="gray.500"
             fontWeight="semibold"
             letterSpacing="wide"
             fontSize="xs"
             textTransform="uppercase"
           >
-            {game_event.length} games
-            {event_participant.length > 0 && (
-              <>
-                {' '}
-                &bull; {event_participant.length}{' '}
-                {status !== 'canceled' &&
-                  (new Date(endsAt) < new Date() ? 'went' : 'going')}
-                {status === 'canceled' && 'were going'}
-              </>
-            )}
+            <DateIcon width="16px" />{' '}
+            <Text
+              as="time"
+              dateTime={startsAt}
+              title={startsAtText}
+              verticalAlign="middle"
+            >
+              {startsAtText}
+            </Text>
           </Box>
+
+          {location && (
+            <Box
+              noOfLines={1}
+              color="gray.500"
+              fontWeight="semibold"
+              letterSpacing="wide"
+              fontSize="xs"
+              textTransform="uppercase"
+            >
+              <LocationIcon width="16px" />{' '}
+              <Text as="span" verticalAlign="middle">
+                {location.city}, {location.country_code}
+              </Text>
+            </Box>
+          )}
         </Box>
       </Card>
     );
