@@ -138,8 +138,8 @@ const GameCard = forwardRef(
           />
         </AspectRatio>
 
-        <Box padding={2}>
-          <Heading as="h3" size="md" noOfLines={1} title={name}>
+        <Box px={1} py={2}>
+          <Heading as="h3" size="md" title={name}>
             <CardLink to={`/game/${id}`}>{name}</CardLink>
           </Heading>
         </Box>
