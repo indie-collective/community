@@ -31,6 +31,12 @@ export const loader = async ({ request }) => {
           image: true,
         },
       },
+      game_entity: {
+        include: {
+          entity: true,
+        },
+      },
+      game_tag: { include: { tag: true } },
     },
     orderBy: {
       created_at: 'desc',

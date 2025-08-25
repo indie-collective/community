@@ -60,6 +60,8 @@ export default async function computeGame(game) {
     igdb_game,
     game_image,
     images: game_image?.map((gi) => gi.image),
+    entities: game.game_entity?.map(ge => ge.entity),
+    tags: game.game_tag?.map(gt => gt.tag),
     game_entity,
   };
 }
