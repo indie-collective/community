@@ -158,6 +158,7 @@ const GameCard = forwardRef(
                 size="sm"
                 colorScheme="green"
                 variant="solid"
+                fontSize="0.6rem"
               >
                 {tag.name}
               </Tag>
