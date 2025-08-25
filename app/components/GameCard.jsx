@@ -9,6 +9,7 @@ import {
   Heading,
   useColorModeValue,
   Skeleton,
+  Tag,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 
@@ -30,7 +31,10 @@ export const GameCardSkeleton = () => (
 );
 
 const GameCard = forwardRef(
-  ({ id, images = [], igdb_game, name, onRemove, isCompact }, ref) => {
+  (
+    { id, images = [], igdb_game, name, tags, entities, onRemove, isCompact },
+    ref
+  ) => {
     const placeholder = usePlaceholder();
 
     const bgColorHover = useColorModeValue('gray.100', 'gray.700');
@@ -139,6 +143,27 @@ const GameCard = forwardRef(
             <CardLink to={`/game/${id}`}>{name}</CardLink>
           </Heading>
         </Box>
+
+        {tags && (
+          <Box
+            ml="3px"
+            fontWeight="semibold"
+            letterSpacing="wide"
+            textTransform="uppercase"
+          >
+            {tags.map((tag) => (
+              <Tag
+                key={tag.id}
+                mr={1}
+                size="sm"
+                colorScheme="green"
+                variant="solid"
+              >
+                {tag.name}
+              </Tag>
+            ))}
+          </Box>
+        )}
       </Card>
     );
   }
