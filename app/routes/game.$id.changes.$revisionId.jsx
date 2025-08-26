@@ -20,9 +20,9 @@ import {
   useRouteError,
 } from '@remix-run/react';
 
-import { db } from '../../utils/db.server';
-import { authenticator } from '../../utils/auth.server';
-import computeGame from '../../models/game';
+import { db } from '../utils/db.server';
+import { authenticator } from '../utils/auth.server';
+import computeGame from '../models/game';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;

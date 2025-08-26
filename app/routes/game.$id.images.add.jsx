@@ -5,9 +5,9 @@ import {
   unstable_parseMultipartFormData,
 } from '@remix-run/node';
 
-import { db } from '../../utils/db.server';
-import { authorizer, canWrite } from '../../utils/auth.server';
-import createUploadHandler from '../../utils/createUploadHandler.server';
+import { db } from '../utils/db.server';
+import { authorizer, canWrite } from '../utils/auth.server';
+import createUploadHandler from '../utils/createUploadHandler.server';
 
 export async function action(args) {
   const { params, request } = args;

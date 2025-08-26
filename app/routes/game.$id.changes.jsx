@@ -18,7 +18,7 @@ import {
   AlertDescription,
 } from '@chakra-ui/react';
 import { AddIcon, ArrowBackIcon, EditIcon } from '@chakra-ui/icons';
-import { json } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
 import {
   Link,
   NavLink,
@@ -79,6 +79,17 @@ export const loader = async ({ request, params }) => {
     }),
     currentUser,
   };
+
+  if (
+    new URL(request.url).pathname === `/game/${id}/changes` &&
+    data.changes.length > 0
+  ) {
+    return redirect(`/game/${id}/changes/${data.changes[0].id}`, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    });
+  }
 
   return json(data);
 };

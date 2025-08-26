@@ -16,8 +16,8 @@ import {
   Select,
 } from '@chakra-ui/react';
 
-import { authenticator } from '../../utils/auth.server';
-import { db } from '../../utils/db.server';
+import { authenticator } from '../utils/auth.server';
+import { db } from '../utils/db.server';
 
 export const loader = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {

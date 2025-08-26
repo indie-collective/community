@@ -11,8 +11,8 @@ import {
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
-import { authenticator } from '../../utils/auth.server';
-import { db } from '../../utils/db.server';
+import { authenticator } from '../utils/auth.server';
+import { db } from '../utils/db.server';
 import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 export const action = async ({ request }) => {

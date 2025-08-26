@@ -17,8 +17,8 @@ import {
 } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 
-import { authenticator } from '../../utils/auth.server';
-import { db } from '../../utils/db.server';
+import { authenticator } from '../utils/auth.server';
+import { db } from '../utils/db.server';
 
 export const loader = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {

@@ -1,7 +1,7 @@
 import { redirect } from "@remix-run/node";
 
-import { db } from "../../utils/db.server";
-import { authorizer, canWrite } from '../../utils/auth.server';
+import { db } from "../utils/db.server";
+import { authorizer, canWrite } from "../utils/auth.server";
 
 export async function action(args) {
   const { params, request } = args;
@@ -13,14 +13,14 @@ export async function action(args) {
 
   const data = await request.formData();
 
-  await db.game_entity.delete({
+  await db.entity_event.delete({
     where: {
-      game_id_entity_id: {
-        game_id: id,
+      entity_id_event_id: {
         entity_id: data.get('id'),
+        event_id: id,
       },
     },
   });
 
-  return redirect(`/game/${id}`);
+  return redirect(`/event/${id}`);
 }

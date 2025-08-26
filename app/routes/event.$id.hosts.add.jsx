@@ -1,7 +1,7 @@
 import { redirect } from '@remix-run/node';
 
-import { db } from '../../utils/db.server';
-import { authorizer, canWrite } from '../../utils/auth.server';
+import { db } from '../utils/db.server';
+import { authorizer, canWrite } from '../utils/auth.server';
 
 export async function action(args) {
   const { params, request } = args;

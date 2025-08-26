@@ -9,5 +9,6 @@ module.exports = {
   // publicPath: "/build/",
   future: {
     v2_errorBoundary: true,
+    v2_routeConvention: true,
   },
 };

@@ -22,11 +22,11 @@ import {
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
-import { authenticator } from '../../utils/auth.server';
-import { db } from '../../utils/db.server';
-import computePerson from '../../models/person';
-import { DiscordIcon } from '../../components/DiscordIcon';
-import { GitHubIcon } from '../../components/GitHubIcon';
+import { authenticator } from '../utils/auth.server';
+import { db } from '../utils/db.server';
+import computePerson from '../models/person';
+import { DiscordIcon } from '../components/DiscordIcon';
+import { GitHubIcon } from '../components/GitHubIcon';
 
 export const action = async ({ request }) => {
   const currentUser = await authenticator.isAuthenticated(request, {
