@@ -34,7 +34,7 @@ export default async function computeGame(game) {
 
   let igdb_game;
   if (game.igdb_slug) {
-    igdb_game = await getIGDBGame(game.igdb_slug);
+    igdb_game = await getIGDBGame(game);
 
     if (igdb_game && game_entity) {
       // filter out companies that we have already

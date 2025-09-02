@@ -1,5 +1,8 @@
 import cache from 'memory-cache';
 import igdb from 'igdb-api-node';
+import { enqueueIgdbJob } from './pgmq.server';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 async function refreshAccessToken(errorIfFail = false) {
   try {
@@ -33,7 +36,7 @@ async function getAppAccessToken() {
   return cache.put('igdb-access-token', refreshAccessToken(), 2147483647);
 }
 
-export async function getIGDBGame(slug) {
+export async function fetchIGDBGame(slug) {
   try {
     const { access_token: token } = await getAppAccessToken();
 
@@ -70,4 +73,19 @@ export async function getIGDBGame(slug) {
   }
 
   return undefined;
+}
+
+export async function getIGDBGame(game) {
+  const { id, igdb_slug, igdb_data, igdb_data_fetched_at } = game;
+  if (!igdb_slug) return undefined;
+
+  const stale =
+    !igdb_data_fetched_at ||
+    Date.now() - new Date(igdb_data_fetched_at).getTime() > DAY_MS;
+
+  if (stale) {
+    await enqueueIgdbJob(id, igdb_slug);
+  }
+
+  return igdb_data || undefined;
 }
