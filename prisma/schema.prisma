@@ -98,6 +98,9 @@ model game {
   created_at  DateTime?     @default(now()) @db.Timestamptz(6)
   updated_at  DateTime?     @updatedAt
   igdb_slug   String?       @unique
+  igdb_data   Json?
+  igdb_data_fetched_at DateTime? @db.Timestamptz(6)
+  igdb_refresh_enqueued_at DateTime? @db.Timestamptz(6)
   game_author game_author[]
   changes     game_change[]
   game_entity game_entity[]

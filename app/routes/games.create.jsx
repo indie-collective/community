@@ -4,6 +4,7 @@ import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
+import { enqueueIgdbJob } from '../utils/pgmq.server';
 import { authenticator, authorizer, canWrite } from '../utils/auth.server';
 import { notifyDiscord } from '../utils/discordNotification.server';
 import GameForm from '../components/GameForm';
@@ -67,6 +68,9 @@ export async function action(args) {
         },
       }),
     ]);
+    if (igdb_slug) {
+      await enqueueIgdbJob(game.id, igdb_slug);
+    }
     await notifyDiscord(
       `${currentUser.username} added game "${data.get('name')}" at ${new Date().toISOString()} - ${BASE_URL}/game/${game.id}`
     );
