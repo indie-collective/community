@@ -19,6 +19,7 @@ import { Link, useLoaderData, useLocation } from '@remix-run/react';
 import Logo from '../components/Logo';
 import AvatarButton from './AvatarButton';
 import SearchInput from './SearchInput';
+import AddMenuButton from './AddMenuButton';
 
 function NavLink(props) {
   const { href, ...rest } = props;
@@ -89,6 +90,8 @@ const Navigation = ({ search }) => {
           <Box flex="auto">
             <SearchInput defaultValue={search} />
           </Box>
+
+          {currentUser && <AddMenuButton />}
 
           <IconButton ml={2} icon={<HamburgerIcon />} onClick={onToggle} />
         </HStack>
@@ -172,6 +175,8 @@ const Navigation = ({ search }) => {
             </Box>
           )}
         </Box> */}
+
+        {currentUser && <AddMenuButton />}
 
         <AvatarButton />
       </HStack>
