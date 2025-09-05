@@ -22,7 +22,7 @@ const Footer = () => {
   const bg = useColorModeValue('white', 'gray.900');
 
   return (
-    <Box bg={bg} shadow="sm" maxW="100%" mx={10} my={3} borderRadius={7}>
+    <Box bg={bg} maxW="100%" mx={10} mt={3} borderRadius="7px 7px 0 0">
       <Container
         as="footer"
         role="contentinfo"
@@ -32,93 +32,48 @@ const Footer = () => {
       >
         <Stack
           spacing="8"
-          direction={{ base: 'column', md: 'row' }}
+          direction="row"
           justify="space-between"
-          pt={{ base: '4', md: '8' }}
-          pb={{ base: '4', md: '6' }}
+          align="center"
+          px="4"
+          py="4"
         >
-          <Stack spacing={{ base: '6', md: '8' }} align="start">
             <Logo />
-            <Text color="gray.400">
-              Community is an open-source project, started by Indie Collective and crowd-sourced by you!
-              Why not join in and help us get all indie games in the spotlight?
-            </Text>
+
+            <ChakraLink as={Link} to="/about">
+              About
+            </ChakraLink>
+            <ChakraLink href="https://indieco.xyz/" isExternal>
+              IndieCo <ExternalLinkIcon mx="2px" />
+            </ChakraLink>
+            <ChakraLink
+              href="https://www.helloasso.com/associations/indie-collective/formulaires/1/en"
+              isExternal
+            >
+              Donate <ExternalLinkIcon mx="2px" />
+            </ChakraLink>
+
+            <ButtonGroup variant="ghost" colorScheme="gray">
+              <IconButton
+                as="a"
+                href="https://discord.gg/KxZVu2ZZYs"
+                aria-label="Discord"
+                icon={<DiscordIcon />}
+              />
+              <IconButton
+                as="a"
+                href="https://github.com/indie-collective"
+                aria-label="GitHub"
+                icon={<GitHubIcon />}
+              />
+              <IconButton
+                as="a"
+                href="https://twitter.com/IndieColle"
+                aria-label="Twitter"
+                icon={<TwitterIcon />}
+              />
+            </ButtonGroup>
           </Stack>
-          <Stack
-            direction={{ base: 'column-reverse', md: 'column', lg: 'row' }}
-            spacing={{ base: '12', md: '8' }}
-          >
-            <Stack direction="row" spacing="8">
-              <Stack spacing="4" minW="36" flex="1">
-                <Text fontSize="sm" fontWeight="semibold" color="subtle">
-                  Project
-                </Text>
-                <Stack spacing="3" shouldWrapChildren>
-                  <ChakraLink as={Link} to="/about">
-                    About
-                  </ChakraLink>
-                  <ChakraLink href="https://discord.gg/KxZVu2ZZYs" isExternal>
-                    Feedback <ExternalLinkIcon mx="2px" />
-                  </ChakraLink>
-                  <ChakraLink
-                    href="https://github.com/indie-collective/community"
-                    isExternal
-                  >
-                    Contribute <ExternalLinkIcon mx="2px" />
-                  </ChakraLink>
-                </Stack>
-                <Box mt={3}>
-                  <Button
-                    as={ChakraLink}
-                    href="https://www.helloasso.com/associations/indie-collective/formulaires/1/en"
-                    isExternal
-                    style={{ textDecoration: 'none' }}
-                    textDecoration="none"
-                    rightIcon={<ExternalLinkIcon />}
-                  >
-                    Donate
-                  </Button>
-                </Box>
-              </Stack>
-              <Stack spacing="4" minW="36" flex="1">
-                <Text fontSize="sm" fontWeight="semibold" color="subtle">
-                  Indie Collective
-                </Text>
-                <Stack spacing="3" shouldWrapChildren>
-                  <ChakraLink
-                    as={Link}
-                    to="/org/80b92a6f-d03e-4b78-8b8b-53c38a28308e"
-                  >
-                    Community page
-                  </ChakraLink>
-                  <ChakraLink href="https://indieco.xyz/" isExternal>
-                    Website <ExternalLinkIcon mx="2px" />
-                  </ChakraLink>
-                </Stack>
-                <ButtonGroup variant="ghost">
-                  <IconButton
-                    as="a"
-                    href="https://discord.gg/KxZVu2ZZYs"
-                    aria-label="Discord"
-                    icon={<DiscordIcon />}
-                  />
-                  <IconButton
-                    as="a"
-                    href="https://github.com/indie-collective"
-                    aria-label="GitHub"
-                    icon={<GitHubIcon />}
-                  />
-                  <IconButton
-                    as="a"
-                    href="https://twitter.com/IndieColle"
-                    aria-label="Twitter"
-                    icon={<TwitterIcon />}
-                  />
-                </ButtonGroup>
-              </Stack>
-            </Stack>
-          </Stack>
-        </Stack>
       </Container>
     </Box>
   );
