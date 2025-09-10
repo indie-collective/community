@@ -1,3 +1,4 @@
+import React, { useContext, useEffect } from 'react';
 import { withEmotionCache } from '@emotion/react';
 import {
   ChakraProvider,
@@ -18,11 +19,10 @@ import {
   isRouteErrorResponse,
   useLoaderData,
   useLocation,
+  useNavigation,
   useRouteError,
 } from '@remix-run/react';
 import { AnimatePresence } from 'framer-motion';
-import React, { useContext, useEffect } from 'react';
-import posthog from 'posthog-js';
 
 import { ServerStyleContext, ClientStyleContext } from './context';
 import theme from './theme';
@@ -166,24 +166,19 @@ export const loader = async ({ request }) => {
 
 export default function App() {
   const {
-    ENV: { POSTHOG_ID, NODE_ENV },
+    ENV: { CLARITY_ID, NODE_ENV },
   } = useLoaderData();
   let location = useLocation();
 
   useEffect(() => {
-    posthog.init(POSTHOG_ID, {
-      api_host: 'https://eu.posthog.com',
-      opt_in_site_apps: true,
-      loaded(posthog) {
-        if (NODE_ENV === 'development') posthog.opt_out_capturing();
-      },
-    });
-    console.log('NODE_ENV', NODE_ENV, POSTHOG_ID);
+    if (NODE_ENV === 'production' && CLARITY_ID) {
+      Clarity.init(CLARITY_ID);
+    }
   }, []);
 
-  React.useEffect(() => {
-    posthog.capture('$pageview');
-  }, [location]);
+  // React.useEffect(() => {
+  //   posthog.capture('$pageview');
+  // }, [location]);
 
   return (
     <Document>
