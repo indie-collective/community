@@ -1,5 +1,4 @@
 import {
-  Form,
   Link,
   useFetcher,
   useLoaderData,
@@ -15,7 +14,6 @@ import {
   Heading,
   Tag,
   TagLabel,
-  Badge,
   Spacer,
   Wrap,
   WrapItem,
@@ -37,15 +35,15 @@ export const loader = async ({ request }) => {
   const games = await db.game.findMany({
     where: searchParams.has('tags')
       ? {
-          game_tag: {
-            some: {
-              tag: {
-                name: {
-                  in: searchParams.getAll('tags'),
+          AND: searchParams.getAll('tags').map((name) => ({
+            game_tag: {
+              some: {
+                tag: {
+                  name,
                 },
               },
             },
-          },
+          })),
         }
       : undefined,
     orderBy: { updated_at: 'desc' },
@@ -152,10 +150,12 @@ const Games = () => {
     if (!shouldFetch || !height) return;
     if (clientHeight + scrollPosition + 100 < height) return;
 
-    fetcher.load(`/games?page=${page}`);
+    const params = new URLSearchParams(searchParams);
+    params.set('page', page);
+    fetcher.load(`/games?${params.toString()}`);
 
     setShouldFetch(false);
-  }, [clientHeight, scrollPosition, fetcher]);
+  }, [clientHeight, scrollPosition, fetcher, searchParams]);
 
   // Merge games, increment page, and allow fetching again
   useEffect(() => {
@@ -192,36 +192,26 @@ const Games = () => {
         )}
       </Flex>
 
-      <Wrap as={Form} spacing={2} mb={10} align="flex-end" method="get">
-        {tags
-          .filter((tag) => tag.game_tag.length > 5)
-          .map((tag) => (
-            <WrapItem key={tag.id}>
-              <Tag
-                size={tag.game_tag.length < tags.length / 4 ? 'md' : 'lg'}
-                variant={selectedTags.includes(tag.name) ? 'solid' : 'outline'}
-                colorScheme={selectedTags.includes(tag.name) ? 'teal' : 'gray'}
-                cursor="pointer"
-                _hover={{ opacity: 0.8 }}
-                onClick={() =>
-                  setSearchParams({
-                    tags: selectedTags.includes(tag.name)
-                      ? selectedTags.filter((t) => t !== tag.name)
-                      : [...selectedTags, tag.name],
-                  })
-                }
-              >
-                <TagLabel>{tag.name}</TagLabel>
-                <Badge
-                  ml={2}
-                  colorScheme="teal"
-                  variant={selectedTags.includes(tag.name) ? 'subtle' : 'solid'}
-                >
-                  {tag.game_tag.length}
-                </Badge>
-              </Tag>
-            </WrapItem>
-          ))}
+      <Wrap spacing={2} mb={10} align="flex-end">
+        {tags.map((tag) => (
+          <WrapItem key={tag.id}>
+            <Tag
+              variant={selectedTags.includes(tag.name) ? 'solid' : 'outline'}
+              colorScheme={selectedTags.includes(tag.name) ? 'teal' : 'gray'}
+              cursor="pointer"
+              _hover={{ opacity: 0.8 }}
+              onClick={() =>
+                setSearchParams({
+                  tags: selectedTags.includes(tag.name)
+                    ? selectedTags.filter((t) => t !== tag.name)
+                    : [...selectedTags, tag.name],
+                })
+              }
+            >
+              <TagLabel>{tag.name}</TagLabel>
+            </Tag>
+          </WrapItem>
+        ))}
       </Wrap>
 
       <Grid
