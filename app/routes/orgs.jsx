@@ -71,21 +71,6 @@ const Orgs = () => {
 
   return (
     <Box p={5}>
-      {currentUser && (
-        <Box textAlign="center">
-          <Button
-            as={Link}
-            to="/orgs/create"
-            mb={10}
-            size="lg"
-            colorScheme="teal"
-            leftIcon={<AddIcon />}
-          >
-            Add a organization
-          </Button>
-        </Box>
-      )}
-
       <Grid
         gap={5}
         templateColumns={[

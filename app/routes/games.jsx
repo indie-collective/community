@@ -180,16 +180,6 @@ const Games = () => {
           <Heading size="2xl">Games</Heading>
         </Box>
         <Spacer />
-        {currentUser && (
-          <Button
-            as={Link}
-            to="/games/create"
-            colorScheme="teal"
-            leftIcon={<AddIcon />}
-          >
-            Add game
-          </Button>
-        )}
       </Flex>
 
       <Wrap as={Form} spacing={2} mb={10} align="flex-end" method="get">
