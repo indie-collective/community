@@ -15,9 +15,6 @@ import { notifyDiscord } from '../utils/discordNotification.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
 import EventForm from '../components/EventForm';
 
-const port = process.env.PORT ?? 3000;
-const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
-
 export async function action(args) {
   const { request } = args;
 
@@ -74,8 +71,13 @@ export async function action(args) {
       },
     });
 
+    const port = process.en.PORT ?? 3000;
+    const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
+
     await notifyDiscord(
-      `${currentUser.username} added event "${data.get('name')}" at ${new Date().toISOString()} - ${BASE_URL}/event/${event.id}`
+      `${currentUser.username} added event "${data.get(
+        'name'
+      )}" at ${new Date().toISOString()} - ${BASE_URL}/event/${event.id}`
     );
 
     return redirect(`/event/${event.id}`);

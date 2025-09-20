@@ -7,9 +7,6 @@ import { authenticator } from '../utils/auth.server';
 import ForgotForm from '../components/ForgotForm';
 import { sendEmail } from '../utils/email.server';
 
-const port = process.env.PORT ?? 3000;
-const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
-
 export const loader = async ({ request }) => {
   return await authenticator.isAuthenticated(request, {
     successRedirect: '/',
@@ -34,6 +31,9 @@ export const action = async ({ request }) => {
         person_id: person.id,
       },
     });
+
+    const port = process.env.PORT ?? 3000;
+    const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
     // send reset email
     await sendEmail({

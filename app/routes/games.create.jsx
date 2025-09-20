@@ -8,9 +8,6 @@ import { authenticator, authorizer, canWrite } from '../utils/auth.server';
 import { notifyDiscord } from '../utils/discordNotification.server';
 import GameForm from '../components/GameForm';
 
-const port = process.env.PORT ?? 3000;
-const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
-
 export async function action(args) {
   const { request } = args;
   const currentUser = await authorizer.authorize(args, {
@@ -67,8 +64,14 @@ export async function action(args) {
         },
       }),
     ]);
+
+    const port = process.env.PORT ?? 3000;
+    const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
+
     await notifyDiscord(
-      `${currentUser.username} added game "${data.get('name')}" at ${new Date().toISOString()} - ${BASE_URL}/game/${game.id}`
+      `${currentUser.username} added game "${data.get(
+        'name'
+      )}" at ${new Date().toISOString()} - ${BASE_URL}/game/${game.id}`
     );
 
     return redirect(`/game/${game.id}`);
