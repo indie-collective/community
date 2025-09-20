@@ -4,6 +4,7 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { useNavigate } from '@remix-run/react';
@@ -22,9 +23,13 @@ const AddMenuButton = () => {
         aria-label="Add new"
       />
       <MenuList>
-        <MenuItem onClick={() => navigate('/games/create')}>Add game</MenuItem>
-        <MenuItem onClick={() => navigate('/events/create')}>Add event</MenuItem>
-        <MenuItem onClick={() => navigate('/orgs/create')}>
+        <MenuItem as={ChakraLink} href="games/create">
+          Add game
+        </MenuItem>
+        <MenuItem as={ChakraLink} href="/events/create">
+          Add event
+        </MenuItem>
+        <MenuItem as={ChakraLink} href="/orgs/create">
           Add organisation
         </MenuItem>
       </MenuList>
