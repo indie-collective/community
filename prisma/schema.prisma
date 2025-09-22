@@ -98,6 +98,7 @@ model game {
   created_at  DateTime?     @default(now()) @db.Timestamptz(6)
   updated_at  DateTime?     @updatedAt
   igdb_slug   String?       @unique
+  lastModifiedById String? @db.Uuid
   game_author game_author[]
   changes     game_change[]
   game_entity game_entity[]
