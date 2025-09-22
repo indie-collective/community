@@ -11,16 +11,11 @@ export async function action(args) {
     rules: [canDelete],
   });
 
-  await db.$transaction([
-    db.$executeRawUnsafe(
-      `SET LOCAL public.current_user_id = '${currentUser.id}';`
-    ),
-    db.game.delete({
-      where: {
-        id,
-      },
-    }),
-  ]);
+  await db.game.delete({
+    where: {
+      id,
+    },
+  });
 
   return redirect('/games');
 }
