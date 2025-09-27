@@ -1,33 +1,24 @@
 import {
-  chakra,
-  // Alert,
-  // AlertIcon,
+  Alert,
+  AlertIcon,
   Box,
   Button,
-  // Divider,
+  chakra,
+  Divider,
   Heading,
-  // HStack,
-  // Link as ChakraLink,
-  // Stack,
+  HStack,
+  Stack,
   Text,
   VisuallyHidden,
-  // useColorModeValue as mode,
 } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
-import {
-  Form,
-  // Link,
-  // useActionData,
-  // useSearchParams,
-  // useTransition,
-} from '@remix-run/react';
+import { Form, useActionData, useTransition } from '@remix-run/react';
 import { AuthorizationError } from 'remix-auth';
 import { SocialsProvider } from 'remix-auth-socials';
 
 import { authenticator } from '../utils/auth.server';
 import { DiscordIcon } from '../components/DiscordIcon';
-// import OAuthButtonGroup from '../components/OAuthButtonGroup';
-// import SigninForm from '../components/SigninForm';
+import SigninForm from '../components/SigninForm';
 
 export let loader = async ({ request }) => {
   return await authenticator.isAuthenticated(request, {
@@ -59,21 +50,14 @@ export const meta = () => ({
 });
 
 const SignIn = () => {
-  // const transition = useTransition();
-  // const actionData = useActionData();
-
-  // const [searchParams] = useSearchParams();
+  const transition = useTransition();
+  const actionData = useActionData();
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
       <Heading textAlign="center" size="xl" fontWeight="extrabold">
         Sign in
       </Heading>
-
-      <Text my={5}>
-        To start contributing, connect with Discord and join Indie Collective's
-        server to get write access to community.
-      </Text>
 
       <chakra.form
         as={Form}
@@ -90,43 +74,25 @@ const SignIn = () => {
           Sign in with<VisuallyHidden> Discord</VisuallyHidden>
         </Button>
       </chakra.form>
+      {process.env.NODE_ENV === 'development' && (
+        <Stack spacing={5}>
+          <HStack>
+            <Divider />
+            <Text fontSize="sm" whiteSpace="nowrap" color="muted">
+              or continue with
+            </Text>
+            <Divider />
+          </HStack>
+          {actionData?.error && (
+            <Alert status="error" mb="10px">
+              <AlertIcon />
+              {actionData?.error}
+            </Alert>
+          )}
 
-      {/* <Text mt="4" mb="8" align="center" maxW="md" fontWeight="medium">
-        <Text as="span">Don&apos;t have an account? </Text>
-        <ChakraLink
-          as={Link}
-          to="/signup"
-          color={mode('teal.600', 'teal.200')}
-          fontWeight="semibold"
-        >
-          Sign up
-        </ChakraLink>
-      </Text> */}
-
-      {/* <Stack spacing={5}>
-        {actionData?.error && (
-          <Alert status="error" mb="10px">
-            <AlertIcon />
-            {actionData?.error}
-          </Alert>
-        )}
-
-        <SigninForm loading={transition.status === 'submitting'} />
-
-        {searchParams.has('beta') && (
-          <>
-            <HStack>
-              <Divider />
-              <Text fontSize="sm" whiteSpace="nowrap" color="muted">
-                or continue with
-              </Text>
-              <Divider />
-            </HStack>
-
-            <OAuthButtonGroup />
-          </>
-        )}
-      </Stack> */}
+          <SigninForm loading={transition.state === 'submitting'} />
+        </Stack>
+      )}
     </Box>
   );
 };

@@ -1,7 +1,7 @@
 import { redirect } from '@remix-run/node';
 import { REST, Routes } from 'discord.js';
 import { Authenticator, Authorizer } from 'remix-auth';
-// import { FormStrategy } from 'remix-auth-form';
+import { FormStrategy } from 'remix-auth-form';
 import {
   SocialsProvider,
   DiscordStrategy,
@@ -33,42 +33,48 @@ const rest = new REST({ version: '10' }).setToken(
   process.env.DISCORD_BOT_TOKEN // A bot token is needed to look for a user and its roles within the guild
 );
 
-// authenticator.use(
-//   new FormStrategy(async ({ form }) => {
-//     let email = form.get('email');
-//     let password = form.get('password');
+if (process.env.NODE_ENV === 'development') {
+  authenticator.use(
+    new FormStrategy(async ({ form }) => {
+      let email = form.get('email');
+      try {
+        let user = await db.person.findUnique({
+          where: {
+            email,
+          },
+        });
 
-//     try {
-//       const [user] =
-//         await db.$queryRaw`select * from person p where email = ${email} and password_hash = public.crypt(${password}, p.password_hash);`;
+        if (!user) {
+          const username = email.split('@')[0];
+          user = await db.person.create({
+            data: {
+              email,
+              username,
+            },
+          });
+        }
 
-//       if (!user)
-//         throw new Error('User does not exist or you used wrong credentials');
+        let avatar;
 
-//       delete user.password_hash;
+        if (user.avatar_id)
+          avatar = await db.image.findFirst({
+            where: {
+              id: user.avatar_id,
+            },
+          });
 
-//       let avatar;
-
-//       if (user.avatar_id)
-//         avatar = await db.image.findFirst({
-//           where: {
-//             id: user.avatar_id,
-//           },
-//         });
-
-//       return {
-//         ...user,
-//         avatar: avatar ? getImageLinks(avatar).thumbnail_url : null,
-//       };
-//     } catch (err) {
-//       console.log('err', err);
-//       throw err;
-//     }
-//   }),
-//   // each strategy has a name and can be changed to use another one
-//   // same strategy multiple times, especially useful for the OAuth2 strategy.
-//   'user-pass'
-// );
+        return {
+          ...user,
+          avatar: avatar ? getImageLinks(avatar).thumbnail_url : null,
+        };
+      } catch (err) {
+        console.log('err', err);
+        throw err;
+      }
+    }),
+    'user-pass'
+  );
+}
 
 authenticator.use(
   new DiscordStrategy(

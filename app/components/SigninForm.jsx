@@ -21,7 +21,6 @@ import { PasswordInput } from './PasswordInput';
 
 const validationSchema = yup.object().shape({
   email: yup.string().email().required(),
-  password: yup.string().required(),
 });
 
 const propTypes = {
@@ -37,8 +36,6 @@ const SigninForm = ({ loading }) => {
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
-
-  const [searchParams] = useSearchParams();
 
   return (
     <Form
@@ -60,30 +57,6 @@ const SigninForm = ({ loading }) => {
         />
         <FormErrorMessage>
           {errors.email && errors.email.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl id="password" mb={5} isInvalid={errors.password} isRequired>
-        <Flex justify="space-between" alignItems="baseline">
-          <FormLabel htmlFor="password">Password</FormLabel>
-          <ChakraLink
-            as={Link}
-            to="/forgot"
-            color={mode('teal.600', 'teal.200')}
-            fontWeight="semibold"
-            fontSize="sm"
-          >
-            Forgot Password?
-          </ChakraLink>
-        </Flex>
-        <PasswordInput
-          {...register('password')}
-          id="password"
-          placeholder="SoS3cr3t"
-        />
-
-        <FormErrorMessage>
-          {errors.password && errors.password.message}
         </FormErrorMessage>
       </FormControl>
 
