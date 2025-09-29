@@ -41,29 +41,25 @@ export async function action(args) {
       )
     );
 
-    const [, game] = await db.$transaction([
-      db.$executeRawUnsafe(
-        `SET LOCAL public.current_user_id = '${currentUser.id}';`
-      ),
-      db.game.create({
-        data: {
-          name: data.get('name'),
-          about: data.get('about'),
-          site: data.get('site'),
-          igdb_slug,
-          game_tag: {
-            createMany: {
-              data: tags.map((tag) => ({
-                tag_id: tag.id,
-              })),
-            },
+    const game = await db.game.create({
+      data: {
+        name: data.get('name'),
+        about: data.get('about'),
+        site: data.get('site'),
+        igdb_slug,
+        lastModifiedById: currentUser.id,
+        game_tag: {
+          createMany: {
+            data: tags.map((tag) => ({
+              tag_id: tag.id,
+            })),
           },
         },
-        select: {
-          id: true,
-        },
-      }),
-    ]);
+      },
+      select: {
+        id: true,
+      },
+    });
 
     const port = process.env.PORT ?? 3000;
     const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
