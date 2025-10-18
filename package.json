@@ -3,7 +3,8 @@
     "build": "remix build",
     "deploy": "remix build && fly deploy --remote-only",
     "dev": "remix dev",
-    "start": "remix-serve build"
+    "start": "remix-serve build",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.2",
@@ -57,9 +58,13 @@
     "yup": "^0.32.9"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.0.0",
     "@remix-run/dev": "^1.19.3",
     "@remix-run/eslint-config": "^1.19.3",
     "eslint": "^8.11.0",
     "prisma": "^4.3.1"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }
