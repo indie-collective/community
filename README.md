@@ -35,3 +35,9 @@ npx prisma migrate deploy
 # Verify all migrations have run well and sync with latest schema
 npx prisma migrate dev
 ```
+
+## IGDB caching
+
+The IGDB integration caches game details in a PostgreSQL table for 14 days. The
+server checks this cache before calling the IGDB API and also stores results in
+memory to speed up repeated requests while the process is running.
