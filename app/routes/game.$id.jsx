@@ -197,23 +197,44 @@ const Game = () => {
         )}
 
         {about && (
-          <Box mt={3}>
+          <Box
+            mt={3}
+            mb={3}
+            p={5}
+            maxW="540px"
+            background="white"
+            borderRadius="lg"
+          >
             <Markdown value={about} />
           </Box>
         )}
 
-        <Stack isInline spacing={2} mt={5}>
-          {tags.map((tag) => (
-            <Tag key={tag.id} colorScheme="teal">
-              {tag.name}
-            </Tag>
-          ))}
-        </Stack>
+        {tags && (
+          <Box
+            ml="3px"
+            fontWeight="semibold"
+            letterSpacing="wide"
+            textTransform="uppercase"
+          >
+            {tags.map((tag) => (
+              <Tag
+                key={tag.id}
+                mr={1}
+                size="md"
+                colorScheme="green"
+                variant="solid"
+                fontSize="0.8rem"
+              >
+                {tag.name}
+              </Tag>
+            ))}
+          </Box>
+        )}
       </Box>
 
       <Box mb={5} pl={5} pr={5}>
         <Heading size="md" mb={2}>
-          Authors
+          Made by
         </Heading>
 
         <Grid
