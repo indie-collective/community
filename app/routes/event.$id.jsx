@@ -225,6 +225,7 @@ const Event = () => {
     day: 'numeric',
     hour: 'numeric',
     minute: 'numeric',
+    hour12: false,
   });
 
   return (
@@ -232,7 +233,6 @@ const Event = () => {
       templateColumns={['1fr', '1fr', '1fr']}
       gap={[5, 5, 10]}
       mt={[5, 2, 5]}
-      padding={[0, 5]}
       mx={5}
     >
       <Box>
@@ -244,6 +244,7 @@ const Event = () => {
               src={cover && cover.url}
               alt="Event cover"
               fallbackSrc={placeholder}
+              rounded={5}
             />
           </AspectRatio>
 
@@ -257,7 +258,6 @@ const Event = () => {
 
         <Box
           mb={5}
-          borderWidth={['', '1px']}
           roundedBottom={5}
           minHeight={!location && '100px'}
         >
@@ -285,6 +285,15 @@ const Event = () => {
               </Link>
             )}
 
+            <Heading
+              size="2xl"
+              gridColumn="1"
+              gridRow={['', !location && '3']}
+              textDecoration={status === 'canceled' && 'line-through'}
+            >
+              {name}
+            </Heading>
+
             <Text
               gridColumn="1"
               textTransform="uppercase"
@@ -294,14 +303,6 @@ const Event = () => {
             >
               {dateTimeFormat.formatRange(new Date(startsAt), new Date(endsAt))}
             </Text>
-
-            <Heading
-              gridColumn="1"
-              gridRow={['', !location && '3']}
-              textDecoration={status === 'canceled' && 'line-through'}
-            >
-              {name}
-            </Heading>
 
             {location && (
               <Text gridColumn="1">
@@ -321,7 +322,7 @@ const Event = () => {
                 gridColumn={[1, '1 / span 3']}
                 height={['80px', '150px']}
                 overflow="hidden"
-                roundedBottom={[0, 5]}
+                rounded={5}
                 marginX={-2}
                 mb={[2, -2]}
                 mt={[2]}
@@ -346,7 +347,7 @@ const Event = () => {
               display={['flex', 'block']}
               flexDirection={['row-reverse', '']}
             >
-              <AvatarGroup size="xs" max={3} justifyContent="end">
+              <AvatarGroup size="md" max={3} justifyContent="end">
                 {participants.map(({ id, username, avatar }) => (
                   <Avatar
                     key={id}
@@ -357,10 +358,9 @@ const Event = () => {
                 ))}
               </AvatarGroup>
               <Text>
-                {participants.length}{' '}
                 {status !== 'canceled' &&
-                  (new Date(endsAt) < new Date() ? 'went' : 'going')}
-                {status === 'canceled' && 'were going'}
+                  (new Date(endsAt) < new Date() ? 'went' : 'attending')}
+                {status === 'canceled' && 'was attending'}
               </Text>
             </Box>
 
@@ -486,8 +486,9 @@ const Event = () => {
         {(currentUser || entities.length > 0) && (
           <Box m={[2, 0]} mb={[5, 5]}>
             <Heading size="md" mb={2}>
-              Hosts
+              Organizers
             </Heading>
+
             <Grid
               gap={5}
               templateColumns={[
