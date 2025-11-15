@@ -31,23 +31,68 @@ import GameCard from '../components/GameCard';
 export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
   const page = Number(searchParams.get('page') || '1');
+  const selectedTags = searchParams.getAll('tags');
 
   const currentUser = await authenticator.isAuthenticated(request);
 
-  const games = await db.game.findMany({
-    where: searchParams.has('tags')
+  const where =
+    selectedTags.length > 0
       ? {
-          game_tag: {
-            some: {
-              tag: {
-                name: {
-                  in: searchParams.getAll('tags'),
+          AND: selectedTags.map((tag) => ({
+            game_tag: {
+              some: {
+                tag: {
+                  name: tag,
                 },
               },
             },
-          },
+          })),
         }
-      : undefined,
+      : { game_tag: { some: { game: { deleted: false } } } };
+
+  const matchingGames = await db.game.findMany({
+    where,
+    select: { id: true },
+  });
+  const matchingGameIds = matchingGames.map((g) => g.id);
+
+  const tags = await db.tag.findMany({
+    where: {
+      game_tag: {
+        some: {
+          game_id: {
+            in: matchingGameIds,
+          },
+        },
+      },
+    },
+    include: {
+      game_tag: {
+        where: {
+          game_id: {
+            in: matchingGameIds,
+          },
+        },
+      },
+    },
+    orderBy: [
+      {
+        game_tag: {
+          _count: 'desc',
+        },
+      },
+      {
+        name: 'asc',
+      },
+    ],
+  });
+
+  const games = await db.game.findMany({
+    where: {
+      id: {
+        in: matchingGameIds,
+      },
+    },
     orderBy: { updated_at: 'desc' },
     skip: (page - 1) * 10,
     take: 10,
@@ -61,36 +106,7 @@ export const loader = async ({ request }) => {
   });
 
   const data = {
-    tags: await db.tag.findMany({
-      where: {
-        game_tag: {
-          some: {
-            game: {
-              deleted: false,
-            },
-          },
-        },
-      },
-      include: {
-        game_tag: {
-          where: {
-            game: {
-              deleted: false,
-            },
-          },
-        },
-      },
-      orderBy: [
-        {
-          game_tag: {
-            _count: 'desc',
-          },
-        },
-        {
-          name: 'asc',
-        },
-      ],
-    }),
+    tags,
     games: await Promise.all(games.map(computeGame)),
     currentUser,
   };
@@ -116,6 +132,12 @@ const Games = () => {
 
   const [shouldFetch, setShouldFetch] = useState(true);
   const [page, setPage] = useState(2);
+
+  useEffect(() => {
+    setGames(initialGames);
+    setPage(2);
+    setShouldFetch(true);
+  }, [initialGames]);
 
   // Set the height of the parent container whenever games are loaded
   const divHeight = useCallback(
@@ -152,10 +174,10 @@ const Games = () => {
     if (!shouldFetch || !height) return;
     if (clientHeight + scrollPosition + 100 < height) return;
 
-    fetcher.load(`/games?page=${page}`);
+    fetcher.load(`/games?page=${page}&${searchParams.toString()}`);
 
     setShouldFetch(false);
-  }, [clientHeight, scrollPosition, fetcher]);
+  }, [clientHeight, scrollPosition, fetcher, searchParams]);
 
   // Merge games, increment page, and allow fetching again
   useEffect(() => {
@@ -184,15 +206,19 @@ const Games = () => {
 
       <Wrap as={Form} spacing={2} mb={10} align="flex-end" method="get">
         {tags
-          .filter((tag) => tag.game_tag.length > 5)
+          .slice(0, 30)
           .map((tag) => (
             <WrapItem key={tag.id}>
               <Tag
-                size={tag.game_tag.length < tags.length / 4 ? 'md' : 'lg'}
-                variant={selectedTags.includes(tag.name) ? 'solid' : 'outline'}
-                colorScheme={selectedTags.includes(tag.name) ? 'teal' : 'gray'}
+                size="md"
+                variant="solid"
+                colorScheme={selectedTags.includes(tag.name) ? 'green' : 'gray'}
                 cursor="pointer"
-                _hover={{ opacity: 0.8 }}
+                _hover={{
+                  '.count': {
+                    display: 'inline-block',
+                  },
+                }}
                 onClick={() =>
                   setSearchParams({
                     tags: selectedTags.includes(tag.name)
@@ -202,13 +228,11 @@ const Games = () => {
                 }
               >
                 <TagLabel>{tag.name}</TagLabel>
-                <Badge
-                  ml={2}
-                  colorScheme="teal"
-                  variant={selectedTags.includes(tag.name) ? 'subtle' : 'solid'}
-                >
-                  {tag.game_tag.length}
-                </Badge>
+                <Box as="span" className="count" display="none" ml={2}>
+                  <Badge colorScheme="green" variant="solid">
+                    {tag.game_tag.length}
+                  </Badge>
+                </Box>
               </Tag>
             </WrapItem>
           ))}
@@ -220,7 +244,7 @@ const Games = () => {
           '1fr',
           'repeat(2, 1fr)',
           'repeat(3, 1fr)',
-          'repeat(4, 1fr)',
+          'repeat(3, 1fr)',
         ]}
       >
         {games.map((game) => (
