@@ -1,4 +1,3 @@
-
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -13,6 +12,29 @@ async function main() {
   await prisma.$executeRaw`ALTER TABLE "event" DISABLE TRIGGER ALL;`;
   await prisma.$executeRaw`ALTER TABLE "entity" DISABLE TRIGGER ALL;`;
   await prisma.$executeRaw`ALTER TABLE "location" DISABLE TRIGGER ALL;`;
+
+  // Create tags
+  const tags = [
+    'Indie',
+    'Action',
+    'Adventure',
+    'RPG',
+    'Strategy',
+    'Puzzle',
+    'Platformer',
+    'Singleplayer',
+    'Multiplayer',
+    'Co-op',
+  ];
+  const createdTags = [];
+  for (const name of tags) {
+    const tag = await prisma.tag.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+    createdTags.push(tag);
+  }
 
   // Create people
   const people = [];
@@ -31,12 +53,21 @@ async function main() {
 
   // Create games
   const games = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 100; i++) {
+    const randomTags = faker.helpers.arrayElements(createdTags, 3);
     const game = await prisma.game.create({
       data: {
         name: faker.commerce.productName(),
         about: faker.lorem.paragraph(),
         site: faker.internet.url(),
+        tag_list: randomTags.map((tag) => tag.name),
+        game_tag: {
+          create: randomTags.map((tag) => ({
+            tag: {
+              connect: { id: tag.id },
+            },
+          })),
+        },
       },
     });
     games.push(game);
@@ -44,7 +75,7 @@ async function main() {
 
   // Create events
   const events = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 30; i++) {
     const event = await prisma.event.create({
       data: {
         name: faker.company.name(),
@@ -59,7 +90,7 @@ async function main() {
 
   // Create entities
   const entities = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 30; i++) {
     const entity = await prisma.entity.create({
       data: {
         name: faker.company.name(),
@@ -73,7 +104,7 @@ async function main() {
 
   // Create locations
   const locations = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 50; i++) {
     const location = await prisma.location.create({
       data: {
         city: faker.location.city(),
