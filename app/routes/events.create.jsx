@@ -114,7 +114,7 @@ const CreateEvent = () => {
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-      <Heading mb={5}>Create event</Heading>
+      <Heading mb={5}>Add Event</Heading>
 
       <EventForm
         method="POST"

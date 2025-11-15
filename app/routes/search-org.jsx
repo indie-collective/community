@@ -75,7 +75,7 @@ export const SearchOrgModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
     <Modal initialFocusRef={initialFocusRef} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Search Org</ModalHeader>
+        <ModalHeader>Find Organization</ModalHeader>
         <ModalCloseButton />
 
         <ModalBody>
@@ -88,7 +88,7 @@ export const SearchOrgModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
               ref={initialFocusRef}
               type="text"
               name="q"
-              placeholder="Search a org..."
+              placeholder="Search..."
               value={value}
               onChange={(e) => setValue(e.target.value)}
               mb={2}
