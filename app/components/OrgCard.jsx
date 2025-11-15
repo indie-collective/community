@@ -21,7 +21,7 @@ import CardLink from './CardLink';
 
 const TYPES_ABBR = {
   studio: 'studio',
-  association: 'asso.',
+  association: 'assoc',
 };
 
 const TYPES_COLORS = {
@@ -99,9 +99,8 @@ const OrgCard = ({
           <DarkMode>
             <Badge
               position="absolute"
-              bottom={0}
-              textAlign="center"
-              width="100%"
+              bottom="3px"
+              right="3px"
               rounded={3}
               variant="solid"
               colorScheme={TYPES_COLORS[type]}
