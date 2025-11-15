@@ -76,7 +76,7 @@ export const SearchGameModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
     <Modal initialFocusRef={initialFocusRef} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Search Game</ModalHeader>
+        <ModalHeader>Find Game</ModalHeader>
         <ModalCloseButton />
 
         <ModalBody>

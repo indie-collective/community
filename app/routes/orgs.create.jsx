@@ -125,7 +125,7 @@ const CreateOrg = () => {
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-      <Heading mb={5}>Create organization</Heading>
+      <Heading mb={5}>Add Organization</Heading>
 
       <OrgForm
         method="post"
