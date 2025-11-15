@@ -6,7 +6,10 @@ import {
   Image,
   Fade,
   useColorModeValue,
+  Button,
+  Flex,
 } from '@chakra-ui/react';
+import { ChevronRightIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
 
@@ -120,36 +123,36 @@ export const loader = async ({ request }) => {
 
   const joinedEventsToCome = currentUser
     ? await db.event.findMany({
-      where: {
-        event_participant: {
-          some: {
-            person_id: currentUser.id,
-          },
-        },
-        status: {
-          not: 'canceled',
-        },
-        ends_at: {
-          gte: new Date(),
-        },
-      },
-      include: {
-        event_participant: true,
-        game_event: {
-          where: {
-            game: {
-              deleted: false,
+        where: {
+          event_participant: {
+            some: {
+              person_id: currentUser.id,
             },
           },
+          status: {
+            not: 'canceled',
+          },
+          ends_at: {
+            gte: new Date(),
+          },
         },
-        location: true,
-        cover: true,
-      },
-      orderBy: {
-        starts_at: 'asc',
-      },
-      take: 8,
-    })
+        include: {
+          event_participant: true,
+          game_event: {
+            where: {
+              game: {
+                deleted: false,
+              },
+            },
+          },
+          location: true,
+          cover: true,
+        },
+        orderBy: {
+          starts_at: 'asc',
+        },
+        take: 8,
+      })
     : undefined;
 
   const data = {
@@ -160,9 +163,9 @@ export const loader = async ({ request }) => {
     eventsToCome: await Promise.all(eventsToCome.map(computeEvent)),
     currentUser: currentUser
       ? {
-        ...currentUser,
-        eventsToCome: await Promise.all(joinedEventsToCome.map(computeEvent)),
-      }
+          ...currentUser,
+          eventsToCome: await Promise.all(joinedEventsToCome.map(computeEvent)),
+        }
       : null,
   };
   return json(data);
@@ -187,10 +190,29 @@ const LandingPage = () => {
 
   return (
     <Box mb={5} pt={2} px={5}>
-      <Box mb={5} px={2} pb={2} background={bg} shadow="sm" borderRadius={7} _hover={{ opacity: 1 }}>
-        <Heading as="h3" size="l" py={3} pl={2}>
-          <Link to="/games">Games</Link>
-        </Heading>
+      <Box
+        mb={5}
+        px={2}
+        pb={2}
+        background={bg}
+        shadow="sm"
+        borderRadius={7}
+        _hover={{ opacity: 1 }}
+      >
+        <Flex justify="space-between" align="center">
+          <Heading as="h3" size="lg" py={3} pl={2}>
+            Games
+          </Heading>
+          <Button
+            as={Link}
+            to="/games"
+            rightIcon={<ChevronRightIcon />}
+            colorScheme="gray"
+            variant="ghost"
+          >
+            See all
+          </Button>
+        </Flex>
 
         <Fade in>
           <Grid
@@ -212,10 +234,29 @@ const LandingPage = () => {
       </Box>
 
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
-        <Box mb={5} px={2} pb={2} background={bg} shadow="sm" borderRadius={7} _hover={{ opacity: 1 }}>
-          <Heading as="h3" size="l" py={3} pl={2}>
-            <Link to="/studios">Studios</Link>
-          </Heading>
+        <Box
+          mb={5}
+          px={2}
+          pb={2}
+          background={bg}
+          shadow="sm"
+          borderRadius={7}
+          _hover={{ opacity: 1 }}
+        >
+          <Flex justify="space-between" align="center">
+            <Heading as="h3" size="lg" py={3} pl={2}>
+              Studios
+            </Heading>
+            <Button
+              as={Link}
+              to="/studios"
+              rightIcon={<ChevronRightIcon />}
+              colorScheme="gray"
+              variant="ghost"
+            >
+              See all
+            </Button>
+          </Flex>
 
           <Fade in>
             <Grid
@@ -237,10 +278,29 @@ const LandingPage = () => {
           </Fade>
         </Box>
 
-        <Box mb={5} px={2} pb={2} background={bg} shadow="sm" borderRadius={7} _hover={{ opacity: 1 }}>
-          <Heading as="h3" size="l" py={3} pl={2}>
-            <Link to="/associations">Associations</Link>
-          </Heading>
+        <Box
+          mb={5}
+          px={2}
+          pb={2}
+          background={bg}
+          shadow="sm"
+          borderRadius={7}
+          _hover={{ opacity: 1 }}
+        >
+          <Flex justify="space-between" align="center">
+            <Heading as="h3" size="lg" py={3} pl={2}>
+              Associations
+            </Heading>
+            <Button
+              as={Link}
+              to="/associations"
+              rightIcon={<ChevronRightIcon />}
+              colorScheme="gray"
+              variant="ghost"
+            >
+              See all
+            </Button>
+          </Flex>
 
           <Fade in>
             <Grid
@@ -264,9 +324,20 @@ const LandingPage = () => {
       </Grid>
 
       <Box px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
-        <Heading as="h3" size="l" mb={5}>
-          <Link to="/events">Events</Link>
-        </Heading>
+        <Flex justify="space-between" align="center" mb={5}>
+          <Heading as="h3" size="lg">
+            Events
+          </Heading>
+          <Button
+            as={Link}
+            to="/events"
+            rightIcon={<ChevronRightIcon />}
+            colorScheme="gray"
+            variant="ghost"
+          >
+            See all
+          </Button>
+        </Flex>
 
         <Fade in>
           {eventsToCome.length > 0 ? (
@@ -289,7 +360,8 @@ const LandingPage = () => {
             <Box mt={5} width={['auto', '50%', '35%', '25%']} mx="auto">
               <Image src={noEventsImage} alt="" />
               <Text fontSize="xl" mt={5} textAlign="center">
-                No upcoming events<br />
+                No upcoming events
+                <br />
                 <small>(yet)</small>
               </Text>
             </Box>

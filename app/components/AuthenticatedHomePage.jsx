@@ -7,9 +7,11 @@ import {
   Fade,
   // useToast,
   useColorModeValue,
+  Button,
+  Flex,
 } from '@chakra-ui/react';
+import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Link, useLoaderData } from '@remix-run/react';
-import { useEffect } from 'react';
 
 import GameCard from './GameCard';
 import OrgCard from './OrgCard';
@@ -39,7 +41,7 @@ const AuthenticatedHomePage = () => {
     <Box p={5} mb={5}>
       {joinedEventsToCome.length > 0 && (
         <Box mb={10}>
-          <Heading as="h3" size="xl" mb={5}>
+          <Heading as="h3" size="lg" mb={5}>
             Your upcoming events
           </Heading>
 
@@ -64,9 +66,20 @@ const AuthenticatedHomePage = () => {
       )}
 
       <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
-        <Heading as="h3" size="xl" mb={5}>
-          <Link to="/games">Features games</Link>
-        </Heading>
+        <Flex justify="space-between" align="center" mb={5}>
+          <Heading as="h3" size="lg">
+            Games
+          </Heading>
+          <Button
+            as={Link}
+            to="/games"
+            rightIcon={<ChevronRightIcon />}
+            colorScheme="gray"
+            variant="ghost"
+          >
+            See all
+          </Button>
+        </Flex>
 
         <Fade in>
           <Grid
@@ -75,7 +88,7 @@ const AuthenticatedHomePage = () => {
               '2fr',
               'repeat(2, 1fr)',
               'repeat(3, 1fr)',
-              'repeat(4, 1fr)',
+              'repeat(3, 1fr)',
             ]}
           >
             {games.map((game) => (
@@ -89,9 +102,20 @@ const AuthenticatedHomePage = () => {
 
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
         <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
-          <Heading as="h3" size="xl" mb={5}>
-            <Link to="/studios">Studios</Link>
-          </Heading>
+          <Flex justify="space-between" align="center" mb={5}>
+            <Heading as="h3" size="lg">
+              Studios
+            </Heading>
+            <Button
+              as={Link}
+              to="/studios"
+              rightIcon={<ChevronRightIcon />}
+              colorScheme="gray"
+              variant="ghost"
+            >
+              See all
+            </Button>
+          </Flex>
 
           <Fade in>
             <Grid
@@ -114,9 +138,20 @@ const AuthenticatedHomePage = () => {
         </Box>
 
         <Box mb={5} px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
-          <Heading as="h3" size="xl" mb={5}>
-            <Link to="/associations">Associations</Link>
-          </Heading>
+          <Flex justify="space-between" align="center" mb={5}>
+            <Heading as="h3" size="lg">
+              Associations
+            </Heading>
+            <Button
+              as={Link}
+              to="/associations"
+              rightIcon={<ChevronRightIcon />}
+              colorScheme="gray"
+              variant="ghost"
+            >
+              See all
+            </Button>
+          </Flex>
 
           <Fade in>
             <Grid
@@ -140,9 +175,20 @@ const AuthenticatedHomePage = () => {
       </Grid>
 
       <Box px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
-        <Heading as="h3" size="xl" mb={5}>
-          <Link to="/events">Events</Link>
-        </Heading>
+        <Flex justify="space-between" align="center" mb={5}>
+          <Heading as="h3" size="lg">
+            Events
+          </Heading>
+          <Button
+            as={Link}
+            to="/events"
+            rightIcon={<ChevronRightIcon />}
+            colorScheme="gray"
+            variant="ghost"
+          >
+            See all
+          </Button>
+        </Flex>
 
         <Fade in>
           {eventsToCome.length > 0 ? (
