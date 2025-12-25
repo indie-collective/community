@@ -51,6 +51,7 @@ if (process.env.NODE_ENV === 'development') {
               email,
               username,
               first_name: username,
+              isAdmin: true,
             },
           });
         }
