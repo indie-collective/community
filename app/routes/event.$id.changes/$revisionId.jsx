@@ -22,7 +22,7 @@ import {
 
 import { db } from '../../utils/db.server';
 import { authenticator } from '../../utils/auth.server';
-import computeGame from '../../models/game';
+import computeEvent from '../../models/event';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -63,21 +63,21 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const game = await db.game.findUnique({
+  const event = await db.event.findUnique({
     where: {
       id: revision.record_id,
     },
   });
 
-  if (!game)
-     throw new Response('Game Not Found', {
+  if (!event)
+     throw new Response('Event Not Found', {
        status: 404, 
      });
 
   const previous = await db.change.findFirst({
     where: {
       record_id: revision.record_id,
-      table_name: 'game',
+      table_name: 'event',
       created_at: {
         lt: revision.created_at,
       },
@@ -98,7 +98,7 @@ export const loader = async ({ request, params }) => {
   const previousData = previous?.data || {};
 
   const data = {
-    game: await computeGame(game),
+    event: await computeEvent(event),
     diff: {
       name: diff.diffWords(
         previousData.name || '',
@@ -122,25 +122,25 @@ export const loader = async ({ request, params }) => {
 };
 
 export const meta = ({ data, location }) => {
-  if (!data?.game)
+  if (!data?.event)
     return {
-      title: 'Game Not Found',
+      title: 'Event Not Found',
     };
 
-  const { game } = data;
+  const { event } = data;
 
   return {
-    title: `Version history - ${game.name}`,
-    'og:title': `Version history - ${game.name}`,
-    'og:description': `Version history of ${game.name}.`,
-    'og:url': `${location.protocol}://${location.host}/game/${game.id}`,
+    title: `Version history - ${event.name}`,
+    'og:title': `Version history - ${event.name}`,
+    'og:description': `Version history of ${event.name}.`,
+    'og:url': `${location.protocol}://${location.host}/event/${event.id}`,
     'twitter:site': '@IndieColle',
-    'twitter:title': `Version history - ${game.name}`,
-    'twitter:description': `Version history of ${game.name}.`,
+    'twitter:title': `Version history - ${event.name}`,
+    'twitter:description': `Version history of ${event.name}.`,
   };
 };
 
-const Game = () => {
+const EventRevision = () => {
   const { diff, author, currentUser, createdAt } = useLoaderData();
 
   return (
@@ -153,7 +153,7 @@ const Game = () => {
         <Button ml="auto">Restore</Button>
         {currentUser.isAdmin && (
           <Button ml={2} colorScheme="red">
-            Restore and Restrict {author.username}
+            Restore and Restrict {author?.username}
           </Button>
         )}
       </Flex>
@@ -161,7 +161,7 @@ const Game = () => {
       <TableContainer>
         <Table variant="simple">
           <TableCaption>
-            Changes made by {author.username} on{' '}
+            Changes made by {author?.username || 'Unknown'} on{' '}
             <Text as="time">
               {new Date(createdAt).toLocaleDateString('en-US', {
                 day: '2-digit',
@@ -188,13 +188,14 @@ const Game = () => {
                   changes.reduce((acc, c) => acc + c.count, 0) > 0
               )
               .map(([key, changes]) => (
-                <Tr>
+                <Tr key={key}>
                   <Th>{key}</Th>
                   <Td whiteSpace="normal">
                     {changes
                       .filter((l) => !l.added)
-                      .map(({ removed, value }) => (
+                      .map(({ removed, value }, i) => (
                         <Text
+                          key={i}
                           as="span"
                           bgColor={removed ? 'red.500' : undefined}
                         >
@@ -205,8 +206,9 @@ const Game = () => {
                   <Td whiteSpace="normal">
                     {changes
                       .filter((l) => !l.removed)
-                      .map(({ added, value }) => (
+                      .map(({ added, value }, i) => (
                         <Text
+                          key={i}
                           as="span"
                           bgColor={added ? 'green.500' : undefined}
                         >
@@ -233,4 +235,4 @@ export function ErrorBoundary() {
   return <Text>Something went wrong.</Text>;
 }
 
-export default Game;
+export default EventRevision;

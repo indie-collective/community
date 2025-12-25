@@ -51,7 +51,7 @@ export const loader = async ({ request }) => {
     });
   }
 
-  const lastChanges = await db.game_change.findMany({
+  const lastChanges = await db.change.findMany({
     orderBy: {
       created_at: 'desc',
     },
@@ -60,12 +60,9 @@ export const loader = async ({ request }) => {
       id: true,
       operation: true,
       created_at: true,
-      game: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      table_name: true,
+      record_id: true,
+      data: true,
       author: {
         select: {
           id: true,
@@ -111,23 +108,46 @@ const Profile = () => {
       </Heading>
 
       <List spacing={2} pl={5}>
-        {lastChanges.map(({ id, operation, author, game, created_at }) => (
-          <ListItem>
-            <ListIcon as={operationsIcons[operation]} color={operationsColors[operation]} />
-            {author.first_name} {author.last_name}{' '}
-            <ChakraLink as={Link} to={`/game/${game.id}/changes/${id}`}>
-              {operation}d
-            </ChakraLink>{' '}
-            <ChakraLink as={Link} to={`/game/${game.id}`}>
-              {game.name}
-            </ChakraLink>{' '}
-            <Text as="span" opacity={0.6}>
-              {formatDistanceToNow(new Date(created_at), {
-                addSuffix: true,
-              })}
-            </Text>
-          </ListItem>
-        ))}
+        {lastChanges.map(
+          ({
+            id,
+            operation,
+            author,
+            table_name,
+            record_id,
+            data,
+            created_at,
+          }) => (
+            <ListItem>
+              <ListIcon
+                as={operationsIcons[operation]}
+                color={operationsColors[operation]}
+              />
+              {author?.first_name} {author?.last_name}{' '}
+              <ChakraLink
+                as={Link}
+                to={`/${
+                   table_name === 'entity' ? 'org' : table_name
+                }/${record_id}/changes/${id}`}
+              >
+                {operation}d
+              </ChakraLink>{' '}
+              <ChakraLink
+                as={Link}
+                to={`/${
+                  table_name === 'entity' ? 'org' : table_name
+                }/${record_id}`}
+              >
+                {data.name}
+              </ChakraLink>{' '}
+              <Text as="span" opacity={0.6}>
+                {formatDistanceToNow(new Date(created_at), {
+                  addSuffix: true,
+                })}
+              </Text>
+            </ListItem>
+          )
+        )}
       </List>
     </Box>
   );

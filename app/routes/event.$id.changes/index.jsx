@@ -9,7 +9,7 @@ export async function loader({ params }) {
   const change = await db.change.findFirst({
     where: {
       record_id: id,
-      table_name: 'game',
+      table_name: 'event',
     },
     orderBy: {
       created_at: 'desc',
@@ -20,7 +20,7 @@ export async function loader({ params }) {
   });
 
   if (change) {
-    return redirect(`/game/${params.id}/changes/${change.id}`, {
+    return redirect(`/event/${id}/changes/${change.id}`, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
       },
