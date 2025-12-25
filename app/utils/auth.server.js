@@ -50,6 +50,7 @@ if (process.env.NODE_ENV === 'development') {
             data: {
               email,
               username,
+              first_name: username,
             },
           });
         }
@@ -264,6 +265,10 @@ export let authorizer = new Authorizer(authenticator, [hasEmail]);
 
 /* Per route authorization rules */
 export async function canWrite({ user }) {
+  if (!user.discord_id) {
+    if (process.env.NODE_ENV === 'development') return true;
+    return false;
+  }
   const guildMember = await rest.get(
     Routes.guildMember(
       '84687138729259008', // IC server
