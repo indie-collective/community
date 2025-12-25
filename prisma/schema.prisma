@@ -19,6 +19,7 @@ model entity {
   updated_at    DateTime?       @updatedAt
   logo_id       String?         @db.Uuid
   site          String?
+  lastModifiedById String?    @db.Uuid
   location      location?       @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   logo          image?          @relation(fields: [logo_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   entity_event  entity_event[]
@@ -66,6 +67,7 @@ model event {
   about             String?
   location_id       String?             @db.Uuid
   site              String?
+  lastModifiedById  String?             @db.Uuid
   starts_at         DateTime            @db.Timestamptz(6)
   ends_at           DateTime            @db.Timestamptz(6)
   created_at        DateTime?           @default(now()) @db.Timestamptz(6)
@@ -100,7 +102,6 @@ model game {
   igdb_slug   String?       @unique
   lastModifiedById String? @db.Uuid
   game_author game_author[]
-  changes     game_change[]
   game_entity game_entity[]
   game_event  game_event[]
   game_image  game_image[]
@@ -108,19 +109,15 @@ model game {
   deleted     Boolean       @default(false)
 }
 
-model game_change {
+model change {
   operation  operation_type
   id         String         @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
-  name       String?
-  about      String?
-  igdb_slug  String?
-  site       String?
-  tag_list   String[]       @db.VarChar(30)
+  table_name String
+  record_id  String         @db.Uuid
+  data       Json
   created_at DateTime?      @default(now()) @db.Timestamptz(6)
-  game_id    String         @db.Uuid
   author_id  String?        @db.Uuid
   author     person?        @relation(fields: [author_id], references: [id])
-  game       game           @relation(fields: [game_id], references: [id])
 }
 
 model game_author {
@@ -226,7 +223,7 @@ model person {
   entity_member     entity_member[]
   event_participant event_participant[]
   game_author       game_author[]
-  game_changes      game_change[]
+  changes           change[]
   tokens            reset_token[]
 }
 
