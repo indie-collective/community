@@ -58,7 +58,7 @@ export async function action(args) {
   const { params, request } = args;
   const { id } = params;
 
-  await authorizer.authorize(args, {
+  const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
     failureRedirect: `/signin?redirect=/orgs/${id}/edit`,
   });
@@ -88,6 +88,7 @@ export async function action(args) {
       where: { id },
       data: {
         name: data.get('name'),
+        lastModifiedById: currentUser.id,
         type: data.get('type').toLowerCase(),
         site: data.get('site'),
         about: data.get('about'),

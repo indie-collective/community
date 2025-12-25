@@ -82,7 +82,7 @@ export const loader = async ({ request }) => {
     },
   });
 
-  const lastChanges = await db.game_change.findMany({
+  const lastChanges = await db.change.findMany({
     orderBy: {
       created_at: 'desc',
     },
@@ -91,12 +91,9 @@ export const loader = async ({ request }) => {
       id: true,
       operation: true,
       created_at: true,
-      game: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      table_name: true,
+      record_id: true,
+      data: true,
       author: {
         select: {
           id: true,

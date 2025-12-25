@@ -58,7 +58,7 @@ export async function action(args) {
   const { params, request } = args;
   const { id } = params;
 
-  await authorizer.authorize(args, {
+  const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
   });
 
@@ -84,6 +84,7 @@ export async function action(args) {
       where: { id },
       data: {
         name: data.get('name') || undefined,
+        lastModifiedById: currentUser.id,
         status: data.has('canceled')
           ? data.get('canceled')
             ? 'canceled'

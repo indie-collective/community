@@ -32,7 +32,7 @@ import {
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
-import computeGame from '../models/game';
+import computeEvent from '../models/event';
 import { formatDistanceToNow } from 'date-fns';
 
 const uuidRegex =
@@ -50,23 +50,23 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const game = await db.game.findUnique({
+  const event = await db.event.findUnique({
     where: {
       id,
     },
   });
 
-  if (!game)
+  if (!event)
     throw new Response('Not Found', {
       status: 404,
     });
 
   const data = {
-    game: await computeGame(game),
+    event: await computeEvent(event),
     changes: await db.change.findMany({
       where: {
-        record_id: game.id,
-        table_name: 'game',
+        record_id: event.id,
+        table_name: 'event',
       },
       select: {
         id: true,
@@ -85,21 +85,21 @@ export const loader = async ({ request, params }) => {
 };
 
 export const meta = ({ data, location }) => {
-  if (!data?.game)
+  if (!data?.event)
     return {
-      title: 'Game Not Found',
+      title: 'Event Not Found',
     };
 
-  const { game } = data;
+  const { event } = data;
 
   return {
-    title: `Version history - ${game.name}`,
-    'og:title': `Version history - ${game.name}`,
-    'og:description': `Version history of ${game.name}.`,
-    'og:url': `${location.protocol}://${location.host}/game/${game.id}`,
+    title: `Version history - ${event.name}`,
+    'og:title': `Version history - ${event.name}`,
+    'og:description': `Version history of ${event.name}.`,
+    'og:url': `${location.protocol}://${location.host}/event/${event.id}`,
     'twitter:site': '@IndieColle',
-    'twitter:title': `Version history - ${game.name}`,
-    'twitter:description': `Version history of ${game.name}.`,
+    'twitter:title': `Version history - ${event.name}`,
+    'twitter:description': `Version history of ${event.name}.`,
   };
 };
 
@@ -109,20 +109,20 @@ const operationsColors = {
   delete: 'red',
 };
 
-const Game = () => {
-  const { game, changes } = useLoaderData();
+const EventChangeLayout = () => {
+  const { event, changes } = useLoaderData();
   const { revisionId } = useParams();
 
   const bg = useColorModeValue('gray.100', 'gray.700');
 
-  const { id, name } = game;
+  const { id, name } = event;
 
   return (
     <>
       <Box mb={5} pl={5} pr={5} mt={5}>
-        <ChakraLink as={Link} to={`/game/${id}`}>
+        <ChakraLink as={Link} to={`/event/${id}`}>
           <ArrowBackIcon />
-          Back to game page
+          Back to event page
         </ChakraLink>
         <Flex direction="row" align="baseline" mt={5}>
           <Heading as="h2" size="2xl">
@@ -131,11 +131,11 @@ const Game = () => {
 
           <Button
             as={Link}
-            to={`/game/${id}/edit`}
+            to={`/event/${id}/edit`}
             leftIcon={<EditIcon />}
             ml="auto"
           >
-            Edit game
+            Edit event
           </Button>
         </Flex>
       </Box>
@@ -176,7 +176,7 @@ const Game = () => {
                       </Stack>
 
                       <Stack direction="row" align="center">
-                        <Text fontSize="sm">{author.username}</Text>
+                        <Text fontSize="sm">{author?.username || 'Unknown'}</Text>
                         <Spacer />
                         <Text
                           as="time"
@@ -229,19 +229,19 @@ export function ErrorBoundary() {
   if (isRouteErrorResponse(error)) {
     return (
       <Stack textAlign="center" mt={20}>
-        <Heading>Game Not Found!</Heading>
+        <Heading>Event Not Found!</Heading>
         <Text>Would you like to create its page?</Text>
         <Box mt={10}>
           <Button
             as={Link}
-            to="/games/create"
+            to="/events/create"
             m="auto"
             mb={10}
             size="lg"
             colorScheme="teal"
             leftIcon={<AddIcon />}
           >
-            Add a game
+            Add an event
           </Button>
         </Box>
       </Stack>
@@ -251,4 +251,4 @@ export function ErrorBoundary() {
   return <Text>Something went wrong.</Text>;
 }
 
-export default Game;
+export default EventChangeLayout;
