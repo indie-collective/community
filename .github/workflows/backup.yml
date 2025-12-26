@@ -19,7 +19,7 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     container:
-      image: postgres:16
+      image: postgres:17
     
     steps:
       - name: Install AWS CLI and compression tools
