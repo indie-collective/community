@@ -33,83 +33,78 @@ export const loader = async ({ request }) => {
   const page = Number(searchParams.get('page') || '1');
   const selectedTags = searchParams.getAll('tags');
 
-  const currentUser = await authenticator.isAuthenticated(request);
-
-  const where =
-    selectedTags.length > 0
-      ? {
-          AND: selectedTags.map((tag) => ({
-            game_tag: {
-              some: {
-                tag: {
-                  name: tag,
-                },
-              },
-            },
-          })),
-        }
-      : { game_tag: { some: { game: { deleted: false } } } };
-
-  const matchingGames = await db.game.findMany({
-    where,
-    select: { id: true },
-  });
-  const matchingGameIds = matchingGames.map((g) => g.id);
-
-  const tags = await db.tag.findMany({
-    where: {
-      game_tag: {
-        some: {
-          game_id: {
-            in: matchingGameIds,
-          },
-        },
-      },
-    },
-    include: {
-      game_tag: {
-        where: {
-          game_id: {
-            in: matchingGameIds,
-          },
-        },
-      },
-    },
-    orderBy: [
-      {
+  const where = {
+    deleted: false,
+    ...(selectedTags.length > 0 && {
+      AND: selectedTags.map((tag) => ({
         game_tag: {
-          _count: 'desc',
+          some: {
+            tag: {
+              name: tag,
+            },
+          },
         },
-      },
-      {
-        name: 'asc',
-      },
-    ],
-  });
+      })),
+    }),
+  };
 
-  const games = await db.game.findMany({
-    where: {
-      id: {
-        in: matchingGameIds,
-      },
-    },
-    orderBy: { updated_at: 'desc' },
-    skip: (page - 1) * 10,
-    take: 10,
-    include: {
-      game_image: {
-        include: {
-          image: true,
+  const [tags, games] = await Promise.all([
+    db.tag.findMany({
+      where: {
+        game_tag: {
+          some: {
+            game: where,
+          },
         },
       },
-    },
-  });
+      include: {
+        game_tag: {
+          where: {
+            game: where,
+          },
+        },
+      },
+      orderBy: [
+        {
+          game_tag: {
+            _count: 'desc',
+          },
+        },
+        {
+          name: 'asc',
+        },
+      ],
+    }),
+    db.game.findMany({
+      where,
+      orderBy: { updated_at: 'desc' },
+      skip: (page - 1) * 10,
+      take: 10,
+      include: {
+        game_image: {
+          include: {
+            image: true,
+          },
+        },
+        game_tag: {
+          include: {
+            tag: true,
+          },
+        },
+        game_entity: {
+          include: {
+            entity: true,
+          },
+        },
+      },
+    }),
+  ]);
 
   const data = {
     tags,
     games: await Promise.all(games.map(computeGame)),
-    currentUser,
   };
+
   return json(data);
 };
 
@@ -118,7 +113,7 @@ export const meta = () => ({
 });
 
 const Games = () => {
-  const { games: initialGames, tags, currentUser } = useLoaderData();
+  const { games: initialGames, tags } = useLoaderData();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const selectedTags = searchParams.getAll('tags');
