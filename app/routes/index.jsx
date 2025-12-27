@@ -12,6 +12,7 @@ import {
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { json } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
+import { Map, Overlay } from 'pigeon-maps';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
@@ -155,12 +156,41 @@ export const loader = async ({ request }) => {
       })
     : undefined;
 
+  const placesCount = await db.entity.count({
+    where: {
+      location: {
+        isNot: null,
+      },
+    },
+  });
+
+  const placesPoints = await db.entity.findMany({
+    where: {
+      location: {
+        isNot: null,
+      },
+    },
+    select: {
+      location: {
+        select: {
+          latitude: true,
+          longitude: true,
+        },
+      },
+    },
+  });
+
   const data = {
     games: await Promise.all(games.map(computeGame)),
     associations: await Promise.all(associations.map(computeOrg)),
     studios: await Promise.all(studios.map(computeOrg)),
     events: await Promise.all(events.map(computeEvent)),
     eventsToCome: await Promise.all(eventsToCome.map(computeEvent)),
+    placesCount,
+    placesPoints: placesPoints.map((p) => [
+      p.location.latitude,
+      p.location.longitude,
+    ]),
     currentUser: currentUser
       ? {
           ...currentUser,
@@ -185,7 +215,14 @@ export const meta = () => ({
 });
 
 const LandingPage = () => {
-  const { games, studios, associations, eventsToCome } = useLoaderData();
+  const {
+    games,
+    studios,
+    associations,
+    eventsToCome,
+    placesCount,
+    placesPoints,
+  } = useLoaderData();
   const bg = useColorModeValue('white', 'gray.900');
 
   return (
@@ -210,7 +247,7 @@ const LandingPage = () => {
             colorScheme="gray"
             variant="ghost"
           >
-            See all
+            Explore games
           </Button>
         </Flex>
 
@@ -231,6 +268,66 @@ const LandingPage = () => {
             ))}
           </Grid>
         </Fade>
+      </Box>
+
+      <Box
+        mb={5}
+        background={bg}
+        shadow="sm"
+        borderRadius={7}
+        position="relative"
+        overflow="hidden"
+        height="200px"
+      >
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          opacity={0.4}
+          pointerEvents="none"
+        >
+          <Map
+            defaultCenter={[40, 0]}
+            defaultZoom={3}
+            touchEvents={false}
+            mouseEvents={false}
+          >
+            {placesPoints.map((point, i) => (
+              <Overlay key={i} anchor={point} offset={[3, 3]}>
+                <Box w="6px" h="6px" bg="teal.500" borderRadius="full" />
+              </Overlay>
+            ))}
+          </Map>
+        </Box>
+        <Flex
+          justify="space-between"
+          align="center"
+          position="relative"
+          zIndex={1}
+          h="100%"
+          bg={useColorModeValue("whiteAlpha.600", "blackAlpha.600")}
+          p={5}
+        >
+          <Box>
+            <Heading as="h3" size="lg">
+              Places
+            </Heading>
+            <Text fontSize="2xl" fontWeight="bold">
+              {placesCount} locations
+            </Text>
+          </Box>
+          <Button
+            as={Link}
+            to="/places"
+            rightIcon={<ChevronRightIcon />}
+            colorScheme="green"
+            size="lg"
+          >
+            Explore Map
+          </Button>
+        </Flex>
       </Box>
 
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
@@ -254,7 +351,7 @@ const LandingPage = () => {
               colorScheme="gray"
               variant="ghost"
             >
-              See all
+              Explore Studios
             </Button>
           </Flex>
 
@@ -298,7 +395,7 @@ const LandingPage = () => {
               colorScheme="gray"
               variant="ghost"
             >
-              See all
+              Explore Associations
             </Button>
           </Flex>
 
@@ -335,7 +432,7 @@ const LandingPage = () => {
             colorScheme="gray"
             variant="ghost"
           >
-            See all
+            Explore Events
           </Button>
         </Flex>
 
