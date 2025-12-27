@@ -214,7 +214,7 @@ export const meta = () => ({
     'Video game related events around you and all over the world.',
 });
 
-const LandingPage = () => {
+const HomePage = () => {
   const {
     games,
     studios,
@@ -224,6 +224,9 @@ const LandingPage = () => {
     placesPoints,
   } = useLoaderData();
   const bg = useColorModeValue('white', 'gray.900');
+
+  // TODO: do something custom for logged in users
+  // const { currentUser } = useLoaderData();
 
   return (
     <Box mb={5} pt={2} px={5}>
@@ -411,10 +414,4 @@ const LandingPage = () => {
   );
 };
 
-const Home = () => {
-  const { currentUser } = useLoaderData();
-
-  return currentUser ? <AuthenticatedHomePage /> : <LandingPage />;
-};
-
-export default Home;
+export default HomePage;
