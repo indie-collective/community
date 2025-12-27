@@ -18,18 +18,18 @@ const AddMenuButton = () => {
         as={IconButton}
         icon={<AddIcon w={6} h={6} />}
         size="lg"
-        colorScheme="teal"
+        colorScheme="green"
         variant="solid"
         aria-label="Add new"
       />
       <MenuList>
-        <MenuItem as={ChakraLink} href="games/create">
+        <MenuItem as={ChakraLink} href="games/create" _hover={{ textDecor: 'none' }}>
           Add game
         </MenuItem>
-        <MenuItem as={ChakraLink} href="/events/create">
+        <MenuItem as={ChakraLink} href="/events/create" _hover={{ textDecor: 'none' }}>
           Add event
         </MenuItem>
-        <MenuItem as={ChakraLink} href="/orgs/create">
+        <MenuItem as={ChakraLink} href="/orgs/create" _hover={{ textDecor: 'none' }}>
           Add organisation
         </MenuItem>
       </MenuList>
