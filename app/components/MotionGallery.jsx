@@ -3,9 +3,7 @@ import {
   Image,
   Grid,
   AspectRatio,
-  Link as ChakraLink,
   IconButton,
-  Portal,
   Spinner,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
@@ -13,9 +11,10 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import ImageUploader from '../components/ImageUploader';
+import Lightbox from './Lightbox';
 
 const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
-  const [selectedUrl, setSelectedUrl] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   const uploadingImages =
     fetcher.state === 'submitting' &&
@@ -23,7 +22,10 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
     fetcher.submission.formData.getAll('images').map((file) => ({
       name: file.name,
       url: URL.createObjectURL(file),
+      uploading: true,
     })) : [];
+
+  const allImages = [...images, ...uploadingImages];
 
   return (
     <>
@@ -31,29 +33,38 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
         gap={3}
         templateColumns={['repeat(1, 1fr)', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
       >
-        {images.map((image) => (
+        {allImages.map((image, index) => (
           <Box key={image.url} position="relative">
             <AspectRatio
-              as={motion.div}
               ratio={16 / 9}
-              layoutId={image.url}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
             >
               <Image
                 as={motion.img}
-                src={image.thumbnail_url}
+                src={image.thumbnail_url || image.url}
                 borderRadius="md"
                 objectFit="cover"
                 size="100%"
                 cursor="pointer"
                 alt=""
+                opacity={image.uploading ? 0.5 : 1}
                 onClick={() => {
-                  setSelectedUrl(image.url);
+                  setSelectedIndex(index);
                 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
               />
             </AspectRatio>
-            {currentUser && !image.external && (
+            {image.uploading && (
+              <Spinner
+                position="absolute"
+                inset={0}
+                margin="auto"
+                size="lg"
+                pointerEvents="none"
+              />
+            )}
+            {currentUser && !image.external && !image.uploading && (
               <IconButton
                 position="absolute"
                 bottom={2}
@@ -77,43 +88,10 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                       method: 'post',
                       action: `/game/${gameId}/images/delete`,
                     }
-                    // { method: 'post', action: './images/delete' }
                   );
                 }}
               />
             )}
-          </Box>
-        ))}
-        {uploadingImages.map((image) => (
-          <Box key={image.url} position="relative">
-            <AspectRatio
-              as={motion.div}
-              ratio={16 / 9}
-              layoutId={image.url}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <Image
-                as={motion.img}
-                src={image.url}
-                borderRadius="md"
-                objectFit="cover"
-                size="100%"
-                cursor="pointer"
-                alt=""
-                opacity={0.5}
-                onClick={() => {
-                  setSelectedUrl(image.url);
-                }}
-              />
-            </AspectRatio>
-            <Spinner
-              position="absolute"
-              inset={0}
-              margin="auto"
-              size="lg"
-              pointerEvents="none"
-            />
           </Box>
         ))}
         {currentUser && (
@@ -125,52 +103,15 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
         )}
       </Grid>
 
-      <Portal>
-        <Box
-          position="fixed"
-          inset={0}
-          background="black"
-          transition="opacity .5s ease-out"
-          onClick={() => setSelectedUrl(null)}
-          opacity={selectedUrl ? 0.5 : 0}
-          visibility={selectedUrl ? 'visible' : 'hidden'}
-        />
-
-        <Box
-          position="fixed"
-          top="15px"
-          left="15px"
-          bottom="15px"
-          right="15px"
-          pointerEvents="none"
-        >
-          <AnimatePresence>
-            {selectedUrl && (
-              <AspectRatio
-                as={motion.div}
-                ratio={16 / 9}
-                layoutId={selectedUrl}
-                zIndex={10000}
-                maxW="calc(100vw - 30px)"
-                maxH="calc(100vh - 30px)"
-              >
-                <Image
-                  as={motion.img}
-                  borderRadius="md"
-                  objectFit="cover"
-                  size="100%"
-                  src={selectedUrl}
-                  alt=""
-                  onClick={() => {
-                    setSelectedUrl(null);
-                  }}
-                  cursor="pointer"
-                />
-              </AspectRatio>
-            )}
-          </AnimatePresence>
-        </Box>
-      </Portal>
+      <AnimatePresence>
+        {selectedIndex !== null && (
+          <Lightbox
+            images={allImages}
+            index={selectedIndex}
+            onClose={() => setSelectedIndex(null)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 };
