@@ -77,6 +77,26 @@ async function main() {
         },
       },
     });
+
+    // Add 3-5 images to each game
+    const imageCount = faker.number.int({ min: 3, max: 5 });
+    for (let j = 0; j < imageCount; j++) {
+      const imageUrl = `https://picsum.photos/seed/${game.id}-${j}/800/450`;
+      const image = await prisma.image.create({
+        data: {
+          image_file: { name: imageUrl },
+          created_at: createdAt,
+        },
+      });
+      await prisma.game_image.create({
+        data: {
+          game_id: game.id,
+          image_id: image.id,
+          created_at: createdAt,
+        },
+      });
+    }
+
     games.push(game);
   }
 
@@ -99,6 +119,20 @@ async function main() {
         created_at: is2025 ? startsAt : faker.date.past(),
       },
     });
+
+    // Add cover image to each event
+    const coverUrl = `https://picsum.photos/seed/event-${event.id}/1200/600`;
+    const coverImage = await prisma.image.create({
+      data: {
+        image_file: { name: coverUrl },
+        created_at: event.created_at,
+      },
+    });
+    await prisma.event.update({
+      where: { id: event.id },
+      data: { cover_id: coverImage.id },
+    });
+
     events.push(event);
   }
 
@@ -119,6 +153,20 @@ async function main() {
         created_at: createdAt,
       },
     });
+
+    // Add logo to each entity
+    const logoUrl = `https://picsum.photos/seed/entity-${entity.id}/400/400`;
+    const logoImage = await prisma.image.create({
+      data: {
+        image_file: { name: logoUrl },
+        created_at: createdAt,
+      },
+    });
+    await prisma.entity.update({
+      where: { id: entity.id },
+      data: { logo_id: logoImage.id },
+    });
+
     entities.push(entity);
   }
 
