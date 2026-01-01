@@ -80,23 +80,6 @@ const Studios = () => {
 
   return (
     <Box p={5}>
-      <Flex minWidth="max-content" alignItems="center" gap="2" mb={6}>
-        <Box p="2">
-          <Heading size="2xl">Studios</Heading>
-        </Box>
-        <Spacer />
-        {currentUser && (
-          <Button
-            as={Link}
-            to="/orgs/create"
-            colorScheme="green"
-            leftIcon={<AddIcon />}
-          >
-            Add studio
-          </Button>
-        )}
-      </Flex>
-
       <Grid
         gap={5}
         templateColumns={[

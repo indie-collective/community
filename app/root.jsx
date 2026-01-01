@@ -7,6 +7,7 @@ import {
   Heading,
   Text,
   useBreakpointValue,
+  Progress,
 } from '@chakra-ui/react';
 import { WarningIcon } from '@chakra-ui/icons';
 import {
@@ -169,12 +170,15 @@ export default function App() {
     ENV: { CLARITY_ID, NODE_ENV },
   } = useLoaderData();
   let location = useLocation();
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (NODE_ENV === 'production' && CLARITY_ID) {
       Clarity.init(CLARITY_ID);
     }
   }, []);
+
+  const isLoading = navigation.state === 'loading' || navigation.state === 'submitting';
 
   // React.useEffect(() => {
   //   posthog.capture('$pageview');
@@ -185,8 +189,20 @@ export default function App() {
       <ChakraProvider theme={theme}>
         <AnimatePresence exitBeforeEnter>
           <Flex direction="column">
-            <Navigation />
+            {isLoading && (
+              <Progress
+                size="xs"
+                isIndeterminate
+                position="fixed"
+                top={0}
+                left={0}
+                right={0}
+                zIndex={9999}
+                colorScheme="green"
+              />
+            )}
             <Main>
+              <Navigation />
               <Box minHeight="100vh" maxWidth={960} width="100%">
                 <Outlet />
               </Box>
