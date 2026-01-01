@@ -2,6 +2,7 @@ import {
   Box,
   Flex,
   HStack,
+  VStack,
   Text,
   Link as ChakraLink,
   useColorModeValue,
@@ -12,9 +13,15 @@ import {
   Wrap,
   WrapItem,
   VisuallyHidden,
+  Spacer,
+  Button,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from '@chakra-ui/react';
-import { HamburgerIcon } from '@chakra-ui/icons';
-import { Link, useLoaderData, useLocation } from '@remix-run/react';
+import { HamburgerIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { Link, useLoaderData, useLocation, useNavigation } from '@remix-run/react';
 
 import Logo from '../components/Logo';
 import AvatarButton from './AvatarButton';
@@ -22,40 +29,27 @@ import SearchInput from './SearchInput';
 import AddMenuButton from './AddMenuButton';
 
 function NavLink(props) {
-  const { href, ...rest } = props;
+  const { href, children, ...rest } = props;
   const location = useLocation();
+  const navigation = useNavigation();
 
-  let isActive = false;
-  if (href === '/') {
-    isActive = location.pathname === '/';
-  } else {
-    isActive = location.pathname.startsWith(href);
-  }
+  const isActive = href === '/' ? location.pathname === '/' : location.pathname.startsWith(href);
+  const isNavigatingTo = navigation.location?.pathname === href;
 
   return (
-    <ChakraLink
-      to={href}
+    <Button
       as={Link}
-      aria-current={isActive ? 'page' : undefined}
-      display="block"
-      transition="all 0.3s"
-      borderRadius="md"
-      fontSize="18px"
-      fontWeight="semibold"
-      color={useColorModeValue('gray.500', 'white')}
-      px="10px"
-      py="5px"
-      backgroundColor="transparent"
-      _hover={{
-        backgroundColor: useColorModeValue('gray.400', 'gray.700'),
-        color: useColorModeValue('white', 'gray.400'),
-      }}
-      _activeLink={{
-        color: 'white',
-        backgroundColor: 'teal.500',
-      }}
+      to={href}
+      variant={isActive ? 'solid' : 'ghost'}
+      colorScheme={isActive ? 'green' : 'gray'}
+      color={isActive ? 'white' : useColorModeValue('gray.600', 'gray.300')}
+      size="md"
+      borderRadius="full"
+      isLoading={isNavigatingTo}
       {...rest}
-    />
+    >
+      {children}
+    </Button>
   );
 }
 
@@ -63,22 +57,43 @@ const Navigation = ({ search }) => {
   const { isOpen, onToggle } = useDisclosure();
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
   const background = useColorModeValue('white', 'gray.900');
-
-  // const adminSectionBgColor = useColorModeValue('gray.200', 'gray.900');
+  const secondaryBg = useColorModeValue('gray.50', 'gray.800');
 
   const { currentUser } = useLoaderData();
 
+  const AdminDropdown = ({ isMobile = false }) => (
+    <Menu>
+      <MenuButton
+        as={Button}
+        size="md"
+        variant="solid"
+        rightIcon={<ChevronDownIcon />}
+        borderRadius="full"
+        colorScheme="gray"
+        textAlign="left"
+        w={isMobile ? "100%" : "auto"}
+        justifyContent={isMobile ? "space-between" : "center"}
+      >
+        Admin
+      </MenuButton>
+      <MenuList zIndex={10}>
+        <MenuItem as={Link} to="/admin/users">Users</MenuItem>
+        <MenuItem as={Link} to="/admin/changes">Changes</MenuItem>
+        <MenuItem as={Link} to="/admin/missing">Missing</MenuItem>
+        <MenuItem as={Link} to="/admin/tags">Tags</MenuItem>
+      </MenuList>
+    </Menu>
+  );
+
   if (variant === 'mobile') {
     return (
-      <>
+      <Box shadow="sm" background={background} width="100vw">
         <HStack
           spacing={3}
-          background={background}
-          shadow="sm"
-          width="100vw"
           px={4}
           py={2}
           justifyContent="space-between"
+          alignItems="center"
         >
           <Link to="/">
             <HStack as="span" spacing="2">
@@ -87,100 +102,78 @@ const Navigation = ({ search }) => {
             </HStack>
           </Link>
 
-          <Box flex="auto">
-            <SearchInput defaultValue={search} />
-          </Box>
-
-          {currentUser && <AddMenuButton />}
-
-          <IconButton ml={2} icon={<HamburgerIcon />} onClick={onToggle} />
+          <HStack spacing={2} flex="1" justifyContent="flex-end">
+            <SearchInput />
+            {currentUser && <AddMenuButton />}
+            <IconButton variant="ghost" icon={<HamburgerIcon />} onClick={onToggle} />
+          </HStack>
         </HStack>
 
         <Collapse in={isOpen}>
-          <Wrap as="nav" spacing={4} mt="10px" justify="center">
-            <WrapItem>
+          <Box py={2} borderTop="1px solid" borderColor={useColorModeValue('gray.100', 'gray.700')}>
+            <VStack spacing={2} px={4} align="stretch">
               <NavLink href="/games">Games</NavLink>
-            </WrapItem>
-            <WrapItem>
               <NavLink href="/studios">Studios</NavLink>
-            </WrapItem>
-            <WrapItem>
               <NavLink href="/associations">Associations</NavLink>
-            </WrapItem>
-            <WrapItem>
               <NavLink href="/events">Events</NavLink>
-            </WrapItem>
-          </Wrap>
+              <NavLink href="/places">Map</NavLink>
 
-          {currentUser?.isAdmin && (
-            <Wrap as="nav" spacing={4} my="10px" justify="center">
-              <WrapItem>
-                <NavLink href="/admin/users">Users</NavLink>
-                <NavLink href="/admin/changes">Changes</NavLink>
-                <NavLink href="/admin/missing">Missing</NavLink>
-                <NavLink href="/admin/tags">Tags</NavLink>
-              </WrapItem>
-            </Wrap>
-          )}
+              {currentUser?.isAdmin && <AdminDropdown isMobile />}
 
-          <Wrap as="nav" spacing={4} justify="center">
-            <WrapItem>
-              <AvatarButton />
-            </WrapItem>
-          </Wrap>
+              <Box pt={2} display="flex" justifyContent="center">
+                <AvatarButton />
+              </Box>
+            </VStack>
+          </Box>
         </Collapse>
-      </>
+      </Box>
     );
   }
 
   return (
-    <Flex justifyContent="center" mt={5}>
-      <HStack
-        spacing={3}
-        py={2}
-        px={5}
-        maxWidth={960}
-        width="100%"
-        alignItems="flex-end"
-      >
-        <Link to="/">
-          <Logo height="48px" />
-          <VisuallyHidden>Community</VisuallyHidden>
-        </Link>
+    <VStack spacing={0} width="100%" maxWidth={960} borderBottom="1px solid" borderColor={useColorModeValue('gray.100', 'gray.800')}>
+      {/* Top Level */}
+      <Box w="100%" bg={background}>
+        <Flex justifyContent="center">
+          <HStack
+            spacing={2}
+            py={3}
+            px={5}
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Link to="/">
+              <Logo height="40px" />
+              <VisuallyHidden>Community</VisuallyHidden>
+            </Link>
 
-        <Box flex="auto">
-          <SearchInput defaultValue={search} />
-        </Box>
+            <SearchInput />
 
-        {/* <Box as="nav" flex="auto">
-          <HStack as="ul" spacing={1} my={5} alignItems="stretch">
-            <NavLink href="/">Home</NavLink>
-            <NavLink href="/games">Games</NavLink>
-            <NavLink href="/studios">Studios</NavLink>
-            <NavLink href="/associations">Associations</NavLink>
-            <NavLink href="/events">Events</NavLink>
+            <HStack spacing={2} justifyContent="flex-end">
+              {currentUser && <AddMenuButton />}
+              <AvatarButton />
+            </HStack>
           </HStack>
+        </Flex>
+      </Box>
 
-          {currentUser?.isAdmin && (
-            <Box bg={adminSectionBgColor} p={1} borderRadius="md">
-              <Text fontWeight="bold" color="gray.500" px={1} mb={3}>
-                Admin
-              </Text>
-              <HStack as="ul" spacing={1} alignItems="stretch">
-                <NavLink href="/admin/users">Users</NavLink>
-                <NavLink href="/admin/changes">Changes</NavLink>
-                <NavLink href="/admin/missing">Missing</NavLink>
-                <NavLink href="/admin/tags">Tags</NavLink>
-              </HStack>
-            </Box>
-          )}
-        </Box> */}
-
-        {currentUser && <AddMenuButton />}
-
-        <AvatarButton />
-      </HStack>
-    </Flex>
+      {/* Second Level */}
+      <Box w="100%" bg={secondaryBg} py={2} px={5}>
+        <HStack
+          spacing={4}
+          width="100%"
+        >
+          <NavLink href="/games">Games</NavLink>
+          <NavLink href="/studios">Studios</NavLink>
+          <NavLink href="/associations">Associations</NavLink>
+          <NavLink href="/events">Events</NavLink>
+          <NavLink href="/places">Map</NavLink>
+          <Spacer />
+          {currentUser?.isAdmin && <AdminDropdown />}
+        </HStack>
+      </Box>
+    </VStack>
   );
 };
 

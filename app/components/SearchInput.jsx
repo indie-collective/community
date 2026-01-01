@@ -5,6 +5,7 @@ import {
   InputRightElement,
   Input,
   useColorModeValue,
+  Box,
 } from '@chakra-ui/react';
 import { SmallCloseIcon, SearchIcon } from '@chakra-ui/icons';
 import { Form, useLocation, useNavigate } from '@remix-run/react';
@@ -44,38 +45,42 @@ const SearchInput = () => {
   }, 300);
 
   return (
-    <Form
-      action="/search"
-      method="get"
-      onSubmit={(e) => {
-        if (e.target.q.value === '') e.preventDefault();
-      }}
-    >
-      <InputGroup w="auto" size="lg">
-        <InputLeftElement>
-          <SearchIcon color="teal.500" />
-        </InputLeftElement>
-        <Input
-          ref={inputRef}
-          name="q"
-          placeholder="Search"
-          defaultValue={params.get('q')}
-          autoFocus={pathname === '/search'}
-          bg={useColorModeValue("white", "gray.750")}
-          onChange={(e) => handleChange(e.target.value)}
-        />
-        {params.has('q') && (
-          <InputRightElement>
-            <IconButton
-              aria-label="Clear search"
-              variant="ghost"
-              icon={<SmallCloseIcon />}
-              onClick={() => handleChange('')}
-            />
-          </InputRightElement>
-        )}
-      </InputGroup>
-    </Form>
+    <Box flex="1" width="100%" mx={4}>
+      <Form
+        action="/search"
+        method="get"
+        style={{ width: '100%' }}
+        onSubmit={(e) => {
+          if (e.target.q.value === '') e.preventDefault();
+        }}
+      >
+        <InputGroup w="100%" size="lg">
+          <InputLeftElement>
+            <SearchIcon color="green.500" />
+          </InputLeftElement>
+          <Input
+            ref={inputRef}
+            name="q"
+            placeholder="Search"
+            defaultValue={params.get('q')}
+            autoFocus={pathname === '/search'}
+            bg={useColorModeValue("white", "gray.750")}
+            borderRadius="full"
+            onChange={(e) => handleChange(e.target.value)}
+          />
+          {params.has('q') && (
+            <InputRightElement>
+              <IconButton
+                aria-label="Clear search"
+                variant="ghost"
+                icon={<SmallCloseIcon />}
+                onClick={() => handleChange('')}
+              />
+            </InputRightElement>
+          )}
+        </InputGroup>
+      </Form>
+    </Box>
   );
 };
 

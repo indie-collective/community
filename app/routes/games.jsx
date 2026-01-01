@@ -20,6 +20,8 @@ import {
   Wrap,
   WrapItem,
   Fade,
+  Center,
+  Spinner,
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 
@@ -192,13 +194,6 @@ const Games = () => {
 
   return (
     <Box p={5} ref={divHeight}>
-      <Flex minWidth="max-content" alignItems="center" gap="2" mb={6}>
-        <Box p="2">
-          <Heading size="2xl">Games</Heading>
-        </Box>
-        <Spacer />
-      </Flex>
-
       <Wrap as={Form} spacing={2} mb={10} align="flex-end" method="get">
         {tags
           .slice(0, 30)
@@ -250,6 +245,12 @@ const Games = () => {
           </Box>
         ))}
       </Grid>
+
+      {fetcher.state === 'loading' && (
+        <Center py={10}>
+          <Spinner size="xl" color="green.500" thickness="4px" />
+        </Center>
+      )}
     </Box>
   );
 };

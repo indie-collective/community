@@ -16,6 +16,7 @@ const AddMenuButton = () => {
     <Menu>
       <MenuButton
         as={IconButton}
+        borderRadius="full"
         icon={<AddIcon w={6} h={6} />}
         size="lg"
         colorScheme="green"
