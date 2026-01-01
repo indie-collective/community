@@ -152,7 +152,7 @@ const Events = () => {
             m="auto"
             mt={10}
             size="lg"
-            colorScheme="teal"
+            colorScheme="green"
             leftIcon={<AddIcon />}
           >
             Add an event

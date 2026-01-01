@@ -87,7 +87,7 @@ const PasswordChangeForm = ({ loading, ...rest }) => {
         type="submit"
         width="100%"
         mt={8}
-        colorScheme="teal"
+        colorScheme="green"
         isDisabled={loading}
         isLoading={loading}
       >

@@ -184,10 +184,10 @@ const StatCard = ({ icon, label, value, color, delay, href }) => {
       borderTop="4px solid"
       borderTopColor={color}
       {...(href ? {
-          as: Link,
-          to: href,
-          _hover: { transform: 'translateY(-5px)', transition: '0.2s' },
-          cursor: 'pointer'
+        as: Link,
+        to: href,
+        _hover: { transform: 'translateY(-5px)', transition: '0.2s' },
+        cursor: 'pointer'
       } : {})}
     >
       {content}
@@ -234,7 +234,7 @@ const RewindPage = () => {
             transition={{ duration: 0.8 }}
             textAlign="center"
           >
-            <Heading size="4xl" mb={4} bgGradient="linear(to-r, teal.400, blue.500, purple.600)" bgClip="text" fontWeight="extrabold">
+            <Heading size="4xl" mb={4} bgGradient="linear(to-r, green.400, blue.500, purple.600)" bgClip="text" fontWeight="extrabold">
               Rewind 2025
             </Heading>
             <Text fontSize="2xl" color="gray.500" fontWeight="medium">
@@ -267,30 +267,30 @@ const RewindPage = () => {
             >
               <VStack align="start" spacing={6} zIndex={1} position="relative">
                 <HStack>
-                  <Icon as={FaHashtag} color="teal.400" w={6} h={6} />
+                  <Icon as={FaHashtag} color="green.400" w={6} h={6} />
                   <Heading size="lg">Hottest Trends</Heading>
                 </HStack>
                 <Text color="gray.500">The most popular tags used by our community this year.</Text>
-                
+
                 {topTags.length > 0 ? (
                   <VStack align="stretch" w="100%" spacing={6}>
                     {topTags.map((tag, idx) => (
-                      <Box key={tag.name} as={Link} to={`/games?tags=${encodeURIComponent(tag.name)}`} _hover={{ color: 'teal.500' }}>
-                          <Flex justify="space-between" mb={2}>
-                              <Text fontWeight="bold" fontSize="md">{tag.name}</Text>
-                              <Text color="teal.500" fontWeight="semibold">{tag.count} games</Text>
-                          </Flex>
-                          <Box h="10px" bg={useColorModeValue('gray.100', 'gray.700')} borderRadius="full">
-                              <MotionBox
-                                  initial={{ width: 0 }}
-                                  whileInView={{ width: `${(tag.count / topTags[0].count) * 100}%` }}
-                                  transition={{ duration: 1, delay: idx * 0.1, ease: "easeOut" }}
-                                  viewport={{ once: true }}
-                                  h="100%"
-                                  bgGradient="linear(to-r, teal.300, teal.500)"
-                                  borderRadius="full"
-                              />
-                          </Box>
+                      <Box key={tag.name} as={Link} to={`/games?tags=${encodeURIComponent(tag.name)}`} _hover={{ color: 'green.500' }}>
+                        <Flex justify="space-between" mb={2}>
+                          <Text fontWeight="bold" fontSize="md">{tag.name}</Text>
+                          <Text color="green.500" fontWeight="semibold">{tag.count} games</Text>
+                        </Flex>
+                        <Box h="10px" bg={useColorModeValue('gray.100', 'gray.700')} borderRadius="full">
+                          <MotionBox
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${(tag.count / topTags[0].count) * 100}%` }}
+                            transition={{ duration: 1, delay: idx * 0.1, ease: "easeOut" }}
+                            viewport={{ once: true }}
+                            h="100%"
+                            bgGradient="linear(to-r, teal.300, teal.500)"
+                            borderRadius="full"
+                          />
+                        </Box>
                       </Box>
                     ))}
                   </VStack>
@@ -317,26 +317,26 @@ const RewindPage = () => {
                   <Heading size="lg">Expanding Horizons</Heading>
                 </HStack>
                 <Text color="gray.500">Cities where the indie scene was most vibrant in 2025.</Text>
-                
+
                 {topLocations.length > 0 ? (
                   <VStack align="stretch" w="100%" spacing={6}>
-                      {topLocations.map((loc, idx) => (
-                          <HStack key={idx} as={Link} to={`/search?q=${encodeURIComponent(loc.city)}`} justify="space-between" p={3} borderRadius="lg" _hover={{ bg: useColorModeValue('blue.50', 'gray.700'), color: 'blue.600' }} transition="0.2s">
-                              <HStack spacing={4}>
-                                  <Circle size="36px" bg="blue.500" color="white" fontSize="sm" fontWeight="bold">
-                                      {idx + 1}
-                                  </Circle>
-                                  <VStack align="start" spacing={0}>
-                                      <Text fontWeight="bold" fontSize="md">{loc.city}</Text>
-                                      <Text fontSize="xs" color="gray.400" textTransform="uppercase" letterSpacing="wider">{loc.country}</Text>
-                                  </VStack>
-                              </HStack>
-                              <Box textAlign="right">
-                                <Text fontWeight="bold" color="blue.500" fontSize="lg">{loc.total}</Text>
-                                <Text fontSize="xs" color="gray.400">Activities</Text>
-                              </Box>
-                          </HStack>
-                      ))}
+                    {topLocations.map((loc, idx) => (
+                      <HStack key={idx} as={Link} to={`/search?q=${encodeURIComponent(loc.city)}`} justify="space-between" p={3} borderRadius="lg" _hover={{ bg: useColorModeValue('blue.50', 'gray.700'), color: 'blue.600' }} transition="0.2s">
+                        <HStack spacing={4}>
+                          <Circle size="36px" bg="blue.500" color="white" fontSize="sm" fontWeight="bold">
+                            {idx + 1}
+                          </Circle>
+                          <VStack align="start" spacing={0}>
+                            <Text fontWeight="bold" fontSize="md">{loc.city}</Text>
+                            <Text fontSize="xs" color="gray.400" textTransform="uppercase" letterSpacing="wider">{loc.country}</Text>
+                          </VStack>
+                        </HStack>
+                        <Box textAlign="right">
+                          <Text fontWeight="bold" color="blue.500" fontSize="lg">{loc.total}</Text>
+                          <Text fontSize="xs" color="gray.400">Activities</Text>
+                        </Box>
+                      </HStack>
+                    ))}
                   </VStack>
                 ) : (
                   <Text fontStyle="italic" color="gray.400">No geographical data recorded this year.</Text>
@@ -359,7 +359,7 @@ const RewindPage = () => {
               Thank you for being part of 2025!
             </Heading>
             <Text color="gray.500" fontSize="lg" maxW="2xl" mx="auto">
-              This community exists because of your passion and contributions. 
+              This community exists because of your passion and contributions.
               Let's make 2026 even more incredible for indie game developers everywhere.
             </Text>
           </MotionBox>

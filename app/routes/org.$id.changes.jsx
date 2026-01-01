@@ -238,7 +238,7 @@ export function ErrorBoundary() {
             m="auto"
             mb={10}
             size="lg"
-            colorScheme="teal"
+            colorScheme="green"
             leftIcon={<AddIcon />}
           >
             Add an organization

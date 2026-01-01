@@ -95,7 +95,7 @@ const TagsAdmin = () => {
       <Box as={Form} method="post" mb={5} display="flex" gap={2}>
         <Input name="name" placeholder="New tag name" />
         <input type="hidden" name="intent" value="add" />
-        <Button type="submit" colorScheme="teal">
+        <Button type="submit" colorScheme="green">
           Add
         </Button>
       </Box>
@@ -116,7 +116,7 @@ const TagsAdmin = () => {
           ))}
         </Select>
         <input type="hidden" name="intent" value="merge" />
-        <Button type="submit" colorScheme="teal">
+        <Button type="submit" colorScheme="green">
           Merge
         </Button>
       </Box>

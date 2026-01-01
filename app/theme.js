@@ -59,7 +59,7 @@ const theme = extendTheme(
       },
     },
   },
-  withDefaultColorScheme({ colorScheme: 'teal' }),
+  withDefaultColorScheme({ colorScheme: 'green' }),
   withDefaultVariant({
     variant: 'filled',
     components: ['Input', 'Textarea'],

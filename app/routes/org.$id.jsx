@@ -145,20 +145,20 @@ export const loader = async ({ request, params }) => {
 export const meta = ({ data, location }) =>
   data?.org
     ? {
-        title: data.org.name,
-        description: `${data.org.about}.`,
-        'og:title': data.org.name,
-        'og:description': `${data.org.about}.`,
-        'og:url': `${location.protocol}://${location.host}/org/${data.org.id}`,
-        'og:image': data.org.logo?.thumbnail_url,
-        'twitter:card': 'summary',
-        'twitter:title': data.org.name,
-        'twitter:description': `${data.org.about}.`,
-        'twitter:image': data.org.logo?.thumbnail_url,
-      }
+      title: data.org.name,
+      description: `${data.org.about}.`,
+      'og:title': data.org.name,
+      'og:description': `${data.org.about}.`,
+      'og:url': `${location.protocol}://${location.host}/org/${data.org.id}`,
+      'og:image': data.org.logo?.thumbnail_url,
+      'twitter:card': 'summary',
+      'twitter:title': data.org.name,
+      'twitter:description': `${data.org.about}.`,
+      'twitter:image': data.org.logo?.thumbnail_url,
+    }
     : {
-        title: 'Organization not found!',
-      };
+      title: 'Organization not found!',
+    };
 
 const Org = () => {
   const navigate = useNavigate();
@@ -238,7 +238,7 @@ const Org = () => {
 
         {currentUser && (
           <Link to={`/org/${id}/edit`}>
-            <Button leftIcon={<EditIcon />} colorScheme="teal" mt={3}>
+            <Button leftIcon={<EditIcon />} colorScheme="green" mt={3}>
               Edit
             </Button>
           </Link>
@@ -260,7 +260,7 @@ const Org = () => {
               fontSize="md"
               ml={2}
               variant="subtle"
-              colorScheme="teal"
+              colorScheme="green"
             >
               {games.length}
             </Badge>
@@ -302,7 +302,7 @@ const Org = () => {
               fontSize="md"
               ml={2}
               variant="subtle"
-              colorScheme="teal"
+              colorScheme="green"
             >
               {events.length}
             </Badge>

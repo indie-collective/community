@@ -41,7 +41,7 @@ const PlacesWidget = ({ placesCount, placesPoints }) => {
         >
           {placesPoints.map((point, i) => (
             <Overlay key={i} anchor={point} offset={[3, 3]}>
-              <Box w="6px" h="6px" bg="teal.500" borderRadius="full" />
+              <Box w="6px" h="6px" bg="green.500" borderRadius="full" />
             </Overlay>
           ))}
         </Map>

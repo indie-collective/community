@@ -89,7 +89,7 @@ const Studios = () => {
           <Button
             as={Link}
             to="/orgs/create"
-            colorScheme="teal"
+            colorScheme="green"
             leftIcon={<AddIcon />}
           >
             Add studio

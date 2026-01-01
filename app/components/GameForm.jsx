@@ -138,7 +138,7 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
 
       <Button
         gridColumn="1 / 3"
-        colorScheme="teal"
+        colorScheme="green"
         mt={3}
         type="submit"
         isLoading={loading}
