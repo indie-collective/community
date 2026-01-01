@@ -100,7 +100,7 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
               <IconButton
                 aria-label="Edit avatar"
                 icon={<EditIcon />}
-                colorScheme="teal"
+                colorScheme="green"
                 isRound
                 onClick={() => avatarRef.current.click()}
               />
@@ -204,7 +204,7 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
         type="submit"
         w="100%"
         mt={3}
-        colorScheme="teal"
+        colorScheme="green"
         isDisabled={loading}
         isLoading={loading}
       >

@@ -324,7 +324,7 @@ const Places = () => {
           header={
             <Heading size="md" textAlign="center" m={2} mt={6}>
               Locations
-              <Badge colorScheme="teal" variant="solid" ml={2} fontSize="xl">
+              <Badge colorScheme="green" variant="solid" ml={2} fontSize="xl">
                 {orgsInBounds.length}
               </Badge>
             </Heading>

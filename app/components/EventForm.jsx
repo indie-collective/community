@@ -119,9 +119,8 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
       end: endsAt ? format(new Date(endsAt), "yyyy-MM-dd'T'HH:mm") : undefined,
       location: {
         label: l
-          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${
-              l.country_code
-            }`
+          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${l.country_code
+          }`
           : '',
         value: l || null,
       },
@@ -246,10 +245,9 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
                   typeof dpr !== 'undefined'
                     ? dpr >= 2
                     : typeof window !== 'undefined' &&
-                      window.devicePixelRatio >= 2;
-                return `https://${OSMServer}.tile.openstreetmap.org/${z}/${x}/${y}${
-                  retina ? '@2x' : ''
-                }.png`;
+                    window.devicePixelRatio >= 2;
+                return `https://${OSMServer}.tile.openstreetmap.org/${z}/${x}/${y}${retina ? '@2x' : ''
+                  }.png`;
               }}
               defaultWidth={800}
               defaultHeight={100}
@@ -287,7 +285,7 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
             bottom={2}
             aria-label="Edit cover"
             icon={<EditIcon />}
-            colorScheme="teal"
+            colorScheme="green"
             isRound
             onClick={() => coverRef.current.click()}
           />
@@ -327,7 +325,7 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
 
       <Button
         gridColumn="1 / 3"
-        colorScheme="teal"
+        colorScheme="green"
         mt={3}
         type="submit"
         isLoading={loading}

@@ -144,9 +144,8 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
       name,
       location: {
         label: l
-          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${
-              l.country_code
-            }`
+          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${l.country_code
+          }`
           : '',
         value: l || null,
       },
@@ -195,7 +194,7 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
             bottom={2}
             aria-label="Edit logo"
             icon={<EditIcon />}
-            colorScheme="teal"
+            colorScheme="green"
             isRound
             onClick={() => logoRef.current.click()}
           />
@@ -333,7 +332,7 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
 
       <Button
         gridColumn="1 / 3"
-        colorScheme="teal"
+        colorScheme="green"
         mt={3}
         type="submit"
         isLoading={loading}

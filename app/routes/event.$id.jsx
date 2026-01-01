@@ -162,9 +162,8 @@ export const meta = ({ data, location }) => {
   if (event.location) {
     const l = event.location;
 
-    description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${
-      l.region
-    }, ${l.country_code}`;
+    description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${l.region
+      }, ${l.country_code}`;
   }
 
   return {
@@ -278,7 +277,7 @@ const Event = () => {
                   mb={[2, '0']}
                   leftIcon={<EditIcon />}
                   size="sm"
-                  colorScheme="teal"
+                  colorScheme="green"
                 >
                   Edit
                 </Button>
@@ -379,8 +378,8 @@ const Event = () => {
                     ? 'Went'
                     : 'I went!'
                   : isGoing
-                  ? 'Going'
-                  : "Let's go!"}
+                    ? 'Going'
+                    : "Let's go!"}
               </JoinEventButton>
             )}
           </Grid>
@@ -426,7 +425,7 @@ const Event = () => {
                 fontSize="md"
                 ml={2}
                 variant="subtle"
-                colorScheme="teal"
+                colorScheme="green"
               >
                 {games.length}
               </Badge>
@@ -440,14 +439,14 @@ const Event = () => {
                     onRemove={
                       currentUser
                         ? () =>
-                            fetcher.submit(
-                              { id: game.id },
-                              {
-                                method: 'post',
-                                action: `/event/${id}/games/delete`,
-                              }
-                              // { method: 'post', action: './games/delete' }
-                            )
+                          fetcher.submit(
+                            { id: game.id },
+                            {
+                              method: 'post',
+                              action: `/event/${id}/games/delete`,
+                            }
+                            // { method: 'post', action: './games/delete' }
+                          )
                         : null
                     }
                     isCompact
@@ -457,7 +456,7 @@ const Event = () => {
               {currentUser && (
                 <>
                   <IconButton
-                    colorScheme="teal"
+                    colorScheme="green"
                     aria-label="Add a game to the event"
                     icon={<AddIcon />}
                     onClick={onOpenLinkGame}
@@ -505,14 +504,14 @@ const Event = () => {
                   onRemove={
                     currentUser
                       ? () =>
-                          fetcher.submit(
-                            { id: host.id },
-                            {
-                              method: 'post',
-                              action: `/event/${id}/hosts/delete`,
-                            }
-                            // { method: 'post', action: './hosts/delete' }
-                          )
+                        fetcher.submit(
+                          { id: host.id },
+                          {
+                            method: 'post',
+                            action: `/event/${id}/hosts/delete`,
+                          }
+                          // { method: 'post', action: './hosts/delete' }
+                        )
                       : null
                   }
                 />
@@ -522,7 +521,7 @@ const Event = () => {
                   <IconButton
                     alignSelf="center"
                     justifySelf="flex-start"
-                    colorScheme="teal"
+                    colorScheme="green"
                     aria-label="Add a host to the event"
                     icon={<AddIcon />}
                     onClick={onOpenLinkHost}

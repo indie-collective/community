@@ -17,7 +17,7 @@ const enquire = canUseDOM() && require('enquire.js');
 const PrevArrow = ({ onClick, className }) =>
   !className.includes('slick-disabled') && (
     <IconButton
-      colorScheme="teal"
+      colorScheme="green"
       aria-label="Previous"
       fontSize="2xl"
       icon={<ChevronLeftIcon />}
@@ -35,7 +35,7 @@ const PrevArrow = ({ onClick, className }) =>
 const NextArrow = ({ onClick, className }) =>
   !className.includes('slick-disabled') && (
     <IconButton
-      colorScheme="teal"
+      colorScheme="green"
       aria-label="Next"
       fontSize="2xl"
       icon={<ChevronRightIcon />}
@@ -164,7 +164,7 @@ Carousel.propTypes = {
 
 Carousel.defaultProps = {
   slidesToShow: 1,
-  onLoadMore: () => {},
+  onLoadMore: () => { },
   loadingMore: false,
 };
 

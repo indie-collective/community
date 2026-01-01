@@ -58,7 +58,7 @@ const ForgotForm = ({ loading }) => {
         display="block"
         ml="auto"
         mt={8}
-        colorScheme="teal"
+        colorScheme="green"
         isDisabled={loading}
         isLoading={loading}
         width="100%"

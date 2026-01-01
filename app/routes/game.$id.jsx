@@ -155,10 +155,10 @@ const Game = () => {
 
   const igdb_images = igdb_game
     ? igdb_game.screenshots.map((image) => ({
-        external: true,
-        url: image.url.replace('t_thumb', 't_screenshot_huge'),
-        thumbnail_url: image.url.replace('t_thumb', 't_screenshot_med'),
-      }))
+      external: true,
+      url: image.url.replace('t_thumb', 't_screenshot_huge'),
+      thumbnail_url: image.url.replace('t_thumb', 't_screenshot_med'),
+    }))
     : [];
 
   return (
@@ -178,7 +178,7 @@ const Game = () => {
                 as={Link}
                 to={`/game/${id}/edit`}
                 leftIcon={<EditIcon />}
-                colorScheme="teal"
+                colorScheme="green"
                 ml={3}
               >
                 Edit
@@ -253,14 +253,14 @@ const Game = () => {
               onRemove={
                 currentUser
                   ? () =>
-                      fetcher.submit(
-                        { id: author.id },
-                        {
-                          method: 'post',
-                          action: `/game/${id}/companies/delete`,
-                        }
-                        // { method: 'post', action: './companies/delete' }
-                      )
+                    fetcher.submit(
+                      { id: author.id },
+                      {
+                        method: 'post',
+                        action: `/game/${id}/companies/delete`,
+                      }
+                      // { method: 'post', action: './companies/delete' }
+                    )
                   : null
               }
             />
@@ -270,7 +270,7 @@ const Game = () => {
               <IconButton
                 alignSelf="center"
                 justifySelf="flex-start"
-                colorScheme="teal"
+                colorScheme="green"
                 aria-label="Add an author to the game"
                 icon={<AddIcon />}
                 onClick={onOpenLinkAuthor}
