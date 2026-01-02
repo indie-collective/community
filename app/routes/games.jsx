@@ -204,11 +204,6 @@ const Games = () => {
                 variant="solid"
                 colorScheme={selectedTags.includes(tag.name) ? 'green' : 'gray'}
                 cursor="pointer"
-                _hover={{
-                  '.count': {
-                    display: 'inline-block',
-                  },
-                }}
                 onClick={() =>
                   setSearchParams({
                     tags: selectedTags.includes(tag.name)
@@ -218,7 +213,7 @@ const Games = () => {
                 }
               >
                 <TagLabel>{tag.name}</TagLabel>
-                <Box as="span" className="count" display="none" ml={2}>
+                <Box as="span" ml={2}>
                   <Badge colorScheme="green" variant="solid">
                     {tag.game_tag.length}
                   </Badge>
