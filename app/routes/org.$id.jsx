@@ -42,6 +42,7 @@ import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
 import { LocationIcon } from '../components/LocationIcon';
 import Markdown from '../components/Markdown';
+import ActionMenu from '../components/ActionMenu';
 
 const TYPES_COLORS = {
   studio: 'yellow',
@@ -234,6 +235,15 @@ const Org = () => {
               </Text>
             )}
           </Box>
+
+          {currentUser && (
+            <ActionMenu
+              ml="auto"
+              editLink={`/org/${id}/edit`}
+              changesLink={`/org/${id}/changes`}
+              onDelete={deleteModal.onOpen}
+            />
+          )}
         </Flex>
 
         {currentUser && (
@@ -337,10 +347,6 @@ const Org = () => {
 
       {currentUser && (
         <Box mb={5} pl={5} pr={5}>
-          <Button variant="link" colorScheme="red" onClick={deleteModal.onOpen}>
-            Delete organization
-          </Button>
-
           <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
             <ModalOverlay />
             <ModalContent as={Form} action={`./delete`} method="post">

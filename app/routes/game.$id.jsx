@@ -40,6 +40,7 @@ import OrgCard from '../components/OrgCard';
 import SearchOrgModal from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
+import ActionMenu from '../components/ActionMenu';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -170,20 +171,12 @@ const Game = () => {
           </Heading>
 
           {currentUser && (
-            <>
-              <ChakraLink to={`/game/${id}/changes`} as={Link} ml="auto">
-                Changes History
-              </ChakraLink>
-              <Button
-                as={Link}
-                to={`/game/${id}/edit`}
-                leftIcon={<EditIcon />}
-                colorScheme="green"
-                ml={3}
-              >
-                Edit
-              </Button>
-            </>
+            <ActionMenu
+              ml="auto"
+              editLink={`/game/${id}/edit`}
+              changesLink={`/game/${id}/changes`}
+              onDelete={deleteModal.onOpen}
+            />
           )}
         </Flex>
 
@@ -355,10 +348,6 @@ const Game = () => {
 
       {currentUser && (
         <Box mb={5} pl={5} pr={5}>
-          <Button variant="link" colorScheme="red" onClick={deleteModal.onOpen}>
-            Delete game
-          </Button>
-
           <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
             <ModalOverlay />
             <ModalContent as={Form} action={`/game/${id}/delete`} method="post">
