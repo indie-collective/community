@@ -11,6 +11,12 @@ export async function action(args) {
     rules: [canWrite],
   });
 
+  await db.entity_member.deleteMany({
+    where: {
+      entity_id: id,
+    },
+  });
+
   await db.entity.delete({
     where: {
       id,
