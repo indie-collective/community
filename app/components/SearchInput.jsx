@@ -45,7 +45,7 @@ const SearchInput = () => {
   }, 300);
 
   return (
-    <Box flex="1" width="100%" mx={4}>
+    <Box flex="1" width="100%">
       <Form
         action="/search"
         method="get"
@@ -64,7 +64,7 @@ const SearchInput = () => {
             placeholder="Search"
             defaultValue={params.get('q')}
             autoFocus={pathname === '/search'}
-            bg={useColorModeValue("white", "gray.750")}
+            bg={useColorModeValue("gray.100", "gray.750")}
             borderRadius="full"
             onChange={(e) => handleChange(e.target.value)}
           />

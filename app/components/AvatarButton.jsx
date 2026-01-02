@@ -20,7 +20,7 @@ const AvatarButton = () => {
 
     return (
       <Link to="/profile">
-        <HStack spacing="1.5">
+        <HStack spacing="1.5" pr={3}>
           <Avatar size="md" name={first_name} src={avatar} />
           <Flex direction="column">
             <Text fontWeight="bold" mb="-2px">
@@ -45,6 +45,7 @@ const AvatarButton = () => {
         aria-label="Signin"
         w="100%"
         size="lg"
+        borderRadius="full"
       >
         Sign in
       </Button>

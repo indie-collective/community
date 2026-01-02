@@ -133,12 +133,13 @@ const Navigation = ({ search }) => {
   return (
     <VStack spacing={0} width="100%" maxWidth={960} borderBottom="1px solid" borderColor={useColorModeValue('gray.100', 'gray.800')}>
       {/* Top Level */}
-      <Box w="100%" bg={background}>
+      <Box w="100%" bg={background} borderBottomRadius="30px">
         <Flex justifyContent="center">
           <HStack
             spacing={2}
-            py={3}
-            px={5}
+            py={2}
+            px={2}
+            pl={3}
             width="100%"
             justifyContent="space-between"
             alignItems="center"
@@ -159,7 +160,7 @@ const Navigation = ({ search }) => {
       </Box>
 
       {/* Second Level */}
-      <Box w="100%" bg={secondaryBg} py={2} px={5}>
+      <Box w="100%" mt={2} py={2} px={2} bg={background} borderRadius="full">
         <HStack
           spacing={4}
           width="100%"
