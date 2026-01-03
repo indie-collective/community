@@ -18,12 +18,12 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
 
   const uploadingImages =
     fetcher.state === 'submitting' &&
-    fetcher.submission.action.includes('images/add') ?
-    fetcher.submission.formData.getAll('images').map((file) => ({
-      name: file.name,
-      url: URL.createObjectURL(file),
-      uploading: true,
-    })) : [];
+      fetcher.submission.action.includes('images/add') ?
+      fetcher.submission.formData.getAll('images').map((file) => ({
+        name: file.name,
+        url: URL.createObjectURL(file),
+        uploading: true,
+      })) : [];
 
   const allImages = [...images, ...uploadingImages];
 
@@ -34,10 +34,12 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
         templateColumns={['repeat(1, 1fr)', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
       >
         {allImages.map((image, index) => (
-          <Box key={image.url} position="relative">
-            <AspectRatio
-              ratio={16 / 9}
-            >
+          <Box
+            key={image.url}
+            position="relative"
+            gridColumn={index === 0 ? '1 / -1' : 'auto'}
+          >
+            <AspectRatio ratio={16 / 9}>
               <Image
                 as={motion.img}
                 src={image.thumbnail_url || image.url}
