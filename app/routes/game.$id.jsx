@@ -165,8 +165,8 @@ const Game = () => {
   return (
     <>
       <Box mb={5} pl={5} pr={5} mt={5}>
-        <Flex direction="row" align="center">
-          <Heading as="h2" noOfLines={1} title={name} size="2xl">
+        <Flex direction="row" align="center" mb={5}>
+          <Heading as="h2" noOfLines={1} title={name} size="2xl" pb={1}>
             {name}
           </Heading>
 
@@ -180,48 +180,54 @@ const Game = () => {
           )}
         </Flex>
 
-        {site && (
-          <Text fontSize="lg">
-            <ChakraLink href={site} isExternal>
-              {site.replace(/https?:\/\//, '')}
-              <ExternalLinkIcon mx="2px" />
-            </ChakraLink>
-          </Text>
-        )}
-
-        {about && (
-          <Box
-            mt={3}
-            mb={3}
-            p={5}
-            maxW="540px"
-            background="white"
-            borderRadius="lg"
-          >
-            <Markdown value={about} />
-          </Box>
-        )}
+        <Box mb={5}>
+          <MotionGallery
+            gameId={id}
+            images={images.concat(igdb_images)}
+            currentUser={currentUser}
+            fetcher={fetcher}
+          />
+        </Box>
 
         {tags && (
           <Box
             ml="3px"
+            mt="5px"
             fontWeight="semibold"
             letterSpacing="wide"
             textTransform="uppercase"
           >
             {tags.map((tag) => (
-              <Tag
-                key={tag.id}
-                mr={1}
-                size="md"
-                colorScheme="green"
-                variant="solid"
-                fontSize="0.8rem"
-              >
-                {tag.name}
-              </Tag>
+              <Link key={tag.id} to={`/games?tags=${tag.name}`}>
+                <Tag
+                  mr={1}
+                  size="md"
+                  colorScheme="green"
+                  variant="solid"
+                  fontSize="0.8rem"
+                  _hover={{ opacity: 0.8 }}
+                >
+                  {tag.name}
+                </Tag>
+              </Link>
             ))}
           </Box>
+        )}
+
+        {about && (
+          <Box
+            py={3}
+            maxW="540px"
+          >
+            <Markdown value={about} />
+          </Box>
+        )}
+
+        {site && (
+          <Button as={ChakraLink} href={site} alt={site.replace(/https?:\/\//, '')} isExternal>
+            Visit website
+            <ExternalLinkIcon mx="2px" />
+          </Button>
         )}
       </Box>
 
@@ -308,15 +314,6 @@ const Game = () => {
         </Box>
       )}
 
-      <Box mb={5} pl={5} pr={5}>
-        <MotionGallery
-          gameId={id}
-          images={images.concat(igdb_images)}
-          currentUser={currentUser}
-          fetcher={fetcher}
-        />
-      </Box>
-
       {igdb_game?.videos.length > 0 && (
         <Box mb={5} pl={5} pr={5}>
           <Heading size="md" mb={2}>
@@ -386,7 +383,7 @@ export function ErrorBoundary() {
     return (
       <Stack textAlign="center" mt={20}>
         <Heading>Game not found!</Heading>
-        <Text>Would you like to create its page?</Text>
+        <Text>Why not create its page?</Text>
         <Box mt={10}>
           <Button
             as={Link}
@@ -396,7 +393,7 @@ export function ErrorBoundary() {
             size="lg"
             leftIcon={<AddIcon />}
           >
-            Add a game
+            Add game
           </Button>
         </Box>
       </Stack>
