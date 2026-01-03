@@ -214,7 +214,7 @@ const Games = () => {
               >
                 <TagLabel>{tag.name}</TagLabel>
                 <Box as="span" ml={2}>
-                  <Badge colorScheme="green" variant="solid">
+                  <Badge variant="subtle">
                     {tag.game_tag.length}
                   </Badge>
                 </Box>
