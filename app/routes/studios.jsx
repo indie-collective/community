@@ -16,20 +16,44 @@ import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
 import computeOrg from '../models/org';
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
+import Filters from '../components/Filters';
 
 const PAGE_SIZE = 50;
 
 export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
   const page = Number(searchParams.get('page') || '1');
+  const country = searchParams.get('country');
+  const has_games = searchParams.get('has_games');
+  const has_events = searchParams.get('has_events');
 
   const currentUser = await authenticator.isAuthenticated(request);
 
+  const where = {
+    type: 'studio',
+  };
+
+  if (country) {
+    where.location = {
+      country_code: country,
+    };
+  }
+
+  if (has_games === 'on') {
+    where.game_entity = {
+      some: {},
+    };
+  }
+
+  if (has_events === 'on') {
+    where.entity_event = {
+      some: {},
+    };
+  }
+
   const studios = await db.entity
     .findMany({
-      where: {
-        type: 'studio',
-      },
+      where,
       include: {
         location: true,
         logo: true,
@@ -41,12 +65,36 @@ export const loader = async ({ request }) => {
     })
     .then((studios) => studios.map(computeOrg));
 
+  const countries = await db.location.groupBy({
+    by: ['country_code'],
+    where: {
+      entity: {
+        some: {
+          type: 'studio',
+        },
+      },
+    },
+    _count: true,
+    orderBy: {
+      _count: {
+        country_code: 'desc',
+      },
+    },
+  });
+
   const data = {
     studios: await Promise.all(studios),
+    facets: {
+      countries,
+    },
+    selected: {
+      country,
+      has_games,
+      has_events,
+    },
     currentUser,
   };
 
-  // return deferred(data);
   return json(data);
 };
 
@@ -63,7 +111,6 @@ export const meta = () => ({
 });
 
 const OrgsList = () => {
-  // const studios = useAsyncValue();
   const { studios = [] } = useLoaderData();
 
   return studios.map((studio) => (
@@ -76,10 +123,14 @@ const OrgsList = () => {
 };
 
 const Studios = () => {
-  const { studios, currentUser } = useLoaderData();
+  const data = useLoaderData();
 
   return (
     <Box p={5}>
+      <Filters
+        facets={data.facets}
+        selected={data.selected}
+      />
       <Grid
         gap={5}
         templateColumns={[
@@ -96,9 +147,7 @@ const Studios = () => {
             </Box>
           ))}
         >
-          {/* <Await resolve={studios}> */}
           <OrgsList />
-          {/* </Await> */}
         </Suspense>
       </Grid>
     </Box>
