@@ -8,7 +8,7 @@ import {
 import { Form, useSubmit } from '@remix-run/react';
 import countryNames from '../assets/countries.json';
 
-const Filters = ({ facets, selected }) => {
+const Filters = ({ facets, selected, type }) => {
   const submit = useSubmit();
 
   const handleChange = (event) => {
@@ -37,25 +37,44 @@ const Filters = ({ facets, selected }) => {
           ))}
         </Select>
 
-        <Checkbox
-          name="has_games"
-          value="on"
-          defaultIsChecked={selected.has_games === 'on'}
-          onChange={handleChange}
-          colorScheme="green"
-        >
-          Has published games
-        </Checkbox>
+        {type === 'event' ? (
+          <Select
+            name="period"
+            value={selected.period || 'upcoming'}
+            onChange={handleChange}
+            borderRadius="md"
+            width="auto"
+          >
+            <option value="upcoming">Upcoming</option>
+            {facets.years?.map(({ year }) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </Select>
+        ) : (
+          <>
+            <Checkbox
+              name="has_games"
+              value="on"
+              defaultIsChecked={selected.has_games === 'on'}
+              onChange={handleChange}
+              colorScheme="green"
+            >
+              Has published games
+            </Checkbox>
 
-        <Checkbox
-          name="has_events"
-          value="on"
-          defaultIsChecked={selected.has_events === 'on'}
-          onChange={handleChange}
-          colorScheme="green"
-        >
-          Has hosted events
-        </Checkbox>
+            <Checkbox
+              name="has_events"
+              value="on"
+              defaultIsChecked={selected.has_events === 'on'}
+              onChange={handleChange}
+              colorScheme="green"
+            >
+              Has hosted events
+            </Checkbox>
+          </>
+        )}
       </Flex>
     </Box>
   );
