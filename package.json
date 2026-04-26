@@ -1,9 +1,10 @@
 {
   "scripts": {
-    "build": "remix vite:build",
-    "deploy": "remix vite:build && fly deploy --remote-only",
-    "dev": "remix vite:dev",
-    "start": "remix-serve build/server/index.js",
+    "build": "react-router build",
+    "deploy": "react-router build && fly deploy --remote-only",
+    "dev": "react-router dev",
+    "start": "react-router-serve build/server/index.js",
+    "typegen": "react-router typegen",
     "db:seed": "prisma db seed"
   },
   "dependencies": {
@@ -19,9 +20,9 @@
     "@microsoft/clarity": "^1.0.0",
     "@mui/material": "^5.14.18",
     "@prisma/client": "^4.4.0",
-    "@remix-run/node": "^2.16.0",
-    "@remix-run/react": "^2.16.0",
-    "@remix-run/serve": "^2.16.0",
+    "@react-router/node": "^7.1.0",
+    "@react-router/remix-routes-option-adapter": "^7.1.0",
+    "@react-router/serve": "^7.1.0",
     "@remix-run/v1-route-convention": "^0.1.4",
     "@sendgrid/mail": "^7.7.0",
     "aws-sdk": "^2.780.0",
@@ -45,13 +46,14 @@
     "react-hook-form": "^7.31.3",
     "react-icons": "^5.5.0",
     "react-slick": "^0.29.0",
+    "react-router": "^7.1.0",
     "react-virtualized-auto-sizer": "^1.0.20",
     "react-window": "^1.8.10",
     "remarkable": "^2.0.1",
     "remarkable-react": "^1.4.3",
-    "remix-auth": "^3.5.1",
-    "remix-auth-form": "^1.3.0",
-    "remix-auth-oauth2": "^1.8.0",
+    "remix-auth": "^3.7.0",
+    "remix-auth-form": "^1.5.0",
+    "remix-auth-oauth2": "^1.11.0",
     "remix-auth-socials": "^2.0.5",
     "remix-auth-steam": "^1.0.4",
     "slick-carousel": "^1.8.1",
@@ -61,12 +63,10 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",
-    "@remix-run/dev": "^2.16.0",
-    "@remix-run/eslint-config": "^2.16.0",
+    "@react-router/dev": "^7.1.0",
     "eslint": "^8.11.0",
     "prisma": "^4.3.1",
-    "vite": "^5.4.0",
-    "vite-tsconfig-paths": "^5.0.0"
+    "vite": "^5.4.0"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

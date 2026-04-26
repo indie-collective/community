@@ -8,7 +8,7 @@ import {
   Box,
 } from '@chakra-ui/react';
 import { SmallCloseIcon, SearchIcon } from '@chakra-ui/icons';
-import { Form, useLocation, useNavigate } from '@remix-run/react';
+import { Form, useLocation, useNavigate } from 'react-router';
 import React, { useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 

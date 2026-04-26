@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Heading } from '@chakra-ui/react';
-import { json, redirect } from '@remix-run/node';
-import { useActionData, useNavigation } from '@remix-run/react';
+import { json, redirect } from '@react-router/node';
+import { useActionData, useNavigation } from 'react-router';
 
 import { db } from '../utils/db.server';
 import PasswordResetForm from '../components/PasswordResetForm';

@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { chakra } from '@chakra-ui/react';
-import { Link } from '@remix-run/react';
+import { Link } from 'react-router';
 
 const CardLink = forwardRef(function CardLink(props, ref) {
   return (

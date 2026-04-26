@@ -15,7 +15,7 @@ import {
   HStack,
   Checkbox
 } from '@chakra-ui/react';
-import { Form, Link, useSearchParams, useSubmit } from '@remix-run/react';
+import { Form, Link, useSearchParams, useSubmit } from 'react-router';
 
 import { PasswordInput } from './PasswordInput';
 

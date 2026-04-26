@@ -1,5 +1,5 @@
 import { Button, Stack, Text } from '@chakra-ui/react';
-import { Link } from '@remix-run/react';
+import { Link } from 'react-router';
 
 const statusCodes = {
   400: 'Bad Request',

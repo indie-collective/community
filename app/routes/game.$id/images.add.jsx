@@ -3,7 +3,7 @@ import {
   unstable_composeUploadHandlers,
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
-} from '@remix-run/node';
+} from '@react-router/node';
 
 import { db } from '../../utils/db.server';
 import { authorizer, canWrite } from '../../utils/auth.server';

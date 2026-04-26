@@ -18,17 +18,8 @@ import {
   AlertDescription,
 } from '@chakra-ui/react';
 import { AddIcon, ArrowBackIcon, EditIcon } from '@chakra-ui/icons';
-import { json } from '@remix-run/node';
-import {
-  Link,
-  NavLink,
-  Outlet,
-  isRouteErrorResponse,
-  useLoaderData,
-  useMatches,
-  useParams,
-  useRouteError,
-} from '@remix-run/react';
+import { json } from '@react-router/node';
+import { Link, NavLink, Outlet, isRouteErrorResponse, useLoaderData, useMatches, useParams, useRouteError } from 'react-router';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';

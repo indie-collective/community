@@ -1,7 +1,7 @@
 import { Box, Heading, Text, useColorModeValue } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { json } from '@react-router/node';
+import { useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
 import { getFullTextSearchQuery } from '../utils/search.server';

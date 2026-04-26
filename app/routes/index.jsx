@@ -10,8 +10,8 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
-import { json } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
+import { json } from '@react-router/node';
+import { Link, useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
