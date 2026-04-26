@@ -61,19 +61,30 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'Places 2',
-  description:
-    'Video game related companies and organizations all over the world.',
-  'og:title': 'Places',
-  'og:description':
-    'Video game related companies and organizations all over the world.',
-  'twitter:card': 'summary_large_image',
-  'twitter:site': '@IndieColle',
-  'twitter:title': 'Places',
-  'twitter:description':
-    'Video game related companies and organizations all over the world.',
-});
+export const meta = () => [{
+  title: 'Places 2'
+}, {
+  name: 'description',
+  content: 'Video game related companies and organizations all over the world.'
+}, {
+  property: 'og:title',
+  content: 'Places'
+}, {
+  property: 'og:description',
+  content: 'Video game related companies and organizations all over the world.'
+}, {
+  name: 'twitter:card',
+  content: 'summary_large_image'
+}, {
+  name: 'twitter:site',
+  content: '@IndieColle'
+}, {
+  name: 'twitter:title',
+  content: 'Places'
+}, {
+  name: 'twitter:description',
+  content: 'Video game related companies and organizations all over the world.'
+}];
 
 const Places = () => {
   const data = useLoaderData();

@@ -145,21 +145,22 @@ export const loader = async ({ request, params }) => {
 
 export const meta = ({ data, location }) =>
   data?.org
-    ? {
-      title: data.org.name,
-      description: `${data.org.about}.`,
-      'og:title': data.org.name,
-      'og:description': `${data.org.about}.`,
-      'og:url': `${location.protocol}://${location.host}/org/${data.org.id}`,
-      'og:image': data.org.logo?.thumbnail_url,
-      'twitter:card': 'summary',
-      'twitter:title': data.org.name,
-      'twitter:description': `${data.org.about}.`,
-      'twitter:image': data.org.logo?.thumbnail_url,
-    }
-    : {
-      title: 'Organization not found!',
-    };
+    ? [
+        { title: data.org.name },
+        { name: 'description', content: `${data.org.about}.` },
+        { property: 'og:title', content: data.org.name },
+        { property: 'og:description', content: `${data.org.about}.` },
+        {
+          property: 'og:url',
+          content: `${location.protocol}://${location.host}/org/${data.org.id}`,
+        },
+        { property: 'og:image', content: data.org.logo?.thumbnail_url },
+        { name: 'twitter:card', content: 'summary' },
+        { name: 'twitter:title', content: data.org.name },
+        { name: 'twitter:description', content: `${data.org.about}.` },
+        { name: 'twitter:image', content: data.org.logo?.thumbnail_url },
+      ]
+    : [{ title: 'Organization not found!' }];
 
 const Org = () => {
   const navigate = useNavigate();

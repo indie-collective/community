@@ -6,7 +6,7 @@ import {
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
 } from '@remix-run/node';
-import { useActionData, useTransition } from '@remix-run/react';
+import { useActionData, useNavigation } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
@@ -93,13 +93,13 @@ export const loader = async ({ request }) => {
   });
 };
 
-export const meta = () => ({
-  title: 'Create a new event',
-});
+export const meta = () => [{
+  title: 'Create a new event'
+}];
 
 const CreateEvent = () => {
   const toast = useToast();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData();
 
   useEffect(() => {
@@ -110,7 +110,7 @@ const CreateEvent = () => {
       description: actionData?.error,
       status: 'error',
     });
-  }, [actionData?.error, transition.state === 'submitting', toast]);
+  }, [actionData?.error, navigation.state === 'submitting', toast]);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -118,7 +118,7 @@ const CreateEvent = () => {
 
       <EventForm
         method="POST"
-        loading={transition.state === 'submitting'}
+        loading={navigation.state === 'submitting'}
         defaultData={actionData?.values}
       />
     </Box>

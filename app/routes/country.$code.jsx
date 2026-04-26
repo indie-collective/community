@@ -50,9 +50,13 @@ export const loader = async ({ params }) => {
   return json(data);
 };
 
-export const meta = ({ data: { country } }) => ({
-  title: `${country.name} | Indie Collective - Community powered video game data`,
-});
+export const meta = ({
+  data: {
+    country
+  }
+}) => [{
+  title: `${country.name} | Indie Collective - Community powered video game data`
+}];
 
 const CountriesPage = () => {
   const { country } = useLoaderData();

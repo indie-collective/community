@@ -54,9 +54,11 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = ({ data }) => ({
-  title: `${data.currentUser.first_name}'s profile`,
-});
+export const meta = ({
+  data
+}) => [{
+  title: `${data.currentUser.first_name}'s profile`
+}];
 
 const LinkSocialButton = ({ provider, icon, name }) => {
   const [hover, setHover] = useState(false);

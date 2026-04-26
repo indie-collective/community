@@ -1,5 +1,5 @@
 import { Box, Heading, useToast } from '@chakra-ui/react';
-import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
+import { useActionData, useLoaderData, useNavigation } from '@remix-run/react';
 import {
   json,
   redirect,
@@ -91,14 +91,14 @@ export const action = async ({ request }) => {
   }
 };
 
-export const meta = () => ({
-  title: 'Edit profile',
-});
+export const meta = () => [{
+  title: 'Edit profile'
+}];
 
 const Profile = () => {
   const { currentUser } = useLoaderData();
   const toast = useToast();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData();
 
   useEffect(() => {
@@ -109,7 +109,7 @@ const Profile = () => {
       description: actionData?.error,
       status: 'error',
     });
-  }, [actionData?.error, transition.state === 'submitting', toast]);
+  }, [actionData?.error, navigation.state === 'submitting', toast]);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -117,7 +117,7 @@ const Profile = () => {
 
       <ProfileForm
         method="post"
-        loading={transition.state === 'submitting'}
+        loading={navigation.state === 'submitting'}
         defaultData={actionData?.values || currentUser}
       />
     </Box>
