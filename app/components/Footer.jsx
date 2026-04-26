@@ -10,7 +10,7 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { Link } from '@remix-run/react';
+import { Link } from 'react-router';
 import * as React from 'react';
 
 import Logo from './Logo';

@@ -1,5 +1,5 @@
-import { json } from '@remix-run/node';
-import { useLoaderData, useLocation, useNavigate } from '@remix-run/react';
+import { json } from '@react-router/node';
+import { useLoaderData, useLocation, useNavigate } from 'react-router';
 import React, { useTransition } from 'react';
 import {
   chakra,

@@ -5,8 +5,8 @@ import {
   unstable_composeUploadHandlers,
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
-} from '@remix-run/node';
-import { useActionData, useNavigation } from '@remix-run/react';
+} from '@react-router/node';
+import { useActionData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';

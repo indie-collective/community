@@ -19,7 +19,7 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 import { CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
-import { Form, useFetcher, useSubmit } from '@remix-run/react';
+import { Form, useFetcher, useSubmit } from 'react-router';
 import debounce from 'lodash.debounce';
 
 const validationSchema = yup.object().shape({

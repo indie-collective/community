@@ -25,7 +25,7 @@ import { format } from 'date-fns';
 
 import PlacesSearch from './PlacesSearch';
 import usePlaceholder from '../hooks/usePlaceholder';
-import { Form, useSubmit } from '@remix-run/react';
+import { Form, useSubmit } from 'react-router';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),

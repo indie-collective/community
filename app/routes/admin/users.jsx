@@ -1,5 +1,5 @@
-import { json, redirect } from '@remix-run/node';
-import { useLoaderData, useSubmit } from '@remix-run/react';
+import { json, redirect } from '@react-router/node';
+import { useLoaderData, useSubmit } from 'react-router';
 import {
   Heading,
   Table,

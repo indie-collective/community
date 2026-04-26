@@ -1,5 +1,5 @@
-import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { json } from '@react-router/node';
+import { useLoaderData } from 'react-router';
 import React from 'react';
 
 import countryCodes from '../assets/countries.json';

@@ -1,5 +1,5 @@
-import { json } from '@remix-run/node';
-import { useFetcher } from '@remix-run/react';
+import { json } from '@react-router/node';
+import { useFetcher } from 'react-router';
 import {
   Modal,
   ModalOverlay,

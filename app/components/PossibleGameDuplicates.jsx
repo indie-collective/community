@@ -1,4 +1,4 @@
-import { Link, useFetcher } from '@remix-run/react';
+import { Link, useFetcher } from 'react-router';
 import { Link as ChakraLink, Text } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { Fragment, useEffect } from 'react';

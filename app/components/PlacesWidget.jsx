@@ -7,7 +7,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
-import { Link } from '@remix-run/react';
+import { Link } from 'react-router';
 import { Map, Overlay } from 'pigeon-maps';
 
 const PlacesWidget = ({ placesCount, placesPoints }) => {

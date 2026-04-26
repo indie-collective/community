@@ -23,15 +23,8 @@ import {
   Link as ChakraLink,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, WarningTwoIcon } from '@chakra-ui/icons';
-import {
-  Form,
-  Link,
-  isRouteErrorResponse,
-  useFetcher,
-  useLoaderData,
-  useRouteError,
-} from '@remix-run/react';
-import { json } from '@remix-run/node';
+import { Form, Link, isRouteErrorResponse, useFetcher, useLoaderData, useRouteError } from 'react-router';
+import { json } from '@react-router/node';
 import { Map } from 'pigeon-maps';
 
 import { db } from '../utils/db.server';

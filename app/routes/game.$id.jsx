@@ -23,15 +23,8 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
-import { json } from '@remix-run/node';
-import {
-  Form,
-  Link,
-  isRouteErrorResponse,
-  useFetcher,
-  useLoaderData,
-  useRouteError,
-} from '@remix-run/react';
+import { json } from '@react-router/node';
+import { Form, Link, isRouteErrorResponse, useFetcher, useLoaderData, useRouteError } from 'react-router';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';

@@ -1,4 +1,4 @@
-import { createCookieSessionStorage } from '@remix-run/node';
+import { createCookieSessionStorage } from '@react-router/node';
 
 // Comma-separated so the secret can be rotated: the first one signs new
 // cookies, the others are still accepted until they expire.

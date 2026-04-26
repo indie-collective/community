@@ -10,19 +10,7 @@ import {
   Progress,
 } from '@chakra-ui/react';
 import { WarningIcon } from '@chakra-ui/icons';
-import {
-  Links,
-  LiveReload,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-  isRouteErrorResponse,
-  useLoaderData,
-  useLocation,
-  useNavigation,
-  useRouteError,
-} from '@remix-run/react';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useLoaderData, useLocation, useNavigation, useRouteError } from 'react-router';
 import { AnimatePresence } from 'framer-motion';
 
 import { ServerStyleContext, ClientStyleContext } from './context';
@@ -124,7 +112,7 @@ const Document = withEmotionCache(({ children }, emotionCache) => {
         {children}
         <ScrollRestoration />
         <Scripts />
-        {process.env.NODE_ENV === 'development' ? <LiveReload /> : null}
+        {/* LiveReload removed for RR7 — Vite handles HMR */}
       </body>
     </html>
   );

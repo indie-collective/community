@@ -10,7 +10,7 @@ import {
   FormErrorMessage,
   Button,
 } from '@chakra-ui/react';
-import { Form, useSubmit } from '@remix-run/react';
+import { Form, useSubmit } from 'react-router';
 
 const validationSchema = yup.object().shape({
   email: yup.string().email().required(),

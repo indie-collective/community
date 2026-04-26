@@ -12,9 +12,9 @@ import {
   Flex,
   Divider,
 } from '@chakra-ui/react';
-import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import { Link } from '@remix-run/react';
+import { json } from '@react-router/node';
+import { useLoaderData } from 'react-router';
+import { Link } from 'react-router';
 import { motion } from 'framer-motion';
 import { FaCalendarAlt, FaGamepad, FaUsers, FaBuilding, FaMapMarkerAlt, FaHashtag } from 'react-icons/fa';
 import { db } from '../utils/db.server';
