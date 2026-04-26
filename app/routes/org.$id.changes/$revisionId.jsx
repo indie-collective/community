@@ -121,23 +121,37 @@ export const loader = async ({ request, params }) => {
   return json(data);
 };
 
-export const meta = ({ data, location }) => {
-  if (!data?.org)
-    return {
-      title: 'Organization Not Found',
-    };
-
-  const { org } = data;
-
-  return {
-    title: `Version history - ${org.name}`,
-    'og:title': `Version history - ${org.name}`,
-    'og:description': `Version history of ${org.name}.`,
-    'og:url': `${location.protocol}://${location.host}/org/${org.id}`,
-    'twitter:site': '@IndieColle',
-    'twitter:title': `Version history - ${org.name}`,
-    'twitter:description': `Version history of ${org.name}.`,
-  };
+export const meta = ({
+  data,
+  location
+}) => {
+  if (!data?.org) return [{
+    title: 'Organization Not Found'
+  }];
+  const {
+    org
+  } = data;
+  return [{
+    title: `Version history - ${org.name}`
+  }, {
+    property: 'og:title',
+    content: `Version history - ${org.name}`
+  }, {
+    property: 'og:description',
+    content: `Version history of ${org.name}.`
+  }, {
+    property: 'og:url',
+    content: `${location.protocol}://${location.host}/org/${org.id}`
+  }, {
+    name: 'twitter:site',
+    content: '@IndieColle'
+  }, {
+    name: 'twitter:title',
+    content: `Version history - ${org.name}`
+  }, {
+    name: 'twitter:description',
+    content: `Version history of ${org.name}.`
+  }];
 };
 
 const OrgRevision = () => {

@@ -8,7 +8,7 @@ import {
   useColorModeValue as mode,
 } from '@chakra-ui/react';
 import { json, redirect } from '@remix-run/node';
-import { Link, useActionData, useTransition } from '@remix-run/react';
+import { Link, useActionData, useNavigation } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
@@ -69,12 +69,12 @@ export const action = async ({ request }) => {
   }
 };
 
-export const meta = () => ({
-  title: 'Sign Up',
-});
+export const meta = () => [{
+  title: 'Sign Up'
+}];
 
 const SignUp = () => {
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData();
 
   return (
@@ -101,7 +101,7 @@ const SignUp = () => {
         </Alert>
       )}
 
-      <SignupForm method="post" loading={transition.state === 'submitting'} />
+      <SignupForm method="post" loading={navigation.state === 'submitting'} />
     </Box>
   );
 };

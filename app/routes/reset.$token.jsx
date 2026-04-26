@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Heading } from '@chakra-ui/react';
 import { json, redirect } from '@remix-run/node';
-import { useActionData, useTransition } from '@remix-run/react';
+import { useActionData, useNavigation } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import PasswordResetForm from '../components/PasswordResetForm';
@@ -60,12 +60,12 @@ export const action = async ({ request, params }) => {
   }
 };
 
-export const meta = () => ({
-  title: 'Reset password',
-});
+export const meta = () => [{
+  title: 'Reset password'
+}];
 
 const Reset = () => {
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData();
 
   return (
@@ -83,7 +83,7 @@ const Reset = () => {
 
       <PasswordResetForm
         method="post"
-        loading={transition.state === 'submitting'}
+        loading={navigation.state === 'submitting'}
       />
     </Box>
   );

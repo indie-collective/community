@@ -98,26 +98,46 @@ export const loader = async ({ request, params }) => {
   return json(data);
 };
 
-export const meta = ({ data, location }) => {
-  if (!data?.game)
-    return {
-      title: 'Game Not Found',
-    };
-
-  const { game } = data;
-
-  return {
-    title: `${game.name} - Games`,
-    'og:title': game.name,
-    'og:description': `${game.about}.`,
-    'og:url': `${location.protocol}://${location.host}/game/${game.id}`,
-    'og:image': game.game_image[0]?.image.thumbnail_url,
-    'twitter:card': game.game_image[0] ? 'summary_large_image' : 'summary',
-    'twitter:site': '@IndieColle',
-    'twitter:title': game.name,
-    'twitter:description': `${game.about}.`,
-    'twitter:image': game.game_image[0]?.image.thumbnail_url,
-  };
+export const meta = ({
+  data,
+  location
+}) => {
+  if (!data?.game) return [{
+    title: 'Game Not Found'
+  }];
+  const {
+    game
+  } = data;
+  return [{
+    title: `${game.name} - Games`
+  }, {
+    property: 'og:title',
+    content: game.name
+  }, {
+    property: 'og:description',
+    content: `${game.about}.`
+  }, {
+    property: 'og:url',
+    content: `${location.protocol}://${location.host}/game/${game.id}`
+  }, {
+    property: 'og:image',
+    content: game.game_image[0]?.image.thumbnail_url
+  }, {
+    name: 'twitter:card',
+    content: game.game_image[0] ? 'summary_large_image' : 'summary'
+  }, {
+    name: 'twitter:site',
+    content: '@IndieColle'
+  }, {
+    name: 'twitter:title',
+    content: game.name
+  }, {
+    name: 'twitter:description',
+    content: `${game.about}.`
+  }, {
+    name: 'twitter:image',
+    content: game.game_image[0]?.image.thumbnail_url
+  }];
 };
 
 const Game = () => {

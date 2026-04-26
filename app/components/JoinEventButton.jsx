@@ -1,6 +1,6 @@
 import { Button } from '@chakra-ui/react';
 import { CheckIcon } from '@chakra-ui/icons';
-import { Form, useTransition } from '@remix-run/react';
+import { Form, useNavigation } from '@remix-run/react';
 
 const JoinEventButton = ({
   currentPerson,
@@ -9,7 +9,7 @@ const JoinEventButton = ({
   children,
   ...rest
 }) => {
-  const transition = useTransition();
+  const navigation = useNavigation();
 
   return (
     <Form method='post' action={`/event/${eventId}/${isGoing ? 'leave' : 'join'}`}>
@@ -19,9 +19,9 @@ const JoinEventButton = ({
         leftIcon={isGoing ? <CheckIcon /> : null}
         {...rest}
         type="submit"
-        disabled={transition.state === 'submitting'}
+        disabled={navigation.state === 'submitting'}
       >
-        {transition.state === 'submitting' ? 'Submitting...' : children}
+        {navigation.state === 'submitting' ? 'Submitting...' : children}
       </Button>
     </Form>
   );

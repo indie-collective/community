@@ -98,19 +98,30 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'Associations',
-  description:
-    'Video game related associations around you and all over the world.',
-  'og:title': 'Associations',
-  'og:description':
-    'Video game related associations around you and all over the world.',
-  'twitter:card': 'summary',
-  'twitter:site': '@IndieColle',
-  'twitter:title': 'Associations',
-  'twitter:description':
-    'Video game related associations around you and all over the world.',
-});
+export const meta = () => [{
+  title: 'Associations'
+}, {
+  name: 'description',
+  content: 'Video game related associations around you and all over the world.'
+}, {
+  property: 'og:title',
+  content: 'Associations'
+}, {
+  property: 'og:description',
+  content: 'Video game related associations around you and all over the world.'
+}, {
+  name: 'twitter:card',
+  content: 'summary'
+}, {
+  name: 'twitter:site',
+  content: '@IndieColle'
+}, {
+  name: 'twitter:title',
+  content: 'Associations'
+}, {
+  name: 'twitter:description',
+  content: 'Video game related associations around you and all over the world.'
+}];
 
 const OrgsList = () => {
   const { associations = [] } = useLoaderData();

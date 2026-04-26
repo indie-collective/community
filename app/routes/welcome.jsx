@@ -18,7 +18,7 @@ import {
   Link,
   useActionData,
   useLoaderData,
-  useTransition,
+  useNavigation,
 } from '@remix-run/react';
 
 import { authenticator } from '../utils/auth.server';
@@ -87,7 +87,7 @@ export default function Welcome() {
   const { currentUser } = useLoaderData();
   const actionData = useActionData();
 
-  const transition = useTransition();
+  const navigation = useNavigation();
 
   if ((!actionData && !currentUser.email) || actionData?.errors) {
     return (
@@ -123,7 +123,7 @@ export default function Welcome() {
             <Button
               type="submit"
               width="100%"
-              isLoading={transition.state === 'submitting'}
+              isLoading={navigation.state === 'submitting'}
             >
               Submit
             </Button>

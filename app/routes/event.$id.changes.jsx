@@ -84,23 +84,37 @@ export const loader = async ({ request, params }) => {
   return json(data);
 };
 
-export const meta = ({ data, location }) => {
-  if (!data?.event)
-    return {
-      title: 'Event Not Found',
-    };
-
-  const { event } = data;
-
-  return {
-    title: `Version history - ${event.name}`,
-    'og:title': `Version history - ${event.name}`,
-    'og:description': `Version history of ${event.name}.`,
-    'og:url': `${location.protocol}://${location.host}/event/${event.id}`,
-    'twitter:site': '@IndieColle',
-    'twitter:title': `Version history - ${event.name}`,
-    'twitter:description': `Version history of ${event.name}.`,
-  };
+export const meta = ({
+  data,
+  location
+}) => {
+  if (!data?.event) return [{
+    title: 'Event Not Found'
+  }];
+  const {
+    event
+  } = data;
+  return [{
+    title: `Version history - ${event.name}`
+  }, {
+    property: 'og:title',
+    content: `Version history - ${event.name}`
+  }, {
+    property: 'og:description',
+    content: `Version history of ${event.name}.`
+  }, {
+    property: 'og:url',
+    content: `${location.protocol}://${location.host}/event/${event.id}`
+  }, {
+    name: 'twitter:site',
+    content: '@IndieColle'
+  }, {
+    name: 'twitter:title',
+    content: `Version history - ${event.name}`
+  }, {
+    name: 'twitter:description',
+    content: `Version history of ${event.name}.`
+  }];
 };
 
 const operationsColors = {

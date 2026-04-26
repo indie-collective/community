@@ -1,6 +1,6 @@
 import { Box, Heading, useToast } from '@chakra-ui/react';
 import { json, redirect } from '@remix-run/node';
-import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
+import { useActionData, useLoaderData, useNavigation } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
@@ -93,13 +93,13 @@ export const loader = async ({ request }) => {
   });
 };
 
-export const meta = () => ({
-  title: 'Add a game',
-});
+export const meta = () => [{
+  title: 'Add a game'
+}];
 
 const CreateGame = () => {
   const toast = useToast();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const loaderData = useLoaderData();
   const actionData = useActionData();
 
@@ -111,7 +111,7 @@ const CreateGame = () => {
       description: actionData?.error,
       status: 'error',
     });
-  }, [actionData?.error, transition.state === 'submitting', toast]);
+  }, [actionData?.error, navigation.state === 'submitting', toast]);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -119,7 +119,7 @@ const CreateGame = () => {
 
       <GameForm
         method="POST"
-        loading={transition.state === 'submitting'}
+        loading={navigation.state === 'submitting'}
         defaultData={actionData?.values || loaderData?.values}
       />
     </Box>

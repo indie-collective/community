@@ -50,19 +50,32 @@ export function links() {
   return [{ rel: 'stylesheet', href: slickStyles }];
 }
 
-export const meta = () => ({
-  charset: 'utf-8',
-  title: 'Community',
-  description: 'Video game related events around you and all over the world.',
-  viewport: 'width=device-width,initial-scale=1',
-  'og:title': 'Community',
-  'og:description':
-    'Video game related events around you and all over the world.',
-  'twitter:site': '@IndieColle',
-  'twitter:title': 'Community',
-  'twitter:description':
-    'Video game related events around you and all over the world.',
-});
+export const meta = () => [{
+  charSet: 'utf-8'
+}, {
+  title: 'Community'
+}, {
+  name: 'description',
+  content: 'Video game related events around you and all over the world.'
+}, {
+  name: 'viewport',
+  content: 'width=device-width,initial-scale=1'
+}, {
+  property: 'og:title',
+  content: 'Community'
+}, {
+  property: 'og:description',
+  content: 'Video game related events around you and all over the world.'
+}, {
+  name: 'twitter:site',
+  content: '@IndieColle'
+}, {
+  name: 'twitter:title',
+  content: 'Community'
+}, {
+  name: 'twitter:description',
+  content: 'Video game related events around you and all over the world.'
+}];
 
 const Document = withEmotionCache(({ children }, emotionCache) => {
   const serverStyleData = useContext(ServerStyleContext);

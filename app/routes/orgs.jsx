@@ -39,19 +39,30 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'Organizations',
-  description:
-    'Video game related organizations around you and all over the world.',
-  'og:title': 'Organizations',
-  'og:description':
-    'Video game related organizations around you and all over the world.',
-  'twitter:card': 'summary',
-  'twitter:site': '@IndieColle',
-  'twitter:title': 'Organizations',
-  'twitter:description':
-    'Video game related organizations around you and all over the world.',
-});
+export const meta = () => [{
+  title: 'Organizations'
+}, {
+  name: 'description',
+  content: 'Video game related organizations around you and all over the world.'
+}, {
+  property: 'og:title',
+  content: 'Organizations'
+}, {
+  property: 'og:description',
+  content: 'Video game related organizations around you and all over the world.'
+}, {
+  name: 'twitter:card',
+  content: 'summary'
+}, {
+  name: 'twitter:site',
+  content: '@IndieColle'
+}, {
+  name: 'twitter:title',
+  content: 'Organizations'
+}, {
+  name: 'twitter:description',
+  content: 'Video game related organizations around you and all over the world.'
+}];
 
 const OrgsList = () => {
   // const orgs = useAsyncValue();
