@@ -8,8 +8,8 @@ import {
   Spacer,
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { Link, useLoaderData } from '@remix-run/react';
-import { json } from '@remix-run/node';
+import { Link, useLoaderData } from 'react-router';
+import { json } from '@react-router/node';
 import { Suspense } from 'react';
 
 import { db } from '../utils/db.server';

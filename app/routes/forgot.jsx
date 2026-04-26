@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Heading } from '@chakra-ui/react';
-import { json } from '@remix-run/node';
-import { useActionData, useNavigation } from '@remix-run/react';
+import { json } from '@react-router/node';
+import { useActionData, useNavigation } from 'react-router';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';

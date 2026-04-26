@@ -1,7 +1,7 @@
 import { renderToString } from 'react-dom/server';
 import { CacheProvider } from '@emotion/react';
 import createEmotionServer from '@emotion/server/create-instance';
-import { RemixServer } from '@remix-run/react';
+import { ServerRouter } from 'react-router';
 
 import { ServerStyleContext } from './context';
 import createEmotionCache from './createEmotionCache';
@@ -18,7 +18,7 @@ export default function handleRequest(
   const html = renderToString(
     <ServerStyleContext.Provider value={null}>
       <CacheProvider value={cache}>
-        <RemixServer context={remixContext} url={request.url} />
+        <ServerRouter context={remixContext} url={request.url} />
       </CacheProvider>
     </ServerStyleContext.Provider>
   );
@@ -28,7 +28,7 @@ export default function handleRequest(
   const markup = renderToString(
     <ServerStyleContext.Provider value={chunks.styles}>
       <CacheProvider value={cache}>
-        <RemixServer context={remixContext} url={request.url} />
+        <ServerRouter context={remixContext} url={request.url} />
       </CacheProvider>
     </ServerStyleContext.Provider>
   );

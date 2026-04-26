@@ -1,6 +1,6 @@
 import { Button } from '@chakra-ui/react';
 import { CheckIcon } from '@chakra-ui/icons';
-import { Form, useNavigation } from '@remix-run/react';
+import { Form, useNavigation } from 'react-router';
 
 const JoinEventButton = ({
   currentPerson,

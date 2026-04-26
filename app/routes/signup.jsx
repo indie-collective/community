@@ -7,8 +7,8 @@ import {
   Link as ChakraLink,
   useColorModeValue as mode,
 } from '@chakra-ui/react';
-import { json, redirect } from '@remix-run/node';
-import { Link, useActionData, useNavigation } from '@remix-run/react';
+import { json, redirect } from '@react-router/node';
+import { Link, useActionData, useNavigation } from 'react-router';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';

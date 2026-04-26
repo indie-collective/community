@@ -21,3 +21,4 @@ generated
 /.deprecated.*
 /transform-meta.cjs
 /rename-useTransition.cjs
+/rewrite-rr7-imports.cjs

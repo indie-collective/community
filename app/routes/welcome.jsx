@@ -12,14 +12,8 @@ import {
   SimpleGrid,
   Text,
 } from '@chakra-ui/react';
-import { json, redirect } from '@remix-run/node';
-import {
-  Form,
-  Link,
-  useActionData,
-  useLoaderData,
-  useNavigation,
-} from '@remix-run/react';
+import { json, redirect } from '@react-router/node';
+import { Form, Link, useActionData, useLoaderData, useNavigation } from 'react-router';
 
 import { authenticator } from '../utils/auth.server';
 import { db } from '../utils/db.server';

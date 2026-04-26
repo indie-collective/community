@@ -5,7 +5,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 
-import { Form, useSubmit } from '@remix-run/react';
+import { Form, useSubmit } from 'react-router';
 import countryNames from '../assets/countries.json';
 
 const Filters = ({ facets, selected, type }) => {

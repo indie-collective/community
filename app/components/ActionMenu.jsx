@@ -12,7 +12,7 @@ import {
     DeleteIcon,
     SettingsIcon
 } from '@chakra-ui/icons';
-import { Link } from '@remix-run/react';
+import { Link } from 'react-router';
 
 const ActionMenu = ({ editLink, changesLink, onDelete, ...props }) => {
     return (

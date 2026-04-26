@@ -1,4 +1,4 @@
-import { redirect } from '@remix-run/node';
+import { redirect } from '@react-router/node';
 import { REST, Routes } from 'discord.js';
 import { Authenticator, Authorizer } from 'remix-auth';
 import { FormStrategy } from 'remix-auth-form';

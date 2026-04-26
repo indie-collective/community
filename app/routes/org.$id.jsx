@@ -22,15 +22,8 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
-import { json } from '@remix-run/node';
-import {
-  Link,
-  useLoaderData,
-  useNavigate,
-  Form,
-  isRouteErrorResponse,
-  useRouteError,
-} from '@remix-run/react';
+import { json } from '@react-router/node';
+import { Link, useLoaderData, useNavigate, Form, isRouteErrorResponse, useRouteError } from 'react-router';
 import { motion } from 'framer-motion';
 
 import { db } from '../utils/db.server';

@@ -14,8 +14,8 @@ import {
   Link as ChakraLink,
 } from '@chakra-ui/react';
 import { EditIcon, LinkIcon } from '@chakra-ui/icons';
-import { json } from '@remix-run/node';
-import { Form, Link, useLoaderData, useSearchParams } from '@remix-run/react';
+import { json } from '@react-router/node';
+import { Form, Link, useLoaderData, useSearchParams } from 'react-router';
 import { useState } from 'react';
 
 import { db } from '../utils/db.server';
