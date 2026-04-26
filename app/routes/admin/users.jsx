@@ -115,9 +115,9 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'Users - Community Administration',
-});
+export const meta = () => [{
+  title: 'Users - Community Administration'
+}];
 
 const Profile = () => {
   const submit = useSubmit();

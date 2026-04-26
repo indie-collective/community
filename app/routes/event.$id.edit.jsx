@@ -6,7 +6,7 @@ import {
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
 } from '@remix-run/node';
-import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
+import { useActionData, useLoaderData, useNavigation } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
@@ -126,14 +126,16 @@ export async function action(args) {
   }
 }
 
-export const meta = ({ data }) => ({
-  title: `Edit "${data.event.name}" | Events`,
-});
+export const meta = ({
+  data
+}) => [{
+  title: `Edit "${data.event.name}" | Events`
+}];
 
 const EditEvent = () => {
   const { event } = useLoaderData();
   const toast = useToast();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData();
 
   useEffect(() => {
@@ -145,7 +147,7 @@ const EditEvent = () => {
       status: 'error',
       position: 'bottom-right',
     });
-  }, [actionData?.error, transition.state === 'submitting', toast]);
+  }, [actionData?.error, navigation.state === 'submitting', toast]);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -153,7 +155,7 @@ const EditEvent = () => {
 
       <EventForm
         method="post"
-        loading={transition.state === 'submitting'}
+        loading={navigation.state === 'submitting'}
         defaultData={actionData?.values || event}
       />
     </Box>

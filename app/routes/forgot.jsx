@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Heading } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
-import { useActionData, useTransition } from '@remix-run/react';
+import { useActionData, useNavigation } from '@remix-run/react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
@@ -47,12 +47,12 @@ export const action = async ({ request }) => {
   return json({ reset: true });
 };
 
-export const meta = () => ({
-  title: 'Forgot password',
-});
+export const meta = () => [{
+  title: 'Forgot password'
+}];
 
 const SignUp = () => {
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData();
 
   if (actionData && actionData.reset) {
@@ -83,7 +83,7 @@ const SignUp = () => {
         </Alert>
       )}
 
-      <ForgotForm method="post" loading={transition.state === 'submitting'} />
+      <ForgotForm method="post" loading={navigation.state === 'submitting'} />
     </Box>
   );
 };

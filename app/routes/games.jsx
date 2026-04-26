@@ -110,9 +110,9 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'Games',
-});
+export const meta = () => [{
+  title: 'Games'
+}];
 
 const Games = () => {
   const { games: initialGames, tags } = useLoaderData();

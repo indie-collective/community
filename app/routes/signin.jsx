@@ -12,7 +12,7 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { json } from '@remix-run/node';
-import { Form, useActionData, useTransition } from '@remix-run/react';
+import { Form, useActionData, useNavigation } from '@remix-run/react';
 import { AuthorizationError } from 'remix-auth';
 import { SocialsProvider } from 'remix-auth-socials';
 
@@ -45,12 +45,12 @@ export let action = async ({ request }) => {
   }
 };
 
-export const meta = () => ({
-  title: 'Sign In',
-});
+export const meta = () => [{
+  title: 'Sign In'
+}];
 
 const SignIn = () => {
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData();
 
   return (
@@ -90,7 +90,7 @@ const SignIn = () => {
             </Alert>
           )}
 
-          <SigninForm loading={transition.state === 'submitting'} />
+          <SigninForm loading={navigation.state === 'submitting'} />
         </Stack>
       )}
     </Box>

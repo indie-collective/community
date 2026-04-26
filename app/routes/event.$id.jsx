@@ -144,40 +144,56 @@ export const loader = async ({ request, params }) => {
   return json(data);
 };
 
-export const meta = ({ data, location }) => {
-  if (!data?.event) return { title: 'Event not found!' };
-
-  const { event } = data;
-
-  let description = `Event on ${new Date(event.starts_at).toLocaleString(
-    'en-US',
-    {
-      day: 'numeric',
-      month: 'short',
-      hour: 'numeric',
-      minute: 'numeric',
-    }
-  )}`;
-
+export const meta = ({
+  data,
+  location
+}) => {
+  if (!data?.event) return [{
+    title: 'Event not found!'
+  }];
+  const {
+    event
+  } = data;
+  let description = `Event on ${new Date(event.starts_at).toLocaleString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    hour: 'numeric',
+    minute: 'numeric'
+  })}`;
   if (event.location) {
     const l = event.location;
-
-    description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${l.region
-      }, ${l.country_code}`;
+    description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${l.country_code}`;
   }
-
-  return {
-    title: `${event.name} | Events`,
-    description,
-    'og:title': event.name,
-    'og:description': description,
-    'og:url': `${location.protocol}://${location.host}/org/${event.id}`,
-    'og:image': event.cover?.thumbnail_url,
-    'twitter:card': event.cover ? 'summary_large_image' : 'summary',
-    'twitter:title': event.name,
-    'twitter:description': description,
-    'twitter:image': event.cover?.thumbnail_url,
-  };
+  return [{
+    title: `${event.name} | Events`
+  }, {
+    name: 'description',
+    content: description
+  }, {
+    property: 'og:title',
+    content: event.name
+  }, {
+    property: 'og:description',
+    content: description
+  }, {
+    property: 'og:url',
+    content: `${location.protocol}://${location.host}/org/${event.id}`
+  }, {
+    property: 'og:image',
+    content: event.cover?.thumbnail_url
+  }, {
+    name: 'twitter:card',
+    content: event.cover ? 'summary_large_image' : 'summary'
+  }, {
+    name: 'twitter:title',
+    content: event.name
+  }, {
+    name: 'twitter:description',
+    content: description
+  }, {
+    name: 'twitter:image',
+    content: event.cover?.thumbnail_url
+  }];
 };
 
 const Event = () => {

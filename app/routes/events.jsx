@@ -154,18 +154,30 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'Events',
-  description: 'Video game related events around you and all over the world.',
-  'og:title': 'Events',
-  'og:description':
-    'Video game related events around you and all over the world.',
-  'twitter:card': 'summary',
-  'twitter:site': '@IndieColle',
-  'twitter:title': 'Events',
-  'twitter:description':
-    'Video game related events around you and all over the world.',
-});
+export const meta = () => [{
+  title: 'Events'
+}, {
+  name: 'description',
+  content: 'Video game related events around you and all over the world.'
+}, {
+  property: 'og:title',
+  content: 'Events'
+}, {
+  property: 'og:description',
+  content: 'Video game related events around you and all over the world.'
+}, {
+  name: 'twitter:card',
+  content: 'summary'
+}, {
+  name: 'twitter:site',
+  content: '@IndieColle'
+}, {
+  name: 'twitter:title',
+  content: 'Events'
+}, {
+  name: 'twitter:description',
+  content: 'Video game related events around you and all over the world.'
+}];
 
 const Events = () => {
   const { events, pastEvents, currentUser, facets, selected } = useLoaderData();

@@ -70,9 +70,11 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = ({ data }) => ({
-  title: `Results for "${data.search}" | Search`,
-});
+export const meta = ({
+  data
+}) => [{
+  title: `Results for "${data.search}" | Search`
+}];
 
 const SearchPage = () => {
   const helpTextColor = useColorModeValue('gray.300', 'gray.600');

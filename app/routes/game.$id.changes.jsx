@@ -84,23 +84,37 @@ export const loader = async ({ request, params }) => {
   return json(data);
 };
 
-export const meta = ({ data, location }) => {
-  if (!data?.game)
-    return {
-      title: 'Game Not Found',
-    };
-
-  const { game } = data;
-
-  return {
-    title: `Version history - ${game.name}`,
-    'og:title': `Version history - ${game.name}`,
-    'og:description': `Version history of ${game.name}.`,
-    'og:url': `${location.protocol}://${location.host}/game/${game.id}`,
-    'twitter:site': '@IndieColle',
-    'twitter:title': `Version history - ${game.name}`,
-    'twitter:description': `Version history of ${game.name}.`,
-  };
+export const meta = ({
+  data,
+  location
+}) => {
+  if (!data?.game) return [{
+    title: 'Game Not Found'
+  }];
+  const {
+    game
+  } = data;
+  return [{
+    title: `Version history - ${game.name}`
+  }, {
+    property: 'og:title',
+    content: `Version history - ${game.name}`
+  }, {
+    property: 'og:description',
+    content: `Version history of ${game.name}.`
+  }, {
+    property: 'og:url',
+    content: `${location.protocol}://${location.host}/game/${game.id}`
+  }, {
+    name: 'twitter:site',
+    content: '@IndieColle'
+  }, {
+    name: 'twitter:title',
+    content: `Version history - ${game.name}`
+  }, {
+    name: 'twitter:description',
+    content: `Version history of ${game.name}.`
+  }];
 };
 
 const operationsColors = {
