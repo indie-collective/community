@@ -16,3 +16,8 @@ generated
 .next
 .env*
 .vscode
+
+# Sandbox migration artifacts (safe to delete locally)
+/.deprecated.*
+/transform-meta.cjs
+/rename-useTransition.cjs

@@ -28,7 +28,9 @@ import { AnimatePresence } from 'framer-motion';
 import { ServerStyleContext, ClientStyleContext } from './context';
 import theme from './theme';
 import { authenticator } from './utils/auth.server';
-import slickStyles from 'slick-carousel/slick/slick.css'; // CSS needed for Carousel component
+// Vite resolves the file URL via the ?url suffix; passed to <Links />
+// via the route's `links` export below.
+import slickStyles from 'slick-carousel/slick/slick.css?url';
 import Error from './components/Error';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';

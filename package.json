@@ -1,9 +1,9 @@
 {
   "scripts": {
-    "build": "remix build",
-    "deploy": "remix build && fly deploy --remote-only",
-    "dev": "remix dev",
-    "start": "remix-serve build",
+    "build": "remix vite:build",
+    "deploy": "remix vite:build && fly deploy --remote-only",
+    "dev": "remix vite:dev",
+    "start": "remix-serve build/server/index.js",
     "db:seed": "prisma db seed"
   },
   "dependencies": {
@@ -64,7 +64,9 @@
     "@remix-run/dev": "^2.16.0",
     "@remix-run/eslint-config": "^2.16.0",
     "eslint": "^8.11.0",
-    "prisma": "^4.3.1"
+    "prisma": "^4.3.1",
+    "vite": "^5.4.0",
+    "vite-tsconfig-paths": "^5.0.0"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
