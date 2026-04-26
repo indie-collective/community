@@ -7,7 +7,7 @@ import {
   Link as ChakraLink,
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { useNavigate } from '@remix-run/react';
+import { useNavigate } from 'react-router';
 
 const AddMenuButton = () => {
   const navigate = useNavigate();

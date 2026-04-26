@@ -1,4 +1,4 @@
-import { json } from '@remix-run/node';
+import { json } from '@react-router/node';
 
 import { db } from '../utils/db.server';
 import { getFullTextSearchQuery } from '../utils/search.server';

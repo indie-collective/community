@@ -1,5 +1,5 @@
-import { json, redirect } from '@remix-run/node';
-import { useLoaderData, Form, Link, useSubmit } from '@remix-run/react';
+import { json, redirect } from '@react-router/node';
+import { useLoaderData, Form, Link, useSubmit } from 'react-router';
 import {
   Heading,
   Link as ChakraLink,

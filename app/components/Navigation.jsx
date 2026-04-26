@@ -21,7 +21,7 @@ import {
   MenuItem,
 } from '@chakra-ui/react';
 import { HamburgerIcon, ChevronDownIcon } from '@chakra-ui/icons';
-import { Link, useLoaderData, useLocation, useNavigation } from '@remix-run/react';
+import { Link, useLoaderData, useLocation, useNavigation } from 'react-router';
 
 import Logo from '../components/Logo';
 import AvatarButton from './AvatarButton';

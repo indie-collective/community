@@ -7,8 +7,8 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { json } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
+import { json } from '@react-router/node';
+import { Link, useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
 

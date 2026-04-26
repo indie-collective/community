@@ -11,8 +11,8 @@ import {
   Text,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { json } from '@remix-run/node';
-import { Form, useActionData, useNavigation } from '@remix-run/react';
+import { json } from '@react-router/node';
+import { Form, useActionData, useNavigation } from 'react-router';
 import { AuthorizationError } from 'remix-auth';
 import { SocialsProvider } from 'remix-auth-socials';
 

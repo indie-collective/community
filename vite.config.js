@@ -1,24 +1,13 @@
-import { vitePlugin as remix } from '@remix-run/dev';
-import {
-  createRoutesFromFolders,
-} from '@remix-run/v1-route-convention';
+import { reactRouter } from '@react-router/dev/vite';
 import { defineConfig } from 'vite';
 
+// Note: route configuration moved to ./react-router.config.ts and
+// ./app/routes.ts (which uses @react-router/remix-routes-option-adapter
+// + createRoutesFromFolders to preserve the legacy v1 nested-folder
+// route layout).
+
 export default defineConfig({
-  plugins: [
-    remix({
-      ignoredRouteFiles: ['**/.*'],
-      // Preserve the existing v1 nested-folder route convention
-      // (e.g. app/routes/event.$id/games.add.jsx). Without this adapter,
-      // those folders would not resolve as nested children under the
-      // default v2 flat route convention.
-      routes(defineRoutes) {
-        return createRoutesFromFolders(defineRoutes, {
-          ignoredFilePatterns: ['.*'],
-        });
-      },
-    }),
-  ],
+  plugins: [reactRouter()],
   ssr: {
     // @microsoft/clarity is ESM-only / not pre-bundled by Vite for SSR
     // by default, so force it through Vite's ssr transform.

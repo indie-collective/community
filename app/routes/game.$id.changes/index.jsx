@@ -1,5 +1,5 @@
 import { Text } from '@chakra-ui/react';
-import { json, redirect, Response } from '@remix-run/node';
+import { json, redirect, Response } from '@react-router/node';
 
 import { db } from '../../utils/db.server';
 

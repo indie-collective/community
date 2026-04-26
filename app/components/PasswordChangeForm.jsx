@@ -11,7 +11,7 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { PasswordInput } from './PasswordInput';
-import { Form, useSubmit } from '@remix-run/react';
+import { Form, useSubmit } from 'react-router';
 
 const validationSchema = yup.object().shape({
   oldPassword: yup.string().required(),

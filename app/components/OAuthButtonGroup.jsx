@@ -1,5 +1,5 @@
 import { chakra, Button, ButtonGroup, VisuallyHidden } from '@chakra-ui/react'
-import { Form } from '@remix-run/react';
+import { Form } from 'react-router';
 import { SocialsProvider } from 'remix-auth-socials';
 
 import { DiscordIcon } from './DiscordIcon';

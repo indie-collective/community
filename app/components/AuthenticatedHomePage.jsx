@@ -11,7 +11,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
-import { Link, useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData } from 'react-router';
 
 import GameCard from './GameCard';
 import OrgCard from './OrgCard';
