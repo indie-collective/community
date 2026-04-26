@@ -36,9 +36,9 @@ const ImageUploader = ({ gameId, currentUser, fetcher }) => {
 
   if (
     fetcher.state === 'submitting' &&
-    fetcher.submission.action.includes('images/add')
+    fetcher.formAction?.includes('images/add')
   ) {
-    fetcher.submission.formData.getAll('images').map((file) => (
+    fetcher.formData.getAll('images').map((file) => (
       <Box key={file.name} position="relative">
         <AspectRatio ratio={16 / 9}>
           <Image

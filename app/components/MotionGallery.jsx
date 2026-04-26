@@ -18,8 +18,8 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
 
   const uploadingImages =
     fetcher.state === 'submitting' &&
-      fetcher.submission.action.includes('images/add') ?
-      fetcher.submission.formData.getAll('images').map((file) => ({
+      fetcher.formAction?.includes('images/add') ?
+      fetcher.formData.getAll('images').map((file) => ({
         name: file.name,
         url: URL.createObjectURL(file),
         uploading: true,
@@ -78,8 +78,8 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                 icon={<DeleteIcon />}
                 isLoading={
                   fetcher.state === 'submitting' &&
-                  fetcher.submission.action.includes('images/delete') &&
-                  fetcher.submission.formData.get('id') === image.id
+                  fetcher.formAction?.includes('images/delete') &&
+                  fetcher.formData?.get('id') === image.id
                 }
                 onClick={(e) => {
                   e.preventDefault();
