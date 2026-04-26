@@ -201,18 +201,30 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'Indie Collective - Community powered video game data',
-  description: 'Video game related events around you and all over the world.',
-  'og:title': 'Indie Collective - Community powered video game data',
-  'og:description':
-    'Video game related events around you and all over the world.',
-  'twitter:card': 'summary',
-  'twitter:site': '@IndieColle',
-  'twitter:title': 'Indie Collective - Community powered video game data',
-  'twitter:description':
-    'Video game related events around you and all over the world.',
-});
+export const meta = () => [{
+  title: 'Indie Collective - Community powered video game data'
+}, {
+  name: 'description',
+  content: 'Video game related events around you and all over the world.'
+}, {
+  property: 'og:title',
+  content: 'Indie Collective - Community powered video game data'
+}, {
+  property: 'og:description',
+  content: 'Video game related events around you and all over the world.'
+}, {
+  name: 'twitter:card',
+  content: 'summary'
+}, {
+  name: 'twitter:site',
+  content: '@IndieColle'
+}, {
+  name: 'twitter:title',
+  content: 'Indie Collective - Community powered video game data'
+}, {
+  name: 'twitter:description',
+  content: 'Video game related events around you and all over the world.'
+}];
 
 const HomePage = () => {
   const {

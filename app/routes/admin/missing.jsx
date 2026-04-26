@@ -120,9 +120,9 @@ export const loader = async ({ request }) => {
   });
 };
 
-export const meta = () => ({
-  title: 'Users - Community Administration',
-});
+export const meta = () => [{
+  title: 'Users - Community Administration'
+}];
 
 const Missing = () => {
   const {

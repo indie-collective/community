@@ -26,18 +26,30 @@ export const loader = async () => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'About',
-  description: 'Video game related events around you and all over the world.',
-  'og:title': 'About',
-  'og:description':
-    'Video game related events around you and all over the world.',
-  'twitter:card': 'summary',
-  'twitter:site': '@IndieColle',
-  'twitter:title': 'About',
-  'twitter:description':
-    'Video game related events around you and all over the world.',
-});
+export const meta = () => [{
+  title: 'About'
+}, {
+  name: 'description',
+  content: 'Video game related events around you and all over the world.'
+}, {
+  property: 'og:title',
+  content: 'About'
+}, {
+  property: 'og:description',
+  content: 'Video game related events around you and all over the world.'
+}, {
+  name: 'twitter:card',
+  content: 'summary'
+}, {
+  name: 'twitter:site',
+  content: '@IndieColle'
+}, {
+  name: 'twitter:title',
+  content: 'About'
+}, {
+  name: 'twitter:description',
+  content: 'Video game related events around you and all over the world.'
+}];
 
 const AboutPage = () => {
   const { gamesCount, entitiesCount, eventsCount } = useLoaderData();

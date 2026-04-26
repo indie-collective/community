@@ -6,7 +6,7 @@ import {
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
 } from '@remix-run/node';
-import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
+import { useActionData, useLoaderData, useNavigation } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
@@ -125,14 +125,16 @@ export async function action(args) {
   }
 }
 
-export const meta = ({ data }) => ({
-  title: `Edit "${data.org.name}" | Organizations`,
-});
+export const meta = ({
+  data
+}) => [{
+  title: `Edit "${data.org.name}" | Organizations`
+}];
 
 const EditOrg = () => {
   const { org } = useLoaderData();
   const toast = useToast();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData();
 
   useEffect(() => {
@@ -144,7 +146,7 @@ const EditOrg = () => {
       status: 'error',
       position: 'bottom-right',
     });
-  }, [actionData?.error, transition.state === 'submitting', toast]);
+  }, [actionData?.error, navigation.state === 'submitting', toast]);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -152,7 +154,7 @@ const EditOrg = () => {
 
       <OrgForm
         method="post"
-        loading={transition.state === 'submitting'}
+        loading={navigation.state === 'submitting'}
         defaultData={org}
       />
     </Box>

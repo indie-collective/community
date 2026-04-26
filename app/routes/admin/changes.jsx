@@ -82,9 +82,9 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'Last Changes - Community Administration',
-});
+export const meta = () => [{
+  title: 'Last Changes - Community Administration'
+}];
 
 const operationsColors = {
   create: 'green.500',

@@ -1,7 +1,7 @@
 import { Box, Heading, useToast } from '@chakra-ui/react';
 // import differenceWith from 'lodash.differencewith';
 import { json, redirect } from '@remix-run/node';
-import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
+import { useActionData, useLoaderData, useNavigation } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
@@ -117,14 +117,16 @@ export async function action(args) {
   }
 }
 
-export const meta = ({ data }) => ({
-  title: `Edit "${data.game.name}" | Games`,
-});
+export const meta = ({
+  data
+}) => [{
+  title: `Edit "${data.game.name}" | Games`
+}];
 
 const EditGame = () => {
   const { game } = useLoaderData();
   const toast = useToast();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData();
 
   useEffect(() => {
@@ -136,7 +138,7 @@ const EditGame = () => {
       status: 'error',
       position: 'bottom-right',
     });
-  }, [actionData?.error, transition.state === 'submitting', toast]);
+  }, [actionData?.error, navigation.state === 'submitting', toast]);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -154,7 +156,7 @@ const EditGame = () => {
           site: game.site,
           tags: game.game_tag.map(({ tag }) => tag),
         }}
-        loading={transition.state === 'submitting'}
+        loading={navigation.state === 'submitting'}
       />
     </Box>
   );

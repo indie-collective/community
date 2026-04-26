@@ -23,9 +23,9 @@ export const loader = async () => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'Countries | Indie Collective - Community powered video game data',
-});
+export const meta = () => [{
+  title: 'Countries | Indie Collective - Community powered video game data'
+}];
 
 const CountriesPage = () => {
   const { countries } = useLoaderData();

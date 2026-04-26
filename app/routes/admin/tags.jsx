@@ -79,9 +79,9 @@ export const action = async ({ request }) => {
   return redirect('/admin/tags');
 };
 
-export const meta = () => ({
-  title: 'Tags - Community Administration',
-});
+export const meta = () => [{
+  title: 'Tags - Community Administration'
+}];
 
 const TagsAdmin = () => {
   const { tags } = useLoaderData();

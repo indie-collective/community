@@ -98,17 +98,30 @@ export const loader = async ({ request }) => {
   return json(data);
 };
 
-export const meta = () => ({
-  title: 'Studios',
-  description: 'Video game studios around you and all over the world.',
-  'og:title': 'Studios',
-  'og:description': 'Video game studios around you and all over the world.',
-  'twitter:card': 'summary',
-  'twitter:site': '@IndieColle',
-  'twitter:title': 'Studios',
-  'twitter:description':
-    'Video game studios around you and all over the world.',
-});
+export const meta = () => [{
+  title: 'Studios'
+}, {
+  name: 'description',
+  content: 'Video game studios around you and all over the world.'
+}, {
+  property: 'og:title',
+  content: 'Studios'
+}, {
+  property: 'og:description',
+  content: 'Video game studios around you and all over the world.'
+}, {
+  name: 'twitter:card',
+  content: 'summary'
+}, {
+  name: 'twitter:site',
+  content: '@IndieColle'
+}, {
+  name: 'twitter:title',
+  content: 'Studios'
+}, {
+  name: 'twitter:description',
+  content: 'Video game studios around you and all over the world.'
+}];
 
 const OrgsList = () => {
   const { studios = [] } = useLoaderData();
