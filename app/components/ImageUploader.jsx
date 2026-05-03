@@ -1,6 +1,7 @@
-import { Box, AspectRatio, Image, Spinner, useColorModeValue } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
-import { useDropzone } from 'react-dropzone';
+import { Box, AspectRatio, Image, Spinner } from '@chakra-ui/react';
+import { useColorModeValue } from "./ui/color-mode";
+import { LuPlus } from 'react-icons/lu';
+import useDropzone from 'react-dropzone';
 import { useCallback } from 'react';
 
 const ImageUploader = ({ gameId, currentUser, fetcher }) => {
@@ -86,7 +87,7 @@ const ImageUploader = ({ gameId, currentUser, fetcher }) => {
           {...getRootProps()}
         >
           <input {...getInputProps()} />
-          <AddIcon size="48px" />
+          <LuPlus size="48px" />
         </Box>
       </AspectRatio>
     );

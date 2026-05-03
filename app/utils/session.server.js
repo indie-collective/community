@@ -1,4 +1,4 @@
-import { createCookieSessionStorage } from '@react-router/node';
+import { createCookieSessionStorage } from 'react-router';
 
 // Comma-separated so the secret can be rotated: the first one signs new
 // cookies, the others are still accepted until they expire.

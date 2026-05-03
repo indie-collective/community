@@ -1,27 +1,30 @@
-import { EditIcon, ExternalLinkIcon, StarIcon } from '@chakra-ui/icons';
+import { LuPencil, LuExternalLink, LuStar } from 'react-icons/lu';
 import {
-  Box,
+    Box,
   Button,
   Checkbox,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
   Heading,
   Input,
   Link as ChakraLink,
   SimpleGrid,
   Text,
+  Field,
 } from '@chakra-ui/react';
-import { json, redirect } from '@react-router/node';
-import { Form, Link, useActionData, useLoaderData, useNavigation } from 'react-router';
+import { redirect,
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useNavigation } from 'react-router';
+import { FaDiscord } from 'react-icons/fa6';
 
 import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import { db } from '../utils/db.server';
 import { commitSession, getSession } from '../utils/session.server';
-import { DiscordIcon } from '../components/DiscordIcon';
 
 export const loader = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
@@ -29,7 +32,7 @@ export const loader = async ({ request }) => {
 };
 
 export async function action({ request }) {
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
@@ -64,16 +67,16 @@ export async function action({ request }) {
     // commit the session
     let headers = new Headers({ 'Set-Cookie': await commitSession(session) });
 
-    return json({ currentUser: updatedUser }, { headers });
+    return { currentUser: updatedUser }, { headers };
   } catch (error) {
     const values = Object.fromEntries(formData);
-    return json({
+    return {
       errors: {
         email:
           "This email can't be chosen. If you already registered with this email, either choose a different one or sign in to link your account.",
       },
       values,
-    });
+    };
   }
 }
 
@@ -94,30 +97,35 @@ export default function Welcome() {
             We just need a little more information to get you started.
           </Text>
         </Box>
-
         <Box maxWidth="lg" m="auto">
           <Form method="post">
-            <FormControl mb={5} isInvalid={actionData?.errors.email} isRequired>
-              <FormLabel htmlFor="email">Email</FormLabel>
+            <Field.Root mb={5} invalid={actionData?.errors.email} required>
+              <Field.Label htmlFor="email">Email</Field.Label>
               <Input
                 type="email"
                 name="email"
                 placeholder="test@example.com"
                 defaultValue={actionData?.values.email}
               />
-              <FormErrorMessage>{actionData?.errors.email}</FormErrorMessage>
-            </FormControl>
+              <Field.ErrorText>{actionData?.errors.email}</Field.ErrorText>
+            </Field.Root>
 
-            <FormControl mb={10} isRequired>
-              <Checkbox>
-                I agree with to give my soul to Indie Collective
-              </Checkbox>
-            </FormControl>
+            <Field.Root mb={10} required>
+              <Checkbox.Root>
+                <Checkbox.HiddenInput />
+                <Checkbox.Control>
+                  <Checkbox.Indicator />
+                </Checkbox.Control>
+                <Checkbox.Label>
+                  I agree with to give my soul to Indie Collective
+                </Checkbox.Label>
+              </Checkbox.Root>
+            </Field.Root>
 
             <Button
               type="submit"
               width="100%"
-              isLoading={navigation.state === 'submitting'}
+              loading={navigation.state === 'submitting'}
             >
               Submit
             </Button>
@@ -135,10 +143,9 @@ export default function Welcome() {
         </Heading>
         <Text fontSize="xl">Here's what you can do now</Text>
       </Box>
-
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} columnGap={8} rowGap={16}>
         <Box>
-          <StarIcon boxSize={10} mb={5} />
+          <LuStar boxSize={10} mb={5} />
           <Heading as="h3" size="md" mb={5}>
             Personalize your profile
           </Heading>
@@ -146,13 +153,13 @@ export default function Welcome() {
             Personalize your dashboard through services integrations and
             fine-tune your research.
           </Text>
-          <Button as={Link} to="/profile">
-            Go to Profile
+          <Button asChild>
+            <Link to="/profile">Go to Profile</Link>
           </Button>
         </Box>
 
         <Box>
-          <DiscordIcon boxSize={10} mb={5} />
+          <FaDiscord boxSize={10} mb={5} />
           <Heading as="h3" size="md" mb={5}>
             Questions? Need help?
           </Heading>
@@ -161,20 +168,21 @@ export default function Welcome() {
             Collective's members.
           </Text>
           <Button
-            as={ChakraLink}
-            href="https://discord.gg/KxZVu2ZZYs"
             isExternal
             style={{ textDecoration: 'none' }}
             textDecoration="none"
-            rightIcon={<ExternalLinkIcon />}
+            asChild
           >
-            Check our Discord
+            <ChakraLink href="https://discord.gg/KxZVu2ZZYs">
+              Check our Discord
+              <LuExternalLink />
+            </ChakraLink>
           </Button>
         </Box>
 
         {currentUser.isGuildMember ? (
           <Box>
-            <EditIcon boxSize={10} mb={5} />
+            <LuPencil boxSize={10} mb={5} />
             <Heading as="h3" size="md" mb={5}>
               Start contributing now!
             </Heading>
@@ -182,13 +190,13 @@ export default function Welcome() {
               You can edit anything! Head to the suggestion page if you don't
               know where to start!
             </Text>
-            <Button as={Link} to="/contribute">
-              Contribute
+            <Button asChild>
+              <Link to="/contribute">Contribute</Link>
             </Button>
           </Box>
         ) : (
           <Box>
-            <EditIcon boxSize={10} mb={5} />
+            <LuPencil boxSize={10} mb={5} />
             <Heading as="h3" size="md" mb={5}>
               Join the Discord to contribute
             </Heading>
@@ -198,14 +206,15 @@ export default function Welcome() {
               Join now if you want to contribute!
             </Text>
             <Button
-              as={ChakraLink}
-              href=""
               isExternal
               style={{ textDecoration: 'none' }}
               textDecoration="none"
-              rightIcon={<DiscordIcon />}
+              asChild
             >
-              Join IC's Discord
+              <ChakraLink href="">
+                Join IC's Discord
+                <FaDiscord />
+              </ChakraLink>
             </Button>
           </Box>
         )}

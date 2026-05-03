@@ -1,18 +1,12 @@
-import { Box, Heading, useToast } from '@chakra-ui/react';
-import {
-  json,
-  redirect,
-  unstable_composeUploadHandlers,
-  unstable_createMemoryUploadHandler,
-  unstable_parseMultipartFormData,
-} from '@react-router/node';
-import { useActionData, useLoaderData, useNavigation } from 'react-router';
+import { Box, Heading } from '@chakra-ui/react';
+import { redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { authenticator, authorizer, canWrite } from '../utils/auth.server';
 import { notifyDiscord } from '../utils/discordNotification.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
+import { toaster } from '../components/ui/toaster';
 import OrgForm from '../components/OrgForm';
 
 export async function action(args) {
@@ -84,23 +78,23 @@ export async function action(args) {
     return redirect(`/org/${org.id}`);
   } catch (err) {
     const values = Object.fromEntries(data);
-    return json({ error: err.message, values });
+    return { error: err.message, values };
   }
 }
 
 export const loader = async ({ request }) => {
   const { pathname, search, searchParams } = new URL(request.url);
 
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: `/signin?redirect=${pathname}?${search}`,
   });
 
-  return json({
+  return {
     values: {
       name: searchParams.get('name') || '',
     },
     currentUser,
-  });
+  };
 };
 
 export const meta = () => [{
@@ -108,15 +102,14 @@ export const meta = () => [{
 }];
 
 const CreateOrg = () => {
-  const toast = useToast();
-  const navigation = useNavigation();
+    const navigation = useNavigation();
   const loaderData = useLoaderData();
   const actionData = useActionData();
 
   useEffect(() => {
     if (!actionData?.error) return;
 
-    toast({
+    toaster.create({
       title: 'Something went wrong',
       description: actionData?.error,
       status: 'error',

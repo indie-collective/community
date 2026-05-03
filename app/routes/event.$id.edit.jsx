@@ -1,17 +1,11 @@
-import { Box, Heading, useToast } from '@chakra-ui/react';
-import {
-  json,
-  redirect,
-  unstable_composeUploadHandlers,
-  unstable_createMemoryUploadHandler,
-  unstable_parseMultipartFormData,
-} from '@react-router/node';
-import { useActionData, useLoaderData, useNavigation } from 'react-router';
+import { Box, Heading } from '@chakra-ui/react';
+import { redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
+import { toaster } from '../components/ui/toaster';
 import EventForm from '../components/EventForm';
 
 const uuidRegex =
@@ -51,7 +45,7 @@ export const loader = async ({ params }) => {
     },
   };
 
-  return json(data);
+  return data;
 };
 
 export async function action(args) {
@@ -122,7 +116,7 @@ export async function action(args) {
     console.log(err);
 
     const values = Object.fromEntries(data);
-    return json({ error: 'Updating the event failed', values });
+    return { error: 'Updating the event failed', values };
   }
 }
 
@@ -134,14 +128,13 @@ export const meta = ({
 
 const EditEvent = () => {
   const { event } = useLoaderData();
-  const toast = useToast();
-  const navigation = useNavigation();
+    const navigation = useNavigation();
   const actionData = useActionData();
 
   useEffect(() => {
     if (!actionData?.error) return;
 
-    toast({
+    toaster.create({
       title: 'Something went wrong',
       description: actionData?.error,
       status: 'error',

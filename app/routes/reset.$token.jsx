@@ -1,6 +1,5 @@
-import { Alert, AlertIcon, Box, Heading } from '@chakra-ui/react';
-import { json, redirect } from '@react-router/node';
-import { useActionData, useNavigation } from 'react-router';
+import { Alert, Box, Heading } from '@chakra-ui/react';
+import { redirect, useActionData, useNavigation  } from 'react-router';
 
 import { db } from '../utils/db.server';
 import PasswordResetForm from '../components/PasswordResetForm';
@@ -34,9 +33,9 @@ export const action = async ({ request, params }) => {
     const confirm = form.get('passwordConfirmation');
 
     if (password !== confirm) {
-      return json({
+      return {
         error: "Password and confirmation don't match",
-      });
+      };
     }
 
     const resetToken = await db.reset_token.findFirst({
@@ -54,9 +53,9 @@ export const action = async ({ request, params }) => {
   } catch (error) {
     console.log(error);
 
-    return json({
+    return {
       error: 'An error occured.',
-    });
+    };
   }
 };
 
@@ -73,14 +72,12 @@ const Reset = () => {
       <Heading textAlign="center" size="xl" fontWeight="extrabold" mb={6}>
         Reset password
       </Heading>
-
       {actionData?.error && (
-        <Alert status="error" mb="10px">
-          <AlertIcon />
+        <Alert.Root status="error" mb="10px">
+          <Alert.Indicator />
           {actionData?.error}
-        </Alert>
+        </Alert.Root>
       )}
-
       <PasswordResetForm
         method="post"
         loading={navigation.state === 'submitting'}

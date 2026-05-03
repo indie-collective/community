@@ -1,13 +1,5 @@
-import {
-  Box,
-  Heading,
-  Text,
-  StatGroup,
-  StatLabel,
-  StatNumber,
-  Stat,
-} from '@chakra-ui/react';
-import { json } from '@react-router/node';
+import { Box, Heading, Text, Stat } from '@chakra-ui/react';
+
 import { useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
@@ -23,7 +15,7 @@ export const loader = async () => {
     eventsCount: await db.event.count(),
   };
 
-  return json(data);
+  return data;
 };
 
 export const meta = () => [{
@@ -96,22 +88,22 @@ const AboutPage = () => {
             and tools remain accessible and useful to everyone.
           </Text>
 
-          <StatGroup my={2}>
-            <Stat>
-              <StatNumber>{gamesCount}</StatNumber>
-              <StatLabel>games</StatLabel>
-            </Stat>
+          <Stat.Root my={2}>
+            <Stat.Root>
+              <Stat.ValueText>{gamesCount}</Stat.ValueText>
+              <Stat.Label>games</Stat.Label>
+            </Stat.Root>
 
-            <Stat>
-              <StatNumber>{entitiesCount}</StatNumber>
-              <StatLabel>orgs</StatLabel>
-            </Stat>
+            <Stat.Root>
+              <Stat.ValueText>{entitiesCount}</Stat.ValueText>
+              <Stat.Label>orgs</Stat.Label>
+            </Stat.Root>
 
-            <Stat>
-              <StatNumber>{eventsCount}</StatNumber>
-              <StatLabel>events</StatLabel>
-            </Stat>
-          </StatGroup>
+            <Stat.Root>
+              <Stat.ValueText>{eventsCount}</Stat.ValueText>
+              <Stat.Label>events</Stat.Label>
+            </Stat.Root>
+          </Stat.Root>
 
           <Heading mb={5} size="lg">
             Origins

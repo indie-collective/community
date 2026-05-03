@@ -5,10 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
+    Input,
   Button,
   Textarea,
   Grid,
@@ -16,21 +13,17 @@ import {
   Box,
   AspectRatio,
   Image,
-  useRadioGroup,
-  useRadio,
-  useStyleConfig,
-  useButtonGroup,
   Flex,
-  omitThemingProps,
-  useMergeRefs,
+  Field,
 } from '@chakra-ui/react';
-import { EditIcon } from '@chakra-ui/icons';
+import { LuPencil } from 'react-icons/lu';
 import { Map } from 'pigeon-maps';
 import { viewport } from '@mapbox/geo-viewport';
 
 import PlacesSearch from '../components/PlacesSearch';
 import PossibleOrgDuplicates from '../components/PossibleOrgDuplicates';
 import usePlaceholder from '../hooks/usePlaceholder';
+import useMergeRefs from '../hooks/useMergeRefs';
 
 const validationSchema = yup.object().shape({
   type: yup.string().oneOf(['studio', 'association']).required(),
@@ -79,48 +72,16 @@ const TYPES_COLORS = {
   association: 'green',
 };
 
-const CustomRadio = React.forwardRef((props, ref) => {
-  const { getInputProps, getCheckboxProps } = useRadio(props);
-  const {
-    color = 'teal',
-    value,
-    name,
-    isChecked,
-    ...otherProps
-  } = omitThemingProps(props);
-
-  const input = getInputProps();
-  const checkbox = getCheckboxProps();
-
-  const group = useButtonGroup();
-  const styles = useStyleConfig('Button', {
-    ...group,
-    ...props,
-    colorScheme: input.checked ? color : 'gray',
-  });
-
-  const buttonStyles = {
-    display: 'inline-flex',
-    appearance: 'none',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'all 250ms',
-    userSelect: 'none',
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    verticalAlign: 'middle',
-    outline: 'none',
-    cursor: 'pointer',
-    ...styles,
-  };
-
+function CustomRadio({ ref, ...props }) {
   return (
-    <Box as="label" {...otherProps} {...buttonStyles} {...checkbox}>
-      <input {...input} ref={ref} />
-      {props.children}
+    <Box asChild>
+      <label>
+        <input {...input} ref={ref} />
+        {props.children}
+      </label>
     </Box>
   );
-});
+}
 
 const OrgForm = ({ defaultData, loading, ...rest }) => {
   const placeholder = usePlaceholder();
@@ -144,19 +105,15 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
       name,
       location: {
         label: l
-          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${l.country_code
-          }`
+          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${
+              l.country_code
+            }`
           : '',
         value: l || null,
       },
       site,
       about,
     },
-  });
-
-  const { getRootProps, getRadioProps } = useRadioGroup({
-    name: 'type',
-    defaultValue: type,
   });
 
   const location = watch('location');
@@ -166,180 +123,173 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
 
   return (
     <Grid
-      as={Form}
       encType="multipart/form-data"
       gridTemplateColumns="1fr 1fr"
       gap={5}
-      onSubmit={handleSubmit}
       {...rest}
+      asChild
     >
-      <FormControl gridColumn="1 / 3">
-        <FormLabel htmlFor="Logo">Logo</FormLabel>
+      <Form onSubmit={handleSubmit}>
+        <Field.Root gridColumn="1 / 3">
+          <Field.Label htmlFor="Logo">Logo</Field.Label>
 
-        <Box position="relative" w="25%">
-          <AspectRatio ratio={1} onClick={() => logoRef.current.click()}>
-            <Image
-              size="100%"
-              objectFit="logo"
-              src={logo && logo.url}
-              alt="Event logo"
-              fallbackSrc={placeholder}
-              borderRadius={5}
-            />
-          </AspectRatio>
+          <Box position="relative" w="25%">
+            <AspectRatio ratio={1} onClick={() => logoRef.current.click()}>
+              <Image
+                size="100%"
+                objectFit="logo"
+                src={logo?.url ?? placeholder}
+                alt="Event logo"
+                borderRadius={5}
+              />
+            </AspectRatio>
 
-          <IconButton
-            position="absolute"
-            right={2}
-            bottom={2}
-            aria-label="Edit logo"
-            icon={<EditIcon />}
-            colorScheme="green"
-            isRound
-            onClick={() => logoRef.current.click()}
-          />
-        </Box>
-
-        <Input
-          {...logoProps}
-          ref={useMergeRefs(logoRef, logoProps.ref)}
-          display="none"
-          type="file"
-          id="logo"
-          onChange={(e) => {
-            const [file] = e.target.files;
-
-            if (file) {
-              setLogo({ url: window.URL.createObjectURL(file) });
-            }
-          }}
-          accept="image/*"
-        />
-      </FormControl>
-
-      <FormControl gridColumn="1 / 3" isInvalid={errors.type} isRequired>
-        <FormLabel htmlFor="name">Type</FormLabel>
-        <Flex {...getRootProps()}>
-          <CustomRadio
-            color={TYPES_COLORS.studio}
-            flex="1"
-            mr={2}
-            {...register('type')}
-            {...getRadioProps({ value: 'studio' })}
-          >
-            Studio
-          </CustomRadio>
-          <CustomRadio
-            color={TYPES_COLORS.association}
-            flex="1"
-            value="ASSOCIATION"
-            {...register('type')}
-            {...getRadioProps({ value: 'association' })}
-          >
-            Association
-          </CustomRadio>
-        </Flex>
-        <FormErrorMessage>
-          {errors.type && errors.type.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl gridColumn="1 / 3" isInvalid={errors.name} isRequired>
-        <FormLabel htmlFor="name">Name</FormLabel>
-        <Input
-          {...register('name')}
-          placeholder="Indie Collective, Electronic Darts..."
-        />
-        <PossibleOrgDuplicates value={newOrgName} ignoredId={id} />
-        <FormErrorMessage>
-          {errors.name && errors.name.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl gridColumn="1 / 3" isInvalid={errors.location}>
-        <FormLabel htmlFor="location">Location</FormLabel>
-
-        <Controller
-          control={control}
-          name="location"
-          render={({ field }) => (
-            <PlacesSearch
-              {...field}
-              placeholder="Rennes, France"
-              onClear={() => {
-                setValue('location', { label: '', value: null });
-                clearErrors('location');
-              }}
-              onError={() => {
-                setError('location', {
-                  type: 'custom',
-                  message: 'There was a problem retrieving data.',
-                });
-              }}
-            />
-          )}
-        />
-
-        {location.value && (
-          <Box
-            width="100%"
-            height="100px"
-            overflow="hidden"
-            borderRadius={5}
-            mt={2}
-          >
-            <Map
-              defaultWidth={800}
-              defaultHeight={100}
-              center={[location.value.latitude, location.value.longitude]}
-              zoom={
-                location.value.bbox
-                  ? viewport(location.value.bbox, [474, 100]).zoom
-                  : 16
-              }
-              mouseEvents={false}
-              touchEvents={false}
-            />
+            <IconButton
+              position="absolute"
+              right={2}
+              bottom={2}
+              aria-label="Edit logo"
+              colorPalette="green"
+              rounded="full"
+              onClick={() => logoRef.current.click()}
+            >
+              <LuPencil />
+            </IconButton>
           </Box>
-        )}
 
-        <FormErrorMessage>
-          {errors.location && errors.location.message}
-        </FormErrorMessage>
-      </FormControl>
+          <Input
+            {...logoProps}
+            ref={useMergeRefs(logoRef, logoProps.ref)}
+            display="none"
+            type="file"
+            id="logo"
+            onChange={(e) => {
+              const [file] = e.target.files;
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.site}>
-        <FormLabel htmlFor="site">Site</FormLabel>
-        <Input {...register('site')} placeholder="https://example.com" />
-        <FormErrorMessage>
-          {errors.site && errors.site.message}
-        </FormErrorMessage>
-      </FormControl>
+              if (file) {
+                setLogo({ url: window.URL.createObjectURL(file) });
+              }
+            }}
+            accept="image/*"
+          />
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3" invalid={errors.type} required>
+          <Field.Label htmlFor="name">Type</Field.Label>
+          <Flex>
+            <CustomRadio
+              color={TYPES_COLORS.studio}
+              flex="1"
+              mr={2}
+              {...register('type')}
+            >
+              Studio
+            </CustomRadio>
+            <CustomRadio
+              color={TYPES_COLORS.association}
+              flex="1"
+              value="ASSOCIATION"
+              {...register('type')}
+            >
+              Association
+            </CustomRadio>
+          </Flex>
+          <Field.ErrorText>
+            {errors.type && errors.type.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
+          <Field.Label htmlFor="name">Name</Field.Label>
+          <Input
+            {...register('name')}
+            placeholder="Indie Collective, Electronic Darts..."
+          />
+          <PossibleOrgDuplicates value={newOrgName} ignoredId={id} />
+          <Field.ErrorText>
+            {errors.name && errors.name.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3" invalid={errors.location}>
+          <Field.Label htmlFor="location">Location</Field.Label>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.about}>
-        <FormLabel htmlFor="about">About</FormLabel>
-        <Textarea
-          {...register('about')}
-          minH="15rem"
-          resize="vertical"
-          placeholder="What is this organization doing?"
-          whiteSpace="pre-wrap"
-        />
-        <FormErrorMessage>
-          {errors.about && errors.about.message}
-        </FormErrorMessage>
-      </FormControl>
+          <Controller
+            control={control}
+            name="location"
+            render={({ field }) => (
+              <PlacesSearch
+                {...field}
+                placeholder="Rennes, France"
+                onClear={() => {
+                  setValue('location', { label: '', value: null });
+                  clearErrors('location');
+                }}
+                onError={() => {
+                  setError('location', {
+                    type: 'custom',
+                    message: 'There was a problem retrieving data.',
+                  });
+                }}
+              />
+            )}
+          />
 
-      <Button
-        gridColumn="1 / 3"
-        colorScheme="green"
-        mt={3}
-        type="submit"
-        isLoading={loading}
-        isDisabled={loading}
-      >
-        Submit
-      </Button>
+          {location.value && (
+            <Box
+              width="100%"
+              height="100px"
+              overflow="hidden"
+              borderRadius={5}
+              mt={2}
+            >
+              <Map
+                defaultWidth={800}
+                defaultHeight={100}
+                center={[location.value.latitude, location.value.longitude]}
+                zoom={
+                  location.value.bbox
+                    ? viewport(location.value.bbox, [474, 100]).zoom
+                    : 16
+                }
+                mouseEvents={false}
+                touchEvents={false}
+              />
+            </Box>
+          )}
+
+          <Field.ErrorText>
+            {errors.location && errors.location.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3" invalid={errors.site}>
+          <Field.Label htmlFor="site">Site</Field.Label>
+          <Input {...register('site')} placeholder="https://example.com" />
+          <Field.ErrorText>
+            {errors.site && errors.site.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3" invalid={errors.about}>
+          <Field.Label htmlFor="about">About</Field.Label>
+          <Textarea
+            {...register('about')}
+            minH="15rem"
+            resize="vertical"
+            placeholder="What is this organization doing?"
+            whiteSpace="pre-wrap"
+          />
+          <Field.ErrorText>
+            {errors.about && errors.about.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Button
+          gridColumn="1 / 3"
+          colorPalette="green"
+          mt={3}
+          type="submit"
+          loading={loading}
+          disabled={loading}
+        >
+          Submit
+        </Button>
+      </Form>
     </Grid>
   );
 };

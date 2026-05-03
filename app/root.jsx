@@ -1,219 +1,202 @@
 import React, { useContext, useEffect } from 'react';
 import { withEmotionCache } from '@emotion/react';
 import {
-  ChakraProvider,
   Box,
   Flex,
   Heading,
   Text,
   useBreakpointValue,
   Progress,
+  Presence,
 } from '@chakra-ui/react';
-import { WarningIcon } from '@chakra-ui/icons';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useLoaderData, useLocation, useNavigation, useRouteError } from 'react-router';
-import { AnimatePresence } from 'framer-motion';
+import { LuTriangleAlert } from 'react-icons/lu';
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  isRouteErrorResponse,
+  useLoaderData,
+  useLocation,
+  useNavigation,
+  useRouteError,
+} from 'react-router';
+import { ThemeProvider } from 'next-themes';
 
-import { ServerStyleContext, ClientStyleContext } from './context';
 import theme from './theme';
-import { authenticator } from './utils/auth.server';
+import { useInjectStyles } from './emotion-client';
+import { ClientStyleContext, ServerStyleContext } from './context';
 // Vite resolves the file URL via the ?url suffix; passed to <Links />
 // via the route's `links` export below.
 import slickStyles from 'slick-carousel/slick/slick.css?url';
+import isAuthenticated from './utils/isAuthenticated.server';
+import { Provider as ChakraProvider } from './components/ui/provider';
 import Error from './components/Error';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 
-const Main = (props) => {
-  const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
-  return (
-    <Flex
-      as="main"
-      flex="1"
-      direction="column"
-      alignItems="center"
-      {...props}
-    />
-  );
-};
-
 export function links() {
-  return [{ rel: 'stylesheet', href: slickStyles }];
+  return [
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.gstatic.com',
+      crossOrigin: 'anonymous',
+    },
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap',
+    },
+    { rel: 'stylesheet', href: slickStyles },
+  ];
 }
 
-export const meta = () => [{
-  charSet: 'utf-8'
-}, {
-  title: 'Community'
-}, {
-  name: 'description',
-  content: 'Video game related events around you and all over the world.'
-}, {
-  name: 'viewport',
-  content: 'width=device-width,initial-scale=1'
-}, {
-  property: 'og:title',
-  content: 'Community'
-}, {
-  property: 'og:description',
-  content: 'Video game related events around you and all over the world.'
-}, {
-  name: 'twitter:site',
-  content: '@IndieColle'
-}, {
-  name: 'twitter:title',
-  content: 'Community'
-}, {
-  name: 'twitter:description',
-  content: 'Video game related events around you and all over the world.'
-}];
+export const meta = () => [
+  {
+    charSet: 'utf-8',
+  },
+  {
+    title: 'Community',
+  },
+  {
+    name: 'description',
+    content: 'Video game related events around you and all over the world.',
+  },
+  {
+    name: 'viewport',
+    content: 'width=device-width,initial-scale=1',
+  },
+  {
+    property: 'og:title',
+    content: 'Community',
+  },
+  {
+    property: 'og:description',
+    content: 'Video game related events around you and all over the world.',
+  },
+  {
+    name: 'twitter:site',
+    content: '@IndieColle',
+  },
+  {
+    name: 'twitter:title',
+    content: 'Community',
+  },
+  {
+    name: 'twitter:description',
+    content: 'Video game related events around you and all over the world.',
+  },
+];
 
-const Document = withEmotionCache(({ children }, emotionCache) => {
-  const serverStyleData = useContext(ServerStyleContext);
-  const clientStyleData = useContext(ClientStyleContext);
+export const Layout = withEmotionCache((props, cache) => {
+  const { children } = props;
 
-  // Only executed on client
-  useEffect(() => {
-    // re-link sheet container
-    emotionCache.sheet.container = document.head;
-    // re-inject tags
-    const tags = emotionCache.sheet.tags;
-    emotionCache.sheet.flush();
-    tags.forEach((tag) => {
-      emotionCache.sheet._insertTag(tag);
-    });
-    // reset cache to reapply global styles
-    clientStyleData?.reset();
-  }, []);
+  // client injection styles
+  useInjectStyles(cache);
 
   return (
     <html lang="en">
-      <head>
+      <head suppressHydrationWarning>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstaticom" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
-          rel="stylesheet"
-        />
         <Meta />
         <Links />
-        {serverStyleData?.map(({ key, ids, css }) => (
-          <style
-            key={key}
-            data-emotion={`${key} ${ids.join(' ')}`}
-            dangerouslySetInnerHTML={{ __html: css }}
-          />
-        ))}
+        <meta
+          name="emotion-insertion-point"
+          content="emotion-insertion-point"
+        />
       </head>
       <body
         style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
       >
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-        {/* LiveReload removed for RR7 — Vite handles HMR */}
+        <ChakraProvider>
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+        </ChakraProvider>
       </body>
     </html>
   );
 });
 
-export function ErrorBoundary() {
-  const error = useRouteError();
+export function ErrorBoundary({ error }) {
+  let message = 'Oops!';
+  let details = 'An unexpected error occurred.';
+  let stack;
 
   if (isRouteErrorResponse(error)) {
-    return (
-      <Document>
-        <ChakraProvider theme={theme}>
-          <AnimatePresence exitBeforeEnter>
-            <Main>
-              <Error statusCode={error.status} />
-            </Main>
-          </AnimatePresence>
-        </ChakraProvider>
-      </Document>
-    );
+    message = error.status === 404 ? '404' : 'Error';
+    details =
+      error.status === 404
+        ? 'The requested page could not be found.'
+        : error.statusText || details;
+  } else if (import.meta.env.DEV && error && error instanceof Error) {
+    details = error.message;
+    stack = error.stack;
   }
 
   return (
-    <Document>
-      <ChakraProvider theme={theme}>
-        <AnimatePresence exitBeforeEnter>
-          <Main justifyContent="center">
-            <Flex
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              textAlign="center"
-              height="200px"
-            >
-              <WarningIcon boxSize="40px" mr={0} />
-              <Heading mt={4} mb={1} fontSize="lg">
-                Something went wrong!
-              </Heading>
-              <Text maxWidth="sm">{error.message}</Text>
-              <Text>{JSON.stringify(error.stack, false, 2)}</Text>
-            </Flex>
-          </Main>
-        </AnimatePresence>
-      </ChakraProvider>
-    </Document>
+    <main className="pt-16 p-4 container mx-auto">
+      <h1>{message}</h1>
+      <p>{details}</p>
+      {stack && (
+        <pre className="w-full p-4 overflow-x-auto">
+          <code>{stack}</code>
+        </pre>
+      )}
+    </main>
   );
 }
 
 export const loader = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request);
-  const { POSTHOG_ID, NODE_ENV } = process.env;
+  const currentUser = await isAuthenticated(request);
 
-  return { currentUser, ENV: { POSTHOG_ID, NODE_ENV } };
+  return { currentUser };
 };
 
 export default function App() {
-  const {
-    ENV: { CLARITY_ID, NODE_ENV },
-  } = useLoaderData();
   let location = useLocation();
   const navigation = useNavigation();
 
-  useEffect(() => {
-    if (NODE_ENV === 'production' && CLARITY_ID) {
-      Clarity.init(CLARITY_ID);
-    }
-  }, []);
-
-  const isLoading = navigation.state === 'loading' || navigation.state === 'submitting';
-
-  // React.useEffect(() => {
-  //   posthog.capture('$pageview');
-  // }, [location]);
+  const isLoading =
+    navigation.state === 'loading' || navigation.state === 'submitting';
 
   return (
-    <Document>
-      <ChakraProvider theme={theme}>
-        <AnimatePresence exitBeforeEnter>
-          <Flex direction="column">
-            {isLoading && (
-              <Progress
-                size="xs"
-                isIndeterminate
-                position="fixed"
-                top={0}
-                left={0}
-                right={0}
-                zIndex={9999}
-                colorScheme="green"
-              />
-            )}
-            <Main>
-              <Navigation />
-              <Box minHeight="100vh" maxWidth={960} width="100%">
-                <Outlet />
-              </Box>
-              <Footer />
-            </Main>
-          </Flex>
-        </AnimatePresence>
-      </ChakraProvider>
-    </Document>
+    <Layout>
+      {/* <Presence present> */}
+      <Flex direction="column">
+        {isLoading && (
+          <Progress.Root
+            size="xs"
+            indeterminate
+            position="fixed"
+            top={0}
+            left={0}
+            right={0}
+            zIndex={9999}
+            colorPalette="green"
+          >
+            <Progress.Track>
+              <Progress.Range />
+            </Progress.Track>
+          </Progress.Root>
+        )}
+        <Flex
+          as="main"
+          flex="1"
+          direction="column"
+          alignItems="center"
+          bg={{ base: 'gray.100', _dark: 'gray.900' }}
+        >
+          <Navigation />
+          <Box minHeight="100vh" maxWidth={960} width="100%">
+            <Outlet />
+          </Box>
+          <Footer />
+        </Flex>
+      </Flex>
+      {/* </Presence> */}
+    </Layout>
   );
 }

@@ -1,5 +1,6 @@
-import { json } from '@react-router/node';
+
 import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server'
 
 import { db } from '../utils/db.server';
 
@@ -8,11 +9,11 @@ export async function loader({ request }) {
 
   const query = searchParams.get('q');
 
-  if (!query) return json({ available: false });
+  if (!query) return { available: false };
 
-  const currentUser = await authenticator.isAuthenticated(request);
+  const currentUser = await isAuthenticated(request);
 
-  if (currentUser.username === query) return json({ available: true });
+  if (currentUser.username === query) return { available: true };
 
   const user = await db.person.findUnique({
     where: {
@@ -20,5 +21,5 @@ export async function loader({ request }) {
     },
   });
 
-  return json({ available: !user });
+  return { available: !user };
 }

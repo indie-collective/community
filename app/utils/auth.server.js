@@ -1,21 +1,16 @@
-import { redirect } from '@react-router/node';
+import { redirect } from 'react-router';
 import { REST, Routes } from 'discord.js';
-import { Authenticator, Authorizer } from 'remix-auth';
+import { Authenticator } from 'remix-auth';
 import { FormStrategy } from 'remix-auth-form';
-import {
-  SocialsProvider,
-  DiscordStrategy,
-  // GitHubStrategy,
-} from 'remix-auth-socials';
-// import { SteamStrategy } from 'remix-auth-steam';
+import { SocialsProvider } from 'remix-auth-socials';
+import { DiscordStrategy } from 'remix-auth-discord';
 
 import { db } from './db.server';
 import getImageLinks from './imageLinks.server';
 import { sessionStorage } from './session.server';
+import { Authorizer } from './authorizer.server';
 
-// Create an instance of the authenticator, pass a generic with what
-// strategies will return and will store in the session
-export let authenticator = new Authenticator(sessionStorage);
+export let authenticator = new Authenticator();
 
 const port = process.env.PORT ?? 3000;
 
@@ -81,13 +76,21 @@ if (process.env.NODE_ENV === 'development') {
 authenticator.use(
   new DiscordStrategy(
     {
-      clientID: process.env.DISCORD_CLIENT_ID,
+      clientId: process.env.DISCORD_CLIENT_ID,
       clientSecret: process.env.DISCORD_CLIENT_SECRET,
-      callbackURL: `${CALLBACK_BASE_URL}/${SocialsProvider.DISCORD}/callback`,
+      redirectURI: `${CALLBACK_BASE_URL}/${SocialsProvider.DISCORD}/callback`,
+      scopes: ['email identify guilds.join guilds.members.read guilds'],
     },
-    async ({ profile }) => {
+    async ({ tokens, request }) => {
       try {
-        const discordAvatar = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.photos[0].value}`;
+        const response = await fetch('https://discord.com/api/users/@me', {
+          headers: {
+            Authorization: `Bearer ${tokens.accessToken()}`,
+          },
+        });
+        const profile = await response.json();
+
+        const discordAvatar = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}`;
 
         const guildMember = await rest.get(
           Routes.guildMember(
@@ -123,7 +126,7 @@ authenticator.use(
           // const personsWithEmails = await db.person.findMany({
           //   where: {
           //     email: {
-          //       in: profile.emails.map(({ value }) => value),
+          //       in: profile.email,
           //     },
           //   },
           // });
@@ -135,11 +138,11 @@ authenticator.use(
 
           user = await db.person.create({
             data: {
-              email: profile.emails[0].value,
+              email: profile.email,
               discord_id: profile.id,
-              first_name: profile.name?.givenName || profile.displayName,
-              last_name: profile.name?.familyName,
-              username: profile.displayName + profile.__json.discriminator,
+              first_name: profile.global_name || profile.username,
+              last_name: '',
+              username: profile.username,
               avatar_oauth: discordAvatar, // needed to be seen by other users
               isAdmin,
             },
@@ -186,71 +189,6 @@ authenticator.use(
   )
 );
 
-// authenticator.use(
-//   new GitHubStrategy(
-//     {
-//       clientID: process.env.GITHUB_CLIENT_ID,
-//       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-//       callbackURL: `${CALLBACK_BASE_URL}/${SocialsProvider.GITHUB}/callback`,
-//     },
-//     async ({ profile }) => {
-//       const user = await db.person.upsert({
-//         where: {
-//           email: profile.emails[0].value,
-//         },
-//         create: {
-//           email: profile.emails[0].value,
-//           discord_id: profile.id,
-//           first_name: profile.name?.givenName || profile.displayName,
-//           last_name: profile.name?.familyName,
-//           username: profile.displayName, // github username
-//           about: profile._json.bio,
-//         },
-//         update: {},
-//       });
-
-//       return {
-//         ...user,
-//         avatar: profile.photos[0].value,
-//       };
-//     }
-//   )
-// );
-
-// authenticator.use(
-//   new SteamStrategy(
-//     {
-//       returnURL: `${CALLBACK_BASE_URL}/steam/callback`,
-//       apiKey: process.env.STEAM_API_KEY,
-//     },
-//     async (profile) => {
-//       try {
-//         // TODO: either permit not having an email or cannot sign up without one (linking or force entering an email)
-//         const user = await db.person.upsert({
-//           where: {
-//             steam_id: profile.steamID,
-//           },
-//           create: {
-//             steam_id: profile.steamID,
-//             first_name: profile.realName || profile.nickname,
-//             username: profile.nickname,
-//           },
-//           update: {},
-//         });
-
-//         return {
-//           ...user,
-//           avatar: profile.avatar.large,
-//         };
-//       } catch (err) {
-//         console.log(err);
-//         throw new Error('Error connecting to Steam');
-//       }
-//     }
-//   ),
-//   'steam'
-// );
-
 /* Global authorization rules */
 async function hasEmail({ user, request }) {
   const url = new URL(request.url);
@@ -294,39 +232,3 @@ export async function canDelete({ user }) {
     })
   ).isAdmin;
 }
-
-const { isAuthenticated } = authenticator;
-
-authenticator.isAuthenticated = async function (request, options) {
-  const currentUser = await isAuthenticated.call(
-    authenticator,
-    request,
-    options
-  );
-
-  if (!currentUser) return currentUser;
-
-  // check if user still exists in the database
-  const user = await db.person.findUnique({
-    where: {
-      id: currentUser.id,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!user) {
-    const prevURL = new URL(request.url);
-    
-    // todo: add redirect to previous page
-    throw await authenticator.logout(request, {
-      redirectTo: '/signin?prev=' + prevURL.pathname,
-    });
-  }
-
-  // this might get useless if authorized is used everywhere
-  await hasEmail({ user: currentUser, request });
-
-  return currentUser;
-};

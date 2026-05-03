@@ -1,6 +1,7 @@
-import { Box, Heading, Text, useColorModeValue } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { json } from '@react-router/node';
+import { Box, Heading, Text } from '@chakra-ui/react';
+
+import { useColorModeValue } from "../components/ui/color-mode";
+
 import { useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
@@ -8,7 +9,7 @@ import { getFullTextSearchQuery } from '../utils/search.server';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
-import Carousel from '../components/Carousel';
+import Carousel from '../components/Carousel.client';
 
 const variants = {
   initial: { scale: 0.96, y: 30, opacity: 0 },
@@ -67,7 +68,7 @@ export const loader = async ({ request }) => {
     }),
   };
 
-  return json(data);
+  return data;
 };
 
 export const meta = ({
@@ -104,9 +105,9 @@ const SearchPage = () => {
                   <Carousel slidesToShow={[1, 2, 3]}>
                     {games.map((game) => (
                       <Box key={game.id} minW={0} pr={3}>
-                        <motion.div variants={variants}>
+                        <Box variants={variants}>
                           <GameCard {...game} />
-                        </motion.div>
+                        </Box>
                       </Box>
                     ))}
                   </Carousel>
@@ -122,9 +123,9 @@ const SearchPage = () => {
                   <Carousel slidesToShow={[1, 2, 3]}>
                     {orgs.map((org) => (
                       <Box key={org.id} minW={0} pr={3}>
-                        <motion.div variants={variants}>
+                        <Box variants={variants}>
                           <OrgCard {...org} />
-                        </motion.div>
+                        </Box>
                       </Box>
                     ))}
                   </Carousel>
@@ -140,9 +141,9 @@ const SearchPage = () => {
                   <Carousel slidesToShow={[1, 2, 3]}>
                     {events.map((event) => (
                       <Box key={event.id} minW={0} pr={3}>
-                        <motion.div variants={variants}>
+                        <Box variants={variants}>
                           <EventCard {...event} />
-                        </motion.div>
+                        </Box>
                       </Box>
                     ))}
                   </Carousel>

@@ -1,12 +1,13 @@
-import { redirect } from '@react-router/node';
+import { redirect } from 'react-router';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server'
 
 export async function action({ params, request }) {
   const { id } = params;
 
-  const user = await authenticator.isAuthenticated(request, {
+  const user = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 

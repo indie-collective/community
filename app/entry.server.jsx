@@ -1,42 +1,75 @@
-import { renderToString } from 'react-dom/server';
 import { CacheProvider } from '@emotion/react';
-import createEmotionServer from '@emotion/server/create-instance';
+import { createReadableStreamFromReadable } from '@react-router/node';
+import { isbot } from 'isbot';
+import { PassThrough } from 'node:stream';
+import { renderToPipeableStream } from 'react-dom/server';
 import { ServerRouter } from 'react-router';
 
-import { ServerStyleContext } from './context';
 import createEmotionCache from './createEmotionCache';
+
+export const streamTimeout = 5_000;
 
 export default function handleRequest(
   request,
   responseStatusCode,
   responseHeaders,
-  remixContext
+  routerContext,
+  loadContext
+  // If you have middleware enabled:
+  // loadContext: unstable_RouterContextProvider
 ) {
-  const cache = createEmotionCache();
-  const { extractCriticalToChunks } = createEmotionServer(cache);
+  return new Promise((resolve, reject) => {
+    let shellRendered = false;
+    let userAgent = request.headers.get('user-agent');
 
-  const html = renderToString(
-    <ServerStyleContext.Provider value={null}>
+    // Ensure requests from bots and SPA Mode renders wait for all content to load before responding
+    // https://react.dev/reference/react-dom/server/renderToPipeableStream#waiting-for-all-content-to-load-for-crawlers-and-static-generation
+    let readyOption =
+      (userAgent && isbot(userAgent)) || routerContext.isSpaMode
+        ? 'onAllReady'
+        : 'onShellReady';
+
+    // Create a new emotion cache for this request
+    const cache = createEmotionCache();
+
+    const { pipe, abort } = renderToPipeableStream(
       <CacheProvider value={cache}>
-        <ServerRouter context={remixContext} url={request.url} />
-      </CacheProvider>
-    </ServerStyleContext.Provider>
-  );
+        <ServerRouter context={routerContext} url={request.url} />
+      </CacheProvider>,
+      {
+        [readyOption]() {
+          shellRendered = true;
+          const body = new PassThrough();
+          const stream = createReadableStreamFromReadable(body);
 
-  const chunks = extractCriticalToChunks(html);
+          responseHeaders.set('Content-Type', 'text/html');
 
-  const markup = renderToString(
-    <ServerStyleContext.Provider value={chunks.styles}>
-      <CacheProvider value={cache}>
-        <ServerRouter context={remixContext} url={request.url} />
-      </CacheProvider>
-    </ServerStyleContext.Provider>
-  );
+          resolve(
+            new Response(stream, {
+              headers: responseHeaders,
+              status: responseStatusCode,
+            })
+          );
 
-  responseHeaders.set('Content-Type', 'text/html');
+          pipe(body);
+        },
+        onShellError(error) {
+          reject(error);
+        },
+        onError(error) {
+          responseStatusCode = 500;
+          // Log streaming rendering errors from inside the shell.  Don't log
+          // errors encountered during initial shell rendering since they'll
+          // reject and get logged in handleDocumentRequest.
+          if (shellRendered) {
+            console.error(error);
+          }
+        },
+      }
+    );
 
-  return new Response(`<!DOCTYPE html>${markup}`, {
-    status: responseStatusCode,
-    headers: responseHeaders,
+    // Abort the rendering stream after the `streamTimeout` so it has time to
+    // flush down the rejected boundaries
+    setTimeout(abort, streamTimeout + 1000);
   });
 }

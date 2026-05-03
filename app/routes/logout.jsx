@@ -1,5 +1,11 @@
-import { authenticator } from "../utils/auth.server";
+import { redirect } from "react-router";
 
-export let action = async ({ request }) => {
-  await authenticator.logout(request, { redirectTo: "/" });
+import { destroySession, getSession } from "../utils/session.server";
+
+export async function action({ request }) {
+  const session = await getSession(request.headers.get('cookie'));
+
+  throw redirect('/signin', {
+    headers: { 'Set-Cookie': await destroySession(session) },
+  });
 };

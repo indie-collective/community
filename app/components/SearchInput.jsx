@@ -1,13 +1,5 @@
-import {
-  IconButton,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  Input,
-  useColorModeValue,
-  Box,
-} from '@chakra-ui/react';
-import { SmallCloseIcon, SearchIcon } from '@chakra-ui/icons';
+import { IconButton, InputGroup, Input, Box } from '@chakra-ui/react';
+import { LuSearch, LuX } from 'react-icons/lu';
 import { Form, useLocation, useNavigate } from 'react-router';
 import React, { useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
@@ -54,30 +46,32 @@ const SearchInput = () => {
           if (e.target.q.value === '') e.preventDefault();
         }}
       >
-        <InputGroup w="100%" size="lg">
-          <InputLeftElement>
-            <SearchIcon color="green.500" />
-          </InputLeftElement>
+        <InputGroup
+          w="100%"
+          size="lg"
+          startElement={<LuSearch color="green.500" />}
+          endElement={
+            params.has('q') && (
+              <IconButton
+                aria-label="Clear search"
+                variant="ghost"
+                onClick={() => handleChange('')}
+              >
+                <LuX />
+              </IconButton>
+            )
+          }
+        >
           <Input
             ref={inputRef}
             name="q"
             placeholder="Search"
             defaultValue={params.get('q')}
             autoFocus={pathname === '/search'}
-            bg={useColorModeValue("gray.100", "gray.750")}
+            bg={{ base: 'gray.100', _dark: 'gray.750' }}
             borderRadius="full"
-            onChange={(e) => handleChange(e.target.value)}
+            onChange={(e) => handleChange(e.currentTarget.value)}
           />
-          {params.has('q') && (
-            <InputRightElement>
-              <IconButton
-                aria-label="Clear search"
-                variant="ghost"
-                icon={<SmallCloseIcon />}
-                onClick={() => handleChange('')}
-              />
-            </InputRightElement>
-          )}
         </InputGroup>
       </Form>
     </Box>
