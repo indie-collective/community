@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { LuMapPin } from 'react-icons/lu';
 
-import { LocationIcon } from './LocationIcon';
 import MapboxAutocomplete from './MapboxAutocomplete';
 
 const propTypes = {
@@ -115,7 +115,7 @@ const PlacesSearch = ({ onChange, onClear, onError, options, value, ...rest }) =
           });
         }}
         onError={onError}
-        inputProps={{ leftIcon: <LocationIcon /> }}
+        inputProps={{ leftIcon: <LuMapPin /> }}
         {...rest}
       />
     </>

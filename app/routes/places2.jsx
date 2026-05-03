@@ -1,4 +1,4 @@
-import { json } from '@react-router/node';
+
 import { useLoaderData } from 'react-router';
 import React from 'react';
 
@@ -58,7 +58,7 @@ export const loader = async ({ request }) => {
     countries: Object.values(countries),
     cities: Object.values(cities),
   };
-  return json(data);
+  return data;
 };
 
 export const meta = () => [{

@@ -4,10 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
   Input,
-  FormErrorMessage,
   Button,
   Textarea,
   AspectRatio,
@@ -16,15 +13,16 @@ import {
   Box,
   Grid,
   Switch,
-  useMergeRefs,
+  Field,
 } from '@chakra-ui/react';
-import { EditIcon } from '@chakra-ui/icons';
+import { LuPencil } from 'react-icons/lu';
 import { Map } from 'pigeon-maps';
 import { viewport } from '@mapbox/geo-viewport';
 import { format } from 'date-fns';
 
 import PlacesSearch from './PlacesSearch';
 import usePlaceholder from '../hooks/usePlaceholder';
+import useMergeRefs from '../hooks/useMergeRefs';
 import { Form, useSubmit } from 'react-router';
 
 const validationSchema = yup.object().shape({
@@ -119,8 +117,9 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
       end: endsAt ? format(new Date(endsAt), "yyyy-MM-dd'T'HH:mm") : undefined,
       location: {
         label: l
-          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${l.country_code
-          }`
+          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${
+              l.country_code
+            }`
           : '',
         value: l || null,
       },
@@ -134,205 +133,198 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
 
   return (
     <Grid
-      as={Form}
       encType="multipart/form-data"
       gridTemplateColumns="1fr 1fr"
       gap={5}
       method="post"
-      onSubmit={handleSubmit((values, event) => {
-        submit(event.nativeEvent.submitter || event.currentTarget, {
-          method: 'post',
-          replace: true,
-        });
-      })}
       {...rest}
+      asChild
     >
-      <FormControl gridColumn="1 / 3" isInvalid={errors.name} isRequired>
-        <FormLabel htmlFor="name">Name</FormLabel>
-        <Input
-          {...register('name')}
-          id="name"
-          placeholder="Stunfest 2042, Global Game Jam Bamako, Indie Online Fest..."
-        />
-        <FormErrorMessage>
-          {errors.name && errors.name.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl
-        gridColumn="1 / 3"
-        isInvalid={errors.canceled}
-        display="flex"
+      <Form
+        onSubmit={handleSubmit((values, event) => {
+          submit(event.nativeEvent.submitter || event.currentTarget, {
+            method: 'post',
+            replace: true,
+          });
+        })}
       >
-        <FormLabel htmlFor="canceled">Mark as canceled</FormLabel>
-        <Controller
-          name="canceled"
-          control={control}
-          defaultValue={status}
-          render={({ field }) => (
-            <Switch
-              {...field}
-              id="canceled"
-              colorScheme="red"
-              defaultChecked={field.value}
-            />
-          )}
-        />
-        <FormErrorMessage>
-          {errors.canceled && errors.canceled.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl isInvalid={errors.start} isRequired>
-        <FormLabel htmlFor="start">Start</FormLabel>
-        <Input
-          {...register('start')}
-          id="start"
-          type="datetime-local"
-          pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
-          placeholder="When does it starts?"
-        />
-        <FormErrorMessage>
-          {errors.start && errors.start.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl gridColumn="2 / 3" isInvalid={errors.end} isRequired>
-        <FormLabel htmlFor="end">End</FormLabel>
-        <Input
-          {...register('end')}
-          id="end"
-          type="datetime-local"
-          pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
-          placeholder="When does it ends?"
-        />
-        <FormErrorMessage>{errors.end && errors.end.message}</FormErrorMessage>
-      </FormControl>
-
-      <FormControl gridColumn="1 / 3">
-        <FormLabel htmlFor="location">Location</FormLabel>
-
-        <Controller
-          control={control}
-          name="location"
-          render={({ field }) => (
-            <PlacesSearch
-              inputProps={{ id: 'location' }}
-              {...field}
-              placeholder="Where is the party?"
-              onClear={() => setValue('location', { label: '', value: null })}
-              onError={() => {
-                setError('location', {
-                  type: 'custom',
-                  message: 'There was a problem retrieving data.',
-                });
-              }}
-            />
-          )}
-        />
-
-        {location.value && (
-          <Box
-            width="100%"
-            height="100px"
-            overflow="hidden"
-            borderRadius={5}
-            mt={2}
-          >
-            <Map
-              provider={(x, y, z, dpr) => {
-                const retina =
-                  typeof dpr !== 'undefined'
-                    ? dpr >= 2
-                    : typeof window !== 'undefined' &&
-                    window.devicePixelRatio >= 2;
-                return `https://${OSMServer}.tile.openstreetmap.org/${z}/${x}/${y}${retina ? '@2x' : ''
-                  }.png`;
-              }}
-              defaultWidth={800}
-              defaultHeight={100}
-              center={[location.value.latitude, location.value.longitude]}
-              zoom={
-                location.value.bbox
-                  ? viewport(location.value.bbox, [474, 100]).zoom
-                  : 16
-              }
-              mouseEvents={false}
-              touchEvents={false}
-            />
-          </Box>
-        )}
-      </FormControl>
-
-      <FormControl gridColumn="1 / 3">
-        <FormLabel htmlFor="cover">Cover</FormLabel>
-
-        <Box position="relative">
-          <AspectRatio ratio={3} onClick={() => coverRef.current.click()}>
-            <Image
-              size="100%"
-              objectFit="cover"
-              src={cover && cover.url}
-              alt="Event cover"
-              fallbackSrc={placeholder}
-              borderRadius={5}
-            />
-          </AspectRatio>
-
-          <IconButton
-            position="absolute"
-            right={2}
-            bottom={2}
-            aria-label="Edit cover"
-            icon={<EditIcon />}
-            colorScheme="green"
-            isRound
-            onClick={() => coverRef.current.click()}
+        <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
+          <Field.Label htmlFor="name">Name</Field.Label>
+          <Input
+            {...register('name')}
+            id="name"
+            placeholder="Stunfest 2042, Global Game Jam Bamako, Indie Online Fest..."
           />
-        </Box>
+          <Field.ErrorText>
+            {errors.name && errors.name.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3" invalid={errors.canceled} display="flex">
+          <Field.Label htmlFor="canceled">Mark as canceled</Field.Label>
+          <Controller
+            name="canceled"
+            control={control}
+            defaultValue={status}
+            render={({ field }) => (
+              <Switch
+                {...field}
+                id="canceled"
+                colorPalette="red"
+                defaultChecked={field.value}
+              />
+            )}
+          />
+          <Field.ErrorText>
+            {errors.canceled && errors.canceled.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Field.Root invalid={errors.start} required>
+          <Field.Label htmlFor="start">Start</Field.Label>
+          <Input
+            {...register('start')}
+            id="start"
+            type="datetime-local"
+            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
+            placeholder="When does it starts?"
+          />
+          <Field.ErrorText>
+            {errors.start && errors.start.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Field.Root gridColumn="2 / 3" invalid={errors.end} required>
+          <Field.Label htmlFor="end">End</Field.Label>
+          <Input
+            {...register('end')}
+            id="end"
+            type="datetime-local"
+            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
+            placeholder="When does it ends?"
+          />
+          <Field.ErrorText>{errors.end && errors.end.message}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3">
+          <Field.Label htmlFor="location">Location</Field.Label>
 
-        <Input
-          {...coverProps}
-          ref={useMergeRefs(coverRef, coverProps.ref)}
-          display="none"
-          type="file"
-          id="cover"
-          onChange={(e) => {
-            const [file] = e.target.files;
+          <Controller
+            control={control}
+            name="location"
+            render={({ field }) => (
+              <PlacesSearch
+                inputProps={{ id: 'location' }}
+                {...field}
+                placeholder="Where is the party?"
+                onClear={() => setValue('location', { label: '', value: null })}
+                onError={() => {
+                  setError('location', {
+                    type: 'custom',
+                    message: 'There was a problem retrieving data.',
+                  });
+                }}
+              />
+            )}
+          />
 
-            if (file) {
-              setCover({ url: window.URL.createObjectURL(file) });
-            }
-          }}
-          accept="image/*"
-        />
-      </FormControl>
+          {location.value && (
+            <Box
+              width="100%"
+              height="100px"
+              overflow="hidden"
+              borderRadius={5}
+              mt={2}
+            >
+              <Map
+                provider={(x, y, z, dpr) => {
+                  const retina =
+                    typeof dpr !== 'undefined'
+                      ? dpr >= 2
+                      : typeof window !== 'undefined' &&
+                        window.devicePixelRatio >= 2;
+                  return `https://${OSMServer}.tile.openstreetmap.org/${z}/${x}/${y}${
+                    retina ? '@2x' : ''
+                  }.png`;
+                }}
+                defaultWidth={800}
+                defaultHeight={100}
+                center={[location.value.latitude, location.value.longitude]}
+                zoom={
+                  location.value.bbox
+                    ? viewport(location.value.bbox, [474, 100]).zoom
+                    : 16
+                }
+                mouseEvents={false}
+                touchEvents={false}
+              />
+            </Box>
+          )}
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3">
+          <Field.Label htmlFor="cover">Cover</Field.Label>
 
-      <FormControl gridColumn="1 / 3" isInvalid={errors.about}>
-        <FormLabel htmlFor="about">About</FormLabel>
-        <Textarea
-          {...register('about')}
-          id="about"
-          minH="15rem"
-          resize="vertical"
-          placeholder="What is it about?"
-          whiteSpace="pre-wrap"
-        />
-        <FormErrorMessage>
-          {errors.about && errors.about.message}
-        </FormErrorMessage>
-      </FormControl>
+          <Box position="relative">
+            <AspectRatio ratio={3} onClick={() => coverRef.current.click()}>
+              <Image
+                size="100%"
+                objectFit="cover"
+                src={cover?.url ?? placeholder}
+                alt="Event cover"
+                borderRadius={5}
+              />
+            </AspectRatio>
 
-      <Button
-        gridColumn="1 / 3"
-        colorScheme="green"
-        mt={3}
-        type="submit"
-        isLoading={loading}
-        isDisabled={loading}
-      >
-        Submit
-      </Button>
+            <IconButton
+              position="absolute"
+              right={2}
+              bottom={2}
+              aria-label="Edit cover"
+              colorPalette="green"
+              rounded="full"
+              onClick={() => coverRef.current.click()}
+            >
+              <LuPencil />
+            </IconButton>
+          </Box>
+
+          <Input
+            {...coverProps}
+            ref={useMergeRefs(coverRef, coverProps.ref)}
+            display="none"
+            type="file"
+            id="cover"
+            onChange={(e) => {
+              const [file] = e.target.files;
+
+              if (file) {
+                setCover({ url: window.URL.createObjectURL(file) });
+              }
+            }}
+            accept="image/*"
+          />
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3" invalid={errors.about}>
+          <Field.Label htmlFor="about">About</Field.Label>
+          <Textarea
+            {...register('about')}
+            id="about"
+            minH="15rem"
+            resize="vertical"
+            placeholder="What is it about?"
+            whiteSpace="pre-wrap"
+          />
+          <Field.ErrorText>
+            {errors.about && errors.about.message}
+          </Field.ErrorText>
+        </Field.Root>
+        <Button
+          gridColumn="1 / 3"
+          colorPalette="green"
+          mt={3}
+          type="submit"
+          loading={loading}
+          disabled={loading}
+        >
+          Submit
+        </Button>
+      </Form>
     </Grid>
   );
 };

@@ -1,18 +1,6 @@
-import { json } from '@react-router/node';
+
 import { useFetcher } from 'react-router';
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ListItem,
-  List,
-  Input,
-  Text,
-  Box,
-} from '@chakra-ui/react';
+import { List, Input, Text, Box, Dialog, Portal } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { useState, useRef, useEffect } from 'react';
 
@@ -46,10 +34,10 @@ export async function loader({ request }) {
       take: 10,
     });
 
-    return json(data);
+    return data;
   } catch (err) {
     console.error(err);
-    return json({ error: 'Something went wrong' });
+    return { error: 'Something went wrong' };
   }
 }
 
@@ -72,70 +60,79 @@ export const SearchOrgModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
   }, [debouncedValue]);
 
   return (
-    <Modal initialFocusRef={initialFocusRef} isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Find Organization</ModalHeader>
-        <ModalCloseButton />
+    <Dialog.Root initialFocusEl={() => initialFocusRef.current} open={isOpen} onOpenChange={e => {
+      if (!e.open) {
+        onClose();
+      }
+    }}>
+      <Portal>
 
-        <ModalBody>
-          <orgs.Form method="get" action="/search-org">
-            {excludedIds.map((id) => (
-              <Input key={id} type="hidden" name="notId" value={id} />
-            ))}
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content>
+            <Dialog.Header>Find Organization</Dialog.Header>
+            <Dialog.CloseTrigger />
+            <Dialog.Body>
+              <orgs.Form method="get" action="/search-org">
+                {excludedIds.map((id) => (
+                  <Input key={id} type="hidden" name="notId" value={id} />
+                ))}
 
-            <Input
-              ref={initialFocusRef}
-              type="text"
-              name="q"
-              placeholder="Search..."
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              mb={2}
-            />
-            {orgs.data && (
-              <Box>
-                {orgs.data.error ? (
-                  <Text>Failed to load orgs :(</Text>
-                ) : orgs.data.length ? (
-                  <List mb={2}>
-                    {orgs.data.map((org) => (
-                      <ListItem
-                        p={2}
-                        key={org.id}
-                        _hover={{
-                          backgroundColor: 'gray.600',
-                          cursor: 'pointer',
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            onSelect(game);
+                <Input
+                  ref={initialFocusRef}
+                  type="text"
+                  name="q"
+                  placeholder="Search..."
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  mb={2}
+                />
+                {orgs.data && (
+                  <Box>
+                    {orgs.data.error ? (
+                      <Text>Failed to load orgs :(</Text>
+                    ) : orgs.data.length ? (
+                      <List.Root mb={2}>
+                        {orgs.data.map((org) => (
+                          <List.Item
+                            p={2}
+                            key={org.id}
+                            _hover={{
+                              backgroundColor: 'gray.600',
+                              cursor: 'pointer',
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                onSelect(game);
 
-                            setValue('');
-                            onClose();
-                          }
-                        }}
-                        onClick={() => {
-                          onSelect(org);
+                                setValue('');
+                                onClose();
+                              }
+                            }}
+                            onClick={() => {
+                              onSelect(org);
 
-                          setValue('');
-                          onClose();
-                        }}
-                        tabIndex="0"
-                      >
-                        {org.name}
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Text>No results has been found.</Text>
+                              setValue('');
+                              onClose();
+                            }}
+                            tabIndex="0"
+                          >
+                            {org.name}
+                          </List.Item>
+                        ))}
+                      </List.Root>
+                    ) : (
+                      <Text>No results has been found.</Text>
+                    )}
+                  </Box>
                 )}
-              </Box>
-            )}
-          </orgs.Form>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+              </orgs.Form>
+            </Dialog.Body>
+          </Dialog.Content>
+        </Dialog.Positioner>
+
+      </Portal>
+    </Dialog.Root>
   );
 };
 

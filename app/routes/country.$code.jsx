@@ -1,14 +1,5 @@
-import {
-  Box,
-  Heading,
-  LinkBox,
-  LinkOverlay,
-  SimpleGrid,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
-import { json, redirect } from '@react-router/node';
-import { Link, useLoaderData } from 'react-router';
+import { Box, Heading, LinkBox, LinkOverlay, SimpleGrid, Stack, Text } from '@chakra-ui/react';
+import { data, redirect, Link, useLoaderData  } from 'react-router';
 
 import { db } from '../utils/db.server';
 import countryNames from '../assets/countries.json';
@@ -29,11 +20,11 @@ export const loader = async ({ params }) => {
 
   // country does not exist
   if (cities.length === 0) {
-    return json(
+    return new data(
       {
         error: 'Country not found',
       },
-      404
+      { status: 404 }
     );
   }
 
@@ -47,7 +38,7 @@ export const loader = async ({ params }) => {
     },
   };
 
-  return json(data);
+  return data;
 };
 
 export const meta = ({
@@ -66,11 +57,9 @@ const CountriesPage = () => {
       <Heading as="h2" size="xl" mb={8}>
         {country.name}'s Game Industry
       </Heading>
-
       <Heading as="h3" size="lg" mb={5}>
         Most vibrant cities
       </Heading>
-
       <SimpleGrid
         columns={{ base: 4, sm: 5, md: 6 }}
         gap={{ base: '5', md: '6' }}
@@ -85,9 +74,9 @@ const CountriesPage = () => {
             border="1px solid"
           >
             <Stack>
-              <LinkOverlay as={Link} to={`/city/${name.toLowerCase()}`}>
-                <Text fontSize="sm">{name}</Text>
-              </LinkOverlay>
+              <LinkOverlay asChild><Link to={`/city/${name.toLowerCase()}`}>
+                  <Text fontSize="sm">{name}</Text>
+                </Link></LinkOverlay>
               <Heading size={{ base: 'md', md: 'lg' }}>{count}</Heading>
               <Text>stuctures</Text>
             </Stack>

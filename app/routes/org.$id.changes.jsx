@@ -11,18 +11,24 @@ import {
   LinkOverlay,
   Badge,
   Spacer,
-  useColorModeValue,
   Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
 } from '@chakra-ui/react';
-import { AddIcon, ArrowBackIcon, EditIcon } from '@chakra-ui/icons';
-import { json } from '@react-router/node';
-import { Link, NavLink, Outlet, isRouteErrorResponse, useLoaderData, useMatches, useParams, useRouteError } from 'react-router';
+import { useColorModeValue } from '../components/ui/color-mode';
+import { LuPlus, LuPencil, LuArrowLeft } from 'react-icons/lu';
+
+import {
+  Link,
+  NavLink,
+  Outlet,
+  isRouteErrorResponse,
+  useLoaderData,
+  useMatches,
+  useParams,
+  useRouteError,
+} from 'react-router';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import computeOrg from '../models/org';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -32,7 +38,7 @@ const uuidRegex =
 export const loader = async ({ request, params }) => {
   const { id } = params;
 
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
@@ -72,40 +78,46 @@ export const loader = async ({ request, params }) => {
     currentUser,
   };
 
-  return json(data);
+  return data;
 };
 
-export const meta = ({
-  data,
-  location
-}) => {
-  if (!data?.org) return [{
-    title: 'Organization Not Found'
-  }];
-  const {
-    org
-  } = data;
-  return [{
-    title: `Version history - ${org.name}`
-  }, {
-    property: 'og:title',
-    content: `Version history - ${org.name}`
-  }, {
-    property: 'og:description',
-    content: `Version history of ${org.name}.`
-  }, {
-    property: 'og:url',
-    content: `${location.protocol}://${location.host}/org/${org.id}`
-  }, {
-    name: 'twitter:site',
-    content: '@IndieColle'
-  }, {
-    name: 'twitter:title',
-    content: `Version history - ${org.name}`
-  }, {
-    name: 'twitter:description',
-    content: `Version history of ${org.name}.`
-  }];
+export const meta = ({ data, location }) => {
+  if (!data?.org)
+    return [
+      {
+        title: 'Organization Not Found',
+      },
+    ];
+  const { org } = data;
+  return [
+    {
+      title: `Version history - ${org.name}`,
+    },
+    {
+      property: 'og:title',
+      content: `Version history - ${org.name}`,
+    },
+    {
+      property: 'og:description',
+      content: `Version history of ${org.name}.`,
+    },
+    {
+      property: 'og:url',
+      content: `${location.protocol}://${location.host}/org/${org.id}`,
+    },
+    {
+      name: 'twitter:site',
+      content: '@IndieColle',
+    },
+    {
+      name: 'twitter:title',
+      content: `Version history - ${org.name}`,
+    },
+    {
+      name: 'twitter:description',
+      content: `Version history of ${org.name}.`,
+    },
+  ];
 };
 
 const operationsColors = {
@@ -125,26 +137,25 @@ const OrgChangeLayout = () => {
   return (
     <>
       <Box mb={5} pl={5} pr={5} mt={5}>
-        <ChakraLink as={Link} to={`/org/${id}`}>
-          <ArrowBackIcon />
-          Back to organization page
+        <ChakraLink asChild>
+          <Link to={`/org/${id}`}>
+            <LuArrowLeft />
+            Back to organization page
+          </Link>
         </ChakraLink>
         <Flex direction="row" align="baseline" mt={5}>
           <Heading as="h2" size="2xl">
             {name}
           </Heading>
 
-          <Button
-            as={Link}
-            to={`/org/${id}/edit`}
-            leftIcon={<EditIcon />}
-            ml="auto"
-          >
-            Edit organization
+          <Button ml="auto" asChild>
+            <Link to={`/org/${id}/edit`}>
+              <LuPencil />
+              Edit organization
+            </Link>
           </Button>
         </Flex>
       </Box>
-
       <Box mb={5} pl={5} pr={5} mt={5}>
         {changes.length > 0 ? (
           <Flex direction="row" gap={10}>
@@ -153,50 +164,56 @@ const OrgChangeLayout = () => {
                 Changelog
               </Heading>
 
-              <Stack as={List} w="250px">
-                {changes.map(({ id, operation, author, created_at }) => (
-                  <LinkBox
-                    key={id}
-                    transition="background-color 200ms ease-out"
-                    cursor="pointer"
-                    _hover={{
-                      backgroundColor: bg,
-                    }}
-                    rounded={5}
-                    p={2}
-                    bgColor={revisionId === id && bg}
-                  >
-                    <Stack spacing={1}>
-                      <Stack direction="row" align="center">
-                        <LinkOverlay as={Link} to={`./${id}`} fontWeight="bold">
-                          {id.slice(0, 8)}
-                        </LinkOverlay>
-                        <Spacer />
-                        <Badge
-                          variant="solid"
-                          colorScheme={operationsColors[operation]}
-                        >
-                          {operation}
-                        </Badge>
-                      </Stack>
+              <Stack w="250px" asChild>
+                <List>
+                  {changes.map(({ id, operation, author, created_at }) => (
+                    <LinkBox
+                      key={id}
+                      transition="background-color 200ms ease-out"
+                      cursor="pointer"
+                      _hover={{
+                        backgroundColor: bg,
+                      }}
+                      rounded={5}
+                      p={2}
+                      bgColor={revisionId === id && bg}
+                    >
+                      <Stack gap={1}>
+                        <Stack direction="row" align="center">
+                          <LinkOverlay fontWeight="bold" asChild>
+                            <Link to={`./${id}`}>{id.slice(0, 8)}</Link>
+                          </LinkOverlay>
+                          <Spacer />
+                          <Badge
+                            variant="solid"
+                            colorPalette={operationsColors[operation]}
+                          >
+                            {operation}
+                          </Badge>
+                        </Stack>
 
-                      <Stack direction="row" align="center">
-                        <Text fontSize="sm">{author?.username || 'Unknown'}</Text>
-                        <Spacer />
-                        <Text
-                          as="time"
-                          opacity={0.6}
-                          fontSize="sm"
-                          noOfLines={1}
-                        >
-                          {formatDistanceToNow(new Date(created_at), {
-                            addSuffix: true,
-                          })}
-                        </Text>
+                        <Stack direction="row" align="center">
+                          <Text fontSize="sm">
+                            {author?.username || 'Unknown'}
+                          </Text>
+                          <Spacer />
+                          <Text
+                            opacity={0.6}
+                            fontSize="sm"
+                            lineClamp={1}
+                            asChild
+                          >
+                            <time>
+                              {formatDistanceToNow(new Date(created_at), {
+                                addSuffix: true,
+                              })}
+                            </time>
+                          </Text>
+                        </Stack>
                       </Stack>
-                    </Stack>
-                  </LinkBox>
-                ))}
+                    </LinkBox>
+                  ))}
+                </List>
               </Stack>
             </Box>
 
@@ -205,7 +222,7 @@ const OrgChangeLayout = () => {
             </Box>
           </Flex>
         ) : (
-          <Alert
+          <Alert.Root
             variant="subtle"
             flexDirection="column"
             alignItems="center"
@@ -214,14 +231,14 @@ const OrgChangeLayout = () => {
             height="200px"
             rounded={5}
           >
-            <AlertIcon boxSize="40px" mr={0} />
-            <AlertTitle mt={4} mb={1} fontSize="lg">
+            <Alert.Indicator boxSize="40px" mr={0} />
+            <Alert.Title mt={4} mb={1} fontSize="lg">
               No changes!
-            </AlertTitle>
-            <AlertDescription maxWidth="sm">
+            </Alert.Title>
+            <Alert.Description maxWidth="sm">
               No changes have been registered as of now. Come back later!
-            </AlertDescription>
-          </Alert>
+            </Alert.Description>
+          </Alert.Root>
         )}
       </Box>
     </>
@@ -237,16 +254,11 @@ export function ErrorBoundary() {
         <Heading>Organization Not Found!</Heading>
         <Text>Would you like to create its page?</Text>
         <Box mt={10}>
-          <Button
-            as={Link}
-            to="/orgs/create"
-            m="auto"
-            mb={10}
-            size="lg"
-            colorScheme="green"
-            leftIcon={<AddIcon />}
-          >
-            Add an organization
+          <Button m="auto" mb={10} size="lg" colorPalette="green" asChild>
+            <Link to="/orgs/create">
+              <LuPlus />
+              Add an organization
+            </Link>
           </Button>
         </Box>
       </Stack>

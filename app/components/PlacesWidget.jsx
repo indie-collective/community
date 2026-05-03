@@ -1,12 +1,6 @@
-import {
-  Box,
-  Heading,
-  Text,
-  Flex,
-  Button,
-  useColorModeValue,
-} from '@chakra-ui/react';
-import { ChevronRightIcon } from '@chakra-ui/icons';
+import { Box, Heading, Text, Flex, Button } from '@chakra-ui/react';
+import { useColorModeValue } from "./ui/color-mode";
+import { LuChevronRight } from 'react-icons/lu';
 import { Link } from 'react-router';
 import { Map, Overlay } from 'pigeon-maps';
 
@@ -63,15 +57,8 @@ const PlacesWidget = ({ placesCount, placesPoints }) => {
             {placesCount} locations
           </Text>
         </Box>
-        <Button
-          as={Link}
-          to="/places"
-          rightIcon={<ChevronRightIcon />}
-          colorScheme="green"
-          size="lg"
-        >
-          Explore Map
-        </Button>
+        <Button colorPalette="green" size="lg" asChild><Link to="/places">Explore Map
+                              <LuChevronRight /></Link></Button>
       </Flex>
     </Box>
   );

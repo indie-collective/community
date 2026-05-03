@@ -1,18 +1,9 @@
-import { json, redirect } from '@react-router/node';
-import { useLoaderData, useSubmit } from 'react-router';
+import { redirect, useLoaderData, useSubmit  } from 'react-router';
 import {
-  Heading,
+    Heading,
   Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
   TableCaption,
-  TableContainer,
   Icon,
-  Tooltip,
   Switch,
   IconButton,
   Link as ChakraLink,
@@ -21,15 +12,16 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
+import { FaDiscord, FaGithub } from 'react-icons/fa6';
 
 import { authenticator } from '../../utils/auth.server';
+import isAuthenticated from '../../utils/isAuthenticated.server';
 import { db } from '../../utils/db.server';
 import computePerson from '../../models/person';
-import { DiscordIcon } from '../../components/DiscordIcon';
-import { GitHubIcon } from '../../components/GitHubIcon';
+import { Tooltip } from '../../components/ui/tooltip';
 
 export const action = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
@@ -54,7 +46,7 @@ export const action = async ({ request }) => {
 };
 
 export const loader = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
@@ -112,12 +104,14 @@ export const loader = async ({ request }) => {
     lastChanges,
   };
 
-  return json(data);
+  return data;
 };
 
-export const meta = () => [{
-  title: 'Users - Community Administration'
-}];
+export const meta = () => [
+  {
+    title: 'Users - Community Administration',
+  },
+];
 
 const Profile = () => {
   const submit = useSubmit();
@@ -128,26 +122,25 @@ const Profile = () => {
       <Heading as="h2" mb={5} size="2xl">
         Users
       </Heading>
-
-      <TableContainer>
-        <Table variant="simple">
-          <TableCaption>Current users ({nbOfPeople})</TableCaption>
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Email</Th>
-              <Th>Socials</Th>
-              <Th>
-                <Tooltip label="Managed on Discord">
+      <Table.ScrollArea>
+        <Table.Root variant="simple">
+          <Table.Caption>Current users ({nbOfPeople})</Table.Caption>
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeader>Name</Table.ColumnHeader>
+              <Table.ColumnHeader>Email</Table.ColumnHeader>
+              <Table.ColumnHeader>Socials</Table.ColumnHeader>
+              <Table.ColumnHeader>
+                <Tooltip content="Managed on Discord">
                   <Text as="span">
                     Admin <Icon name="QuestionIcon" />
                   </Text>
                 </Tooltip>
-              </Th>
-              <Th>Created</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
+              </Table.ColumnHeader>
+              <Table.ColumnHeader>Created</Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
             {people.map(
               ({
                 id,
@@ -161,15 +154,12 @@ const Profile = () => {
                 github_url,
                 isAdmin,
               }) => (
-                <Tr key={id}>
-                  <Td>
-                    <Avatar
-                      name={first_name}
-                      src={avatar && avatar.thumbnail_url}
-                      size="xs"
-                      verticalAlign="middle"
-                      mr={2}
-                    />
+                <Table.Row key={id}>
+                  <Table.Cell>
+                    <Avatar.Root size="xs" verticalAlign="middle" mr={2}>
+                      <Avatar.Fallback name={first_name} />
+                      <Avatar.Image src={avatar && avatar.thumbnail_url} />
+                    </Avatar.Root>
                     <b>
                       {first_name}&nbsp;
                       {last_name}
@@ -177,67 +167,71 @@ const Profile = () => {
                     <Text as="span" color={isAdmin && 'blue.500'}>
                       {username}
                     </Text>
-                  </Td>
-                  <Td>{email}</Td>
-                  <Td>
+                  </Table.Cell>
+                  <Table.Cell>{email}</Table.Cell>
+                  <Table.Cell>
                     {discord_url && (
                       <IconButton
-                        as={ChakraLink}
-                        href={discord_url}
-                        icon={<DiscordIcon />}
-                        colorScheme="discord"
+                        colorPalette="discord"
                         size="xs"
                         isExternal
-                      />
+                        asChild
+                      >
+                        <ChakraLink href={discord_url}>
+                          <FaDiscord />
+                        </ChakraLink>
+                      </IconButton>
                     )}
                     {github_url && (
                       <IconButton
-                        as={ChakraLink}
-                        href={github_url}
-                        icon={<GitHubIcon />}
-                        colorScheme="github"
+                        colorPalette="github"
                         size="xs"
                         isExternal
-                      />
+                        asChild
+                      >
+                        <ChakraLink href={github_url}>
+                          <FaGithub />
+                        </ChakraLink>
+                      </IconButton>
                     )}
-                  </Td>
-                  <Td>
+                  </Table.Cell>
+                  <Table.Cell>
                     <Switch
-                      colorScheme="blue"
+                      colorPalette="blue"
                       name="isAdmin"
-                      isChecked={isAdmin}
+                      checked={isAdmin}
                       value="on"
                       disabled
                     />
-                  </Td>
-                  <Td>
-                    <time datetime={created_at} title={created_at}>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <time dateTime={created_at} title={created_at}>
                       {formatDistanceToNow(new Date(created_at), {
                         addSuffix: true,
                       })}
                     </time>
-                  </Td>
-                </Tr>
+                  </Table.Cell>
+                </Table.Row>
               )
             )}
-          </Tbody>
-          <Tfoot>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Email</Th>
-              <Th>Socials</Th>
-              <Th>
-                <Tooltip label="Managed on Discord">
+          </Table.Body>
+          <Table.Footer>
+            <Table.Row>
+              <Table.ColumnHeader>Name</Table.ColumnHeader>
+              <Table.ColumnHeader>Email</Table.ColumnHeader>
+              <Table.ColumnHeader>Socials</Table.ColumnHeader>
+              <Table.ColumnHeader>
+                <Tooltip content="Managed on Discord">
                   <Text as="span">
                     Admin <Icon name="QuestionIcon" />
                   </Text>
                 </Tooltip>
-              </Th>
-              <Th>Created</Th>
-            </Tr>
-          </Tfoot>
-        </Table>
-      </TableContainer>
+              </Table.ColumnHeader>
+              <Table.ColumnHeader>Created</Table.ColumnHeader>
+            </Table.Row>
+          </Table.Footer>
+        </Table.Root>
+      </Table.ScrollArea>
     </Box>
   );
 };

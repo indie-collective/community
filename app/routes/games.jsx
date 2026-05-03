@@ -1,6 +1,3 @@
-import { Form, Link, useFetcher, useLoaderData, useSearchParams } from 'react-router';
-import { json } from '@react-router/node';
-import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Grid,
@@ -13,14 +10,21 @@ import {
   Spacer,
   Wrap,
   WrapItem,
-  Fade,
   Center,
   Spinner,
+  Presence,
 } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  Form,
+  Link,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from 'react-router';
+import { LuPlus } from 'react-icons/lu';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
 import computeGame from '../models/game';
 import GameCard from '../components/GameCard';
 
@@ -101,12 +105,14 @@ export const loader = async ({ request }) => {
     games: await Promise.all(games.map(computeGame)),
   };
 
-  return json(data);
+  return data;
 };
 
-export const meta = () => [{
-  title: 'Games'
-}];
+export const meta = () => [
+  {
+    title: 'Games',
+  },
+];
 
 const Games = () => {
   const { games: initialGames, tags } = useLoaderData();
@@ -188,15 +194,16 @@ const Games = () => {
 
   return (
     <Box p={5} ref={divHeight}>
-      <Wrap as={Form} spacing={2} mb={10} align="flex-end" method="get">
-        {tags
-          .slice(0, 30)
-          .map((tag) => (
+      <Wrap gap={2} mb={10} align="flex-end" method="get" asChild>
+        <Form>
+          {tags.slice(0, 30).map((tag) => (
             <WrapItem key={tag.id}>
-              <Tag
-                size="md"
-                variant="solid"
-                colorScheme={selectedTags.includes(tag.name) ? 'green' : 'gray'}
+              <Tag.Root
+                size="lg"
+                variant="subtle"
+                colorPalette={
+                  selectedTags.includes(tag.name) ? 'green' : 'gray'
+                }
                 cursor="pointer"
                 onClick={() =>
                   setSearchParams({
@@ -206,17 +213,13 @@ const Games = () => {
                   })
                 }
               >
-                <TagLabel>{tag.name}</TagLabel>
-                <Box as="span" ml={2}>
-                  <Badge variant="subtle">
-                    {tag.game_tag.length}
-                  </Badge>
-                </Box>
-              </Tag>
+                <Tag.Label>{tag.name}</Tag.Label>
+                <Badge variant="outline">{tag.game_tag.length}</Badge>
+              </Tag.Root>
             </WrapItem>
           ))}
+        </Form>
       </Wrap>
-
       <Grid
         gap={5}
         templateColumns={[
@@ -228,16 +231,22 @@ const Games = () => {
       >
         {games.map((game) => (
           <Box key={game.id} minW={0}>
-            <Fade in>
+            <Presence
+              present
+              animationName={{
+                _open: 'fade-in',
+                _closed: 'fade-out',
+              }}
+              animationDuration="moderate"
+            >
               <GameCard {...game} />
-            </Fade>
+            </Presence>
           </Box>
         ))}
       </Grid>
-
       {fetcher.state === 'loading' && (
         <Center py={10}>
-          <Spinner size="xl" color="green.500" thickness="4px" />
+          <Spinner size="xl" color="green.500" borderWidth="4px" />
         </Center>
       )}
     </Box>
