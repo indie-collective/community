@@ -1,26 +1,20 @@
-import { json, redirect } from '@react-router/node';
-import { useLoaderData, Form } from 'react-router';
+import { redirect, useLoaderData, Form  } from 'react-router';
 import {
-  Box,
+    Box,
   Heading,
   Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   TableCaption,
-  TableContainer,
   Input,
   Button,
-  Select,
+  NativeSelect,
 } from '@chakra-ui/react';
 
 import { authenticator } from '../../utils/auth.server';
+import isAuthenticated from '../../utils/isAuthenticated.server'
 import { db } from '../../utils/db.server';
 
 export const loader = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
@@ -33,11 +27,11 @@ export const loader = async ({ request }) => {
     include: { _count: { select: { game_tag: true } } },
   });
 
-  return json({ tags });
+  return { tags };
 };
 
 export const action = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
@@ -91,65 +85,68 @@ const TagsAdmin = () => {
       <Heading as="h2" mb={5} size="2xl">
         Tags
       </Heading>
-
-      <Box as={Form} method="post" mb={5} display="flex" gap={2}>
-        <Input name="name" placeholder="New tag name" />
-        <input type="hidden" name="intent" value="add" />
-        <Button type="submit" colorScheme="green">
-          Add
-        </Button>
-      </Box>
-
-      <Box as={Form} method="post" mb={10} display="flex" gap={2}>
-        <Select name="fromId" placeholder="Merge from" flex="1">
-          {tags.map((tag) => (
-            <option key={tag.id} value={tag.id}>
-              {tag.name}
-            </option>
-          ))}
-        </Select>
-        <Select name="toId" placeholder="Merge into" flex="1">
-          {tags.map((tag) => (
-            <option key={tag.id} value={tag.id}>
-              {tag.name}
-            </option>
-          ))}
-        </Select>
-        <input type="hidden" name="intent" value="merge" />
-        <Button type="submit" colorScheme="green">
-          Merge
-        </Button>
-      </Box>
-
-      <TableContainer>
-        <Table variant="simple">
-          <TableCaption>Existing tags ({tags.length})</TableCaption>
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th isNumeric>Used by games</Th>
-              <Th></Th>
-            </Tr>
-          </Thead>
-          <Tbody>
+      <Box method="post" mb={5} display="flex" gap={2} asChild><Form>
+          <Input name="name" placeholder="New tag name" />
+          <input type="hidden" name="intent" value="add" />
+          <Button type="submit" colorPalette="green">
+            Add
+          </Button>
+        </Form></Box>
+      <Box method="post" mb={10} display="flex" gap={2} asChild><Form>
+          <NativeSelect.Root>
+            <NativeSelect.Field name="fromId" placeholder="Merge from" flex="1">
+              {tags.map((tag) => (
+                <option key={tag.id} value={tag.id}>
+                  {tag.name}
+                </option>
+              ))}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          <NativeSelect.Root>
+            <NativeSelect.Field name="toId" placeholder="Merge into" flex="1">
+              {tags.map((tag) => (
+                <option key={tag.id} value={tag.id}>
+                  {tag.name}
+                </option>
+              ))}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          <input type="hidden" name="intent" value="merge" />
+          <Button type="submit" colorPalette="green">
+            Merge
+          </Button>
+        </Form></Box>
+      <Table.ScrollArea>
+        <Table.Root variant="simple">
+          <Table.Caption>Existing tags ({tags.length})</Table.Caption>
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeader>Name</Table.ColumnHeader>
+              <Table.ColumnHeader textAlign='end'>Used by games</Table.ColumnHeader>
+              <Table.ColumnHeader></Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
             {tags.map((tag) => (
-              <Tr key={tag.id}>
-                <Td>{tag.name}</Td>
-                <Td isNumeric>{tag._count.game_tag}</Td>
-                <Td>
+              <Table.Row key={tag.id}>
+                <Table.Cell>{tag.name}</Table.Cell>
+                <Table.Cell textAlign='end'>{tag._count.game_tag}</Table.Cell>
+                <Table.Cell>
                   <Form method="post">
                     <input type="hidden" name="tagId" value={tag.id} />
                     <input type="hidden" name="intent" value="delete" />
-                    <Button size="sm" colorScheme="red" type="submit">
+                    <Button size="sm" colorPalette="red" type="submit">
                       Delete
                     </Button>
                   </Form>
-                </Td>
-              </Tr>
+                </Table.Cell>
+              </Table.Row>
             ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
+          </Table.Body>
+        </Table.Root>
+      </Table.ScrollArea>
     </Box>
   );
 };

@@ -1,5 +1,7 @@
 import cache from 'memory-cache';
-import igdb from 'igdb-api-node';
+import igdbApi from 'igdb-api-node';
+
+const igdb = igdbApi.default;
 
 async function refreshAccessToken(errorIfFail = false) {
   try {

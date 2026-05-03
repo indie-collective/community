@@ -3,13 +3,7 @@ import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
-  Button,
-} from '@chakra-ui/react';
+import { Input, Button, Field } from '@chakra-ui/react';
 import { Form, useSubmit } from 'react-router';
 
 const validationSchema = yup.object().shape({
@@ -40,27 +34,26 @@ const ForgotForm = ({ loading }) => {
         });
       })}
     >
-      <FormControl mb={5} isInvalid={errors.email} isRequired>
-        <FormLabel htmlFor="email">Email</FormLabel>
+      <Field.Root mb={5} invalid={errors.email} required>
+        <Field.Label htmlFor="email">Email</Field.Label>
         <Input
           {...register('email')}
           id="email"
           type="email"
           placeholder="jmj@indieco.xyz"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.email && errors.email.message}
-        </FormErrorMessage>
-      </FormControl>
-
+        </Field.ErrorText>
+      </Field.Root>
       <Button
         type="submit"
         display="block"
         ml="auto"
         mt={8}
-        colorScheme="green"
-        isDisabled={loading}
-        isLoading={loading}
+        colorPalette="green"
+        disabled={loading}
+        loading={loading}
         width="100%"
       >
         Reset password

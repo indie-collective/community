@@ -1,18 +1,12 @@
-import { Box, Heading, useToast } from '@chakra-ui/react';
-import {
-  json,
-  redirect,
-  unstable_composeUploadHandlers,
-  unstable_createMemoryUploadHandler,
-  unstable_parseMultipartFormData,
-} from '@react-router/node';
-import { useActionData, useNavigation } from 'react-router';
+import { Box, Heading } from '@chakra-ui/react';
+import { redirect, useActionData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { authenticator, authorizer, canWrite } from '../utils/auth.server';
 import { notifyDiscord } from '../utils/discordNotification.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
+import { toaster } from '../components/ui/toaster';
 import EventForm from '../components/EventForm';
 
 export async function action(args) {
@@ -83,12 +77,12 @@ export async function action(args) {
     return redirect(`/event/${event.id}`);
   } catch (err) {
     const values = Object.fromEntries(data);
-    return json({ error: err.message, values });
+    return { error: err.message, values };
   }
 }
 
 export const loader = async ({ request }) => {
-  return await authenticator.isAuthenticated(request, {
+  return await isAuthenticated(request, {
     failureRedirect: '/signin?redirect=/events/create',
   });
 };
@@ -98,14 +92,13 @@ export const meta = () => [{
 }];
 
 const CreateEvent = () => {
-  const toast = useToast();
   const navigation = useNavigation();
   const actionData = useActionData();
 
   useEffect(() => {
     if (!actionData?.error) return;
 
-    toast({
+    toaster.create({
       title: 'Something went wrong',
       description: actionData?.error,
       status: 'error',

@@ -1,4 +1,4 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { LuExternalLink, LuGithub, LuInstagram } from 'react-icons/lu';
 import {
   Box,
   Button,
@@ -8,21 +8,23 @@ import {
   Link as ChakraLink,
   Stack,
   Text,
-  useColorModeValue,
 } from '@chakra-ui/react';
-import { Link } from 'react-router';
 import * as React from 'react';
+import { FaBluesky, FaGithub, FaInstagram, FaDiscord } from 'react-icons/fa6';
+import { Link } from 'react-router';
 
+import { useColorModeValue } from './ui/color-mode';
 import Logo from './Logo';
-import { DiscordIcon } from './DiscordIcon';
-import { GitHubIcon } from './GitHubIcon';
-import { TwitterIcon } from './TwitterIcon';
 
 const Footer = () => {
-  const bg = useColorModeValue('white', 'gray.900');
-
   return (
-    <Box bg={bg} maxW="100%" mx={10} mt={3} borderRadius="7px 7px 0 0">
+    <Box
+      bg={{ base: 'white', _dark: 'gray.900' }}
+      maxW="100%"
+      mx={10}
+      mt={3}
+      borderRadius="7px 7px 0 0"
+    >
       <Container
         as="footer"
         role="contentinfo"
@@ -31,49 +33,56 @@ const Footer = () => {
         maxWidth="960px"
       >
         <Stack
-          spacing="8"
+          gap="8"
           direction="row"
           justify="space-between"
           align="center"
           px="4"
           py="4"
         >
-            <Logo />
+          <Logo />
 
-            <ChakraLink as={Link} to="/about">
-              About
-            </ChakraLink>
-            <ChakraLink href="https://indieco.xyz/" isExternal>
-              IndieCo <ExternalLinkIcon mx="2px" />
-            </ChakraLink>
-            <ChakraLink
-              href="https://www.helloasso.com/associations/indie-collective/formulaires/1/en"
-              isExternal
-            >
-              Donate <ExternalLinkIcon mx="2px" />
-            </ChakraLink>
+          <ChakraLink asChild>
+            <Link to="/about">About</Link>
+          </ChakraLink>
+          <ChakraLink
+            href="https://indieco.xyz/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            IndieCo <LuExternalLink mx="2px" />
+          </ChakraLink>
+          <ChakraLink
+            href="https://www.helloasso.com/associations/indie-collective/formulaires/1/en"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Donate <LuExternalLink mx="2px" />
+          </ChakraLink>
 
-            <ButtonGroup variant="ghost" colorScheme="gray">
-              <IconButton
-                as="a"
-                href="https://discord.gg/KxZVu2ZZYs"
-                aria-label="Discord"
-                icon={<DiscordIcon />}
-              />
-              <IconButton
-                as="a"
-                href="https://github.com/indie-collective"
-                aria-label="GitHub"
-                icon={<GitHubIcon />}
-              />
-              <IconButton
-                as="a"
-                href="https://twitter.com/IndieColle"
-                aria-label="Twitter"
-                icon={<TwitterIcon />}
-              />
-            </ButtonGroup>
-          </Stack>
+          <ButtonGroup variant="ghost" colorPalette="gray">
+            <IconButton aria-label="Discord" asChild>
+              <a href="https://discord.gg/KxZVu2ZZYs">
+                <FaDiscord />
+              </a>
+            </IconButton>
+            <IconButton aria-label="GitHub" asChild>
+              <a href="https://github.com/indie-collective">
+                <FaGithub />
+              </a>
+            </IconButton>
+            <IconButton aria-label="Instagram" asChild>
+              <a href="https://instagram.com/IndieColle">
+                <FaInstagram />
+              </a>
+            </IconButton>
+            <IconButton aria-label="Bluesky" asChild>
+              <a href="https://bsky.app/profile/indieco.xyz">
+                <FaBluesky />
+              </a>
+            </IconButton>
+          </ButtonGroup>
+        </Stack>
       </Container>
     </Box>
   );

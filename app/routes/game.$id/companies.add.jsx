@@ -1,4 +1,4 @@
-import { redirect } from '@react-router/node';
+import { redirect } from 'react-router';
 
 import { db } from '../../utils/db.server';
 import { authorizer, canWrite } from '../../utils/auth.server';

@@ -3,13 +3,7 @@ import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
-  Button,
-} from '@chakra-ui/react';
+import { Input, Button, Field } from '@chakra-ui/react';
 import { PasswordInput } from './PasswordInput';
 import { Form, useSubmit } from 'react-router';
 
@@ -49,76 +43,71 @@ const SignupForm = ({ loading, ...rest }) => {
       })}
       {...rest}
     >
-      <FormControl mb={5} isInvalid={errors.firstName} isRequired>
-        <FormLabel htmlFor="firstName">First name</FormLabel>
+      <Field.Root mb={5} invalid={errors.firstName} required>
+        <Field.Label htmlFor="firstName">First name</Field.Label>
         <Input
           {...register('firstName')}
           id="firstName"
           type="text"
           placeholder="Jean-Michel"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.firstName && errors.firstName.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl mb={5} isInvalid={errors.lastName}>
-        <FormLabel htmlFor="lastName">Last name</FormLabel>
+        </Field.ErrorText>
+      </Field.Root>
+      <Field.Root mb={5} invalid={errors.lastName}>
+        <Field.Label htmlFor="lastName">Last name</Field.Label>
         <Input
           {...register('lastName')}
           id="lastName"
           type="text"
           placeholder="Jam"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.lastName && errors.lastName.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl mb={5} isInvalid={errors.email} isRequired>
-        <FormLabel htmlFor="email">Email</FormLabel>
+        </Field.ErrorText>
+      </Field.Root>
+      <Field.Root mb={5} invalid={errors.email} required>
+        <Field.Label htmlFor="email">Email</Field.Label>
         <Input
           {...register('email')}
           id="email"
           type="email"
           placeholder="jmj@indieco.xyz"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.email && errors.email.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl mb={5} isInvalid={errors.password} isRequired>
-        <FormLabel htmlFor="password">Password</FormLabel>
+        </Field.ErrorText>
+      </Field.Root>
+      <Field.Root mb={5} invalid={errors.password} required>
+        <Field.Label htmlFor="password">Password</Field.Label>
         <PasswordInput
           {...register('password')}
           id="password"
           placeholder="SoS3cr3t"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.password && errors.password.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl mb={5} isInvalid={errors.passwordConfirmation} isRequired>
-        <FormLabel htmlFor="password2">Password confirmation</FormLabel>
+        </Field.ErrorText>
+      </Field.Root>
+      <Field.Root mb={5} invalid={errors.passwordConfirmation} required>
+        <Field.Label htmlFor="password2">Password confirmation</Field.Label>
         <PasswordInput
           {...register('passwordConfirmation')}
           id="passwordConfirmation"
           placeholder="SoS3cr3t"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.passwordConfirmation && errors.passwordConfirmation.message}
-        </FormErrorMessage>
-      </FormControl>
-
+        </Field.ErrorText>
+      </Field.Root>
       <Button
         type="submit"
         width="100%"
         mt={8}
-        colorScheme="green"
-        isDisabled={loading}
-        isLoading={loading}
+        colorPalette="green"
+        disabled={loading}
+        loading={loading}
       >
         Sign Up
       </Button>

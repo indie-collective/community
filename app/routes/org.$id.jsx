@@ -1,39 +1,39 @@
 import {
-  Box,
+    Box,
   Text,
   Heading,
   Spinner,
   Badge,
-  DarkMode,
   Grid,
   Image,
   Flex,
   Button,
   useDisclosure,
-  ModalOverlay,
-  ModalContent,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Modal,
-  ModalHeader,
   Link as ChakraLink,
-  useToast,
   Stack,
+  Dialog,
+  Portal,
 } from '@chakra-ui/react';
-import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
-import { json } from '@react-router/node';
-import { Link, useLoaderData, useNavigate, Form, isRouteErrorResponse, useRouteError } from 'react-router';
-import { motion } from 'framer-motion';
+import { DarkMode } from '../components/ui/color-mode';
+import { LuPlus, LuPencil, LuExternalLink, LuMapPin } from 'react-icons/lu';
+
+import {
+  Link,
+  useLoaderData,
+  useNavigate,
+  Form,
+  isRouteErrorResponse,
+  useRouteError,
+} from 'react-router';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import countryNames from '../assets/countries.json';
 import computeOrg from '../models/org';
 import GameCard from '../components/GameCard';
 import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
-import { LocationIcon } from '../components/LocationIcon';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 
@@ -69,7 +69,7 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const currentUser = await authenticator.isAuthenticated(request);
+  const currentUser = await isAuthenticated(request);
 
   const org = await db.entity.findUnique({
     where: { id },
@@ -130,10 +130,10 @@ export const loader = async ({ request, params }) => {
     });
   }
 
-  return json({
+  return {
     org: await computeOrg(org),
     currentUser,
-  });
+  };
 };
 
 export const meta = ({ data, location }) =>
@@ -158,7 +158,6 @@ export const meta = ({ data, location }) =>
 const Org = () => {
   const navigate = useNavigate();
   const placeholder = usePlaceholder('square');
-  const toast = useToast();
   const { org, currentUser } = useLoaderData();
 
   const deleteModal = useDisclosure();
@@ -186,45 +185,48 @@ const Org = () => {
             w="100px"
             h="100px"
             objectFit="cover"
-            src={logo && logo.thumbnail_url}
+            src={logo?.thumbnail_url ?? placeholder}
             alt="Organization cover"
-            fallbackSrc={placeholder}
             rounded={3}
           />
 
           <Box flex="1" ml={2}>
-            <Heading noOfLines={1} title={name}>
+            <Heading lineClamp={1} title={name}>
               {name}
             </Heading>
             <DarkMode>
               <Badge
                 rounded={3}
                 variant="solid"
-                colorScheme={TYPES_COLORS[type]}
+                colorPalette={TYPES_COLORS[type]}
               >
                 {type}
               </Badge>
             </DarkMode>
             {site && (
-              <ChakraLink href={site} isExternal ml={2}>
+              <ChakraLink
+                href={site}
+                ml={2}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {site.replace(/https?:\/\//, '')}
-                <ExternalLinkIcon mx="2px" />
+                <LuExternalLink mx="2px" />
               </ChakraLink>
             )}
             {location && (
               <Text>
-                <LocationIcon />{' '}
+                <LuMapPin />{' '}
                 {location.region && (
                   <>
                     {location.city && <>{location.city}, </>}
                     {location.region},{' '}
                   </>
                 )}
-                <ChakraLink
-                  as={Link}
-                  to={`/country/${location.country_code.toLowerCase()}`}
-                >
-                  {countryNames[location.country_code]}
+                <ChakraLink asChild>
+                  <Link to={`/country/${location.country_code.toLowerCase()}`}>
+                    {countryNames[location.country_code]}
+                  </Link>
                 </ChakraLink>
               </Text>
             )}
@@ -242,7 +244,8 @@ const Org = () => {
 
         {currentUser && (
           <Link to={`/org/${id}/edit`}>
-            <Button leftIcon={<EditIcon />} colorScheme="green" mt={3}>
+            <Button colorPalette="green" mt={3}>
+              <LuPencil />
               Edit
             </Button>
           </Link>
@@ -254,7 +257,6 @@ const Org = () => {
           </Box>
         )}
       </Box>
-
       {games.length > 0 && (
         <Box pl={5} pr={5} mb={5}>
           <Heading size="md" mb={2}>
@@ -264,13 +266,13 @@ const Org = () => {
               fontSize="md"
               ml={2}
               variant="subtle"
-              colorScheme="green"
+              colorPalette="green"
             >
               {games.length}
             </Badge>
           </Heading>
 
-          <motion.div
+          <Box
             initial="initial"
             animate="enter"
             exit="exit"
@@ -287,16 +289,15 @@ const Org = () => {
             >
               {games.map((game) => (
                 <Box minW={0} key={game.id}>
-                  <motion.div variants={variants}>
+                  <Box variants={variants}>
                     <GameCard {...game} />
-                  </motion.div>
+                  </Box>
                 </Box>
               ))}
             </Grid>
-          </motion.div>
+          </Box>
         </Box>
       )}
-
       {events.length > 0 && (
         <Box pl={5} pr={5} mb={5}>
           <Heading size="md" mb={2}>
@@ -306,13 +307,13 @@ const Org = () => {
               fontSize="md"
               ml={2}
               variant="subtle"
-              colorScheme="green"
+              colorPalette="green"
             >
               {events.length}
             </Badge>
           </Heading>
 
-          <motion.div
+          <Box
             initial="initial"
             animate="enter"
             exit="exit"
@@ -329,43 +330,54 @@ const Org = () => {
             >
               {events.map((event) => (
                 <Box minW={0} key={event.id}>
-                  <motion.div variants={variants}>
+                  <Box variants={variants}>
                     <EventCard {...event} />
-                  </motion.div>
+                  </Box>
                 </Box>
               ))}
             </Grid>
-          </motion.div>
+          </Box>
         </Box>
       )}
-
       {currentUser && (
         <Box mb={5} pl={5} pr={5}>
-          <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
-            <ModalOverlay />
-            <ModalContent as={Form} action={`./delete`} method="post">
-              <ModalHeader>Delete Organisation</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Text>Do you really want to delete {name}?</Text>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button
-                  type="submit"
-                  isLoading={false}
-                  loadingText="Deleting"
-                  colorScheme="red"
-                  mr={3}
-                >
-                  Delete
-                </Button>
-                <Button variant="ghost" onClick={deleteModal.onClose}>
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
+          <Dialog.Root
+            open={deleteModal.open}
+            onOpenChange={(e) => {
+              if (!e.open) {
+                deleteModal.onClose();
+              }
+            }}
+          >
+            <Portal>
+              <Dialog.Backdrop />
+              <Dialog.Positioner>
+                <Dialog.Content action={`./delete`} method="post" asChild>
+                  <Form>
+                    <Dialog.Header>Delete Organisation</Dialog.Header>
+                    <Dialog.CloseTrigger />
+                    <Dialog.Body>
+                      <Text>Do you really want to delete {name}?</Text>
+                    </Dialog.Body>
+                    <Dialog.Footer>
+                      <Button
+                        type="submit"
+                        loading={false}
+                        loadingText="Deleting"
+                        colorPalette="red"
+                        mr={3}
+                      >
+                        Delete
+                      </Button>
+                      <Button variant="ghost" onClick={deleteModal.onClose}>
+                        Cancel
+                      </Button>
+                    </Dialog.Footer>
+                  </Form>
+                </Dialog.Content>
+              </Dialog.Positioner>
+            </Portal>
+          </Dialog.Root>
         </Box>
       )}
     </>
@@ -381,15 +393,11 @@ export function ErrorBoundary() {
         <Heading>Organization not found!</Heading>
         <Text>Would you like to create its page?</Text>
         <Box mt={10}>
-          <Button
-            as={Link}
-            to="/orgs/create"
-            m="auto"
-            mb={10}
-            size="lg"
-            leftIcon={<AddIcon />}
-          >
-            Add an organization
+          <Button m="auto" mb={10} size="lg" asChild>
+            <Link to="/orgs/create">
+              <LuPlus />
+              Add an organization
+            </Link>
           </Button>
         </Box>
       </Stack>

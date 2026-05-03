@@ -1,14 +1,6 @@
-import {
-  Box,
-  Image,
-  Grid,
-  AspectRatio,
-  IconButton,
-  Spinner,
-} from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
+import { Box, Image, Grid, AspectRatio, IconButton, Spinner, Presence } from '@chakra-ui/react';
+import { LuTrash2 } from 'react-icons/lu';
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 
 import ImageUploader from '../components/ImageUploader';
 import Lightbox from './Lightbox';
@@ -41,7 +33,6 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
           >
             <AspectRatio ratio={16 / 9}>
               <Image
-                as={motion.img}
                 src={image.thumbnail_url || image.url}
                 borderRadius="md"
                 objectFit="cover"
@@ -73,10 +64,9 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                 right={2}
                 size="xs"
                 aria-label={`Remove image ${image.id}`}
-                isRound
-                colorScheme="red"
-                icon={<DeleteIcon />}
-                isLoading={
+                rounded="full"
+                colorPalette="red"
+                loading={
                   fetcher.state === 'submitting' &&
                   fetcher.formAction?.includes('images/delete') &&
                   fetcher.formData?.get('id') === image.id
@@ -91,8 +81,7 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                       action: `/game/${gameId}/images/delete`,
                     }
                   );
-                }}
-              />
+                }}><LuTrash2 /></IconButton>
             )}
           </Box>
         ))}
@@ -104,8 +93,7 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
           />
         )}
       </Grid>
-
-      <AnimatePresence>
+      <Presence>
         {selectedIndex !== null && (
           <Lightbox
             images={allImages}
@@ -113,7 +101,7 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
             onClose={() => setSelectedIndex(null)}
           />
         )}
-      </AnimatePresence>
+      </Presence>
     </>
   );
 };

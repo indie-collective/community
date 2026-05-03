@@ -1,22 +1,14 @@
-import {
-  Button,
-  Box,
-  Heading,
-  Text,
-  Grid,
-  Image,
-  Fade,
-} from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
+import { Button, Box, Heading, Text, Grid, Image, Presence } from '@chakra-ui/react';
+import { LuPlus } from 'react-icons/lu';
 import { Link, useLoaderData } from 'react-router';
-import { json } from '@react-router/node';
+
 import React, { useCallback, useState } from 'react';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server'
 import getImageLinks from '../utils/imageLinks.server';
 import EventCard from '../components/EventCard';
-import Carousel from '../components/Carousel';
+import Carousel from '../components/Carousel.client';
 import Filters from '../components/Filters';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 
@@ -30,7 +22,7 @@ export const loader = async ({ request }) => {
   const country = searchParams.get('country');
   const period = searchParams.get('period') || 'upcoming';
 
-  const currentUser = await authenticator.isAuthenticated(request);
+  const currentUser = await isAuthenticated(request);
 
   const where = {};
 
@@ -151,7 +143,7 @@ export const loader = async ({ request }) => {
     },
     currentUser,
   };
-  return json(data);
+  return data;
 };
 
 export const meta = () => [{
@@ -195,8 +187,7 @@ const Events = () => {
 
   return (
     <Box p={5}>
-      <Filters facets={facets} selected={selected} type="event" />
-
+      {/* <Filters facets={facets} selected={selected} type="event" /> */}
       {isPeriodUpcoming ? (
         <>
           {showCarousel ? (
@@ -208,9 +199,15 @@ const Events = () => {
               {events.length > 0 ? (
                 events.map((event) => (
                   <Box key={event.id} minW={0} pr={3}>
-                    <Fade in>
+                    <Presence
+                      present
+                      animationName={{
+                        _open: 'fade-in',
+                        _closed: 'fade-out'
+                      }}
+                      animationDuration='moderate'>
                       <EventCard {...event} />
-                    </Fade>
+                    </Presence>
                   </Box>
                 ))
               ) : (
@@ -289,7 +286,6 @@ const Events = () => {
           )}
         </Grid>
       )}
-
     </Box>
   );
 };

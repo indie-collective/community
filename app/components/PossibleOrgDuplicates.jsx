@@ -30,9 +30,9 @@ const PossibleOrgDuplicates = ({ value, ignoredId }) => {
           {orgs.data.map((org, i) => (
             <Fragment key={org.id}>
               {i > 0 && ', '}
-              <ChakraLink as={Link} to={`/org/${org.id}`} color="green.500">
-                {org.name}
-              </ChakraLink>
+              <ChakraLink color="green.500" asChild><Link to={`/org/${org.id}`}>
+                  {org.name}
+                </Link></ChakraLink>
             </Fragment>
           ))}
         </Text>

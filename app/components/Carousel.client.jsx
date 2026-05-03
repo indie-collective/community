@@ -1,27 +1,22 @@
-import { IconButton, useTheme, Box, Spinner } from '@chakra-ui/react';
+'use client';
+
+import { IconButton, Box, Spinner } from '@chakra-ui/react';
+import 'enquire.js';
 import React, { useState, useEffect, Children, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import SlickSlider from 'react-slick';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-// import dynamic from 'next/dynamic'
+import { LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 
-const canUseDOM = () =>
-  !!(
-    typeof window !== 'undefined' &&
-    window.document &&
-    window.document.createElement
-  );
+import theme from '../theme';
 
-const enquire = canUseDOM() && require('enquire.js');
+const SlickSlider = React.lazy(() => import('react-slick'));
 
 const PrevArrow = ({ onClick, className }) =>
   !className.includes('slick-disabled') && (
     <IconButton
-      colorScheme="green"
+      colorPalette="green"
       aria-label="Previous"
       fontSize="2xl"
-      icon={<ChevronLeftIcon />}
-      isRound
+      rounded="full"
       position="absolute"
       left="-15px"
       top={0}
@@ -29,24 +24,27 @@ const PrevArrow = ({ onClick, className }) =>
       margin="auto"
       zIndex={2}
       onClick={onClick}
-    />
+    >
+      <LuChevronLeft />
+    </IconButton>
   );
 
 const NextArrow = ({ onClick, className }) =>
   !className.includes('slick-disabled') && (
     <IconButton
-      colorScheme="green"
+      colorPalette="green"
       aria-label="Next"
       fontSize="2xl"
-      icon={<ChevronRightIcon />}
-      isRound
+      rounded="full"
       position="absolute"
       right="-15px"
       top={0}
       bottom={0}
       margin="auto"
       onClick={onClick}
-    />
+    >
+      <LuChevronRight />
+    </IconButton>
   );
 
 const Carousel = ({
@@ -56,20 +54,8 @@ const Carousel = ({
   loadingMore,
   ...rest
 }) => {
-  const theme = useTheme();
-  const [isClient, setIsClient] = useState(false);
-
+  return ''
   const breakpoints = Object.values(theme.breakpoints);
-
-  // dynamic import breaks the dynamic rendering of elements
-  // const SlickSlider = dynamic(import('react-slick'), {
-  //   ssr: !isClient,
-  // });
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const [breakpoint, setBreakpoint] = useState(null);
 
   useEffect(() => {
@@ -83,11 +69,11 @@ const Carousel = ({
         }
 
         // when not using server side rendering
-        if (canUseDOM()) {
+        // if (canUseDOM()) {
           const handler = () => setBreakpoint(breakpoint);
           enquire.register(query, handler);
           responsiveMediaHandlers.push([query, handler]);
-        }
+        // }
       });
     }
 
@@ -127,7 +113,6 @@ const Carousel = ({
   return (
     <Box position="relative">
       <SlickSlider
-        key={isClient ? 'client' : 'server'}
         prevArrow={<PrevArrow />}
         nextArrow={<NextArrow />}
         infinite={false}
@@ -164,7 +149,7 @@ Carousel.propTypes = {
 
 Carousel.defaultProps = {
   slidesToShow: 1,
-  onLoadMore: () => { },
+  onLoadMore: () => {},
   loadingMore: false,
 };
 

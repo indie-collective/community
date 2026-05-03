@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/react';
-import { CheckIcon } from '@chakra-ui/icons';
+import { LuCheck } from 'react-icons/lu';
 import { Form, useNavigation } from 'react-router';
 
 const JoinEventButton = ({
@@ -15,14 +15,10 @@ const JoinEventButton = ({
     <Form method='post' action={`/event/${eventId}/${isGoing ? 'leave' : 'join'}`}>
       <Button
         variant={isGoing ? 'solid' : 'outline'}
-        colorScheme="green"
-        leftIcon={isGoing ? <CheckIcon /> : null}
+        colorPalette="green"
         {...rest}
         type="submit"
-        disabled={navigation.state === 'submitting'}
-      >
-        {navigation.state === 'submitting' ? 'Submitting...' : children}
-      </Button>
+        disabled={navigation.state === 'submitting'}>{isGoing ? <LuCheck /> : null}{navigation.state === 'submitting' ? 'Submitting...' : children}</Button>
     </Form>
   );
 };

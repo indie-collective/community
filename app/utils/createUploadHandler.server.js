@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk';
-import jimp from 'jimp';
+import { Jimp } from 'jimp';
 
 import { db } from './db.server';
 
@@ -43,18 +43,16 @@ async function uploadStreamToS3(data, { extension, contentType }) {
       })
       .promise();
 
-    const image = await jimp.read(imageBuffer);
+    const image = await Jimp.fromBuffer(imageBuffer);
     const { width, height } = image.bitmap;
-    image.resize(jimp.AUTO, 400);
-    
-    const buffer = await image.getBufferAsync(jimp.AUTO);
+    const resized = image.resize({ h: 400 });
 
     const { ETag: thumbETag, VersionId: thumbVersionId } = await s3
       .putObject({
         ACL: 'public-read',
         Key: `thumb_${newFilename}`,
-        Body: buffer,
-        ContentType: image.getMIME(),
+        Body: resized.getBuffer(),
+        ContentType: image.mime,
         CacheControl: 'max-age=31536000',
       })
       .promise();

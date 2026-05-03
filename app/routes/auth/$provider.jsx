@@ -1,4 +1,4 @@
-import { redirect } from "@react-router/node";
+import { redirect } from "react-router";
 
 import { authenticator } from "../../utils/auth.server";
 

@@ -1,4 +1,4 @@
-import { json } from '@react-router/node';
+
 
 import { db } from '../utils/db.server';
 import { getFullTextSearchQuery } from '../utils/search.server';
@@ -29,9 +29,9 @@ export async function loader({ request }) {
       take: parseInt(url.searchParams.get('take')) || 10,
     });
 
-    return json(data);
+    return data;
   } catch (err) {
     console.error(err);
-    return json({ error: 'Something went wrong' });
+    return { error: 'Something went wrong' };
   }
 }

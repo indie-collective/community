@@ -1,22 +1,14 @@
-import { json, redirect } from '@react-router/node';
-import { useLoaderData, Form, Link, useSubmit } from 'react-router';
-import {
-  Heading,
-  Link as ChakraLink,
-  Text,
-  ListItem,
-  List,
-  ListIcon,
-  Box,
-} from '@chakra-ui/react';
+import { redirect, useLoaderData, Form, Link, useSubmit  } from 'react-router';
+import { Heading, Link as ChakraLink, Text, List, Box } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
 import { authenticator } from '../../utils/auth.server';
+import isAuthenticated from '../../utils/isAuthenticated.server'
 import { db } from '../../utils/db.server';
-import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { LuPlus, LuTrash2, LuPencil } from 'react-icons/lu';
 
 export const action = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
@@ -41,7 +33,7 @@ export const action = async ({ request }) => {
 };
 
 export const loader = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
@@ -79,7 +71,7 @@ export const loader = async ({ request }) => {
     lastChanges,
   };
 
-  return json(data);
+  return data;
 };
 
 export const meta = () => [{
@@ -93,9 +85,9 @@ const operationsColors = {
 };
 
 const operationsIcons = {
-  create: AddIcon,
-  update: EditIcon,
-  delete: DeleteIcon,
+  create: LuPlus,
+  update: LuPencil,
+  delete: LuTrash2,
 };
 
 const Profile = () => {
@@ -106,8 +98,7 @@ const Profile = () => {
       <Heading as="h2" mb={5} size="2xl">
         Last changes
       </Heading>
-
-      <List spacing={2} pl={5}>
+      <List.Root gap={2} pl={5}>
         {lastChanges.map(
           ({
             id,
@@ -118,37 +109,30 @@ const Profile = () => {
             data,
             created_at,
           }) => (
-            <ListItem>
-              <ListIcon
-                as={operationsIcons[operation]}
-                color={operationsColors[operation]}
-              />
+            <List.Item>
+              <List.Indicator color={operationsColors[operation]} asChild><operationsIcons.operation /></List.Indicator>
               {author?.first_name} {author?.last_name}{' '}
-              <ChakraLink
-                as={Link}
-                to={`/${
-                   table_name === 'entity' ? 'org' : table_name
-                }/${record_id}/changes/${id}`}
-              >
-                {operation}d
-              </ChakraLink>{' '}
-              <ChakraLink
-                as={Link}
-                to={`/${
-                  table_name === 'entity' ? 'org' : table_name
-                }/${record_id}`}
-              >
-                {data.name}
-              </ChakraLink>{' '}
+              <ChakraLink asChild><Link
+                  to={`/${
+                     table_name === 'entity' ? 'org' : table_name
+                  }/${record_id}/changes/${id}`}>
+                  {operation}d
+                                </Link></ChakraLink>{' '}
+              <ChakraLink asChild><Link
+                  to={`/${
+                    table_name === 'entity' ? 'org' : table_name
+                  }/${record_id}`}>
+                  {data.name}
+                </Link></ChakraLink>{' '}
               <Text as="span" opacity={0.6}>
                 {formatDistanceToNow(new Date(created_at), {
                   addSuffix: true,
                 })}
               </Text>
-            </ListItem>
+            </List.Item>
           )
         )}
-      </List>
+      </List.Root>
     </Box>
   );
 };

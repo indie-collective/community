@@ -1,5 +1,4 @@
 import {
-  chakra,
   HStack,
   Flex,
   Text,
@@ -10,8 +9,6 @@ import {
 import { Form, Link, useLoaderData } from 'react-router';
 import { SocialsProvider } from 'remix-auth-socials';
 
-import { DiscordIcon } from './DiscordIcon';
-
 const AvatarButton = () => {
   const data = useLoaderData();
 
@@ -20,8 +17,11 @@ const AvatarButton = () => {
 
     return (
       <Link to="/profile">
-        <HStack spacing="1.5" pr={3}>
-          <Avatar size="md" name={first_name} src={avatar} />
+        <HStack gap="1.5" pr={3}>
+          <Avatar.Root size="md">
+            <Avatar.Fallback name={first_name} />
+            <Avatar.Image src={avatar} />
+          </Avatar.Root>
           <Flex direction="column">
             <Text fontWeight="bold" mb="-2px">
               {first_name}
@@ -34,14 +34,10 @@ const AvatarButton = () => {
   }
 
   return (
-    <chakra.form
-      as={Form}
-      action={`/auth/${SocialsProvider.DISCORD}`}
-      method="post"
-    >
+    <Form action={`/auth/${SocialsProvider.DISCORD}`} method="post">
       <Button
         type="submit"
-        colorScheme={SocialsProvider.DISCORD}
+        colorPalette={SocialsProvider.DISCORD}
         aria-label="Signin"
         w="100%"
         size="lg"
@@ -49,7 +45,7 @@ const AvatarButton = () => {
       >
         Sign in
       </Button>
-    </chakra.form>
+    </Form>
   );
 };
 

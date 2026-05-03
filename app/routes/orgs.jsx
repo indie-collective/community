@@ -1,11 +1,10 @@
-import { Box, Grid, Button, Fade } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
-import { Link, useLoaderData } from 'react-router';
-import { json } from '@react-router/node';
+import { Box, Grid, Button, Presence } from '@chakra-ui/react';
 import { Suspense } from 'react';
+import { LuPlus } from 'react-icons/lu';
+import { Link, useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server'
 import computeOrg from '../models/org';
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
 
@@ -15,7 +14,7 @@ export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
   const page = Number(searchParams.get('page') || '1');
 
-  const currentUser = await authenticator.isAuthenticated(request);
+  const currentUser = await isAuthenticated(request);
 
   const orgs = await db.entity
     .findMany({
@@ -36,7 +35,7 @@ export const loader = async ({ request }) => {
   };
 
   // return deferred(data);
-  return json(data);
+  return data;
 };
 
 export const meta = () => [{
@@ -70,9 +69,15 @@ const OrgsList = () => {
 
   return orgs.map((org) => (
     <Box key={org.id} minW={0}>
-      <Fade in>
+      <Presence
+        present
+        animationName={{
+          _open: 'fade-in',
+          _closed: 'fade-out'
+        }}
+        animationDuration='moderate'>
         <OrgCard {...org} />
-      </Fade>
+      </Presence>
     </Box>
   ));
 };

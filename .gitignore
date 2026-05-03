@@ -22,3 +22,4 @@ generated
 /transform-meta.cjs
 /rename-useTransition.cjs
 /rewrite-rr7-imports.cjs
+.react-router/

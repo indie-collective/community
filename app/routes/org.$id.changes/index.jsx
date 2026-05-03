@@ -1,5 +1,5 @@
 import { Text } from '@chakra-ui/react';
-import { json, redirect } from '@react-router/node';
+import { redirect } from 'react-router';
 
 import { db } from '../../utils/db.server';
 
@@ -27,7 +27,7 @@ export async function loader({ params }) {
     });
   }
 
-  return json({});
+  return {};
 }
 
 export function ErrorBoundary() {

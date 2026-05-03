@@ -30,9 +30,9 @@ const PossibleGameDuplicates = ({ value, ignoredId }) => {
           {games.data.map((game, i) => (
             <Fragment key={game.id}>
               {i > 0 && ', '}
-              <ChakraLink as={Link} to={`/game/${game.id}`} color="green.500">
-                {game.name}
-              </ChakraLink>
+              <ChakraLink color="green.500" asChild><Link to={`/game/${game.id}`}>
+                  {game.name}
+                </Link></ChakraLink>
             </Fragment>
           ))}
         </Text>

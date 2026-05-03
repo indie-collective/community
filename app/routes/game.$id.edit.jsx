@@ -1,12 +1,14 @@
-import { Box, Heading, useToast } from '@chakra-ui/react';
+import { Box, Heading } from '@chakra-ui/react';
 // import differenceWith from 'lodash.differencewith';
-import { json, redirect } from '@react-router/node';
+import { redirect } from 'react-router';
 import { useActionData, useLoaderData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
-import { authenticator, authorizer, canWrite } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
+import { authorizer, canWrite } from '../utils/auth.server';
 import computeGame from '../models/game';
+import { toaster } from '../components/ui/toaster';
 import GameForm from '../components/GameForm';
 
 const uuidRegex =
@@ -15,7 +17,7 @@ const uuidRegex =
 export const loader = async ({ request, params }) => {
   const { id } = params;
 
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: `/signin?redirect=/games/${id}/edit`,
   });
 
@@ -40,10 +42,10 @@ export const loader = async ({ request, params }) => {
     },
   });
 
-  return json({
+  return {
     game: await computeGame(game),
     currentUser,
-  });
+  };
 };
 
 export async function action(args) {
@@ -113,7 +115,7 @@ export async function action(args) {
     console.log(err);
 
     const values = Object.fromEntries(data);
-    return json({ error: 'Updating the game failed', values });
+    return { error: 'Updating the game failed', values };
   }
 }
 
@@ -125,14 +127,13 @@ export const meta = ({
 
 const EditGame = () => {
   const { game } = useLoaderData();
-  const toast = useToast();
-  const navigation = useNavigation();
+    const navigation = useNavigation();
   const actionData = useActionData();
 
   useEffect(() => {
     if (!actionData?.error) return;
 
-    toast({
+    toaster.create({
       title: 'Something went wrong',
       description: actionData?.error,
       status: 'error',

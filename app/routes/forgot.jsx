@@ -1,14 +1,14 @@
-import { Alert, AlertIcon, Box, Heading } from '@chakra-ui/react';
-import { json } from '@react-router/node';
+import { Alert, Box, Heading } from '@chakra-ui/react';
+
 import { useActionData, useNavigation } from 'react-router';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server'
 import ForgotForm from '../components/ForgotForm';
 import { sendEmail } from '../utils/email.server';
 
 export const loader = async ({ request }) => {
-  return await authenticator.isAuthenticated(request, {
+  return await isAuthenticated(request, {
     successRedirect: '/',
   });
 };
@@ -44,7 +44,7 @@ export const action = async ({ request }) => {
     });
   }
 
-  return json({ reset: true });
+  return { reset: true };
 };
 
 export const meta = () => [{
@@ -61,11 +61,10 @@ const SignUp = () => {
         <Heading textAlign="center" size="xl" fontWeight="extrabold" mb={6}>
           Forgot password
         </Heading>
-
-        <Alert status="success">
-          <AlertIcon />
+        <Alert.Root status="success">
+          <Alert.Indicator />
           If we found that email, we've sent it a reset link.
-        </Alert>
+        </Alert.Root>
       </Box>
     );
   }
@@ -75,14 +74,12 @@ const SignUp = () => {
       <Heading textAlign="center" size="xl" fontWeight="extrabold" mb={6}>
         Forgot password
       </Heading>
-
       {actionData?.error && (
-        <Alert status="error" mb="10px">
-          <AlertIcon />
+        <Alert.Root status="error" mb="10px">
+          <Alert.Indicator />
           {actionData?.error}
-        </Alert>
+        </Alert.Root>
       )}
-
       <ForgotForm method="post" loading={navigation.state === 'submitting'} />
     </Box>
   );

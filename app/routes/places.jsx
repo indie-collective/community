@@ -1,25 +1,22 @@
-import { json } from '@react-router/node';
 import { useLoaderData, useLocation, useNavigate } from 'react-router';
-import React, { useTransition } from 'react';
+import React, { useTransition, useCallback, useEffect, useMemo, useRef, useState  } from 'react';
 import {
-  chakra,
   Badge,
   Box,
   Flex,
   Heading,
-  Tooltip,
   useBreakpointValue,
-  keyframes,
-  usePrevious,
+  Icon,
 } from '@chakra-ui/react';
 import { Overlay, ZoomControl } from 'pigeon-maps';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { usePrevious } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List } from 'react-window';
 
 import { db } from '../utils/db.server';
 import computeOrg from '../models/org';
 // import Error from '../../../client/pages/_error';
+import { Tooltip } from '../components/ui/tooltip';
 import ClusterMap from '../components/ClusterMap';
 import OrgCard from '../components/OrgCard';
 import SwipeableEdgeDrawer from '../components/SwipeableEdgeDrawer';
@@ -31,7 +28,7 @@ const TYPES_COLORS = {
 
 const OrgMarker = React.memo(
   ({ id, logo, name, type, highlighted, onClick }) => (
-    <Tooltip label={name} aria-label="A tooltip">
+    <Tooltip content={name} aria-label="A tooltip">
       <Box
         width={50}
         height={50}
@@ -46,59 +43,46 @@ const OrgMarker = React.memo(
         }}
         onClick={onClick}
       >
-        <chakra.svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="48px"
-          height="48px"
-          viewBox="0 0 480 480"
-          color={TYPES_COLORS[type] + '.500'}
-        >
-          <defs>
-            <mask id="mask">
-              <rect x="0" y="0" width="480" height="480" fill="white" />
-              <circle cx="240" cy="200" r="120" fill="black" />
-            </mask>
-          </defs>
+        <Icon asChild>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48px"
+            height="48px"
+            viewBox="0 0 480 480"
+            color={TYPES_COLORS[type] + '.500'}
+          >
+            <defs>
+              <mask id="mask">
+                <rect x="0" y="0" width="480" height="480" fill="white" />
+                <circle cx="240" cy="200" r="120" fill="black" />
+              </mask>
+            </defs>
 
-          <path
-            d="M175 429 c-63 -60 -108 -126 -126 -187 -38 -129 104 -269 235 -232 85 24 155 108 156 188 0 55 -48 141 -120 215 -36 37 -71 67 -78 67 -7 0 -38 -23 -67 -51z"
-            fill="currentColor"
-            mask="url(#mask)"
-          />
-          {logo && (
-            <foreignObject x="80" y="40" width="320" height="320">
-              <chakra.img
-                src={logo.thumbnail_url}
-                loading="lazy"
-                backgroundColor="currentColor"
-                objectFit="cover"
-                borderRadius="50%"
-                width="320px"
-                height="320px"
-              />
-            </foreignObject>
-          )}
-        </chakra.svg>
+            <path
+              d="M175 429 c-63 -60 -108 -126 -126 -187 -38 -129 104 -269 235 -232 85 24 155 108 156 188 0 55 -48 141 -120 215 -36 37 -71 67 -78 67 -7 0 -38 -23 -67 -51z"
+              fill="currentColor"
+              mask="url(#mask)"
+            />
+            {logo && (
+              <foreignObject x="80" y="40" width="320" height="320">
+                <Box
+                  as="img"
+                  src={logo.thumbnail_url}
+                  loading="lazy"
+                  backgroundColor="currentColor"
+                  objectFit="cover"
+                  borderRadius="50%"
+                  width="320px"
+                  height="320px"
+                />
+              </foreignObject>
+            )}
+          </svg>
+        </Icon>
       </Box>
     </Tooltip>
   )
 );
-
-const highlight = keyframes({
-  '0%': {
-    transform: 'scale(1)',
-  },
-
-  '50%': {
-    transform: 'scale(0.9)',
-    boxShadow:
-      '0 0 0 1px rgba(16, 22, 26, 0.1), 0 4px 8px rgba(16, 22, 26, 0.2), 0 18px 46px 6px rgba(16, 22, 26, 0.2)',
-  },
-
-  '100%': {
-    transform: 'scale(1)',
-  },
-});
 
 const Row = ({ index, data, style }) => (
   <div key={data.orgs[index].id} style={style}>
@@ -106,7 +90,7 @@ const Row = ({ index, data, style }) => (
       id={data.orgs[index].id}
       sx={{
         '&:target': {
-          animation: `${highlight} 500ms ease-in-out 500ms`,
+          animation: `highlight 500ms ease-in-out 500ms`,
         },
       }}
       {...data.orgs[index]}
@@ -155,7 +139,9 @@ const MovingBand = React.memo(({ header, children, isOpen, onClose }) => {
       w="400px"
       h="auto"
       overflow="auto"
-      sx={{ scrollBehavior: 'smooth' }}
+      css={{
+        scrollBehavior: 'smooth',
+      }}
       background="transparent"
       borderTopRadius={24}
       position="relative"
@@ -189,36 +175,50 @@ export const loader = async ({ request }) => {
   const data = {
     orgs: await Promise.all(orgs),
   };
-  return json(data);
+  return data;
 };
 
-export const meta = () => [{
-  title: 'Places'
-}, {
-  name: 'description',
-  content: 'Video game related companies and organizations all over the world.'
-}, {
-  property: 'og:title',
-  content: 'Places'
-}, {
-  property: 'og:description',
-  content: 'Video game related companies and organizations all over the world.'
-}, {
-  name: 'twitter:card',
-  content: 'summary_large_image'
-}, {
-  name: 'twitter:site',
-  content: '@IndieColle'
-}, {
-  name: 'twitter:title',
-  content: 'Places'
-}, {
-  name: 'twitter:description',
-  content: 'Video game related companies and organizations all over the world.'
-}, {
-  name: 'viewport',
-  content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
-}];
+export const meta = () => [
+  {
+    title: 'Places',
+  },
+  {
+    name: 'description',
+    content:
+      'Video game related companies and organizations all over the world.',
+  },
+  {
+    property: 'og:title',
+    content: 'Places',
+  },
+  {
+    property: 'og:description',
+    content:
+      'Video game related companies and organizations all over the world.',
+  },
+  {
+    name: 'twitter:card',
+    content: 'summary_large_image',
+  },
+  {
+    name: 'twitter:site',
+    content: '@IndieColle',
+  },
+  {
+    name: 'twitter:title',
+    content: 'Places',
+  },
+  {
+    name: 'twitter:description',
+    content:
+      'Video game related companies and organizations all over the world.',
+  },
+  {
+    name: 'viewport',
+    content:
+      'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
+  },
+];
 
 const Places = () => {
   const containerRef = useRef();
@@ -336,7 +336,7 @@ const Places = () => {
           header={
             <Heading size="md" textAlign="center" m={2} mt={6}>
               Locations
-              <Badge colorScheme="green" variant="solid" ml={2} fontSize="xl">
+              <Badge colorPalette="green" variant="solid" ml={2} fontSize="xl">
                 {orgsInBounds.length}
               </Badge>
             </Heading>

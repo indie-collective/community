@@ -1,9 +1,7 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import { Box } from '@chakra-ui/react';
 
-const Card = forwardRef(function Card(props, ref) {
-  const { isClickable, ...rest } = props;
-
+function Card({ ref, isClickable, ...rest }) {
   if (isClickable) {
     rest._focusWithin = {
       // TODO: theme
@@ -18,6 +16,6 @@ const Card = forwardRef(function Card(props, ref) {
       {...rest}
     />
   );
-});
+}
 
 export default Card;

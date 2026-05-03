@@ -4,23 +4,21 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FormControl,
-  FormLabel,
   Input,
-  FormErrorMessage,
   Button,
   Textarea,
   Avatar,
-  AvatarBadge,
   IconButton,
-  useMergeRefs,
   InputGroup,
-  InputRightElement,
   Spinner,
+  Field,
+  Circle,
+  Float,
 } from '@chakra-ui/react';
-import { CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
+import { LuCheck, LuX, LuPencil } from 'react-icons/lu';
 import { Form, useFetcher, useSubmit } from 'react-router';
 import debounce from 'lodash.debounce';
+import useMergeRefs from '../hooks/useMergeRefs';
 
 const validationSchema = yup.object().shape({
   username: yup.string().required(),
@@ -93,20 +91,23 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
       {...rest}
       encType="multipart/form-data"
     >
-      <FormControl mb={5}>
-        <FormLabel htmlFor="avatar" textAlign="center">
-          <Avatar size="2xl" margin="1rem" src={avatar}>
-            <AvatarBadge size="1em" bg="white">
+      <Field.Root mb={5} alignItems="center">
+        <Field.Label htmlFor="avatar">
+          <Avatar.Root size="2xl" margin="1rem">
+            <Avatar.Fallback />
+            <Avatar.Image src={avatar} />
+            <Float placement="bottom-end" offsetX="1" offsetY="1">
               <IconButton
                 aria-label="Edit avatar"
-                icon={<EditIcon />}
-                colorScheme="green"
-                isRound
+                colorPalette="green"
+                rounded="full"
                 onClick={() => avatarRef.current.click()}
-              />
-            </AvatarBadge>
-          </Avatar>
-        </FormLabel>
+              >
+                <LuPencil />
+              </IconButton>
+            </Float>
+          </Avatar.Root>
+        </Field.Label>
 
         <Input
           display="none"
@@ -123,10 +124,9 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
           }}
           accept="image/*"
         />
-      </FormControl>
-
-      <FormControl mb={5}>
-        <FormLabel htmlFor="email">Email</FormLabel>
+      </Field.Root>
+      <Field.Root mb={5}>
+        <Field.Label htmlFor="email">Email</Field.Label>
         <Input
           id="email"
           name="email"
@@ -135,78 +135,72 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
           value={email}
           disabled
         />
-      </FormControl>
-
-      <FormControl mb={5}>
-        <FormLabel htmlFor="username">Username</FormLabel>
-        <InputGroup>
+      </Field.Root>
+      <Field.Root mb={5}>
+        <Field.Label htmlFor="username">Username</Field.Label>
+        <InputGroup
+          endElement={
+            fetcher.data &&
+            (fetcher.state === 'loading' ? (
+              <Spinner />
+            ) : fetcher.data.available ? (
+              <LuCheck color="green.500" />
+            ) : (
+              <LuX color="red.500" />
+            ))
+          }
+        >
           <Input
             {...register('username', {
-              onChange: e => checkUsernameAvailability(e.target.value),
+              onChange: (e) => checkUsernameAvailability(e.target.value),
             })}
             id="username"
             placeholder="jeanmicheljam"
           />
-          {fetcher.data && (
-            <InputRightElement
-              children={
-                fetcher.state === 'loading' ? (
-                  <Spinner />
-                ) : fetcher.data.available ? (
-                  <CheckIcon color="green.500" />
-                ) : (
-                  <CloseIcon color="red.500" />
-                )
-              }
-            />
-          )}
         </InputGroup>
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.username && errors.username.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl mb={5} isInvalid={errors.firstName} isRequired>
-        <FormLabel htmlFor="firstName">First name</FormLabel>
+        </Field.ErrorText>
+      </Field.Root>
+      <Field.Root mb={5} invalid={errors.firstName} required>
+        <Field.Label htmlFor="firstName">First name</Field.Label>
         <Input
           {...register('firstName')}
           id="firstName"
           placeholder="Jean-Michel"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.firstName && errors.firstName.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl mb={5} isInvalid={errors.lastName}>
-        <FormLabel htmlFor="lastName">Last name</FormLabel>
+        </Field.ErrorText>
+      </Field.Root>
+      <Field.Root mb={5} invalid={errors.lastName}>
+        <Field.Label htmlFor="lastName">Last name</Field.Label>
         <Input {...register('lastName')} id="lastName" placeholder="Jam" />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.lastName && errors.lastName.message}
-        </FormErrorMessage>
-      </FormControl>
-
-      <FormControl mb={5} isInvalid={errors.about}>
-        <FormLabel htmlFor="about">About</FormLabel>
+        </Field.ErrorText>
+      </Field.Root>
+      <Field.Root mb={5} invalid={errors.about}>
+        <Field.Label htmlFor="about">About</Field.Label>
         <Textarea
           id="about"
           placeholder="What's your life like..."
           {...register('about')}
           resize="vertical"
           whiteSpace="pre-wrap"
+          minH="100px"
         />
-        <FormErrorMessage>
+        <Field.ErrorText>
           {errors.about && errors.about.message}
-        </FormErrorMessage>
-      </FormControl>
-
+        </Field.ErrorText>
+      </Field.Root>
       <Button
         type="submit"
         w="100%"
         mt={3}
-        colorScheme="green"
-        isDisabled={loading}
-        isLoading={loading}
+        colorPalette="green"
+        disabled={loading}
+        loading={loading}
       >
         Save
       </Button>

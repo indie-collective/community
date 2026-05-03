@@ -1,4 +1,5 @@
 import React from 'react';
+import { useColorModeValue } from "./ui/color-mode";
 import matchSorter from 'match-sorter';
 import { usePopper } from 'react-popper';
 import { useCombobox, useMultipleSelection } from 'downshift';
@@ -6,26 +7,20 @@ import { useDeepCompareEffect } from 'react-use';
 import Highlighter from 'react-highlight-words';
 import cc from 'classcat';
 import {
-  Box,
+    Box,
   Button,
   Flex,
   HStack,
   Input,
   InputGroup,
-  InputLeftElement,
-  InputRightElement,
   Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Tag,
   TagCloseButton,
   TagLabel,
   Text,
-  useColorModeValue,
   VStack,
 } from '@chakra-ui/react';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { LuChevronDown } from 'react-icons/lu';
 
 const fruits = [
   { value: 'apple', label: 'Apple' },
@@ -212,21 +207,21 @@ function CreateablePicker(props) {
         href="https://unpkg.com/tailwindcss@1.8.8/dist/tailwind.min.css"
       />
       <div>
-        <HStack spacing={2} my={2}>
+        <HStack gap={2} my={2}>
           {selectedItems.map((selectedItem, index) => (
-            <Tag
+            <Tag.Root
               key={selectedItem.label}
               variant="solid"
               {...getSelectedItemProps({ selectedItem, index })}
             >
-              <TagLabel>{selectedItem.label}</TagLabel>
-              <TagCloseButton
+              <Tag.Label>{selectedItem.label}</Tag.Label>
+              <Tag.CloseTrigger
                 onClick={(e) => {
                   e.stopPropagation();
                   removeSelectedItem(selectedItem);
                 }}
               />
-            </Tag>
+            </Tag.Root>
           ))}
         </HStack>
         <InputGroup position="relative" {...getComboboxProps()}>
@@ -240,15 +235,13 @@ function CreateablePicker(props) {
               })
             )}
           />
-          <InputRightElement>
-            <Button
-              size="sm"
-              {...getToggleButtonProps()}
-              aria-label={'toggle menu'}
-            >
-              &#8595;
-            </Button>
-          </InputRightElement>
+          {/* <Button
+            size="sm"
+            {...getToggleButtonProps()}
+            aria-label={'toggle menu'}
+          >
+            &#8595;
+          </Button> */}
         </InputGroup>
         <div
           style={styles.popper}
@@ -266,10 +259,10 @@ function CreateablePicker(props) {
                 .map((item, index) => (
                   <Button
                     variant="ghost"
-                    colorScheme="gray"
+                    colorPalette="gray"
                     textAlign="left"
                     rounded={false}
-                    isActive={highlightedIndex === index}
+                    data-active
                     {...getItemProps({ item, index })}
                   >
                     {isCreating ? (

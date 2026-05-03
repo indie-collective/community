@@ -1,32 +1,31 @@
 import {
-  Box,
+    Box,
   Heading,
   Text,
   Grid,
   Image,
-  Fade,
-  useColorModeValue,
   Button,
   Flex,
+  Presence,
 } from '@chakra-ui/react';
-import { ChevronRightIcon } from '@chakra-ui/icons';
-import { json } from '@react-router/node';
+import { useColorModeValue } from '../components/ui/color-mode';
+import { LuChevronRight } from 'react-icons/lu';
+
 import { Link, useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import computeEvent from '../models/event';
 import computeGame from '../models/game';
 import computeOrg from '../models/org';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
-import AuthenticatedHomePage from '../components/AuthenticatedHomePage';
 import PlacesWidget from '../components/PlacesWidget';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 
 export const loader = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request);
+  const currentUser = await isAuthenticated(request);
 
   const games = await db.game.findMany({
     include: {
@@ -198,33 +197,42 @@ export const loader = async ({ request }) => {
         }
       : null,
   };
-  return json(data);
+  return data;
 };
 
-export const meta = () => [{
-  title: 'Indie Collective - Community powered video game data'
-}, {
-  name: 'description',
-  content: 'Video game related events around you and all over the world.'
-}, {
-  property: 'og:title',
-  content: 'Indie Collective - Community powered video game data'
-}, {
-  property: 'og:description',
-  content: 'Video game related events around you and all over the world.'
-}, {
-  name: 'twitter:card',
-  content: 'summary'
-}, {
-  name: 'twitter:site',
-  content: '@IndieColle'
-}, {
-  name: 'twitter:title',
-  content: 'Indie Collective - Community powered video game data'
-}, {
-  name: 'twitter:description',
-  content: 'Video game related events around you and all over the world.'
-}];
+export const meta = () => [
+  {
+    title: 'Indie Collective - Community powered video game data',
+  },
+  {
+    name: 'description',
+    content: 'Video game related events around you and all over the world.',
+  },
+  {
+    property: 'og:title',
+    content: 'Indie Collective - Community powered video game data',
+  },
+  {
+    property: 'og:description',
+    content: 'Video game related events around you and all over the world.',
+  },
+  {
+    name: 'twitter:card',
+    content: 'summary',
+  },
+  {
+    name: 'twitter:site',
+    content: '@IndieColle',
+  },
+  {
+    name: 'twitter:title',
+    content: 'Indie Collective - Community powered video game data',
+  },
+  {
+    name: 'twitter:description',
+    content: 'Video game related events around you and all over the world.',
+  },
+];
 
 const HomePage = () => {
   const {
@@ -255,18 +263,22 @@ const HomePage = () => {
           <Heading as="h3" size="lg" py={3} pl={2}>
             Games
           </Heading>
-          <Button
-            as={Link}
-            to="/games"
-            rightIcon={<ChevronRightIcon />}
-            colorScheme="gray"
-            variant="ghost"
-          >
-            Explore games
+          <Button colorPalette="gray" variant="ghost" asChild>
+            <Link to="/games">
+              Explore games
+              <LuChevronRight />
+            </Link>
           </Button>
         </Flex>
 
-        <Fade in>
+        <Presence
+          present
+          animationName={{
+            _open: 'fade-in',
+            _closed: 'fade-out',
+          }}
+          animationDuration="moderate"
+        >
           <Grid
             gap={2}
             templateColumns={[
@@ -282,11 +294,9 @@ const HomePage = () => {
               </Box>
             ))}
           </Grid>
-        </Fade>
+        </Presence>
       </Box>
-
       <PlacesWidget placesCount={placesCount} placesPoints={placesPoints} />
-
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
         <Box
           mb={5}
@@ -301,18 +311,22 @@ const HomePage = () => {
             <Heading as="h3" size="lg" py={3} pl={2}>
               Studios
             </Heading>
-            <Button
-              as={Link}
-              to="/studios"
-              rightIcon={<ChevronRightIcon />}
-              colorScheme="gray"
-              variant="ghost"
-            >
-              Explore Studios
+            <Button colorPalette="gray" variant="ghost" asChild>
+              <Link to="/studios">
+                Explore Studios
+                <LuChevronRight />
+              </Link>
             </Button>
           </Flex>
 
-          <Fade in>
+          <Presence
+            present
+            animationName={{
+              _open: 'fade-in',
+              _closed: 'fade-out',
+            }}
+            animationDuration="moderate"
+          >
             <Grid
               mb={5}
               gap={3}
@@ -329,7 +343,7 @@ const HomePage = () => {
                 </Box>
               ))}
             </Grid>
-          </Fade>
+          </Presence>
         </Box>
 
         <Box
@@ -345,18 +359,22 @@ const HomePage = () => {
             <Heading as="h3" size="lg" py={3} pl={2}>
               Associations
             </Heading>
-            <Button
-              as={Link}
-              to="/associations"
-              rightIcon={<ChevronRightIcon />}
-              colorScheme="gray"
-              variant="ghost"
-            >
-              Explore Associations
+            <Button colorPalette="gray" variant="ghost" asChild>
+              <Link to="/associations">
+                Explore Associations
+                <LuChevronRight />
+              </Link>
             </Button>
           </Flex>
 
-          <Fade in>
+          <Presence
+            present
+            animationName={{
+              _open: 'fade-in',
+              _closed: 'fade-out',
+            }}
+            animationDuration="moderate"
+          >
             <Grid
               mb={5}
               gap={3}
@@ -373,27 +391,30 @@ const HomePage = () => {
                 </Box>
               ))}
             </Grid>
-          </Fade>
+          </Presence>
         </Box>
       </Grid>
-
       <Box px={4} py={5} background={bg} shadow="sm" borderRadius={7}>
         <Flex justify="space-between" align="center" mb={5}>
           <Heading as="h3" size="lg">
             Events
           </Heading>
-          <Button
-            as={Link}
-            to="/events"
-            rightIcon={<ChevronRightIcon />}
-            colorScheme="gray"
-            variant="ghost"
-          >
-            Explore Events
+          <Button colorPalette="gray" variant="ghost" asChild>
+            <Link to="/events">
+              Explore Events
+              <LuChevronRight />
+            </Link>
           </Button>
         </Flex>
 
-        <Fade in>
+        <Presence
+          present
+          animationName={{
+            _open: 'fade-in',
+            _closed: 'fade-out',
+          }}
+          animationDuration="moderate"
+        >
           {eventsToCome.length > 0 ? (
             <Grid
               gap={3}
@@ -420,7 +441,7 @@ const HomePage = () => {
               </Text>
             </Box>
           )}
-        </Fade>
+        </Presence>
       </Box>
     </Box>
   );

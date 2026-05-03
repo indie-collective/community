@@ -1,57 +1,62 @@
-import {
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
-    IconButton,
-    MenuDivider,
-} from '@chakra-ui/react';
-import {
-    EditIcon,
-    TimeIcon,
-    DeleteIcon,
-    SettingsIcon
-} from '@chakra-ui/icons';
+import { Menu, IconButton, Portal } from '@chakra-ui/react';
+import { LuPencil, LuTimer, LuTrash2, LuSettings } from 'react-icons/lu';
 import { Link } from 'react-router';
 
 const ActionMenu = ({ editLink, changesLink, onDelete, ...props }) => {
-    return (
-        <Menu>
-            <MenuButton
-                as={IconButton}
-                aria-label="Options"
-                icon={<SettingsIcon />}
-                variant="ghost"
-                colorScheme="gray"
-                borderRadius="full"
-                {...props}
-            />
-            <MenuList>
-                {editLink && (
-                    <MenuItem as={Link} to={editLink} icon={<EditIcon />}>
-                        Edit
-                    </MenuItem>
-                )}
-                {changesLink && (
-                    <MenuItem as={Link} to={changesLink} icon={<TimeIcon />}>
-                        History
-                    </MenuItem>
-                )}
-                {onDelete && (
-                    <>
-                        <MenuDivider />
-                        <MenuItem
-                            icon={<DeleteIcon />}
-                            color="red.500"
-                            onClick={onDelete}
-                        >
-                            Delete
-                        </MenuItem>
-                    </>
-                )}
-            </MenuList>
-        </Menu>
-    );
+  return (
+    <Menu.Root>
+      <Menu.Trigger>
+        <IconButton
+          aria-label="Options"
+          variant="ghost"
+          colorScheme="gray"
+          borderRadius="full"
+          {...props}
+        >
+          <LuSettings />
+        </IconButton>
+      </Menu.Trigger>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content>
+            {editLink && (
+              <Menu.Item
+                as={Link}
+                to={editLink}
+                icon={<LuPencil />}
+                value="item-0"
+              >
+                Edit
+              </Menu.Item>
+            )}
+            {changesLink && (
+              <Menu.Item
+                as={Link}
+                to={changesLink}
+                icon={<LuTimer />}
+                value="item-1"
+              >
+                History
+              </Menu.Item>
+            )}
+            {onDelete && (
+              <>
+                <Menu.Separator />
+                <Menu.Item
+                  icon={<LuTrash2 />}
+                  color="red.500"
+                  onSelect={onDelete}
+                  value="item-2"
+                >
+                  Delete
+                </Menu.Item>
+              </>
+            )}
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
+  );
 };
 
 export default ActionMenu;

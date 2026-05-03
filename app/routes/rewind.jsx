@@ -1,5 +1,5 @@
 import {
-  Box,
+    Box,
   Container,
   Heading,
   Text,
@@ -7,20 +7,19 @@ import {
   VStack,
   HStack,
   Circle,
-  useColorModeValue,
   Icon,
   Flex,
-  Divider,
+  Separator,
 } from '@chakra-ui/react';
-import { json } from '@react-router/node';
-import { useLoaderData } from 'react-router';
-import { Link } from 'react-router';
-import { motion } from 'framer-motion';
+
+import { useColorModeValue } from "../components/ui/color-mode";
+
+import { useLoaderData, Link  } from 'react-router';
 import { FaCalendarAlt, FaGamepad, FaUsers, FaBuilding, FaMapMarkerAlt, FaHashtag } from 'react-icons/fa';
 import { db } from '../utils/db.server';
 
-const MotionBox = motion(Box);
-const MotionFlex = motion(Flex);
+const MotionBox = Box;
+const MotionFlex = Flex;
 
 export const loader = async () => {
   const startOfYear = new Date('2025-01-01T00:00:00Z');
@@ -139,7 +138,7 @@ export const loader = async () => {
     })
   );
 
-  return json({
+  return {
     eventsCount,
     gamesCount,
     studiosCount,
@@ -150,7 +149,7 @@ export const loader = async () => {
       country: l.country_code,
       total: l._count.entity + l._count.event
     })).sort((a, b) => b.total - a.total).slice(0, 5),
-  });
+  };
 };
 
 const StatCard = ({ icon, label, value, color, delay, href }) => {
@@ -158,11 +157,11 @@ const StatCard = ({ icon, label, value, color, delay, href }) => {
   const textColor = useColorModeValue('gray.600', 'gray.400');
 
   const content = (
-    <VStack spacing={4} align="start">
+    <VStack gap={4} align="start">
       <Circle size="40px" bg={`${color}.50`} color={color}>
         <Icon as={icon} />
       </Circle>
-      <VStack spacing={0} align="start">
+      <VStack gap={0} align="start">
         <Text fontSize="sm" color={textColor} fontWeight="medium">
           {label}
         </Text>
@@ -214,7 +213,7 @@ const RewindPage = () => {
   if (!hasData) {
     return (
       <Box bg={sectionBg} minH="100vh" display="flex" alignItems="center" justifyContent="center">
-        <VStack spacing={6} textAlign="center">
+        <VStack gap={6} textAlign="center">
           <Heading size="2xl">Rewind 2025</Heading>
           <Text fontSize="xl" color="gray.500">It looks like the year hasn't been mapped yet!</Text>
           <Text>Be the first to add an event or a studio for 2025.</Text>
@@ -226,7 +225,7 @@ const RewindPage = () => {
   return (
     <Box bg={sectionBg} minH="100vh">
       <Container maxW="container.xl" py={20}>
-        <VStack spacing={20} align="stretch">
+        <VStack gap={20} align="stretch">
           {/* Hero Section */}
           <MotionBox
             initial={{ opacity: 0, y: -20 }}
@@ -243,7 +242,7 @@ const RewindPage = () => {
           </MotionBox>
 
           {/* Main Stats */}
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8}>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={8}>
             <StatCard icon={FaCalendarAlt} label="Events Happened" value={eventsCount} color="teal" delay={0.1} href="/events" />
             <StatCard icon={FaGamepad} label="Games Created" value={gamesCount} color="blue" delay={0.2} href="/games" />
             <StatCard icon={FaBuilding} label="New Studios" value={studiosCount} color="purple" delay={0.3} href="/studios" />
@@ -251,7 +250,7 @@ const RewindPage = () => {
           </SimpleGrid>
 
           {/* Detailed Sections */}
-          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={10}>
+          <SimpleGrid columns={{ base: 1, lg: 2 }} gap={10}>
             {/* Top Tags */}
             <MotionBox
               initial={{ opacity: 0, x: -30 }}
@@ -265,33 +264,33 @@ const RewindPage = () => {
               overflow="hidden"
               position="relative"
             >
-              <VStack align="start" spacing={6} zIndex={1} position="relative">
+              <VStack align="start" gap={6} zIndex={1} position="relative">
                 <HStack>
-                  <Icon as={FaHashtag} color="green.400" w={6} h={6} />
+                  <Icon color="green.400" w={6} h={6} asChild><FaHashtag /></Icon>
                   <Heading size="lg">Hottest Trends</Heading>
                 </HStack>
                 <Text color="gray.500">The most popular tags used by our community this year.</Text>
 
                 {topTags.length > 0 ? (
-                  <VStack align="stretch" w="100%" spacing={6}>
+                  <VStack align="stretch" w="100%" gap={6}>
                     {topTags.map((tag, idx) => (
-                      <Box key={tag.name} as={Link} to={`/games?tags=${encodeURIComponent(tag.name)}`} _hover={{ color: 'green.500' }}>
-                        <Flex justify="space-between" mb={2}>
-                          <Text fontWeight="bold" fontSize="md">{tag.name}</Text>
-                          <Text color="green.500" fontWeight="semibold">{tag.count} games</Text>
-                        </Flex>
-                        <Box h="10px" bg={useColorModeValue('gray.100', 'gray.700')} borderRadius="full">
-                          <MotionBox
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${(tag.count / topTags[0].count) * 100}%` }}
-                            transition={{ duration: 1, delay: idx * 0.1, ease: "easeOut" }}
-                            viewport={{ once: true }}
-                            h="100%"
-                            bgGradient="linear(to-r, teal.300, teal.500)"
-                            borderRadius="full"
-                          />
-                        </Box>
-                      </Box>
+                      <Box _hover={{ color: 'green.500' }} asChild><Link key={tag.name} to={`/games?tags=${encodeURIComponent(tag.name)}`}>
+                          <Flex justify="space-between" mb={2}>
+                            <Text fontWeight="bold" fontSize="md">{tag.name}</Text>
+                            <Text color="green.500" fontWeight="semibold">{tag.count} games</Text>
+                          </Flex>
+                          <Box h="10px" bg={useColorModeValue('gray.100', 'gray.700')} borderRadius="full">
+                            <MotionBox
+                              initial={{ width: 0 }}
+                              whileInView={{ width: `${(tag.count / topTags[0].count) * 100}%` }}
+                              transition={{ duration: 1, delay: idx * 0.1, ease: "easeOut" }}
+                              viewport={{ once: true }}
+                              h="100%"
+                              bgGradient="linear(to-r, teal.300, teal.500)"
+                              borderRadius="full"
+                            />
+                          </Box>
+                        </Link></Box>
                     ))}
                   </VStack>
                 ) : (
@@ -311,31 +310,37 @@ const RewindPage = () => {
               borderRadius="2xl"
               boxShadow="2xl"
             >
-              <VStack align="start" spacing={6}>
+              <VStack align="start" gap={6}>
                 <HStack>
-                  <Icon as={FaMapMarkerAlt} color="blue.400" w={6} h={6} />
+                  <Icon color="blue.400" w={6} h={6} asChild><FaMapMarkerAlt /></Icon>
                   <Heading size="lg">Expanding Horizons</Heading>
                 </HStack>
                 <Text color="gray.500">Cities where the indie scene was most vibrant in 2025.</Text>
 
                 {topLocations.length > 0 ? (
-                  <VStack align="stretch" w="100%" spacing={6}>
+                  <VStack align="stretch" w="100%" gap={6}>
                     {topLocations.map((loc, idx) => (
-                      <HStack key={idx} as={Link} to={`/search?q=${encodeURIComponent(loc.city)}`} justify="space-between" p={3} borderRadius="lg" _hover={{ bg: useColorModeValue('blue.50', 'gray.700'), color: 'blue.600' }} transition="0.2s">
-                        <HStack spacing={4}>
-                          <Circle size="36px" bg="blue.500" color="white" fontSize="sm" fontWeight="bold">
-                            {idx + 1}
-                          </Circle>
-                          <VStack align="start" spacing={0}>
-                            <Text fontWeight="bold" fontSize="md">{loc.city}</Text>
-                            <Text fontSize="xs" color="gray.400" textTransform="uppercase" letterSpacing="wider">{loc.country}</Text>
-                          </VStack>
-                        </HStack>
-                        <Box textAlign="right">
-                          <Text fontWeight="bold" color="blue.500" fontSize="lg">{loc.total}</Text>
-                          <Text fontSize="xs" color="gray.400">Activities</Text>
-                        </Box>
-                      </HStack>
+                      <HStack
+                        justify="space-between"
+                        p={3}
+                        borderRadius="lg"
+                        _hover={{ bg: useColorModeValue('blue.50', 'gray.700'), color: 'blue.600' }}
+                        transition="0.2s"
+                        asChild><Link key={idx} to={`/search?q=${encodeURIComponent(loc.city)}`}>
+                          <HStack gap={4}>
+                            <Circle size="36px" bg="blue.500" color="white" fontSize="sm" fontWeight="bold">
+                              {idx + 1}
+                            </Circle>
+                            <VStack align="start" gap={0}>
+                              <Text fontWeight="bold" fontSize="md">{loc.city}</Text>
+                              <Text fontSize="xs" color="gray.400" textTransform="uppercase" letterSpacing="wider">{loc.country}</Text>
+                            </VStack>
+                          </HStack>
+                          <Box textAlign="right">
+                            <Text fontWeight="bold" color="blue.500" fontSize="lg">{loc.total}</Text>
+                            <Text fontSize="xs" color="gray.400">Activities</Text>
+                          </Box>
+                        </Link></HStack>
                     ))}
                   </VStack>
                 ) : (
@@ -346,7 +351,7 @@ const RewindPage = () => {
           </SimpleGrid>
 
           {/* Footer Message */}
-          <Divider />
+          <Separator />
           <MotionBox
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

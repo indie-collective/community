@@ -1,30 +1,25 @@
 import {
-  Box,
+    Box,
   Heading,
   Text,
   Button,
-  TableContainer,
   Table,
   TableCaption,
-  Thead,
-  Tr,
-  Td,
-  Th,
-  Tbody,
   Flex,
 } from '@chakra-ui/react';
-import { json } from '@react-router/node';
+
 import { isRouteErrorResponse, useLoaderData, useRouteError } from 'react-router';
 
 import { db } from '../../utils/db.server';
 import { authenticator } from '../../utils/auth.server';
+import isAuthenticated from '../../utils/isAuthenticated.server'
 import computeGame from '../../models/game';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 export const loader = async ({ request, params }) => {
-  const currentUser = await authenticator.isAuthenticated(request, {
+  const currentUser = await isAuthenticated(request, {
     failureRedirect: '/signin',
   });
 
@@ -88,7 +83,7 @@ export const loader = async ({ request, params }) => {
     },
   });
 
-  const diff = require('diff');
+  const diff = await import('diff');
 
   const revisionData = revision.data || {};
   const previousData = previous?.data || {};
@@ -114,7 +109,7 @@ export const loader = async ({ request, params }) => {
     currentUser,
   };
 
-  return json(data);
+  return data;
 };
 
 export const meta = ({
@@ -162,34 +157,33 @@ const Game = () => {
 
         <Button ml="auto">Restore</Button>
         {currentUser.isAdmin && (
-          <Button ml={2} colorScheme="red">
+          <Button ml={2} colorPalette="red">
             Restore and Restrict {author.username}
           </Button>
         )}
       </Flex>
-
-      <TableContainer>
-        <Table variant="simple">
-          <TableCaption>
+      <Table.ScrollArea>
+        <Table.Root variant="simple">
+          <Table.Caption>
             Changes made by {author.username} on{' '}
-            <Text as="time">
-              {new Date(createdAt).toLocaleDateString('en-US', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Text>
-          </TableCaption>
-          <Thead>
-            <Tr>
-              <Th>Property</Th>
-              <Th>Before</Th>
-              <Th>After</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
+            <Text asChild><time>
+                {new Date(createdAt).toLocaleDateString('en-US', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </time></Text>
+          </Table.Caption>
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeader>Property</Table.ColumnHeader>
+              <Table.ColumnHeader>Before</Table.ColumnHeader>
+              <Table.ColumnHeader>After</Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
             {Object.entries(diff)
               // keep only changes
               .filter(
@@ -198,9 +192,9 @@ const Game = () => {
                   changes.reduce((acc, c) => acc + c.count, 0) > 0
               )
               .map(([key, changes]) => (
-                <Tr>
-                  <Th>{key}</Th>
-                  <Td whiteSpace="normal">
+                <Table.Row>
+                  <Table.ColumnHeader>{key}</Table.ColumnHeader>
+                  <Table.Cell whiteSpace="normal">
                     {changes
                       .filter((l) => !l.added)
                       .map(({ removed, value }) => (
@@ -211,8 +205,8 @@ const Game = () => {
                           {value}
                         </Text>
                       ))}
-                  </Td>
-                  <Td whiteSpace="normal">
+                  </Table.Cell>
+                  <Table.Cell whiteSpace="normal">
                     {changes
                       .filter((l) => !l.removed)
                       .map(({ added, value }) => (
@@ -223,12 +217,12 @@ const Game = () => {
                           {value}
                         </Text>
                       ))}
-                  </Td>
-                </Tr>
+                  </Table.Cell>
+                </Table.Row>
               ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
+          </Table.Body>
+        </Table.Root>
+      </Table.ScrollArea>
     </Box>
   );
 };

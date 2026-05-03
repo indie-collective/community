@@ -1,53 +1,57 @@
 import {
   Alert,
-  AlertIcon,
   Box,
   Button,
-  chakra,
-  Divider,
   Heading,
   HStack,
   Stack,
   Text,
   VisuallyHidden,
+  Separator,
 } from '@chakra-ui/react';
-import { json } from '@react-router/node';
-import { Form, useActionData, useNavigation } from 'react-router';
-import { AuthorizationError } from 'remix-auth';
+
+import { Form, redirect, useActionData, useNavigation } from 'react-router';
 import { SocialsProvider } from 'remix-auth-socials';
+import { FaDiscord } from 'react-icons/fa6';
 
 import { authenticator } from '../utils/auth.server';
-import { DiscordIcon } from '../components/DiscordIcon';
+import isAuthenticated from '../utils/isAuthenticated.server';
+import { commitSession, getSession } from '../utils/session.server';
 import SigninForm from '../components/SigninForm';
 
 export let loader = async ({ request }) => {
-  return await authenticator.isAuthenticated(request, {
-    successRedirect: '/',
-  });
+  const user = await isAuthenticated(request);
+
+  if (user) return redirect('/');
 };
 
 export let action = async ({ request }) => {
   try {
-    return await authenticator.authenticate('user-pass', request, {
-      successRedirect: '/',
-      throwOnError: true,
+    const user = await authenticator.authenticate('user-pass', request);
+
+    const session = await getSession(request.headers.get('cookie'));
+
+    session.set('user', user);
+
+    return redirect('/', {
+      headers: {
+        'Set-Cookie': await commitSession(session),
+      },
     });
   } catch (error) {
-    // Because redirects work by throwing a Response, you need to check if the
-    // caught error is a response and return it or throw it again
-    if (error instanceof Response) return error;
-    if (error instanceof AuthorizationError) {
-      return json({ error: error.message });
+    if (error instanceof Error) {
+      return { error: error.message };
     }
 
-    console.log(error);
-    return json({ error: 'Something went wrong' });
+    throw error;
   }
 };
 
-export const meta = () => [{
-  title: 'Sign In'
-}];
+export const meta = () => [
+  {
+    title: 'Sign In',
+  },
+];
 
 const SignIn = () => {
   const navigation = useNavigation();
@@ -58,36 +62,31 @@ const SignIn = () => {
       <Heading textAlign="center" size="xl" fontWeight="extrabold">
         Sign in
       </Heading>
-
-      <chakra.form
-        as={Form}
-        action={`/auth/${SocialsProvider.DISCORD}`}
-        method="post"
-      >
+      <Form action={`/auth/${SocialsProvider.DISCORD}`} method="post">
         <Button
           type="submit"
-          colorScheme={SocialsProvider.DISCORD}
+          colorPalette={SocialsProvider.DISCORD}
           aria-label="Signin"
-          rightIcon={<DiscordIcon boxSize="5" />}
           w="100%"
         >
           Sign in with<VisuallyHidden> Discord</VisuallyHidden>
+          <FaDiscord boxSize="5" />
         </Button>
-      </chakra.form>
+      </Form>
       {process.env.NODE_ENV === 'development' && (
-        <Stack spacing={5}>
+        <Stack gap={5}>
           <HStack>
-            <Divider />
+            <Separator />
             <Text fontSize="sm" whiteSpace="nowrap" color="muted">
               or continue with
             </Text>
-            <Divider />
+            <Separator />
           </HStack>
           {actionData?.error && (
-            <Alert status="error" mb="10px">
-              <AlertIcon />
+            <Alert.Root status="error" mb="10px">
+              <Alert.Indicator />
               {actionData?.error}
-            </Alert>
+            </Alert.Root>
           )}
 
           <SigninForm loading={navigation.state === 'submitting'} />

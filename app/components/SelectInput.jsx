@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useColorModeValue } from './ui/color-mode';
 import PropTypes from 'prop-types';
-import {
-  Input,
-  Box,
-  Button,
-  Text,
-  InputGroup,
-  InputRightElement,
-  useColorModeValue,
-  InputLeftElement,
-} from '@chakra-ui/react';
-import { CloseIcon } from '@chakra-ui/icons';
+import { Input, Box, Button, Text, InputGroup } from '@chakra-ui/react';
+import { LuX } from 'react-icons/lu';
 
 const propTypes = {
   items: PropTypes.arrayOf(PropTypes.object),
@@ -66,6 +58,26 @@ const SelectInput = ({
   return (
     <Box position="relative">
       <InputGroup
+        startElement={leftIcon}
+        endElement={
+          selected ? (
+            <LuX
+              boxSize="25px"
+              color={iconColor}
+              borderRadius="0.5em"
+              padding="4px"
+              cursor="pointer"
+              _hover={{ backgroundColor: iconHoverColor }}
+              onClick={() => {
+                setInput('');
+                setSelected(null);
+                if (onSelect) onSelect(undefined);
+              }}
+            />
+          ) : (
+            icon
+          )
+        }
         onFocus={() => setFocusedInput(true)}
         onBlur={() => {
           setTimeout(() => {
@@ -73,7 +85,6 @@ const SelectInput = ({
           }, 150);
         }}
       >
-        {leftIcon && <InputLeftElement children={leftIcon} />}
         <Input
           {...inputProps}
           placeholder={placeholder}
@@ -83,27 +94,6 @@ const SelectInput = ({
             setSelected(null);
           }}
           value={selected ? itemPredicate(selected) : input}
-        />
-        <InputRightElement
-          children={
-            selected ? (
-              <CloseIcon
-                boxSize="25px"
-                color={iconColor}
-                borderRadius="0.5em"
-                padding="4px"
-                cursor="pointer"
-                _hover={{ backgroundColor: iconHoverColor }}
-                onClick={() => {
-                  setInput('');
-                  setSelected(null);
-                  if (onSelect) onSelect(undefined);
-                }}
-              />
-            ) : (
-              icon
-            )
-          }
         />
       </InputGroup>
       {focusedInput || focusedButton ? (
@@ -127,7 +117,7 @@ const SelectInput = ({
               key={itemPredicate(item)}
               {...ButtonProps}
               variant="ghost"
-              colorScheme="gray"
+              colorPalette="gray"
               width="100%"
               textAlign="left"
               onClick={() => {
@@ -144,7 +134,7 @@ const SelectInput = ({
                 {...TextProps}
                 paddingLeft="10px"
                 width="100%"
-                noOfLines={1}
+                lineClamp={1}
               >
                 {itemPredicate(item)}
               </Text>

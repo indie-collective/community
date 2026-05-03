@@ -1,21 +1,21 @@
 import React from 'react';
+import { DarkMode } from './ui/color-mode';
 import {
   Box,
   Badge,
   Image,
   Flex,
   Heading,
-  DarkMode,
   IconButton,
-  useColorModeValue,
   Skeleton,
   SkeletonText,
+  Text,
+  Icon,
 } from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
+import { LuMapPin, LuTrash2 } from 'react-icons/lu';
 
 import usePlaceholder from '../hooks/usePlaceholder';
 import countryNames from '../assets/countries.json';
-import { LocationIcon } from './LocationIcon';
 import Card from './Card';
 import CardLink from './CardLink';
 
@@ -42,9 +42,9 @@ export const OrgCardSkeleton = () => (
     </Flex>
 
     <Box flex="1">
-      <SkeletonText skeletonHeight="1.8rem" py={2} noOfLines={1} w="75%" />
+      <SkeletonText skeletonHeight="1.8rem" py={2} lineClamp={1} w="75%" />
 
-      <SkeletonText skeletonHeight="0.75rem" noOfLines={1} w="50%" />
+      <SkeletonText skeletonHeight="0.75rem" lineClamp={1} w="50%" />
     </Box>
   </Flex>
 );
@@ -63,8 +63,6 @@ const OrgCard = ({
 }) => {
   const placeholder = usePlaceholder('square');
 
-  const bg = useColorModeValue('gray.100', 'gray.700');
-
   return (
     <Card
       id={id}
@@ -72,9 +70,9 @@ const OrgCard = ({
       padding={2}
       rounded={10}
       transition="background-color 200ms ease-out"
+      cursor="pointer"
       _hover={{
-        backgroundColor: bg,
-        cursor: 'pointer',
+        bg: { base: 'gray.200', _dark: 'gray.700' },
       }}
       {...rest}
     >
@@ -90,9 +88,8 @@ const OrgCard = ({
             w="75px"
             h="75px"
             objectFit="contain"
-            src={logo && logo.thumbnail_url}
+            src={logo?.thumbnail_url ?? placeholder}
             alt="Organization cover"
-            fallbackSrc={placeholder}
             rounded={3}
           />
 
@@ -103,7 +100,7 @@ const OrgCard = ({
               right="3px"
               rounded={3}
               variant="solid"
-              colorScheme={TYPES_COLORS[type]}
+              colorPalette={TYPES_COLORS[type]}
               fontSize="0.55em"
             >
               {TYPES_ABBR[type]}
@@ -112,13 +109,13 @@ const OrgCard = ({
         </Flex>
 
         <Box flex="1">
-          <Heading as="h3" size="md" noOfLines={2} wordBreak="break-word" title={name}>
+          <Heading as="h3" size="md" title={name}>
             <CardLink to={`/org/${id}`}>{name}</CardLink>
           </Heading>
 
           {location && (
-            <Box
-              noOfLines={1}
+            <Flex
+              as={Text}
               title={
                 location.city
                   ? `${location.city}, ${location.country_code}`
@@ -129,12 +126,17 @@ const OrgCard = ({
               letterSpacing="wide"
               fontSize="xs"
               textTransform="uppercase"
+              align="center"
             >
-              <LocationIcon />{' '}
-              {location.city
-                ? `${location.city}, ${location.country_code}`
-                : countryNames[location.country_code.toUpperCase()]}
-            </Box>
+              <Icon>
+                <LuMapPin />
+              </Icon>
+              <Box lineClamp={1} flex="1" ml={1}>
+                {location.city
+                  ? `${location.city}, ${location.country_code}`
+                  : countryNames[location.country_code.toUpperCase()]}
+              </Box>
+            </Flex>
           )}
         </Box>
 
@@ -143,15 +145,16 @@ const OrgCard = ({
             mx={5}
             size="xs"
             aria-label={`Remove ${name}`}
-            isRound
-            colorScheme="red"
-            icon={<DeleteIcon />}
+            rounded="full"
+            colorPalette="red"
             onClick={(e) => {
               e.preventDefault();
 
               onRemove();
             }}
-          />
+          >
+            <LuTrash2 />
+          </IconButton>
         )}
       </Flex>
     </Card>

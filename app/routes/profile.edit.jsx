@@ -1,34 +1,32 @@
-import { Box, Heading, useToast } from '@chakra-ui/react';
-import { useActionData, useLoaderData, useNavigation } from 'react-router';
+import { Box, Heading } from '@chakra-ui/react';
 import {
-  json,
   redirect,
-  unstable_composeUploadHandlers,
-  unstable_createMemoryUploadHandler,
-  unstable_parseMultipartFormData,
-} from '@react-router/node';
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from 'react-router';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
+import { toaster } from '../components/ui/toaster';
 import ProfileForm from '../components/ProfileForm';
 import { commitSession, getSession } from '../utils/session.server';
 import getImageLinks from '../utils/imageLinks.server';
 
 export const loader = async ({ request }) => {
-  const { id } = await authenticator.isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   const user = await db.person.findUnique({
-    where: { id },
+    where: { id: currentUser.id },
     include: {
       avatar: true,
     },
   });
 
-  const data = {
+  return {
     currentUser: {
       ...user,
       avatar: user.avatar
@@ -36,14 +34,10 @@ export const loader = async ({ request }) => {
         : undefined,
     },
   };
-
-  return json(data);
 };
 
 export const action = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   const data = await unstable_parseMultipartFormData(
     request,
@@ -87,29 +81,30 @@ export const action = async ({ request }) => {
   } catch (err) {
     console.log(err);
     const values = Object.fromEntries(data);
-    return json({ error: err.message, values });
+    return { error: err.message, values };
   }
 };
 
-export const meta = () => [{
-  title: 'Edit profile'
-}];
+export const meta = () => [
+  {
+    title: 'Edit profile',
+  },
+];
 
 const Profile = () => {
   const { currentUser } = useLoaderData();
-  const toast = useToast();
   const navigation = useNavigation();
   const actionData = useActionData();
 
   useEffect(() => {
     if (!actionData?.error) return;
 
-    toast({
+    toaster.create({
       title: 'Something went wrong',
       description: actionData?.error,
       status: 'error',
     });
-  }, [actionData?.error, navigation.state === 'submitting', toast]);
+  }, [actionData?.error, navigation.state === 'submitting']);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>

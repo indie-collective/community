@@ -1,5 +1,5 @@
 import {
-  AspectRatio,
+    AspectRatio,
   Image,
   Box,
   Grid,
@@ -12,23 +12,31 @@ import {
   IconButton,
   useDisclosure,
   Badge,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
   Wrap,
   Link as ChakraLink,
+  Dialog,
+  Portal,
 } from '@chakra-ui/react';
-import { AddIcon, EditIcon, WarningTwoIcon } from '@chakra-ui/icons';
-import { Form, Link, isRouteErrorResponse, useFetcher, useLoaderData, useRouteError } from 'react-router';
-import { json } from '@react-router/node';
+import {
+  LuPlus,
+  LuPencil,
+  LuTriangleAlert,
+  LuMapPin,
+} from 'react-icons/lu';
+import {
+  Form,
+  Link,
+  isRouteErrorResponse,
+  useFetcher,
+  useLoaderData,
+  useRouteError,
+} from 'react-router';
+
 import { Map } from 'pigeon-maps';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import { getFullTextSearchQuery } from '../utils/search.server';
 import computeEvent from '../models/event';
 import usePlaceholder from '../hooks/usePlaceholder';
@@ -38,7 +46,6 @@ import Markdown from '../components/Markdown';
 import RelatedEvents from '../components/RelatedEvents';
 import DateLabel from '../components/DateLabel';
 import JoinEventButton from '../components/JoinEventButton';
-import { LocationIcon } from '../components/LocationIcon';
 import { SearchGameModal } from './search-game';
 import SearchOrgModal from './search-org';
 
@@ -53,7 +60,7 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const currentUser = await authenticator.isAuthenticated(request);
+  const currentUser = await isAuthenticated(request);
 
   const event = await db.event.findUnique({
     where: { id },
@@ -134,59 +141,73 @@ export const loader = async ({ request, params }) => {
     currentUser,
   };
 
-  return json(data);
+  return data;
 };
 
-export const meta = ({
-  data,
-  location
-}) => {
-  if (!data?.event) return [{
-    title: 'Event not found!'
-  }];
-  const {
-    event
-  } = data;
-  let description = `Event on ${new Date(event.starts_at).toLocaleString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    hour: 'numeric',
-    minute: 'numeric'
-  })}`;
+export const meta = ({ data, location }) => {
+  if (!data?.event)
+    return [
+      {
+        title: 'Event not found!',
+      },
+    ];
+  const { event } = data;
+  let description = `Event on ${new Date(event.starts_at).toLocaleString(
+    'en-US',
+    {
+      day: 'numeric',
+      month: 'short',
+      hour: 'numeric',
+      minute: 'numeric',
+    }
+  )}`;
   if (event.location) {
     const l = event.location;
-    description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${l.country_code}`;
+    description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${
+      l.region
+    }, ${l.country_code}`;
   }
-  return [{
-    title: `${event.name} | Events`
-  }, {
-    name: 'description',
-    content: description
-  }, {
-    property: 'og:title',
-    content: event.name
-  }, {
-    property: 'og:description',
-    content: description
-  }, {
-    property: 'og:url',
-    content: `${location.protocol}://${location.host}/org/${event.id}`
-  }, {
-    property: 'og:image',
-    content: event.cover?.thumbnail_url
-  }, {
-    name: 'twitter:card',
-    content: event.cover ? 'summary_large_image' : 'summary'
-  }, {
-    name: 'twitter:title',
-    content: event.name
-  }, {
-    name: 'twitter:description',
-    content: description
-  }, {
-    name: 'twitter:image',
-    content: event.cover?.thumbnail_url
-  }];
+  return [
+    {
+      title: `${event.name} | Events`,
+    },
+    {
+      name: 'description',
+      content: description,
+    },
+    {
+      property: 'og:title',
+      content: event.name,
+    },
+    {
+      property: 'og:description',
+      content: description,
+    },
+    {
+      property: 'og:url',
+      content: `${location.protocol}://${location.host}/org/${event.id}`,
+    },
+    {
+      property: 'og:image',
+      content: event.cover?.thumbnail_url,
+    },
+    {
+      name: 'twitter:card',
+      content: event.cover ? 'summary_large_image' : 'summary',
+    },
+    {
+      name: 'twitter:title',
+      content: event.name,
+    },
+    {
+      name: 'twitter:description',
+      content: description,
+    },
+    {
+      name: 'twitter:image',
+      content: event.cover?.thumbnail_url,
+    },
+  ];
 };
 
 const Event = () => {
@@ -194,12 +215,12 @@ const Event = () => {
   const fetcher = useFetcher();
   const placeholder = usePlaceholder();
   const {
-    isOpen: linkGameIsOpen,
+    open: linkGameIsOpen,
     onOpen: onOpenLinkGame,
     onClose: onCloseLinkGame,
   } = useDisclosure();
   const {
-    isOpen: linkHostIsOpen,
+    open: linkHostIsOpen,
     onOpen: onOpenLinkHost,
     onClose: onCloseLinkHost,
   } = useDisclosure();
@@ -251,7 +272,6 @@ const Event = () => {
               objectFit="cover"
               src={cover && cover.url}
               alt="Event cover"
-              fallbackSrc={placeholder}
               rounded={5}
             />
           </AspectRatio>
@@ -264,11 +284,7 @@ const Event = () => {
           />
         </Box>
 
-        <Box
-          mb={5}
-          roundedBottom={5}
-          minHeight={!location && '100px'}
-        >
+        <Box mb={5} roundedBottom={5} minHeight={!location && '100px'}>
           <Grid
             gridTemplateColumns={['1fr', '1fr auto auto']}
             columnGap={2}
@@ -284,10 +300,10 @@ const Event = () => {
                     status === 'canceled' ? '2 / span 2' : '2 / span 1',
                   ]}
                   mb={[2, '0']}
-                  leftIcon={<EditIcon />}
                   size="sm"
-                  colorScheme="green"
+                  colorPalette="green"
                 >
+                  <LuPencil />
                   Edit
                 </Button>
               </Link>
@@ -305,22 +321,25 @@ const Event = () => {
             <Text
               gridColumn="1"
               textTransform="uppercase"
-              as="time"
-              dateTime={startsAt + '/' + endsAt}
               whiteSpace="nowrap"
+              asChild
             >
-              {dateTimeFormat.formatRange(new Date(startsAt), new Date(endsAt))}
+              <time dateTime={startsAt + '/' + endsAt}>
+                {dateTimeFormat.formatRange(
+                  new Date(startsAt),
+                  new Date(endsAt)
+                )}
+              </time>
             </Text>
 
             {location && (
               <Text gridColumn="1">
-                <LocationIcon /> {location.street && `${location.street}, `}
+                <LuMapPin /> {location.street && `${location.street}, `}
                 {location.city}, {location.region},{' '}
-                <ChakraLink
-                  as={Link}
-                  to={`/country/${location.country_code.toLowerCase()}`}
-                >
-                  {location.country_code}
+                <ChakraLink asChild>
+                  <Link to={`/country/${location.country_code.toLowerCase()}`}>
+                    {location.country_code}
+                  </Link>
                 </ChakraLink>
               </Text>
             )}
@@ -355,14 +374,12 @@ const Event = () => {
               display={['flex', 'block']}
               flexDirection={['row-reverse', '']}
             >
-              <AvatarGroup size="md" max={3} justifyContent="end">
+              <AvatarGroup size="md" justifyContent="end">
                 {participants.map(({ id, username, avatar }) => (
-                  <Avatar
-                    key={id}
-                    name={username}
-                    src={avatar && avatar.thumbnail_url}
-                    title={`@${username}`}
-                  />
+                  <Avatar.Root key={id} title={`@${username}`}>
+                    <Avatar.Fallback name={username} />
+                    <Avatar.Image src={avatar && avatar.thumbnail_url} />
+                  </Avatar.Root>
                 ))}
               </AvatarGroup>
               <Text>
@@ -387,8 +404,8 @@ const Event = () => {
                     ? 'Went'
                     : 'I went!'
                   : isGoing
-                    ? 'Going'
-                    : "Let's go!"}
+                  ? 'Going'
+                  : "Let's go!"}
               </JoinEventButton>
             )}
           </Grid>
@@ -403,9 +420,9 @@ const Event = () => {
             backgroundColor="red.300"
             borderRadius={5}
           >
-            <WarningTwoIcon size="24px" color="white" />
-            <Text as="b" color="white">
-              This event was canceled.
+            <Icon as={LuTriangleAlert} size="24px" color="white" />
+            <Text color="white" asChild>
+              <b>This event was canceled.</b>
             </Text>
           </Stack>
         )}
@@ -434,12 +451,12 @@ const Event = () => {
                 fontSize="md"
                 ml={2}
                 variant="subtle"
-                colorScheme="green"
+                colorPalette="green"
               >
                 {games.length}
               </Badge>
             </Heading>
-            <Wrap spacing={2}>
+            <Wrap gap={2}>
               {games.map((game) => (
                 <Box key={game.id} position="relative">
                   <GameCard
@@ -448,14 +465,14 @@ const Event = () => {
                     onRemove={
                       currentUser
                         ? () =>
-                          fetcher.submit(
-                            { id: game.id },
-                            {
-                              method: 'post',
-                              action: `/event/${id}/games/delete`,
-                            }
-                            // { method: 'post', action: './games/delete' }
-                          )
+                            fetcher.submit(
+                              { id: game.id },
+                              {
+                                method: 'post',
+                                action: `/event/${id}/games/delete`,
+                              }
+                              // { method: 'post', action: './games/delete' }
+                            )
                         : null
                     }
                     isCompact
@@ -465,11 +482,12 @@ const Event = () => {
               {currentUser && (
                 <>
                   <IconButton
-                    colorScheme="green"
+                    colorPalette="green"
                     aria-label="Add a game to the event"
-                    icon={<AddIcon />}
                     onClick={onOpenLinkGame}
-                  />
+                  >
+                    <LuPlus />
+                  </IconButton>
                   <SearchGameModal
                     isOpen={linkGameIsOpen}
                     onClose={onCloseLinkGame}
@@ -513,14 +531,14 @@ const Event = () => {
                   onRemove={
                     currentUser
                       ? () =>
-                        fetcher.submit(
-                          { id: host.id },
-                          {
-                            method: 'post',
-                            action: `/event/${id}/hosts/delete`,
-                          }
-                          // { method: 'post', action: './hosts/delete' }
-                        )
+                          fetcher.submit(
+                            { id: host.id },
+                            {
+                              method: 'post',
+                              action: `/event/${id}/hosts/delete`,
+                            }
+                            // { method: 'post', action: './hosts/delete' }
+                          )
                       : null
                   }
                 />
@@ -530,11 +548,12 @@ const Event = () => {
                   <IconButton
                     alignSelf="center"
                     justifySelf="flex-start"
-                    colorScheme="green"
+                    colorPalette="green"
                     aria-label="Add a host to the event"
-                    icon={<AddIcon />}
                     onClick={onOpenLinkHost}
-                  />
+                  >
+                    <LuPlus />
+                  </IconButton>
                   <SearchOrgModal
                     isOpen={linkHostIsOpen}
                     onClose={onCloseLinkHost}
@@ -556,42 +575,53 @@ const Event = () => {
         {currentUser && (
           <Box mb={5}>
             <Button
-              variant="link"
-              colorScheme="red"
+              variant="plain"
+              colorPalette="red"
               onClick={deleteModal.onOpen}
             >
               Delete event
             </Button>
 
-            <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
-              <ModalOverlay />
-              <ModalContent as={Form} action={`./delete`} method="post">
-                <ModalHeader>Delete Event</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                  <Text>Do you really want to delete {name}?</Text>
-                </ModalBody>
-
-                <ModalFooter>
-                  <Button
-                    type="submit"
-                    isLoading={false}
-                    loadingText="Deleting"
-                    colorScheme="red"
-                    mr={3}
-                  >
-                    Delete
-                  </Button>
-                  <Button variant="ghost" onClick={deleteModal.onClose}>
-                    Cancel
-                  </Button>
-                </ModalFooter>
-              </ModalContent>
-            </Modal>
+            <Dialog.Root
+              open={deleteModal.open}
+              onOpenChange={(e) => {
+                if (!e.open) {
+                  deleteModal.onClose();
+                }
+              }}
+            >
+              <Portal>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                  <Dialog.Content action={`./delete`} method="post" asChild>
+                    <Form>
+                      <Dialog.Header>Delete Event</Dialog.Header>
+                      <Dialog.CloseTrigger />
+                      <Dialog.Body>
+                        <Text>Do you really want to delete {name}?</Text>
+                      </Dialog.Body>
+                      <Dialog.Footer>
+                        <Button
+                          type="submit"
+                          loading={false}
+                          loadingText="Deleting"
+                          colorPalette="red"
+                          mr={3}
+                        >
+                          Delete
+                        </Button>
+                        <Button variant="ghost" onClick={deleteModal.onClose}>
+                          Cancel
+                        </Button>
+                      </Dialog.Footer>
+                    </Form>
+                  </Dialog.Content>
+                </Dialog.Positioner>
+              </Portal>
+            </Dialog.Root>
           </Box>
         )}
       </Box>
-
       <Box m={[2, 0]}>
         <Heading>Related events</Heading>
 
@@ -610,15 +640,11 @@ export function ErrorBoundary() {
         <Heading>Event not found!</Heading>
         <Text>Would you like to create its page?</Text>
         <Box mt={10}>
-          <Button
-            as={Link}
-            to="/events/create"
-            m="auto"
-            mb={10}
-            size="lg"
-            leftIcon={<AddIcon />}
-          >
-            Add an event
+          <Button m="auto" mb={10} size="lg" asChild>
+            <Link to="/events/create">
+              <LuPlus />
+              Add an event
+            </Link>
           </Button>
         </Box>
       </Stack>

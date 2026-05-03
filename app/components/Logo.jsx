@@ -1,5 +1,5 @@
 import React from 'react';
-import { useColorModeValue } from '@chakra-ui/react';
+import { useColorModeValue } from "./ui/color-mode";
 
 const Logo = ({ height = 40 }) => {
   const IColor = useColorModeValue('#054f45', '#ffffff');

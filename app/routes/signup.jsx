@@ -1,24 +1,23 @@
 import {
   Alert,
-  AlertIcon,
   Box,
   Heading,
   Text,
   Link as ChakraLink,
-  useColorModeValue as mode,
 } from '@chakra-ui/react';
-import { json, redirect } from '@react-router/node';
-import { Link, useActionData, useNavigation } from 'react-router';
+import { useColorModeValue as mode } from '../components/ui/color-mode';
+import { redirect, Link, useActionData, useNavigation  } from 'react-router';
 
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import { commitSession, getSession } from '../utils/session.server';
 import SignupForm from '../components/SignupForm';
 
 export const loader = async ({ request }) => {
-  return await authenticator.isAuthenticated(request, {
-    successRedirect: '/',
-  });
+  const user = await isAuthenticated(request);
+
+  if (user) return redirect('/');
 };
 
 export const action = async ({ request }) => {
@@ -32,9 +31,9 @@ export const action = async ({ request }) => {
     const confirm = form.get('passwordConfirmation');
 
     if (password !== confirm) {
-      return json({
+      return {
         error: "Password and confirmation don't match",
-      });
+      };
     }
 
     const user = await db.person.create({
@@ -49,29 +48,27 @@ export const action = async ({ request }) => {
 
     let session = await getSession(request.headers.get('cookie'));
 
-    session.set(authenticator.sessionKey, user);
+    session.set('user', user);
 
     return redirect('/welcome', {
       headers: { 'Set-Cookie': await commitSession(session) },
     });
   } catch (error) {
-    console.log(error);
-
     if (error.code === 'P2002') {
-      return json({
+      return {
         error: 'This email is already registered',
-      });
+      };
     }
 
-    return json({
-      error: 'An error occured.',
-    });
+    throw error;
   }
 };
 
-export const meta = () => [{
-  title: 'Sign Up'
-}];
+export const meta = () => [
+  {
+    title: 'Sign Up',
+  },
+];
 
 const SignUp = () => {
   const navigation = useNavigation();
@@ -85,22 +82,19 @@ const SignUp = () => {
       <Text mt="4" mb="8" align="center" maxW="md" fontWeight="medium">
         <Text as="span">Already have an account? </Text>
         <ChakraLink
-          as={Link}
-          to="/signin"
           color={mode('teal.600', 'teal.200')}
           fontWeight="semibold"
+          asChild
         >
-          Sign in
+          <Link to="/signin">Sign in</Link>
         </ChakraLink>
       </Text>
-
       {actionData?.error && (
-        <Alert status="error" mb="10px">
-          <AlertIcon />
+        <Alert.Root status="error" mb="10px">
+          <Alert.Indicator />
           {actionData?.error}
-        </Alert>
+        </Alert.Root>
       )}
-
       <SignupForm method="post" loading={navigation.state === 'submitting'} />
     </Box>
   );

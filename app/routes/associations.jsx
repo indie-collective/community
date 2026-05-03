@@ -1,19 +1,11 @@
-import {
-  Box,
-  Grid,
-  Button,
-  Fade,
-  Flex,
-  Heading,
-  Spacer,
-} from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
+import { Box, Grid, Button, Flex, Heading, Spacer, Presence } from '@chakra-ui/react';
+import { LuPlus } from 'react-icons/lu';
 import { Link, useLoaderData } from 'react-router';
-import { json } from '@react-router/node';
+
 import { Suspense } from 'react';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server'
 import computeOrg from '../models/org';
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
 import Filters from '../components/Filters';
@@ -27,7 +19,7 @@ export const loader = async ({ request }) => {
   const has_games = searchParams.get('has_games');
   const has_events = searchParams.get('has_events');
 
-  const currentUser = await authenticator.isAuthenticated(request);
+  const currentUser = await isAuthenticated(request);
 
   const where = {
     type: 'association',
@@ -95,7 +87,7 @@ export const loader = async ({ request }) => {
     currentUser,
   };
 
-  return json(data);
+  return data;
 };
 
 export const meta = () => [{
@@ -128,9 +120,15 @@ const OrgsList = () => {
 
   return associations.map((association) => (
     <Box key={association.id} minW={0}>
-      <Fade in>
+      <Presence
+        present
+        animationName={{
+          _open: 'fade-in',
+          _closed: 'fade-out'
+        }}
+        animationDuration='moderate'>
         <OrgCard {...association} />
-      </Fade>
+      </Presence>
     </Box>
   ));
 };

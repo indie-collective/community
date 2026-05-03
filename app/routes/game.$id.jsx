@@ -5,29 +5,29 @@ import {
   Text,
   Grid,
   AspectRatio,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
   Button,
   useDisclosure,
   IconButton,
   Tag,
   Link as ChakraLink,
   List,
-  ListItem,
-  chakra,
   Flex,
+  Dialog,
+  Portal,
 } from '@chakra-ui/react';
-import { AddIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
-import { json } from '@react-router/node';
-import { Form, Link, isRouteErrorResponse, useFetcher, useLoaderData, useRouteError } from 'react-router';
+import { LuPlus, LuPencil, LuExternalLink } from 'react-icons/lu';
+
+import {
+  Form,
+  Link,
+  isRouteErrorResponse,
+  useFetcher,
+  useLoaderData,
+  useRouteError,
+} from 'react-router';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import computeGame from '../models/game';
 import OrgCard from '../components/OrgCard';
 import SearchOrgModal from './search-org';
@@ -85,52 +85,61 @@ export const loader = async ({ request, params }) => {
 
   const data = {
     game: await computeGame(game),
-    currentUser: await authenticator.isAuthenticated(request),
+    currentUser: await isAuthenticated(request),
   };
 
-  return json(data);
+  return data;
 };
 
-export const meta = ({
-  data,
-  location
-}) => {
-  if (!data?.game) return [{
-    title: 'Game Not Found'
-  }];
-  const {
-    game
-  } = data;
-  return [{
-    title: `${game.name} - Games`
-  }, {
-    property: 'og:title',
-    content: game.name
-  }, {
-    property: 'og:description',
-    content: `${game.about}.`
-  }, {
-    property: 'og:url',
-    content: `${location.protocol}://${location.host}/game/${game.id}`
-  }, {
-    property: 'og:image',
-    content: game.game_image[0]?.image.thumbnail_url
-  }, {
-    name: 'twitter:card',
-    content: game.game_image[0] ? 'summary_large_image' : 'summary'
-  }, {
-    name: 'twitter:site',
-    content: '@IndieColle'
-  }, {
-    name: 'twitter:title',
-    content: game.name
-  }, {
-    name: 'twitter:description',
-    content: `${game.about}.`
-  }, {
-    name: 'twitter:image',
-    content: game.game_image[0]?.image.thumbnail_url
-  }];
+export const meta = ({ data, location }) => {
+  if (!data?.game)
+    return [
+      {
+        title: 'Game Not Found',
+      },
+    ];
+  const { game } = data;
+  return [
+    {
+      title: `${game.name} - Games`,
+    },
+    {
+      property: 'og:title',
+      content: game.name,
+    },
+    {
+      property: 'og:description',
+      content: `${game.about}.`,
+    },
+    {
+      property: 'og:url',
+      content: `${location.protocol}://${location.host}/game/${game.id}`,
+    },
+    {
+      property: 'og:image',
+      content: game.game_image[0]?.image.thumbnail_url,
+    },
+    {
+      name: 'twitter:card',
+      content: game.game_image[0] ? 'summary_large_image' : 'summary',
+    },
+    {
+      name: 'twitter:site',
+      content: '@IndieColle',
+    },
+    {
+      name: 'twitter:title',
+      content: game.name,
+    },
+    {
+      name: 'twitter:description',
+      content: `${game.about}.`,
+    },
+    {
+      name: 'twitter:image',
+      content: game.game_image[0]?.image.thumbnail_url,
+    },
+  ];
 };
 
 const Game = () => {
@@ -138,7 +147,7 @@ const Game = () => {
   const fetcher = useFetcher();
 
   const {
-    isOpen: linkAuthorIsOpen,
+    open: linkAuthorIsOpen,
     onOpen: onOpenLinkAuthor,
     onClose: onCloseLinkAuthor,
   } = useDisclosure();
@@ -169,17 +178,17 @@ const Game = () => {
 
   const igdb_images = igdb_game
     ? igdb_game.screenshots.map((image) => ({
-      external: true,
-      url: image.url.replace('t_thumb', 't_screenshot_huge'),
-      thumbnail_url: image.url.replace('t_thumb', 't_screenshot_med'),
-    }))
+        external: true,
+        url: image.url.replace('t_thumb', 't_screenshot_huge'),
+        thumbnail_url: image.url.replace('t_thumb', 't_screenshot_med'),
+      }))
     : [];
 
   return (
     <>
       <Box mb={5} pl={5} pr={5} mt={5}>
         <Flex direction="row" align="center" mb={5}>
-          <Heading as="h2" noOfLines={1} title={name} size="2xl" pb={1}>
+          <Heading as="h2" lineClamp={1} title={name} size="2xl" pb={1}>
             {name}
           </Heading>
 
@@ -212,38 +221,36 @@ const Game = () => {
           >
             {tags.map((tag) => (
               <Link key={tag.id} to={`/games?tags=${tag.name}`}>
-                <Tag
+                <Tag.Root
                   mr={1}
                   size="md"
-                  colorScheme="green"
+                  colorPalette="green"
                   variant="solid"
                   fontSize="0.8rem"
                   _hover={{ opacity: 0.8 }}
                 >
                   {tag.name}
-                </Tag>
+                </Tag.Root>
               </Link>
             ))}
           </Box>
         )}
 
         {about && (
-          <Box
-            py={3}
-            maxW="540px"
-          >
+          <Box py={3} maxW="540px">
             <Markdown value={about} />
           </Box>
         )}
 
         {site && (
-          <Button as={ChakraLink} href={site} alt={site.replace(/https?:\/\//, '')} isExternal>
-            Visit website
-            <ExternalLinkIcon mx="2px" />
+          <Button alt={site.replace(/https?:\/\//, '')} isExternal asChild>
+            <ChakraLink href={site}>
+              Visit website
+              <LuExternalLink mx="2px" />
+            </ChakraLink>
           </Button>
         )}
       </Box>
-
       <Box mb={5} pl={5} pr={5}>
         <Heading size="md" mb={2}>
           Made by
@@ -265,14 +272,14 @@ const Game = () => {
               onRemove={
                 currentUser
                   ? () =>
-                    fetcher.submit(
-                      { id: author.id },
-                      {
-                        method: 'post',
-                        action: `/game/${id}/companies/delete`,
-                      }
-                      // { method: 'post', action: './companies/delete' }
-                    )
+                      fetcher.submit(
+                        { id: author.id },
+                        {
+                          method: 'post',
+                          action: `/game/${id}/companies/delete`,
+                        }
+                        // { method: 'post', action: './companies/delete' }
+                      )
                   : null
               }
             />
@@ -282,11 +289,12 @@ const Game = () => {
               <IconButton
                 alignSelf="center"
                 justifySelf="flex-start"
-                colorScheme="green"
+                colorPalette="green"
                 aria-label="Add an author to the game"
-                icon={<AddIcon />}
                 onClick={onOpenLinkAuthor}
-              />
+              >
+                <LuPlus />
+              </IconButton>
               <SearchOrgModal
                 isOpen={linkAuthorIsOpen}
                 onClose={onCloseLinkAuthor}
@@ -303,30 +311,30 @@ const Game = () => {
           )}
         </Grid>
       </Box>
-
       {events.length > 0 && (
         <Box mb={5} pl={5} pr={5}>
           <Heading size="md" mb={2}>
             Made/Exhibited at:
           </Heading>
-          <List>
+          <List.Root>
             {events.map((event) => (
-              <ListItem key={event.key}>
-                <ChakraLink as={Link} to={`/event/${event.id}`}>
-                  <time dateTime={event.starts_at + '/' + event.ends_at}>
-                    {dateTimeFormat.formatRange(
-                      new Date(event.starts_at),
-                      new Date(event.ends_at)
-                    )}
-                  </time>
-                  . {event.name}
+              <List.Item key={event.key}>
+                <ChakraLink asChild>
+                  <Link to={`/event/${event.id}`}>
+                    <time dateTime={event.starts_at + '/' + event.ends_at}>
+                      {dateTimeFormat.formatRange(
+                        new Date(event.starts_at),
+                        new Date(event.ends_at)
+                      )}
+                    </time>
+                    . {event.name}
+                  </Link>
                 </ChakraLink>
-              </ListItem>
+              </List.Item>
             ))}
-          </List>
+          </List.Root>
         </Box>
       )}
-
       {igdb_game?.videos.length > 0 && (
         <Box mb={5} pl={5} pr={5}>
           <Heading size="md" mb={2}>
@@ -342,7 +350,8 @@ const Game = () => {
           >
             {igdb_game?.videos?.map(({ id, name, video_id }) => (
               <AspectRatio key={id} ratio={16 / 9}>
-                <chakra.iframe
+                <Box
+                  as="iframe"
                   objectFit="cover"
                   width="100%"
                   height="100%"
@@ -355,34 +364,49 @@ const Game = () => {
           </Grid>
         </Box>
       )}
-
       {currentUser && (
         <Box mb={5} pl={5} pr={5}>
-          <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.onClose}>
-            <ModalOverlay />
-            <ModalContent as={Form} action={`/game/${id}/delete`} method="post">
-              <ModalHeader>Delete Game</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Text>Do you really want to delete {name}?</Text>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button
-                  type="submit"
-                  isLoading={false}
-                  loadingText="Deleting"
-                  colorScheme="red"
-                  mr={3}
+          <Dialog.Root
+            open={deleteModal.open}
+            onOpenChange={(e) => {
+              if (!e.open) {
+                deleteModal.onClose();
+              }
+            }}
+          >
+            <Portal>
+              <Dialog.Backdrop />
+              <Dialog.Positioner>
+                <Dialog.Content
+                  action={`/game/${id}/delete`}
+                  method="post"
+                  asChild
                 >
-                  Delete
-                </Button>
-                <Button variant="ghost" onClick={deleteModal.onClose}>
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
+                  <Form>
+                    <Dialog.Header>Delete Game</Dialog.Header>
+                    <Dialog.CloseTrigger />
+                    <Dialog.Body>
+                      <Text>Do you really want to delete {name}?</Text>
+                    </Dialog.Body>
+                    <Dialog.Footer>
+                      <Button
+                        type="submit"
+                        loading={false}
+                        loadingText="Deleting"
+                        colorPalette="red"
+                        mr={3}
+                      >
+                        Delete
+                      </Button>
+                      <Button variant="ghost" onClick={deleteModal.onClose}>
+                        Cancel
+                      </Button>
+                    </Dialog.Footer>
+                  </Form>
+                </Dialog.Content>
+              </Dialog.Positioner>
+            </Portal>
+          </Dialog.Root>
         </Box>
       )}
     </>
@@ -398,15 +422,11 @@ export function ErrorBoundary() {
         <Heading>Game not found!</Heading>
         <Text>Why not create its page?</Text>
         <Box mt={10}>
-          <Button
-            as={Link}
-            to="/games/create"
-            m="auto"
-            mb={10}
-            size="lg"
-            leftIcon={<AddIcon />}
-          >
-            Add game
+          <Button m="auto" mb={10} size="lg" asChild>
+            <Link to="/games/create">
+              <LuPlus />
+              Add game
+            </Link>
           </Button>
         </Box>
       </Stack>

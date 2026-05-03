@@ -6,29 +6,24 @@ import {
   Button,
   Stack,
   Switch,
-  FormLabel,
-  useColorMode,
   ButtonGroup,
   IconButton,
-  FormControl,
   Link as ChakraLink,
+  Field,
+  Icon,
 } from '@chakra-ui/react';
-import { EditIcon, LinkIcon } from '@chakra-ui/icons';
-import { json } from '@react-router/node';
-import { Form, Link, useLoaderData, useSearchParams } from 'react-router';
 import { useState } from 'react';
+import { FaDiscord, FaGithub, FaMoon, FaSun } from 'react-icons/fa6';
+import { LuPencil, LuLink } from 'react-icons/lu';
+import { Form, Link, useLoaderData, useSearchParams } from 'react-router';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import computePerson from '../models/person';
-import { DiscordIcon } from '../components/DiscordIcon';
-import { GitHubIcon } from '../components/GitHubIcon';
-import { SteamIcon } from '../components/SteamIcon';
+import { useColorMode } from '../components/ui/color-mode';
 
 export const loader = async ({ request }) => {
-  const currentUser = await authenticator.isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   const user = await db.person.findUnique({
     where: {
@@ -47,35 +42,37 @@ export const loader = async ({ request }) => {
     },
   });
 
-  const data = {
+  return {
     currentUser: await computePerson(user),
   };
-
-  return json(data);
 };
 
-export const meta = ({
-  data
-}) => [{
-  title: `${data.currentUser.first_name}'s profile`
-}];
+export const meta = ({ data }) => [
+  {
+    title: `${data.currentUser.first_name}'s profile`,
+  },
+];
 
 const LinkSocialButton = ({ provider, icon, name }) => {
   const [hover, setHover] = useState(false);
 
   return (
     <IconButton
-      as={Link}
       aria-label={`Link ${name}`}
-      icon={hover ? <LinkIcon /> : icon}
       opacity={hover ? 1 : 0.5}
-      colorScheme={hover ? 'green' : 'gray'}
-      to={`/auth/${provider}`}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onFocus={() => setHover(true)}
-      onBlur={() => setHover(false)}
-    />
+      colorPalette={hover ? 'green' : 'gray'}
+      asChild
+    >
+      <Link
+        to={`/auth/${provider}`}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onFocus={() => setHover(true)}
+        onBlur={() => setHover(false)}
+      >
+        {hover ? <LuLink /> : icon}
+      </Link>
+    </IconButton>
   );
 };
 
@@ -97,9 +94,8 @@ const Profile = () => {
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
       <Heading mb={5}>Profile</Heading>
-
       <Stack
-        spacing={5}
+        gap={5}
         borderWidth="1px"
         mb={10}
         p={3}
@@ -108,17 +104,18 @@ const Profile = () => {
         position="relative"
       >
         <Box position="absolute" alignSelf="flex-end">
-          <Button leftIcon={<EditIcon />} as={Link} to="/profile/edit">
-            Edit
+          <Button asChild>
+            <Link to="/profile/edit">
+              <LuPencil />
+              Edit
+            </Link>
           </Button>
         </Box>
 
-        <Avatar
-          size="2xl"
-          name={first_name}
-          margin="1rem"
-          src={avatar?.thumbnail_url}
-        />
+        <Avatar.Root size="2xl" margin="1rem">
+          <Avatar.Fallback name={first_name} />
+          <Avatar.Image src={avatar?.thumbnail_url} />
+        </Avatar.Root>
 
         <Box as="header" textAlign="center">
           <Heading as="h3">
@@ -133,33 +130,37 @@ const Profile = () => {
           <ButtonGroup>
             {discord_url ? (
               <IconButton
-                as={ChakraLink}
                 aria-label="Discord"
-                icon={<DiscordIcon />}
-                colorScheme="discord"
-                href={discord_url}
+                colorPalette="discord"
                 isExternal
-              />
+                asChild
+              >
+                <ChakraLink href={discord_url}>
+                  <FaDiscord />
+                </ChakraLink>
+              </IconButton>
             ) : (
               <LinkSocialButton
                 provider="discord"
-                icon={<DiscordIcon />}
+                icon={<FaDiscord />}
                 name="Discord"
               />
             )}
             {github_url ? (
               <IconButton
-                as={ChakraLink}
                 aria-label="GitHub"
-                icon={<GitHubIcon />}
-                colorScheme="github"
-                href={github_url}
+                colorPalette="github"
                 isExternal
-              />
+                asChild
+              >
+                <ChakraLink href={github_url}>
+                  <FaGitHub />
+                </ChakraLink>
+              </IconButton>
             ) : (
               <LinkSocialButton
                 provider="github"
-                icon={<GitHubIcon />}
+                icon={<FaGithub />}
                 name="GitHub"
               />
             )}
@@ -168,7 +169,7 @@ const Profile = () => {
 
         {about && (
           <Box
-            bg={colorMode === 'dark' ? 'gray.700' : 'gray.100'}
+            bg={{ base: 'gray.100', _dark: 'gray.700' }}
             borderRadius={5}
             alignSelf="stretch"
             padding={5}
@@ -177,21 +178,25 @@ const Profile = () => {
           </Box>
         )}
 
-        <FormControl display="flex" justifyContent="center" alignItems="center">
-          <FormLabel htmlFor="dark-mode" mb="0">
-            Dark mode
-          </FormLabel>
-          <Switch
-            id="dark-mode"
-            isChecked={colorMode === 'dark'}
-            onChange={toggleColorMode}
-          />
-        </FormControl>
+        <Switch.Root
+          colorPalette="blue"
+          size="lg"
+          checked={colorMode === 'dark'}
+          onCheckedChange={toggleColorMode}
+        >
+          <Switch.HiddenInput />
+          <Switch.Control>
+            <Switch.Thumb />
+            <Switch.Indicator fallback={<Icon as={FaMoon} color="gray.400" />}>
+              <Icon as={FaSun} color="yellow.400" />
+            </Switch.Indicator>
+          </Switch.Control>
+          <Switch.Label>Dark mode</Switch.Label>
+        </Switch.Root>
       </Stack>
-
       <Stack align="center">
         <Form action="/logout" method="post" to="/logout">
-          <Button variant="link" type="submit">
+          <Button variant="plain" type="submit">
             Logout
           </Button>
         </Form>
