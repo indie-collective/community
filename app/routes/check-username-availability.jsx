@@ -1,5 +1,4 @@
 
-import { authenticator } from '../utils/auth.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
 
 import { db } from '../utils/db.server';
