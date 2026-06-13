@@ -2,7 +2,6 @@ import { redirect, useLoaderData, Form, Link, useSubmit  } from 'react-router';
 import { Heading, Link as ChakraLink, Text, List, Box } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
-import { authenticator } from '../../utils/auth.server';
 import isAuthenticated from '../../utils/isAuthenticated.server'
 import { db } from '../../utils/db.server';
 import { LuPlus, LuTrash2, LuPencil } from 'react-icons/lu';

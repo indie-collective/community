@@ -9,7 +9,6 @@ import { useColorModeValue as mode } from '../components/ui/color-mode';
 import { redirect, Link, useActionData, useNavigation  } from 'react-router';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { commitSession, getSession } from '../utils/session.server';
 import SignupForm from '../components/SignupForm';

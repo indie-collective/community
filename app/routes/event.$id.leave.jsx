@@ -1,7 +1,6 @@
 import { redirect } from 'react-router';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
 
 export async function action({ params, request }) {
