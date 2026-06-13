@@ -1,5 +1,4 @@
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
-// import { mode } from '@chakra-ui/theme-tools';
 import { createTheme } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
 
@@ -19,6 +18,23 @@ export const muiTheme = createTheme({
 });
 
 const config = defineConfig({
+  // v2 `styles.global` via `mode()` → v3 `globalCss` with the `_dark` selector.
+  // The `html` colorPalette replaces v2 `withDefaultColorScheme({ colorScheme:
+  // 'green' })`: in v3 `colorPalette` cascades to every descendant, so setting
+  // it once on the root makes green the app-wide default (overridable per component).
+  globalCss: {
+    html: {
+      colorPalette: 'green',
+    },
+    body: {
+      color: 'gray.800',
+      bg: '#F7FAFC',
+      _dark: {
+        color: 'whiteAlpha.900',
+        bg: 'gray.800',
+      },
+    },
+  },
   theme: {
     keyframes: {
       highlight: {
@@ -33,51 +49,45 @@ const config = defineConfig({
       },
     },
     tokens: {
+      // v3 requires token values wrapped in `{ value }` objects, not raw hex.
       colors: {
         discord: {
-          50: '#e7e9fd',
-          100: '#b2cdfa',
-          200: '#929bf7',
-          300: '#6873f3',
-          400: '#6873f3',
-          500: '#6873f3',
-          600: '#0f1dbd',
-          700: '#0b168e',
-          800: '#070f5f',
-          900: '#04072f',
+          50: { value: '#e7e9fd' },
+          100: { value: '#b2cdfa' },
+          200: { value: '#929bf7' },
+          300: { value: '#6873f3' },
+          400: { value: '#6873f3' },
+          500: { value: '#6873f3' },
+          600: { value: '#0f1dbd' },
+          700: { value: '#0b168e' },
+          800: { value: '#070f5f' },
+          900: { value: '#04072f' },
         },
         github: {
-          50: '#F2F2F2',
-          100: '#DBDBDB',
-          200: '#C4C4C4',
-          300: '#ADADAD',
-          400: '#969696',
-          500: '#808080',
-          600: '#666666',
-          700: '#4D4D4D',
-          800: '#333333',
-          900: '#1A1A1A',
+          50: { value: '#F2F2F2' },
+          100: { value: '#DBDBDB' },
+          200: { value: '#C4C4C4' },
+          300: { value: '#ADADAD' },
+          400: { value: '#969696' },
+          500: { value: '#808080' },
+          600: { value: '#666666' },
+          700: { value: '#4D4D4D' },
+          800: { value: '#333333' },
+          900: { value: '#1A1A1A' },
         },
       },
       animations: {
         highlight: { value: `highlight 500ms ease-in-out 500ms` },
       },
     },
+    // v2 `withDefaultVariant({ variant: 'filled', components: ['Input',
+    // 'Textarea'] })`. The v2 `filled` variant maps to v3 `subtle`. The partial
+    // recipe deep-merges into the base recipe, overriding only the default.
+    recipes: {
+      input: { defaultVariants: { variant: 'subtle' } },
+      textarea: { defaultVariants: { variant: 'subtle' } },
+    },
   },
-  // styles: {
-  //   global: (props) => ({
-  //     body: {
-  //       color: mode('gray.800', 'whiteAlpha.900')(props),
-  //       bg: mode('#F7FAFC', 'gray.800')(props),
-  //     },
-  //   }),
-  // },
-
-  // withDefaultColorScheme({ colorScheme: 'green' }),
-  // withDefaultVariant({
-  //   variant: 'filled',
-  //   components: ['Input', 'Textarea'],
-  // })
 });
 
 export const system = createSystem(defaultConfig, config);
