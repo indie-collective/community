@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react';
 import { LuChevronDown } from 'react-icons/lu';
 
-import { authenticator } from '../../utils/auth.server';
 import isAuthenticated from '../../utils/isAuthenticated.server';
 import { db } from '../../utils/db.server';
 

@@ -5,7 +5,6 @@ import { Link, useLoaderData } from 'react-router';
 import { Suspense } from 'react';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
 import computeOrg from '../models/org';
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';

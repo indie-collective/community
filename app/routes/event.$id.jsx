@@ -35,7 +35,6 @@ import {
 import { Map } from 'pigeon-maps';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { getFullTextSearchQuery } from '../utils/search.server';
 import computeEvent from '../models/event';
