@@ -71,7 +71,7 @@ export async function action(args) {
       },
     });
 
-    const port = process.en.PORT ?? 3000;
+    const port = process.env.PORT ?? 3000;
     const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
     await notifyDiscord(
