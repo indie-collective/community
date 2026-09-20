@@ -1,6 +1,6 @@
 import { Alert, Box, Heading } from '@chakra-ui/react';
 
-import { useActionData, useNavigation } from 'react-router';
+import { redirect, useActionData, useNavigation } from 'react-router';
 
 import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
@@ -8,9 +8,14 @@ import ForgotForm from '../components/ForgotForm';
 import { sendEmail } from '../utils/email.server';
 
 export const loader = async ({ request }) => {
-  return await isAuthenticated(request, {
-    successRedirect: '/',
-  });
+  // Signed-in users have no business on the password-reset page.
+  // This was `{ successRedirect: '/' }` under remix-auth v3; the current
+  // helper takes a boolean `required`, so the redirect is expressed here.
+  const currentUser = await isAuthenticated(request);
+
+  if (currentUser) throw redirect('/');
+
+  return null;
 };
 
 export const action = async ({ request }) => {
