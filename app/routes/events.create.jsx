@@ -3,6 +3,7 @@ import { redirect, useActionData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import { notifyDiscord } from '../utils/discordNotification.server';
 import createUploadHandler from '../utils/createUploadHandler.server';
