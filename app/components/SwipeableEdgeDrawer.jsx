@@ -8,7 +8,7 @@ import {
   THEME_ID,
 } from '@mui/material/styles';
 
-import theme, { muiTheme } from '../theme';
+import { system, muiTheme } from '../theme';
 
 const drawerBleeding = 56;
 
