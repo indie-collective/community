@@ -36,6 +36,21 @@ async function main() {
     createdTags.push(tag);
   }
 
+  // Known local-only accounts for exercising authenticated flows. In
+  // development, signin's form strategy only checks the email, so they need
+  // no password.
+  const testAccounts = [
+    { username: 'harness-admin', email: 'harness-admin@indieco.test', isAdmin: true },
+    { username: 'harness-member', email: 'harness-member@indieco.test', isAdmin: false },
+  ];
+  for (const account of testAccounts) {
+    await prisma.person.upsert({
+      where: { email: account.email },
+      update: { isAdmin: account.isAdmin },
+      create: { ...account, first_name: account.username },
+    });
+  }
+
   // Create people
   const people = [];
   for (let i = 0; i < 10; i++) {
