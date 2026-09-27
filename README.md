@@ -21,6 +21,12 @@ psql --dbname=indieco -f server/data.sql
 npm run dev
 ```
 
+## Session secret
+
+Session cookies are signed with `SESSION_SECRET`. It is required in production, and the server will not start without it. Generate one with `openssl rand -hex 32`.
+
+To rotate it, set `SESSION_SECRET=new,old`: new cookies are signed with the first secret, and cookies signed with the others are still accepted until they expire.
+
 ## Migrating to Prisma
 
 If you own a dataset that was used before migrating to Prisma, just set up your database and use this command to mark the first migration in your database:
