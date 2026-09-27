@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "v2",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/it/Code/IndieCo/community/.claude/worktrees/v2-harness && PORT=3002 npx remix dev 2>&1 | tee /Users/it/Code/IndieCo/community/.claude/worktrees/mattpocock-skills-setup-716bbe/harness/out/v2-server.log"
+      ],
+      "port": 3002
+    },
+    {
+      "name": "v3",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/it/Code/IndieCo/community && NODE_ENV=development npx react-router build > /Users/it/Code/IndieCo/community/.claude/worktrees/mattpocock-skills-setup-716bbe/harness/out/v3-build.log 2>&1 && PORT=3003 NODE_ENV=development exec node --env-file=.env node_modules/@react-router/serve/bin.js build/server/index.js 2>&1 | tee /Users/it/Code/IndieCo/community/.claude/worktrees/mattpocock-skills-setup-716bbe/harness/out/v3-server.log"
+      ],
+      "port": 3003
+    }
+  ]
+}

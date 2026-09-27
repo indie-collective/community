@@ -1,0 +1,266 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/about",
+      "auth": "none"
+    },
+    {
+      "path": "/coffee",
+      "auth": "none"
+    },
+    {
+      "path": "/games",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/game/9f0bfd3b-dc27-4cec-8bb1-775682de1434",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST",
+        "IGDB_CLIENT_ID"
+      ]
+    },
+    {
+      "path": "/game/9f0bfd3b-dc27-4cec-8bb1-775682de1434/changes",
+      "auth": "member"
+    },
+    {
+      "path": "/events",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/event/f1bf0d94-0086-4a12-9e8e-b6ec70b2ea71",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/event/f1bf0d94-0086-4a12-9e8e-b6ec70b2ea71/changes",
+      "auth": "member"
+    },
+    {
+      "path": "/orgs",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/studios",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/associations",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/org/86349603-3a62-49ee-9a3d-71dfd5f51cd5",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/org/e20b5559-fa32-4709-8d0d-3dea32c2ea7a",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/org/86349603-3a62-49ee-9a3d-71dfd5f51cd5/changes",
+      "auth": "member"
+    },
+    {
+      "path": "/countries",
+      "auth": "none"
+    },
+    {
+      "path": "/country/ke",
+      "auth": "none"
+    },
+    {
+      "path": "/places",
+      "auth": "none",
+      "note": "map stack: pigeon-maps tiles, supercluster"
+    },
+    {
+      "path": "/places2",
+      "auth": "none",
+      "note": "map stack: pigeon-maps tiles, supercluster"
+    },
+    {
+      "path": "/search",
+      "auth": "none",
+      "note": "no query"
+    },
+    {
+      "path": "/search?q=game",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/search-game?q=game",
+      "auth": "none"
+    },
+    {
+      "path": "/search-org?q=a",
+      "auth": "none"
+    },
+    {
+      "path": "/search-event?q=a",
+      "auth": "none"
+    },
+    {
+      "path": "/rewind",
+      "auth": "none",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/healthcheck",
+      "auth": "none"
+    },
+    {
+      "path": "/this-page-does-not-exist",
+      "auth": "none",
+      "note": "$ catch-all"
+    },
+    {
+      "path": "/signin",
+      "auth": "none"
+    },
+    {
+      "path": "/signup",
+      "auth": "none",
+      "note": "submitting needs pgcrypto, absent from the local database"
+    },
+    {
+      "path": "/forgot",
+      "auth": "none",
+      "needs": [
+        "SENDGRID_API_KEY",
+        "BASE_URL"
+      ],
+      "note": "renders; sending needs SendGrid"
+    },
+    {
+      "path": "/reset/00000000-0000-0000-0000-000000000000",
+      "auth": "none",
+      "note": "fake token; real ones arrive by email"
+    },
+    {
+      "path": "/welcome",
+      "auth": "member"
+    },
+    {
+      "path": "/profile",
+      "auth": "member"
+    },
+    {
+      "path": "/profile/edit",
+      "auth": "member",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/check-username-availability?username=harness-member",
+      "auth": "member"
+    },
+    {
+      "path": "/games/create",
+      "auth": "member",
+      "needs": [
+        "IGDB_CLIENT_ID"
+      ]
+    },
+    {
+      "path": "/game/9f0bfd3b-dc27-4cec-8bb1-775682de1434/edit",
+      "auth": "member",
+      "needs": [
+        "IGDB_CLIENT_ID",
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/events/create",
+      "auth": "member"
+    },
+    {
+      "path": "/event/f1bf0d94-0086-4a12-9e8e-b6ec70b2ea71/edit",
+      "auth": "member",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/orgs/create",
+      "auth": "member"
+    },
+    {
+      "path": "/org/86349603-3a62-49ee-9a3d-71dfd5f51cd5/edit",
+      "auth": "member",
+      "needs": [
+        "CDN_HOST"
+      ]
+    },
+    {
+      "path": "/admin/changes",
+      "auth": "admin"
+    },
+    {
+      "path": "/admin/missing",
+      "auth": "admin"
+    },
+    {
+      "path": "/admin/tags",
+      "auth": "admin"
+    },
+    {
+      "path": "/admin/users",
+      "auth": "admin"
+    }
+  ],
+  "actionOnly": [
+    "/logout",
+    "/auth/:provider",
+    "/auth/:provider/callback",
+    "/event/:id/join",
+    "/event/:id/leave",
+    "/event/:id/delete",
+    "/event/:id/games/add",
+    "/event/:id/games/delete",
+    "/event/:id/hosts/add",
+    "/event/:id/hosts/delete",
+    "/game/:id/delete",
+    "/game/:id/companies/add",
+    "/game/:id/companies/delete",
+    "/game/:id/images/add",
+    "/game/:id/images/delete",
+    "/org/:id/delete"
+  ]
+}

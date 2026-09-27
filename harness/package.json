@@ -1,0 +1,13 @@
+{
+  "name": "differential-harness",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "routes": "node --env-file=../../../../.env routes.mjs",
+    "capture": "node capture.mjs"
+  },
+  "devDependencies": {
+    "pg": "^8.23.0",
+    "playwright": "^1.63.0"
+  }
+}
