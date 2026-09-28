@@ -107,7 +107,7 @@ function EventCard({
             <Icon>
               <LuMapPin />
             </Icon>
-            <Box lineClamp={1} flex="1" ml={1}>
+            <Box as="span" lineClamp={1} flex="1" ml={1}>
               {location.city
                 ? `${location.city}, ${location.country_code}`
                 : countryNames[location.country_code.toUpperCase()]}

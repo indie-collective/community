@@ -9,6 +9,7 @@ import {
   SimpleGrid,
   Text,
   Field,
+  Icon,
 } from '@chakra-ui/react';
 import { redirect,
   Form,
@@ -145,7 +146,9 @@ export default function Welcome() {
       </Box>
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} columnGap={8} rowGap={16}>
         <Box>
-          <LuStar boxSize={10} mb={5} />
+          <Icon boxSize={10} mb={5}>
+            <LuStar />
+          </Icon>
           <Heading as="h3" size="md" mb={5}>
             Personalize your profile
           </Heading>
@@ -159,7 +162,9 @@ export default function Welcome() {
         </Box>
 
         <Box>
-          <FaDiscord boxSize={10} mb={5} />
+          <Icon boxSize={10} mb={5}>
+            <FaDiscord />
+          </Icon>
           <Heading as="h3" size="md" mb={5}>
             Questions? Need help?
           </Heading>
@@ -182,7 +187,9 @@ export default function Welcome() {
 
         {currentUser.isGuildMember ? (
           <Box>
-            <LuPencil boxSize={10} mb={5} />
+            <Icon boxSize={10} mb={5}>
+              <LuPencil />
+            </Icon>
             <Heading as="h3" size="md" mb={5}>
               Start contributing now!
             </Heading>
@@ -196,7 +203,9 @@ export default function Welcome() {
           </Box>
         ) : (
           <Box>
-            <LuPencil boxSize={10} mb={5} />
+            <Icon boxSize={10} mb={5}>
+              <LuPencil />
+            </Icon>
             <Heading as="h3" size="md" mb={5}>
               Join the Discord to contribute
             </Heading>

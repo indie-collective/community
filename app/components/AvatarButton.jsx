@@ -6,11 +6,11 @@ import {
   Avatar,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { Form, Link, useLoaderData } from 'react-router';
+import { Form, Link, useRouteLoaderData } from 'react-router';
 import { SocialsProvider } from 'remix-auth-socials';
 
 const AvatarButton = () => {
-  const data = useLoaderData();
+  const data = useRouteLoaderData('root');
 
   if (data?.currentUser) {
     const { first_name, username, avatar } = data.currentUser;
