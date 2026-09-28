@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { useColorModeValue } from './ui/color-mode';
 import { LuMenu, LuChevronDown } from 'react-icons/lu';
-import { Link, useLoaderData, useLocation, useNavigation } from 'react-router';
+import { Link, useLocation, useNavigation, useRouteLoaderData } from 'react-router';
 
 import Logo from '../components/Logo';
 import AvatarButton from './AvatarButton';
@@ -62,7 +62,9 @@ const Navigation = ({ search }) => {
 
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
 
-  const { currentUser } = useLoaderData();
+  // Root data, not this route's: this also renders inside the error boundary,
+  // where the root loader may not have produced data.
+  const { currentUser } = useRouteLoaderData('root') ?? {};
 
   const AdminDropdown = ({ isMobile = false }) => (
     <Menu.Root>
