@@ -78,14 +78,11 @@ const propTypes = {
   }),
 };
 
-const defaultProps = {
-  loading: false,
-  defaultData: {},
-};
 
 const OSMServer = 'abc'.charAt(Math.floor(Math.random() * 3));
 
-const EventForm = ({ defaultData, loading, ...rest }) => {
+// Defaults as parameters: React 19 ignores defaultProps on function components.
+const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
   const submit = useSubmit();
   const placeholder = usePlaceholder();
   const {
@@ -166,12 +163,15 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
             control={control}
             defaultValue={status}
             render={({ field }) => (
-              <Switch
-                {...field}
-                id="canceled"
+              <Switch.Root
+                name={field.name}
+                checked={!!field.value}
+                onCheckedChange={({ checked }) => field.onChange(checked)}
                 colorPalette="red"
-                defaultChecked={field.value}
-              />
+              >
+                <Switch.HiddenInput ref={field.ref} onBlur={field.onBlur} />
+                <Switch.Control />
+              </Switch.Root>
             )}
           />
           <Field.ErrorText>
@@ -330,6 +330,5 @@ const EventForm = ({ defaultData, loading, ...rest }) => {
 };
 
 EventForm.propTypes = propTypes;
-EventForm.defaultProps = defaultProps;
 
 export default EventForm;
