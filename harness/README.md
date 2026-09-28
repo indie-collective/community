@@ -32,6 +32,8 @@ The two apps need separate installs (React 18 vs 19, Remix v1 vs RR7). Port 5000
    node --env-file=/Users/it/Code/IndieCo/community/.env routes.mjs
    node capture.mjs            # everything, ~2 min
    node capture.mjs /games     # or only paths with these prefixes
+   MOBILE=1 node capture.mjs   # phone width (375px, touch) into out/<run>-mobile
+   node compare.mjs out/<run>  # v2 | v3 side-by-side images
    ```
 
 Output lands in `out/<timestamp>/`: `summary.md` (differential table), `results.json` (status, final URL, console errors and warnings, failed requests per route/version/mode), and screenshots at `<version>/<mode>/<route>.png`. Server-side errors are in `out/v2-server.log` / `out/v3-server.log`.
