@@ -25,12 +25,9 @@ const propTypes = {
   }),
 };
 
-const defaultProps = {
-  loading: false,
-  defaultData: {},
-};
 
-const GameForm = ({ defaultData, loading, ...rest }) => {
+// Defaults as parameters: React 19 ignores defaultProps on function components.
+const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
   const submit = useSubmit();
   const { id, name, igdb_url, about, site, tags = [] } = defaultData;
   const {
@@ -137,6 +134,5 @@ const GameForm = ({ defaultData, loading, ...rest }) => {
 };
 
 GameForm.propTypes = propTypes;
-GameForm.defaultProps = defaultProps;
 
 export default GameForm;
