@@ -2,7 +2,6 @@ import { redirect, useLoaderData, useSubmit  } from 'react-router';
 import {
     Heading,
   Table,
-  TableCaption,
   Icon,
   Switch,
   IconButton,
@@ -13,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { LuCircleHelp } from 'react-icons/lu';
 
 import isAuthenticated from '../../utils/isAuthenticated.server';
 import { db } from '../../utils/db.server';
@@ -132,7 +132,10 @@ const Profile = () => {
               <Table.ColumnHeader>
                 <Tooltip content="Managed on Discord">
                   <Text as="span">
-                    Admin <Icon name="QuestionIcon" />
+                    Admin{' '}
+                    <Icon>
+                      <LuCircleHelp />
+                    </Icon>
                   </Text>
                 </Tooltip>
               </Table.ColumnHeader>
@@ -195,13 +198,16 @@ const Profile = () => {
                     )}
                   </Table.Cell>
                   <Table.Cell>
-                    <Switch
+                    <Switch.Root
                       colorPalette="blue"
                       name="isAdmin"
                       checked={isAdmin}
                       value="on"
                       disabled
-                    />
+                    >
+                      <Switch.HiddenInput />
+                      <Switch.Control />
+                    </Switch.Root>
                   </Table.Cell>
                   <Table.Cell>
                     <time dateTime={created_at} title={created_at}>
@@ -222,7 +228,10 @@ const Profile = () => {
               <Table.ColumnHeader>
                 <Tooltip content="Managed on Discord">
                   <Text as="span">
-                    Admin <Icon name="QuestionIcon" />
+                    Admin{' '}
+                    <Icon>
+                      <LuCircleHelp />
+                    </Icon>
                   </Text>
                 </Tooltip>
               </Table.ColumnHeader>

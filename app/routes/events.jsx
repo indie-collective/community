@@ -9,6 +9,7 @@ import isAuthenticated from '../utils/isAuthenticated.server'
 import getImageLinks from '../utils/imageLinks.server';
 import EventCard from '../components/EventCard';
 import Carousel from '../components/Carousel.client';
+import ClientCarousel from '../components/ClientCarousel';
 import Filters from '../components/Filters';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 
@@ -191,34 +192,38 @@ const Events = () => {
       {isPeriodUpcoming ? (
         <>
           {showCarousel ? (
-            <Carousel
-              slidesToShow={[1, 2, 3]}
-              onLoadMore={onLoadMore}
-              loadingMore={loadingMore}
-            >
-              {events.length > 0 ? (
-                events.map((event) => (
-                  <Box key={event.id} minW={0} pr={3}>
-                    <Presence
-                      present
-                      animationName={{
-                        _open: 'fade-in',
-                        _closed: 'fade-out'
-                      }}
-                      animationDuration='moderate'>
-                      <EventCard {...event} />
-                    </Presence>
-                  </Box>
-                ))
-              ) : (
-                <Box mt={10}>
-                  <Image src={noEventsImage} alt="" />
-                  <Text fontSize="xl" mt={10} textAlign="center">
-                    No upcoming events found.
-                  </Text>
-                </Box>
+            <ClientCarousel>
+              {() => (
+                <Carousel
+                  slidesToShow={[1, 2, 3]}
+                  onLoadMore={onLoadMore}
+                  loadingMore={loadingMore}
+                >
+                  {events.length > 0 ? (
+                    events.map((event) => (
+                      <Box key={event.id} minW={0} pr={3}>
+                        <Presence
+                          present
+                          animationName={{
+                            _open: 'fade-in',
+                            _closed: 'fade-out'
+                          }}
+                          animationDuration='moderate'>
+                          <EventCard {...event} />
+                        </Presence>
+                      </Box>
+                    ))
+                  ) : (
+                    <Box mt={10}>
+                      <Image src={noEventsImage} alt="" />
+                      <Text fontSize="xl" mt={10} textAlign="center">
+                        No upcoming events found.
+                      </Text>
+                    </Box>
+                  )}
+                </Carousel>
               )}
-            </Carousel>
+            </ClientCarousel>
           ) : (
             <Grid
               gap={3}

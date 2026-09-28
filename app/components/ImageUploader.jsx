@@ -1,7 +1,7 @@
 import { Box, AspectRatio, Image, Spinner } from '@chakra-ui/react';
 import { useColorModeValue } from "./ui/color-mode";
 import { LuPlus } from 'react-icons/lu';
-import useDropzone from 'react-dropzone';
+import { useDropzone } from 'react-dropzone';
 import { useCallback } from 'react';
 
 const ImageUploader = ({ gameId, currentUser, fetcher }) => {
