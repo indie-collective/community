@@ -8,6 +8,7 @@ import {
   Text,
   VisuallyHidden,
   Separator,
+  Icon,
 } from '@chakra-ui/react';
 
 import { Form, redirect, useActionData, useNavigation } from 'react-router';
@@ -70,7 +71,9 @@ const SignIn = () => {
           w="100%"
         >
           Sign in with<VisuallyHidden> Discord</VisuallyHidden>
-          <FaDiscord boxSize="5" />
+          <Icon boxSize="5">
+            <FaDiscord />
+          </Icon>
         </Button>
       </Form>
       {process.env.NODE_ENV === 'development' && (

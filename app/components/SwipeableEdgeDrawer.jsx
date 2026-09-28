@@ -1,7 +1,9 @@
 import { Box, Button } from '@chakra-ui/react';
 import { useColorMode, useColorModeValue } from "./ui/color-mode";
 import { Global } from '@emotion/react';
-import SwipeableDrawer from '@mui/material/SwipeableDrawer';
+// Named import from the package root: in dev, MUI loads as CommonJS, where the
+// deep path's default export arrives as `{ default }` rather than the component.
+import { SwipeableDrawer } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import {
   ThemeProvider as MUIThemeProvider,
