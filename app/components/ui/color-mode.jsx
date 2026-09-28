@@ -12,9 +12,25 @@ export function ColorModeProvider(props) {
   )
 }
 
+const subscribeToNothing = () => () => {}
+
+// The server can't know the visitor's colour mode, so it renders light. Report
+// light until hydration is done, then the real mode: the server snapshot keeps
+// the first client render identical to the server's, and the switch happens in
+// a normal re-render that React applies, instead of a hydration mismatch it
+// leaves unpatched.
+function useHydrated() {
+  return React.useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false
+  )
+}
+
 export function useColorMode() {
   const { resolvedTheme, setTheme, forcedTheme } = useTheme()
-  const colorMode = forcedTheme || resolvedTheme
+  const hydrated = useHydrated()
+  const colorMode = hydrated ? forcedTheme || resolvedTheme : 'light'
   const toggleColorMode = () => {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
   }

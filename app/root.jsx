@@ -22,7 +22,6 @@ import {
   useNavigation,
   useRouteError,
 } from 'react-router';
-import { ThemeProvider } from 'next-themes';
 
 import theme from './theme';
 import { useInjectStyles } from './emotion-client';
@@ -96,8 +95,10 @@ export const Layout = withEmotionCache((props, cache) => {
   useInjectStyles(cache);
 
   return (
-    <html lang="en">
-      <head suppressHydrationWarning>
+    // next-themes sets the colour-mode class and style on <html> before React
+    // hydrates, so the server's attributes are expected to differ.
+    <html lang="en" suppressHydrationWarning>
+      <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
@@ -120,32 +121,66 @@ export const Layout = withEmotionCache((props, cache) => {
   );
 });
 
-export function ErrorBoundary({ error }) {
-  let message = 'Oops!';
-  let details = 'An unexpected error occurred.';
-  let stack;
+// Navigation, page column and footer, shared by the app and its error pages so
+// an error keeps the site around it.
+function AppShell({ children }) {
+  return (
+    <Flex
+      as="main"
+      flex="1"
+      direction="column"
+      alignItems="center"
+      bg={{ base: 'gray.100', _dark: 'gray.900' }}
+    >
+      <Navigation />
+      <Box minHeight="100vh" maxWidth={960} width="100%">
+        {children}
+      </Box>
+      <Footer />
+    </Flex>
+  );
+}
 
+export function ErrorBoundary({ error }) {
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? '404' : 'Error';
-    details =
-      error.status === 404
-        ? 'The requested page could not be found.'
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+    return (
+      <AppShell>
+        <Error statusCode={error.status} />
+      </AppShell>
+    );
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <AppShell>
+      <Flex
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        minHeight="200px"
+        px={4}
+      >
+        <LuTriangleAlert size="40px" />
+        <Heading mt={4} mb={1} size="md">
+          Something went wrong!
+        </Heading>
+        {import.meta.env.DEV && error instanceof globalThis.Error && (
+          <>
+            <Text maxWidth="sm">{error.message}</Text>
+            <Box
+              as="pre"
+              mt={4}
+              maxWidth="100%"
+              overflowX="auto"
+              fontSize="xs"
+              textAlign="left"
+            >
+              {error.stack}
+            </Box>
+          </>
+        )}
+      </Flex>
+    </AppShell>
   );
 }
 
@@ -162,41 +197,29 @@ export default function App() {
   const isLoading =
     navigation.state === 'loading' || navigation.state === 'submitting';
 
+  // Layout wraps this already: React Router renders the exported Layout
+  // around App and ErrorBoundary alike.
   return (
-    <Layout>
-      {/* <Presence present> */}
-      <Flex direction="column">
-        {isLoading && (
-          <Progress.Root
-            size="xs"
-            indeterminate
-            position="fixed"
-            top={0}
-            left={0}
-            right={0}
-            zIndex={9999}
-            colorPalette="green"
-          >
-            <Progress.Track>
-              <Progress.Range />
-            </Progress.Track>
-          </Progress.Root>
-        )}
-        <Flex
-          as="main"
-          flex="1"
-          direction="column"
-          alignItems="center"
-          bg={{ base: 'gray.100', _dark: 'gray.900' }}
+    <Flex direction="column">
+      {isLoading && (
+        <Progress.Root
+          size="xs"
+          indeterminate
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          zIndex={9999}
+          colorPalette="green"
         >
-          <Navigation />
-          <Box minHeight="100vh" maxWidth={960} width="100%">
-            <Outlet />
-          </Box>
-          <Footer />
-        </Flex>
-      </Flex>
-      {/* </Presence> */}
-    </Layout>
+          <Progress.Track>
+            <Progress.Range />
+          </Progress.Track>
+        </Progress.Root>
+      )}
+      <AppShell>
+        <Outlet />
+      </AppShell>
+    </Flex>
   );
 }
