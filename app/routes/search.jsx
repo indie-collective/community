@@ -10,6 +10,7 @@ import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 import Carousel from '../components/Carousel.client';
+import ClientCarousel from '../components/ClientCarousel';
 
 const variants = {
   initial: { scale: 0.96, y: 30, opacity: 0 },
@@ -102,15 +103,19 @@ const SearchPage = () => {
                     Games
                   </Heading>
 
-                  <Carousel slidesToShow={[1, 2, 3]}>
-                    {games.map((game) => (
-                      <Box key={game.id} minW={0} pr={3}>
-                        <Box variants={variants}>
-                          <GameCard {...game} />
-                        </Box>
-                      </Box>
-                    ))}
-                  </Carousel>
+                  <ClientCarousel>
+                    {() => (
+                      <Carousel slidesToShow={[1, 2, 3]}>
+                        {games.map((game) => (
+                          <Box key={game.id} minW={0} pr={3}>
+                            <Box variants={variants}>
+                              <GameCard {...game} />
+                            </Box>
+                          </Box>
+                        ))}
+                      </Carousel>
+                    )}
+                  </ClientCarousel>
                 </Box>
               )}
 

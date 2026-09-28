@@ -1,5 +1,5 @@
-
+import { data } from 'react-router';
 
 export const loader = () => {
-  return "I'm a teapot!", { status: 418 };
+  return data("I'm a teapot!", { status: 418 });
 };

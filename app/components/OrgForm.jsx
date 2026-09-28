@@ -15,6 +15,8 @@ import {
   Image,
   Flex,
   Field,
+  HStack,
+  RadioCard,
 } from '@chakra-ui/react';
 import { LuPencil } from 'react-icons/lu';
 import { Map } from 'pigeon-maps';
@@ -62,28 +64,15 @@ const propTypes = {
   }),
 };
 
-const defaultProps = {
-  loading: false,
-  defaultData: {},
-};
 
 const TYPES_COLORS = {
   studio: 'yellow',
   association: 'green',
 };
 
-function CustomRadio({ ref, ...props }) {
-  return (
-    <Box asChild>
-      <label>
-        <input {...input} ref={ref} />
-        {props.children}
-      </label>
-    </Box>
-  );
-}
 
-const OrgForm = ({ defaultData, loading, ...rest }) => {
+// Defaults as parameters: React 19 ignores defaultProps on function components.
+const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
   const placeholder = usePlaceholder();
   const logoRef = useRef();
   const [logo, setLogo] = useState(defaultData.logo);
@@ -175,24 +164,32 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.type} required>
           <Field.Label htmlFor="name">Type</Field.Label>
-          <Flex>
-            <CustomRadio
-              color={TYPES_COLORS.studio}
-              flex="1"
-              mr={2}
-              {...register('type')}
-            >
-              Studio
-            </CustomRadio>
-            <CustomRadio
-              color={TYPES_COLORS.association}
-              flex="1"
-              value="ASSOCIATION"
-              {...register('type')}
-            >
-              Association
-            </CustomRadio>
-          </Flex>
+          <RadioCard.Root
+            name="type"
+            defaultValue={type}
+            variant="solid"
+            size="sm"
+            width="100%"
+          >
+            <HStack gap={2} align="stretch">
+              {[
+                ['studio', 'Studio'],
+                ['association', 'Association'],
+              ].map(([value, label]) => (
+                <RadioCard.Item
+                  key={value}
+                  value={value}
+                  flex="1"
+                  colorPalette={TYPES_COLORS[value]}
+                >
+                  <RadioCard.ItemHiddenInput {...register('type')} />
+                  <RadioCard.ItemControl justifyContent="center">
+                    <RadioCard.ItemText>{label}</RadioCard.ItemText>
+                  </RadioCard.ItemControl>
+                </RadioCard.Item>
+              ))}
+            </HStack>
+          </RadioCard.Root>
           <Field.ErrorText>
             {errors.type && errors.type.message}
           </Field.ErrorText>
@@ -295,6 +292,5 @@ const OrgForm = ({ defaultData, loading, ...rest }) => {
 };
 
 OrgForm.propTypes = propTypes;
-OrgForm.defaultProps = defaultProps;
 
 export default OrgForm;

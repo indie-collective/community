@@ -139,7 +139,7 @@ const EditOrg = () => {
       status: 'error',
       position: 'bottom-right',
     });
-  }, [actionData?.error, navigation.state === 'submitting', toast]);
+  }, [actionData?.error, navigation.state === 'submitting']);
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
