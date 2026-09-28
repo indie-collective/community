@@ -13,6 +13,8 @@ const VERSIONS = {
   v3: process.env.V3_URL ?? 'http://localhost:3003',
 };
 const MODES = ['light', 'dark'];
+// MOBILE=1 captures at phone width (375px) with touch, as a separate run.
+const MOBILE = !!process.env.MOBILE;
 const ACCOUNTS = {
   member: 'harness-member@indieco.test',
   admin: 'harness-admin@indieco.test',
@@ -25,7 +27,7 @@ const selected = filters.length
   : routes;
 
 const run = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-const outDir = new URL(`./out/${run}/`, import.meta.url).pathname;
+const outDir = new URL(`./out/${run}${MOBILE ? '-mobile' : ''}/`, import.meta.url).pathname;
 
 const slug = (path) => path.replace(/^\//, '').replace(/[^a-z0-9]+/gi, '_') || 'index';
 
@@ -33,7 +35,8 @@ async function newContext(browser, baseURL, mode, auth) {
   const context = await browser.newContext({
     baseURL,
     colorScheme: mode,
-    viewport: { width: 1280, height: 900 },
+    viewport: MOBILE ? { width: 375, height: 812 } : { width: 1280, height: 900 },
+    ...(MOBILE ? { isMobile: true, hasTouch: true, deviceScaleFactor: 2 } : {}),
   });
   // v2 reads Chakra's storage key; v3 reads next-themes'. Setting both, plus
   // the emulated media query, puts either version in the requested mode.
