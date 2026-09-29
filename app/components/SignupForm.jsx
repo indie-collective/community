@@ -44,7 +44,7 @@ const SignupForm = ({ loading, ...rest }) => {
       {...rest}
     >
       <Field.Root mb={5} invalid={errors.firstName} required>
-        <Field.Label htmlFor="firstName">First name</Field.Label>
+        <Field.Label htmlFor="firstName">First name<Field.RequiredIndicator /></Field.Label>
         <Input
           {...register('firstName')}
           id="firstName"
@@ -68,7 +68,7 @@ const SignupForm = ({ loading, ...rest }) => {
         </Field.ErrorText>
       </Field.Root>
       <Field.Root mb={5} invalid={errors.email} required>
-        <Field.Label htmlFor="email">Email</Field.Label>
+        <Field.Label htmlFor="email">Email<Field.RequiredIndicator /></Field.Label>
         <Input
           {...register('email')}
           id="email"
@@ -80,7 +80,7 @@ const SignupForm = ({ loading, ...rest }) => {
         </Field.ErrorText>
       </Field.Root>
       <Field.Root mb={5} invalid={errors.password} required>
-        <Field.Label htmlFor="password">Password</Field.Label>
+        <Field.Label htmlFor="password">Password<Field.RequiredIndicator /></Field.Label>
         <PasswordInput
           {...register('password')}
           id="password"
@@ -91,7 +91,7 @@ const SignupForm = ({ loading, ...rest }) => {
         </Field.ErrorText>
       </Field.Root>
       <Field.Root mb={5} invalid={errors.passwordConfirmation} required>
-        <Field.Label htmlFor="password2">Password confirmation</Field.Label>
+        <Field.Label htmlFor="password2">Password confirmation<Field.RequiredIndicator /></Field.Label>
         <PasswordInput
           {...register('passwordConfirmation')}
           id="passwordConfirmation"

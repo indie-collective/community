@@ -63,7 +63,7 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
           });
         })}>
         <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
-          <Field.Label htmlFor="name">Name</Field.Label>
+          <Field.Label htmlFor="name">Name<Field.RequiredIndicator /></Field.Label>
           <Input
             {...register('name')}
             placeholder="Super Tractor Simulator 2042, Assassin's Greed..."

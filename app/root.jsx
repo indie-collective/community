@@ -34,6 +34,7 @@ import { Provider as ChakraProvider } from './components/ui/provider';
 import Error from './components/Error';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
+import { Toaster } from './components/ui/toaster';
 
 export function links() {
   return [
@@ -113,6 +114,7 @@ export const Layout = withEmotionCache((props, cache) => {
       >
         <ChakraProvider>
           {children}
+          <Toaster />
           <ScrollRestoration />
           <Scripts />
         </ChakraProvider>
@@ -204,7 +206,9 @@ export default function App() {
       {isLoading && (
         <Progress.Root
           size="xs"
-          indeterminate
+          // v3 has no `indeterminate` prop (it leaked to the DOM); a null
+          // value is how v3 shows an indeterminate bar.
+          value={null}
           position="fixed"
           top={0}
           left={0}

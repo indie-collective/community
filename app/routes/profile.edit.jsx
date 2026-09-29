@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { db } from '../utils/db.server';
 import { authenticator } from '../utils/auth.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
-import createUploadHandler from '../utils/createUploadHandler.server';
+import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
 import ProfileForm from '../components/ProfileForm';
 import { commitSession, getSession } from '../utils/session.server';
@@ -39,13 +39,7 @@ export const loader = async ({ request }) => {
 export const action = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
 
-  const data = await unstable_parseMultipartFormData(
-    request,
-    unstable_composeUploadHandlers(
-      createUploadHandler(['avatar']),
-      unstable_createMemoryUploadHandler()
-    )
-  );
+  const data = await parseFormWithUploads(request, ['avatar']);
 
   try {
     const user = await db.person.update({
@@ -99,11 +93,14 @@ const Profile = () => {
   useEffect(() => {
     if (!actionData?.error) return;
 
-    toaster.create({
-      title: 'Something went wrong',
-      description: actionData?.error,
-      status: 'error',
-    });
+    // Deferred: creating a toast while React commits triggers flushSync.
+    queueMicrotask(() =>
+      toaster.create({
+        title: 'Something went wrong',
+        description: actionData?.error,
+        type: 'error',
+      })
+    );
   }, [actionData?.error, navigation.state === 'submitting']);
 
   return (

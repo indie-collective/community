@@ -163,7 +163,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
           />
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.type} required>
-          <Field.Label htmlFor="name">Type</Field.Label>
+          <Field.Label htmlFor="name">Type<Field.RequiredIndicator /></Field.Label>
           <RadioCard.Root
             name="type"
             defaultValue={type}
@@ -195,7 +195,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
-          <Field.Label htmlFor="name">Name</Field.Label>
+          <Field.Label htmlFor="name">Name<Field.RequiredIndicator /></Field.Label>
           <Input
             {...register('name')}
             placeholder="Indie Collective, Electronic Darts..."

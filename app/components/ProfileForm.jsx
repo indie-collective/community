@@ -160,7 +160,7 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
         </Field.ErrorText>
       </Field.Root>
       <Field.Root mb={5} invalid={errors.firstName} required>
-        <Field.Label htmlFor="firstName">First name</Field.Label>
+        <Field.Label htmlFor="firstName">First name<Field.RequiredIndicator /></Field.Label>
         <Input
           {...register('firstName')}
           id="firstName"

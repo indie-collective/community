@@ -106,11 +106,14 @@ const CreateGame = () => {
   useEffect(() => {
     if (!actionData?.error) return;
 
-    toaster.create({
-      title: 'Something went wrong',
-      description: actionData?.error,
-      status: 'error',
-    });
+    // Deferred: creating a toast while React commits triggers flushSync.
+    queueMicrotask(() =>
+      toaster.create({
+        title: 'Something went wrong',
+        description: actionData?.error,
+        type: 'error',
+      })
+    );
   }, [actionData?.error, navigation.state === 'submitting']);
 
   return (
