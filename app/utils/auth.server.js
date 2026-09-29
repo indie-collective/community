@@ -79,7 +79,9 @@ authenticator.use(
       clientId: process.env.DISCORD_CLIENT_ID,
       clientSecret: process.env.DISCORD_CLIENT_SECRET,
       redirectURI: `${CALLBACK_BASE_URL}/${SocialsProvider.DISCORD}/callback`,
-      scopes: ['email identify guilds.join guilds.members.read guilds'],
+      // What main requested (remix-auth-socials' default). Membership is
+      // checked with the bot token, so no guild scopes are needed.
+      scopes: ['identify', 'email'],
     },
     async ({ tokens, request }) => {
       try {

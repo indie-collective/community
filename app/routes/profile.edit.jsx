@@ -8,7 +8,6 @@ import {
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
-import { authenticator } from '../utils/auth.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
@@ -62,7 +61,8 @@ export const action = async ({ request }) => {
 
     // updating session
     let session = await getSession(request.headers.get('cookie'));
-    session.set(authenticator.sessionKey, {
+    // 'user' is the key every read uses; remix-auth v4 has no sessionKey.
+    session.set('user', {
       ...user,
       avatar: user.avatar
         ? getImageLinks(user.avatar).thumbnail_url
