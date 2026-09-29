@@ -131,7 +131,8 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
   return (
     <Grid
       encType="multipart/form-data"
-      gridTemplateColumns="1fr 1fr"
+      // minmax(0, 1fr): let the date inputs shrink instead of widening the page.
+      gridTemplateColumns="repeat(2, minmax(0, 1fr))"
       gap={5}
       method="post"
       {...rest}

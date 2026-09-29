@@ -233,7 +233,7 @@ const RewindPage = () => {
             transition={{ duration: 0.8 }}
             textAlign="center"
           >
-            <Heading size="4xl" mb={4} bgGradient="linear(to-r, green.400, blue.500, purple.600)" bgClip="text" fontWeight="extrabold">
+            <Heading size="4xl" mb={4} bgGradient="to-r" gradientFrom="green.400" gradientVia="blue.500" gradientTo="purple.600" bgClip="text" fontWeight="extrabold">
               Rewind 2025
             </Heading>
             <Text fontSize="2xl" color="gray.500" fontWeight="medium">
@@ -286,7 +286,7 @@ const RewindPage = () => {
                               transition={{ duration: 1, delay: idx * 0.1, ease: "easeOut" }}
                               viewport={{ once: true }}
                               h="100%"
-                              bgGradient="linear(to-r, teal.300, teal.500)"
+                              bgGradient="to-r" gradientFrom="teal.300" gradientTo="teal.500"
                               borderRadius="full"
                             />
                           </Box>
@@ -360,7 +360,7 @@ const RewindPage = () => {
             textAlign="center"
             py={10}
           >
-            <Heading size="xl" mb={4} bgGradient="linear(to-r, teal.400, blue.500)" bgClip="text" fontWeight="bold">
+            <Heading size="xl" mb={4} bgGradient="to-r" gradientFrom="teal.400" gradientTo="blue.500" bgClip="text" fontWeight="bold">
               Thank you for being part of 2025!
             </Heading>
             <Text color="gray.500" fontSize="lg" maxW="2xl" mx="auto">

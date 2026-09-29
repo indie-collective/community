@@ -16,6 +16,7 @@ import {
   Link as ChakraLink,
   Dialog,
   Portal,
+  Icon,
 } from '@chakra-ui/react';
 import {
   LuPlus,
@@ -335,7 +336,10 @@ const Event = () => {
 
             {location && (
               <Text gridColumn="1">
-                <LuMapPin /> {location.street && `${location.street}, `}
+                <Icon mr={1}>
+                  <LuMapPin />
+                </Icon>
+                {location.street && `${location.street}, `}
                 {location.city}, {location.region},{' '}
                 <ChakraLink asChild>
                   <Link to={`/country/${location.country_code.toLowerCase()}`}>

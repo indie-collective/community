@@ -106,7 +106,7 @@ const Navigation = ({ search }) => {
 
   if (variant === 'mobile') {
     return (
-      <Box shadow="sm" bg={{ base: 'white', _dark: 'gray.900' }} width="100vw">
+      <Box shadow="sm" bg={{ base: 'white', _dark: 'gray.800' }} width="100vw">
         <HStack
           gap={3}
           px={4}
@@ -165,7 +165,7 @@ const Navigation = ({ search }) => {
       {/* Top Level */}
       <Box
         w="100%"
-        bg={{base: "white", _dark: 'gray.900' }}
+        bg={{base: "white", _dark: 'gray.800' }}
         borderBottomRadius="30px"
       >
         <Flex justifyContent="center">
@@ -198,7 +198,7 @@ const Navigation = ({ search }) => {
         mt={2}
         py={2}
         px={2}
-        bg={{ base: 'white', _dark: 'gray.900' }}
+        bg={{ base: 'white', _dark: 'gray.800' }}
         borderRadius="full"
       >
         <HStack as="nav" gap={4} width="100%">

@@ -19,9 +19,9 @@ import Logo from './Logo';
 const Footer = () => {
   return (
     <Box
-      bg={{ base: 'white', _dark: 'gray.900' }}
+      bg={{ base: 'white', _dark: 'gray.800' }}
       maxW="100%"
-      mx={10}
+      mx={{ base: 4, md: 10 }}
       mt={3}
       borderRadius="7px 7px 0 0"
     >
@@ -32,10 +32,13 @@ const Footer = () => {
         mx="auto"
         maxWidth="960px"
       >
+        {/* Wraps on phones: one row of logo, links and four icons is
+            wider than a 375px screen. */}
         <Stack
-          gap="8"
+          gap={{ base: 4, md: 8 }}
           direction="row"
-          justify="space-between"
+          wrap="wrap"
+          justify={{ base: 'center', md: 'space-between' }}
           align="center"
           px="4"
           py="4"

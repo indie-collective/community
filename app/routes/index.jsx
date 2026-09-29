@@ -298,7 +298,10 @@ const HomePage = () => {
       </Box>
       <PlacesWidget placesCount={placesCount} placesPoints={placesPoints} />
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
+        {/* minW 0: grid items otherwise can't shrink below their content,
+            which pushed the page past a 375px screen. */}
         <Box
+          minW={0}
           mb={5}
           px={2}
           pb={2}
@@ -307,7 +310,7 @@ const HomePage = () => {
           borderRadius={7}
           _hover={{ opacity: 1 }}
         >
-          <Flex justify="space-between" align="center">
+          <Flex justify="space-between" align="center" wrap="wrap">
             <Heading as="h3" size="lg" py={3} pl={2}>
               Studios
             </Heading>
@@ -347,6 +350,7 @@ const HomePage = () => {
         </Box>
 
         <Box
+          minW={0}
           mb={5}
           px={2}
           pb={2}
@@ -355,7 +359,7 @@ const HomePage = () => {
           borderRadius={7}
           _hover={{ opacity: 1 }}
         >
-          <Flex justify="space-between" align="center">
+          <Flex justify="space-between" align="center" wrap="wrap">
             <Heading as="h3" size="lg" py={3} pl={2}>
               Associations
             </Heading>
