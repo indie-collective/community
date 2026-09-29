@@ -101,7 +101,7 @@ export default function Welcome() {
         <Box maxWidth="lg" m="auto">
           <Form method="post">
             <Field.Root mb={5} invalid={actionData?.errors.email} required>
-              <Field.Label htmlFor="email">Email</Field.Label>
+              <Field.Label htmlFor="email">Email<Field.RequiredIndicator /></Field.Label>
               <Input
                 type="email"
                 name="email"

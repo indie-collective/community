@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
 import { authorizer, canWrite } from '../utils/auth.server';
-import createUploadHandler from '../utils/createUploadHandler.server';
+import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
 import EventForm from '../components/EventForm';
 
@@ -57,13 +57,7 @@ export async function action(args) {
   });
 
   try {
-    const data = await unstable_parseMultipartFormData(
-      request,
-      unstable_composeUploadHandlers(
-        createUploadHandler(['cover']),
-        unstable_createMemoryUploadHandler()
-      )
-    );
+    const data = await parseFormWithUploads(request, ['cover']);
 
     const location = {
       street: data.get('street'),
@@ -134,12 +128,15 @@ const EditEvent = () => {
   useEffect(() => {
     if (!actionData?.error) return;
 
-    toaster.create({
-      title: 'Something went wrong',
-      description: actionData?.error,
-      status: 'error',
-      position: 'bottom-right',
-    });
+    // Deferred: creating a toast while React commits triggers flushSync.
+    queueMicrotask(() =>
+      toaster.create({
+        title: 'Something went wrong',
+        description: actionData?.error,
+        type: 'error',
+        position: 'bottom-right',
+      })
+    );
   }, [actionData?.error, navigation.state === 'submitting']);
 
   return (

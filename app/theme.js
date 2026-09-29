@@ -82,10 +82,22 @@ const config = defineConfig({
     },
     // v2 `withDefaultVariant({ variant: 'filled', components: ['Input',
     // 'Textarea'] })`. The v2 `filled` variant maps to v3 `subtle`. The partial
-    // recipe deep-merges into the base recipe, overriding only the default.
+    // recipe deep-merges into the base recipe, overriding only what's listed.
+    // `subtle` fills with bg.muted, the same gray as the page background, so
+    // fields were invisible; fill them with a colour that contrasts instead.
     recipes: {
-      input: { defaultVariants: { variant: 'subtle' } },
-      textarea: { defaultVariants: { variant: 'subtle' } },
+      input: {
+        defaultVariants: { variant: 'subtle' },
+        variants: {
+          variant: { subtle: { bg: { base: 'white', _dark: 'gray.800' } } },
+        },
+      },
+      textarea: {
+        defaultVariants: { variant: 'subtle' },
+        variants: {
+          variant: { subtle: { bg: { base: 'white', _dark: 'gray.800' } } },
+        },
+      },
     },
   },
 });
