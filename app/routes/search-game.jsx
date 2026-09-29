@@ -42,7 +42,8 @@ export async function loader({ request }) {
   }
 }
 
-export const SearchGameModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
+// Defaults as parameters: React 19 ignores defaultProps on function components.
+export const SearchGameModal = ({ isOpen = true, excludedIds = [], onClose = () => {}, onSelect = () => {} }) => {
   const [value, setValue] = useState('');
   const games = useFetcher();
   const debouncedValue = useDebounce(value, 300);
@@ -137,12 +138,6 @@ export const SearchGameModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
   );
 };
 
-SearchGameModal.defaultProps = {
-  isOpen: true,
-  excludedIds: [],
-  onClose: () => {},
-  onSelect: () => {},
-};
 
 SearchGameModal.propTypes = {
   isOpen: PropTypes.bool,

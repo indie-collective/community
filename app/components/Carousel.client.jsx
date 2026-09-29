@@ -47,11 +47,12 @@ const NextArrow = ({ onClick, className }) =>
     </IconButton>
   );
 
+// Defaults as parameters: React 19 ignores defaultProps on function components.
 const Carousel = ({
   children,
-  slidesToShow,
-  onLoadMore,
-  loadingMore,
+  slidesToShow = 1,
+  onLoadMore = () => {},
+  loadingMore = false,
   ...rest
 }) => {
   return ''
@@ -147,10 +148,5 @@ Carousel.propTypes = {
   loadingMore: PropTypes.bool,
 };
 
-Carousel.defaultProps = {
-  slidesToShow: 1,
-  onLoadMore: () => {},
-  loadingMore: false,
-};
 
 export default Carousel;

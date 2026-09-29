@@ -173,12 +173,15 @@ export default function Welcome() {
             Collective's members.
           </Text>
           <Button
-            isExternal
             style={{ textDecoration: 'none' }}
             textDecoration="none"
             asChild
           >
-            <ChakraLink href="https://discord.gg/KxZVu2ZZYs">
+            <ChakraLink
+              href="https://discord.gg/KxZVu2ZZYs"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Check our Discord
               <LuExternalLink />
             </ChakraLink>
@@ -215,12 +218,16 @@ export default function Welcome() {
               Join now if you want to contribute!
             </Text>
             <Button
-              isExternal
               style={{ textDecoration: 'none' }}
               textDecoration="none"
               asChild
             >
-              <ChakraLink href="">
+              {/* Was href="" on main too; the invite used above. */}
+              <ChakraLink
+                href="https://discord.gg/KxZVu2ZZYs"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Join IC's Discord
                 <FaDiscord />
               </ChakraLink>
