@@ -23,3 +23,7 @@ generated
 /rename-useTransition.cjs
 /rewrite-rr7-imports.cjs
 .react-router/
+# Test and Storybook output
+/test-results
+/playwright-report
+/storybook-static

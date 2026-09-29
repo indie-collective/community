@@ -63,7 +63,7 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
           });
         })}>
         <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
-          <Field.Label htmlFor="name">Name<Field.RequiredIndicator /></Field.Label>
+          <Field.Label>Name<Field.RequiredIndicator /></Field.Label>
           <Input
             {...register('name')}
             placeholder="Super Tractor Simulator 2042, Assassin's Greed..."
@@ -74,7 +74,7 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.name}>
-          <Field.Label htmlFor="igdb_url">IGDB</Field.Label>
+          <Field.Label>IGDB</Field.Label>
           <Input
             {...register('igdb_url')}
             placeholder="https://www.igdb.com/games/super-tractor-simulator-2042"
@@ -86,7 +86,7 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.about}>
-          <Field.Label htmlFor="about">About</Field.Label>
+          <Field.Label>About</Field.Label>
           <Textarea
             {...register('about')}
             minH="15rem"
@@ -99,7 +99,7 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.site}>
-          <Field.Label htmlFor="site">Site</Field.Label>
+          <Field.Label>Site</Field.Label>
           <Input
             {...register('site')}
             placeholder="https://example.com"
@@ -110,7 +110,7 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.tags}>
-          <Field.Label htmlFor="site">Tags</Field.Label>
+          <Field.Label>Tags</Field.Label>
           <Input
             {...register('tags')}
             placeholder="action, mystery, multiplayer"

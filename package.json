@@ -7,7 +7,13 @@
     "typecheck": "react-router typegen && tsc",
     "typegen": "react-router typegen",
     "db:seed": "prisma db seed",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:stories": "vitest run --project storybook",
+    "test:e2e": "playwright test",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.35.0",
@@ -64,15 +70,24 @@
   "devDependencies": {
     "@eslint/js": "^9.29.0",
     "@faker-js/faker": "^10.1.0",
+    "@playwright/test": "^1.63.0",
     "@react-router/dev": "^7.14.2",
+    "@storybook/addon-vitest": "^10.6.1",
+    "@storybook/react-vite": "^10.6.1",
+    "@testing-library/react": "^16.3.3",
+    "@vitest/browser": "^5.0.2",
+    "@vitest/browser-playwright": "^5.0.2",
     "eslint": "^9.29.0",
     "eslint-plugin-import-x": "^4.16.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.5.0",
+    "playwright": "^1.63.0",
     "prettier": "^3.8.3",
     "prisma": "^4.3.1",
-    "vite": "^8.0.10"
+    "storybook": "^10.6.1",
+    "vite": "^8.0.10",
+    "vitest": "^5.0.2"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
