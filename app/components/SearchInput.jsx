@@ -67,7 +67,7 @@ const SearchInput = () => {
             placeholder="Search"
             defaultValue={params.get('q')}
             autoFocus={pathname === '/search'}
-            bg={{ base: 'gray.100', _dark: 'gray.750' }}
+            bg={{ base: 'gray.100', _dark: 'gray.800' }}
             borderRadius="full"
             onChange={(e) => handleChange(e.currentTarget.value)}
           />
