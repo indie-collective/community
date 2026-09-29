@@ -109,3 +109,34 @@ export default function createUploadHandler(fileInputs) {
     }
   }
 }
+// Replaces Remix's unstable_parseMultipartFormData with
+// composeUploadHandlers(createUploadHandler(fileInputs), memory handler),
+// which React Router 7 dropped. Files in `fileInputs` are uploaded and become
+// their image id ('' for an empty input); other files and fields pass through.
+export async function parseFormWithUploads(request, fileInputs) {
+  const upload = createUploadHandler(fileInputs);
+  const formData = await request.formData();
+  const result = new FormData();
+
+  for (const [name, value] of formData.entries()) {
+    if (typeof value === 'string' || !fileInputs.includes(name)) {
+      result.append(name, value);
+      continue;
+    }
+
+    if (value.size === 0) {
+      result.append(name, '');
+      continue;
+    }
+
+    const imageId = await upload({
+      name,
+      contentType: value.type,
+      data: value.stream(),
+      filename: value.name,
+    });
+    result.append(name, imageId);
+  }
+
+  return result;
+}

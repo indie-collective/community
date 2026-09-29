@@ -42,7 +42,7 @@ const PasswordChangeForm = ({ loading, ...rest }) => {
       {...rest}
     >
       <Field.Root mb={5} invalid={errors.oldPassword} required>
-        <Field.Label htmlFor="oldPassword">Current Password</Field.Label>
+        <Field.Label htmlFor="oldPassword">Current Password<Field.RequiredIndicator /></Field.Label>
         <PasswordInput
           {...register('oldPassword')}
           id="oldPassword"
@@ -53,7 +53,7 @@ const PasswordChangeForm = ({ loading, ...rest }) => {
         </Field.ErrorText>
       </Field.Root>
       <Field.Root mb={5} invalid={errors.password} required>
-        <Field.Label htmlFor="password">New Password</Field.Label>
+        <Field.Label htmlFor="password">New Password<Field.RequiredIndicator /></Field.Label>
         <PasswordInput
           {...register('password')}
           id="password"
@@ -64,7 +64,7 @@ const PasswordChangeForm = ({ loading, ...rest }) => {
         </Field.ErrorText>
       </Field.Root>
       <Field.Root mb={5} invalid={errors.passwordConfirmation} required>
-        <Field.Label htmlFor="password2">Password confirmation</Field.Label>
+        <Field.Label htmlFor="password2">Password confirmation<Field.RequiredIndicator /></Field.Label>
         <PasswordInput
           {...register('passwordConfirmation')}
           id="passwordConfirmation"

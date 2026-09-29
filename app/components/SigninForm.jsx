@@ -38,7 +38,7 @@ const SigninForm = ({ loading }) => {
       })}
     >
       <Field.Root mb={5} invalid={errors.email} required>
-        <Field.Label htmlFor="email">Email</Field.Label>
+        <Field.Label htmlFor="email">Email<Field.RequiredIndicator /></Field.Label>
         <Input
           {...register('email')}
           id="email"

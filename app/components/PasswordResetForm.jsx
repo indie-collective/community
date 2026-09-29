@@ -41,7 +41,7 @@ const PasswordResetForm = ({ loading, ...rest }) => {
       {...rest}
     >
       <Field.Root mb={5} invalid={errors.password} required>
-        <Field.Label htmlFor="password">New Password</Field.Label>
+        <Field.Label htmlFor="password">New Password<Field.RequiredIndicator /></Field.Label>
         <PasswordInput
           {...register('password')}
           id="password"
@@ -52,7 +52,7 @@ const PasswordResetForm = ({ loading, ...rest }) => {
         </Field.ErrorText>
       </Field.Root>
       <Field.Root mb={5} invalid={errors.passwordConfirmation} required>
-        <Field.Label htmlFor="password2">Password confirmation</Field.Label>
+        <Field.Label htmlFor="password2">Password confirmation<Field.RequiredIndicator /></Field.Label>
         <PasswordInput
           {...register('passwordConfirmation')}
           id="passwordConfirmation"
