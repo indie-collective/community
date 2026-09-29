@@ -200,10 +200,15 @@ const Games = () => {
             <WrapItem key={tag.id}>
               <Tag.Root
                 size="lg"
-                variant="subtle"
+                variant="solid"
                 colorPalette={
                   selectedTags.includes(tag.name) ? 'green' : 'gray'
                 }
+                // v3's solid gray is near-black; v2's unselected chips were gray.500.
+                {...(!selectedTags.includes(tag.name) && {
+                  bg: 'gray.500',
+                  color: 'white',
+                })}
                 cursor="pointer"
                 onClick={() =>
                   setSearchParams({
@@ -214,7 +219,9 @@ const Games = () => {
                 }
               >
                 <Tag.Label>{tag.name}</Tag.Label>
-                <Badge variant="outline">{tag.game_tag.length}</Badge>
+                <Badge variant="subtle" ml={1}>
+                  {tag.game_tag.length}
+                </Badge>
               </Tag.Root>
             </WrapItem>
           ))}

@@ -86,6 +86,37 @@ const config = defineConfig({
     // `subtle` fills with bg.muted, the same gray as the page background, so
     // fields were invisible; fill them with a colour that contrasts instead.
     recipes: {
+      // v2's Link inherited the text colour; v3's plain variant uses
+      // colorPalette.fg, which the app-wide green palette made green.
+      link: {
+        variants: { variant: { plain: { color: 'inherit' } } },
+      },
+      // v2's Heading scale: bold, and each size a step or two larger than
+      // v3's same-named text style (v2 `xl`, the default, was 30px / 36px).
+      heading: {
+        base: { fontWeight: 'bold' },
+        variants: {
+          size: {
+            xs: { fontSize: 'sm', lineHeight: '1.2' },
+            sm: { fontSize: 'md', lineHeight: '1.2' },
+            md: { fontSize: 'xl', lineHeight: '1.2' },
+            lg: {
+              fontSize: { base: '2xl', md: '3xl' },
+              lineHeight: { base: '1.33', md: '1.2' },
+            },
+            xl: {
+              fontSize: { base: '3xl', md: '4xl' },
+              lineHeight: { base: '1.33', md: '1.2' },
+            },
+            '2xl': {
+              fontSize: { base: '4xl', md: '5xl' },
+              lineHeight: { base: '1.2', md: '1' },
+            },
+            '3xl': { fontSize: { base: '5xl', md: '6xl' }, lineHeight: '1' },
+            '4xl': { fontSize: { base: '6xl', md: '7xl' }, lineHeight: '1' },
+          },
+        },
+      },
       input: {
         defaultVariants: { variant: 'subtle' },
         variants: {

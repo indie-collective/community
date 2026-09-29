@@ -13,6 +13,7 @@ import {
   Stack,
   Dialog,
   Portal,
+  Icon,
 } from '@chakra-ui/react';
 import { DarkMode } from '../components/ui/color-mode';
 import { LuPlus, LuPencil, LuExternalLink, LuMapPin } from 'react-icons/lu';
@@ -215,7 +216,9 @@ const Org = () => {
             )}
             {location && (
               <Text>
-                <LuMapPin />{' '}
+                <Icon mr={1}>
+                  <LuMapPin />
+                </Icon>
                 {location.region && (
                   <>
                     {location.city && <>{location.city}, </>}

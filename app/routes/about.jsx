@@ -1,4 +1,4 @@
-import { Box, Heading, Text, Stat } from '@chakra-ui/react';
+import { Box, Heading, Text, Stat, StatGroup } from '@chakra-ui/react';
 
 import { useLoaderData } from 'react-router';
 
@@ -88,7 +88,7 @@ const AboutPage = () => {
             and tools remain accessible and useful to everyone.
           </Text>
 
-          <Stat.Root my={2}>
+          <StatGroup my={2}>
             <Stat.Root>
               <Stat.ValueText>{gamesCount}</Stat.ValueText>
               <Stat.Label>games</Stat.Label>
@@ -103,7 +103,7 @@ const AboutPage = () => {
               <Stat.ValueText>{eventsCount}</Stat.ValueText>
               <Stat.Label>events</Stat.Label>
             </Stat.Root>
-          </Stat.Root>
+          </StatGroup>
 
           <Heading mb={5} size="lg">
             Origins
