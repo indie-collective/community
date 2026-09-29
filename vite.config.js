@@ -15,12 +15,16 @@ export default defineConfig(({ command }) => ({
     //
     // MUI is bundled for the build only: in dev, Vite resolves externals to
     // real file paths itself, and evaluating MUI from source instead fails on
-    // its `require` calls. react-use and react-dropzone are bundled in both:
-    // their ESM builds work from source, while their CommonJS entries can't
-    // provide named exports (`usePrevious`, `useDropzone`).
-    noExternal:
-      command === 'build'
-        ? [/^@mui\//, 'react-use', 'react-dropzone']
-        : ['react-use', 'react-dropzone'],
+    // its `require` calls. The others are bundled in both: their ESM builds
+    // work from source, while their CommonJS entries can't provide the
+    // exports the app imports (`usePrevious`, `useDropzone`, `Remarkable`,
+    // remarkable-react's default class).
+    noExternal: [
+      ...(command === 'build' ? [/^@mui\//] : []),
+      'react-use',
+      'react-dropzone',
+      'remarkable',
+      'remarkable-react',
+    ],
   },
 }));

@@ -27,7 +27,7 @@ const Filters = ({ facets, selected, type }) => {
               name="country"
               placeholder="All countries"
               defaultValue={selected.country}
-              onValueChange={handleChange}
+              onChange={handleChange}
               borderRadius="md"
               width="auto"
             >
@@ -45,8 +45,8 @@ const Filters = ({ facets, selected, type }) => {
             <NativeSelect.Root>
               <NativeSelect.Field
                 name="period"
-                value={selected.period || 'upcoming'}
-                onValueChange={handleChange}
+                defaultValue={selected.period || 'upcoming'}
+                onChange={handleChange}
                 borderRadius="md"
                 width="auto"
               >
@@ -65,10 +65,10 @@ const Filters = ({ facets, selected, type }) => {
                 name="has_games"
                 value="on"
                 defaultChecked={selected.has_games === 'on'}
-                onCheckedChange={handleChange}
                 colorPalette="green"
               >
-                <Checkbox.HiddenInput />
+                {/* The native input's change event carries its form. */}
+                <Checkbox.HiddenInput onChange={handleChange} />
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
@@ -79,10 +79,9 @@ const Filters = ({ facets, selected, type }) => {
                 name="has_events"
                 value="on"
                 defaultChecked={selected.has_events === 'on'}
-                onCheckedChange={handleChange}
                 colorPalette="green"
               >
-                <Checkbox.HiddenInput />
+                <Checkbox.HiddenInput onChange={handleChange} />
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>

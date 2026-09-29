@@ -30,7 +30,9 @@ import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import computeGame from '../models/game';
 import OrgCard from '../components/OrgCard';
-import SearchOrgModal from './search-org';
+// Named, not default: React Router wraps a route module's default export and
+// drops the props passed to it here.
+import { SearchOrgModal } from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
@@ -243,10 +245,15 @@ const Game = () => {
         )}
 
         {site && (
-          <Button alt={site.replace(/https?:\/\//, '')} isExternal asChild>
-            <ChakraLink href={site}>
+          <Button asChild>
+            <ChakraLink
+              href={site}
+              title={site.replace(/https?:\/\//, '')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Visit website
-              <LuExternalLink mx="2px" />
+              <LuExternalLink />
             </ChakraLink>
           </Button>
         )}

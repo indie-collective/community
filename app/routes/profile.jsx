@@ -132,10 +132,13 @@ const Profile = () => {
               <IconButton
                 aria-label="Discord"
                 colorPalette="discord"
-                isExternal
                 asChild
               >
-                <ChakraLink href={discord_url}>
+                <ChakraLink
+                  href={discord_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <FaDiscord />
                 </ChakraLink>
               </IconButton>
@@ -150,11 +153,14 @@ const Profile = () => {
               <IconButton
                 aria-label="GitHub"
                 colorPalette="github"
-                isExternal
                 asChild
               >
-                <ChakraLink href={github_url}>
-                  <FaGitHub />
+                <ChakraLink
+                  href={github_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaGithub />
                 </ChakraLink>
               </IconButton>
             ) : (

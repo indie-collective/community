@@ -20,14 +20,16 @@ const propTypes = {
   }),
 };
 
-const defaultProps = {
-  onClear: () => {},
-  onChange: () => {},
-  onError: () => {},
-  value: { label: '', value: null },
-};
 
-const PlacesSearch = ({ onChange, onClear, onError, options, value, ...rest }) => {
+// Defaults as parameters: React 19 ignores defaultProps on function components.
+const PlacesSearch = ({
+  onChange = () => {},
+  onClear = () => {},
+  onError = () => {},
+  options,
+  value = { label: '', value: null },
+  ...rest
+}) => {
   const l = value.value;
 
   const [hiddenValues, setHiddenValues] = useState({});
@@ -123,6 +125,5 @@ const PlacesSearch = ({ onChange, onClear, onError, options, value, ...rest }) =
 };
 
 PlacesSearch.propTypes = propTypes;
-PlacesSearch.defaultProps = defaultProps;
 
 export default PlacesSearch;

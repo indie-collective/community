@@ -5,7 +5,8 @@ import { Fragment, useEffect } from 'react';
 
 import useDebounce from '../hooks/useDebounce';
 
-const PossibleGameDuplicates = ({ value, ignoredId }) => {
+// Defaults as parameters: React 19 ignores defaultProps on function components.
+const PossibleGameDuplicates = ({ value = '', ignoredId }) => {
   const games = useFetcher();
 
   const debouncedValue = useDebounce(value, 300);
@@ -43,9 +44,6 @@ const PossibleGameDuplicates = ({ value, ignoredId }) => {
   return null;
 };
 
-PossibleGameDuplicates.defaultProps = {
-  value: '',
-};
 
 PossibleGameDuplicates.propTypes = {
   value: PropTypes.string.isRequired,

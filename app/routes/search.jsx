@@ -125,15 +125,19 @@ const SearchPage = () => {
                     Organizations
                   </Heading>
 
-                  <Carousel slidesToShow={[1, 2, 3]}>
-                    {orgs.map((org) => (
-                      <Box key={org.id} minW={0} pr={3}>
-                        <Box variants={variants}>
-                          <OrgCard {...org} />
-                        </Box>
-                      </Box>
-                    ))}
-                  </Carousel>
+                  <ClientCarousel>
+                    {() => (
+                      <Carousel slidesToShow={[1, 2, 3]}>
+                        {orgs.map((org) => (
+                          <Box key={org.id} minW={0} pr={3}>
+                            <Box variants={variants}>
+                              <OrgCard {...org} />
+                            </Box>
+                          </Box>
+                        ))}
+                      </Carousel>
+                    )}
+                  </ClientCarousel>
                 </Box>
               )}
 
@@ -143,15 +147,19 @@ const SearchPage = () => {
                     Events
                   </Heading>
 
-                  <Carousel slidesToShow={[1, 2, 3]}>
-                    {events.map((event) => (
-                      <Box key={event.id} minW={0} pr={3}>
-                        <Box variants={variants}>
-                          <EventCard {...event} />
-                        </Box>
-                      </Box>
-                    ))}
-                  </Carousel>
+                  <ClientCarousel>
+                    {() => (
+                      <Carousel slidesToShow={[1, 2, 3]}>
+                        {events.map((event) => (
+                          <Box key={event.id} minW={0} pr={3}>
+                            <Box variants={variants}>
+                              <EventCard {...event} />
+                            </Box>
+                          </Box>
+                        ))}
+                      </Carousel>
+                    )}
+                  </ClientCarousel>
                 </Box>
               )}
             </>

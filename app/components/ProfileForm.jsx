@@ -38,12 +38,9 @@ const propTypes = {
   }),
 };
 
-const defaultProps = {
-  loading: false,
-  defaultData: {},
-};
 
-const ProfileForm = ({ loading, defaultData, ...rest }) => {
+// Defaults as parameters: React 19 ignores defaultProps on function components.
+const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
   const avatarRef = useRef();
   const {
     email,
@@ -209,6 +206,5 @@ const ProfileForm = ({ loading, defaultData, ...rest }) => {
 };
 
 ProfileForm.propTypes = propTypes;
-ProfileForm.defaultProps = defaultProps;
 
 export default ProfileForm;
