@@ -124,12 +124,16 @@ export const loader = async ({ request }) => {
     },
   });
 
-  // Get distinct years
-  const years = await db.$queryRaw`
-    SELECT DISTINCT EXTRACT(YEAR FROM starts_at) as year
-    FROM event
-    ORDER BY year DESC
-  `;
+  // Get distinct years. EXTRACT returns numeric, which Prisma hands back as a
+  // Decimal object; json() used to stringify it, React Router 7 passes it as
+  // is and React can't render it.
+  const years = (
+    await db.$queryRaw`
+      SELECT DISTINCT EXTRACT(YEAR FROM starts_at) as year
+      FROM event
+      ORDER BY year DESC
+    `
+  ).map(({ year }) => ({ year: String(year) }));
 
   const data = {
     events,
@@ -188,7 +192,7 @@ const Events = () => {
 
   return (
     <Box p={5}>
-      {/* <Filters facets={facets} selected={selected} type="event" /> */}
+      <Filters facets={facets} selected={selected} type="event" />
       {isPeriodUpcoming ? (
         <>
           {showCarousel ? (

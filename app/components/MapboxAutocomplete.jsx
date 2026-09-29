@@ -6,16 +6,6 @@ import { LuSearch } from 'react-icons/lu';
 import SelectInput from './SelectInput';
 import useDebounce from '../hooks/useDebounce';
 
-const defaultProps = {
-  defaultQuery: '',
-  types: null,
-  onError: () => {},
-
-  inputId: null,
-  inputOnFocus: null,
-  inputOnBlur: null,
-  inputOnClick: null,
-};
 
 const propTypes = {
   token: PropTypes.string.isRequired,
@@ -45,12 +35,13 @@ const propTypes = {
   resetSearch: PropTypes.bool,
 };
 
+// Defaults as parameters: React 19 ignores defaultProps on function components.
 const MapboxAutocomplete = ({
   token,
   onSuggestionSelect,
-  onError,
-  defaultQuery,
-  types,
+  onError = () => {},
+  defaultQuery = '',
+  types = null,
   placeholder,
   inputProps: inputPropsFull,
 }) => {
@@ -126,7 +117,6 @@ const MapboxAutocomplete = ({
   );
 };
 
-MapboxAutocomplete.defaultProps = defaultProps;
 MapboxAutocomplete.propTypes = propTypes;
 
 export default MapboxAutocomplete;

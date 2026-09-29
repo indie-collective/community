@@ -46,7 +46,9 @@ import RelatedEvents from '../components/RelatedEvents';
 import DateLabel from '../components/DateLabel';
 import JoinEventButton from '../components/JoinEventButton';
 import { SearchGameModal } from './search-game';
-import SearchOrgModal from './search-org';
+// Named, not default: React Router wraps a route module's default export and
+// drops the props passed to it here.
+import { SearchOrgModal } from './search-org';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
