@@ -91,7 +91,7 @@ const SignupForm = ({ loading, ...rest }) => {
         </Field.ErrorText>
       </Field.Root>
       <Field.Root mb={5} invalid={errors.passwordConfirmation} required>
-        <Field.Label htmlFor="password2">Password confirmation<Field.RequiredIndicator /></Field.Label>
+        <Field.Label htmlFor="passwordConfirmation">Password confirmation<Field.RequiredIndicator /></Field.Label>
         <PasswordInput
           {...register('passwordConfirmation')}
           id="passwordConfirmation"

@@ -120,7 +120,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
     >
       <Form onSubmit={handleSubmit}>
         <Field.Root gridColumn="1 / 3">
-          <Field.Label htmlFor="Logo">Logo</Field.Label>
+          <Field.Label>Logo</Field.Label>
 
           <Box position="relative" w="25%">
             <AspectRatio ratio={1} onClick={() => logoRef.current.click()}>
@@ -163,7 +163,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
           />
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.type} required>
-          <Field.Label htmlFor="name">Type<Field.RequiredIndicator /></Field.Label>
+          <Field.Label>Type<Field.RequiredIndicator /></Field.Label>
           <RadioCard.Root
             name="type"
             defaultValue={type}
@@ -195,7 +195,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
-          <Field.Label htmlFor="name">Name<Field.RequiredIndicator /></Field.Label>
+          <Field.Label>Name<Field.RequiredIndicator /></Field.Label>
           <Input
             {...register('name')}
             placeholder="Indie Collective, Electronic Darts..."
@@ -206,7 +206,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.location}>
-          <Field.Label htmlFor="location">Location</Field.Label>
+          <Field.Label>Location</Field.Label>
 
           <Controller
             control={control}
@@ -257,14 +257,14 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.site}>
-          <Field.Label htmlFor="site">Site</Field.Label>
+          <Field.Label>Site</Field.Label>
           <Input {...register('site')} placeholder="https://example.com" />
           <Field.ErrorText>
             {errors.site && errors.site.message}
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.about}>
-          <Field.Label htmlFor="about">About</Field.Label>
+          <Field.Label>About</Field.Label>
           <Textarea
             {...register('about')}
             minH="15rem"

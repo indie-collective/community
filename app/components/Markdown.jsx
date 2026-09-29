@@ -4,7 +4,9 @@ import RemarkableReactRenderer from 'remarkable-react';
 import { Text, Link, Box, Separator, List } from '@chakra-ui/react';
 import { LuExternalLink } from 'react-icons/lu';
 
-const Blockquote = (props) => (
+// remarkable-react passes each token's `type` (e.g. "paragraph_open") and
+// `tight` to these components; they aren't DOM attributes, so drop them.
+const Blockquote = ({ type, ...props }) => (
   <Box
     as="blockquote"
     borderLeft="5px solid"
@@ -17,9 +19,10 @@ const Blockquote = (props) => (
   />
 );
 
-// Everything a description links to is off-site.
-const ExternalLink = ({ children, ...props }) => (
-  <Link target="_blank" rel="noopener noreferrer" {...props}>
+// Everything a description links to is off-site. target/rel come after the
+// spread: remarkable-react passes its own (empty) target.
+const ExternalLink = ({ children, type, ...props }) => (
+  <Link {...props} target="_blank" rel="noopener noreferrer">
     {children}
     <LuExternalLink />
   </Link>
@@ -31,9 +34,9 @@ const ImgLink = ({ title, alt, src }) => (
   </ExternalLink>
 );
 
-const Paragraph = ({ tight, ...props }) => <Text mb={2} {...props} />;
+const Paragraph = ({ tight, type, ...props }) => <Text mb={2} {...props} />;
 
-const OrderedList = (props) => (
+const OrderedList = ({ tight, type, ...props }) => (
   <List.Root
     as="ol"
     listStyleType="decimal"
@@ -44,7 +47,7 @@ const OrderedList = (props) => (
   />
 );
 
-const UnorderedList = (props) => (
+const UnorderedList = ({ tight, type, ...props }) => (
   <List.Root
     listStyleType="disc"
     listStylePosition="outside"
@@ -54,7 +57,7 @@ const UnorderedList = (props) => (
   />
 );
 
-const Li = (props) => <List.Item {...props} />;
+const Li = ({ tight, type, ...props }) => <List.Item {...props} />;
 
 const md = new Remarkable().use(linkify);
 md.block.ruler.disable([
@@ -70,7 +73,7 @@ md.renderer = new RemarkableReactRenderer({
   components: {
     a: ExternalLink,
     blockquote: Blockquote,
-    hr: Separator,
+    hr: ({ type, ...props }) => <Separator {...props} />,
     p: Paragraph,
     ol: OrderedList,
     ul: UnorderedList,

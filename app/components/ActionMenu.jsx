@@ -2,14 +2,17 @@ import { Menu, IconButton, Portal } from '@chakra-ui/react';
 import { LuPencil, LuTimer, LuTrash2, LuSettings } from 'react-icons/lu';
 import { Link } from 'react-router';
 
+// v3 idioms throughout: asChild on the trigger (without it the IconButton was
+// a <button> nested in the trigger's <button>), items rendered as router links
+// through asChild, and icons as children rather than v2's `icon` prop.
 const ActionMenu = ({ editLink, changesLink, onDelete, ...props }) => {
   return (
     <Menu.Root>
-      <Menu.Trigger>
+      <Menu.Trigger asChild>
         <IconButton
           aria-label="Options"
           variant="ghost"
-          colorScheme="gray"
+          colorPalette="gray"
           borderRadius="full"
           {...props}
         >
@@ -20,34 +23,26 @@ const ActionMenu = ({ editLink, changesLink, onDelete, ...props }) => {
         <Menu.Positioner>
           <Menu.Content>
             {editLink && (
-              <Menu.Item
-                as={Link}
-                to={editLink}
-                icon={<LuPencil />}
-                value="item-0"
-              >
-                Edit
+              <Menu.Item value="edit" asChild>
+                <Link to={editLink}>
+                  <LuPencil />
+                  Edit
+                </Link>
               </Menu.Item>
             )}
             {changesLink && (
-              <Menu.Item
-                as={Link}
-                to={changesLink}
-                icon={<LuTimer />}
-                value="item-1"
-              >
-                History
+              <Menu.Item value="history" asChild>
+                <Link to={changesLink}>
+                  <LuTimer />
+                  History
+                </Link>
               </Menu.Item>
             )}
             {onDelete && (
               <>
                 <Menu.Separator />
-                <Menu.Item
-                  icon={<LuTrash2 />}
-                  color="red.500"
-                  onSelect={onDelete}
-                  value="item-2"
-                >
+                <Menu.Item value="delete" color="red.500" onSelect={onDelete}>
+                  <LuTrash2 />
                   Delete
                 </Menu.Item>
               </>
