@@ -5,15 +5,6 @@ import { LuSearch } from 'react-icons/lu';
 import SelectInput from './SelectInput';
 import useDebounce from '../hooks/useDebounce';
 
-const defaultProps = {
-  defaultQuery: '',
-  types: null,
-
-  inputId: null,
-  inputOnFocus: null,
-  inputOnBlur: null,
-  inputOnClick: null,
-};
 
 const propTypes = {
   onSuggestionSelect: PropTypes.func.isRequired,
@@ -41,10 +32,11 @@ const propTypes = {
   resetSearch: PropTypes.bool,
 };
 
+// Defaults as parameters: React 19 ignores defaultProps on function components.
 const PhotonAutocomplete = ({
   onSuggestionSelect,
-  defaultQuery,
-  types,
+  defaultQuery = '',
+  types = null,
   placeholder,
   inputProps,
 }) => {
@@ -129,7 +121,6 @@ const PhotonAutocomplete = ({
   );
 };
 
-PhotonAutocomplete.defaultProps = defaultProps;
 PhotonAutocomplete.propTypes = propTypes;
 
 export default PhotonAutocomplete;

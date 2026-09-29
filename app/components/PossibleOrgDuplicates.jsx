@@ -5,7 +5,8 @@ import { Fragment, useEffect } from 'react';
 
 import useDebounce from '../hooks/useDebounce';
 
-const PossibleOrgDuplicates = ({ value, ignoredId }) => {
+// Defaults as parameters: React 19 ignores defaultProps on function components.
+const PossibleOrgDuplicates = ({ value = '', ignoredId }) => {
   const orgs = useFetcher();
 
   const debouncedValue = useDebounce(value, 300);
@@ -43,9 +44,6 @@ const PossibleOrgDuplicates = ({ value, ignoredId }) => {
   return null;
 };
 
-PossibleOrgDuplicates.defaultProps = {
-  value: '',
-};
 
 PossibleOrgDuplicates.propTypes = {
   value: PropTypes.string.isRequired,

@@ -41,7 +41,8 @@ export async function loader({ request }) {
   }
 }
 
-export const SearchOrgModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
+// Defaults as parameters: React 19 ignores defaultProps on function components.
+export const SearchOrgModal = ({ isOpen = true, excludedIds = [], onClose = () => {}, onSelect = () => {} }) => {
   const [value, setValue] = useState('');
   const orgs = useFetcher();
   const debouncedValue = useDebounce(value, 300);
@@ -136,12 +137,6 @@ export const SearchOrgModal = ({ isOpen, excludedIds, onClose, onSelect }) => {
   );
 };
 
-SearchOrgModal.defaultProps = {
-  isOpen: true,
-  excludedIds: [],
-  onClose: () => {},
-  onSelect: () => {},
-};
 
 SearchOrgModal.propTypes = {
   isOpen: PropTypes.bool,

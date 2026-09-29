@@ -6,7 +6,6 @@ import { useDebouncedCallback } from 'use-debounce';
 
 const propTypes = {};
 
-const defaultProps = {};
 
 const SearchInput = () => {
   const inputRef = useRef();
@@ -79,6 +78,5 @@ const SearchInput = () => {
 };
 
 SearchInput.propTypes = propTypes;
-SearchInput.defaultProps = defaultProps;
 
 export default SearchInput;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useColorModeValue } from './ui/color-mode';
 import PropTypes from 'prop-types';
-import { Input, Box, Button, Text, InputGroup } from '@chakra-ui/react';
+import { Input, Box, Button, Text, InputGroup, Icon } from '@chakra-ui/react';
 import { LuX } from 'react-icons/lu';
 
 const propTypes = {
@@ -22,22 +22,16 @@ const propTypes = {
   //   initialValue?: DataProps;
 };
 
-const defaultProps = {
-  items: [],
-  itemPredicate: (item) => item,
-  leftIcon: null,
-  icon: null,
-  onSelect: () => {},
-};
 
+// Defaults as parameters: React 19 ignores defaultProps on function components.
 const SelectInput = ({
   placeholder,
-  items,
-  itemPredicate,
-  leftIcon,
-  icon,
+  items = [],
+  itemPredicate = (item) => item,
+  leftIcon = null,
+  icon = null,
   inputProps,
-  onSelect,
+  onSelect = () => {},
   onInputChange,
   BoxProps,
   ButtonProps,
@@ -61,7 +55,8 @@ const SelectInput = ({
         startElement={leftIcon}
         endElement={
           selected ? (
-            <LuX
+            // Style props go on Icon: react-icons would pass them to the DOM.
+            <Icon
               boxSize="25px"
               color={iconColor}
               borderRadius="0.5em"
@@ -73,7 +68,9 @@ const SelectInput = ({
                 setSelected(null);
                 if (onSelect) onSelect(undefined);
               }}
-            />
+            >
+              <LuX />
+            </Icon>
           ) : (
             icon
           )
@@ -147,6 +144,5 @@ const SelectInput = ({
 };
 
 SelectInput.propTypes = propTypes;
-SelectInput.defaultProps = defaultProps;
 
 export default SelectInput;
