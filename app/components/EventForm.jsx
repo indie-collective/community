@@ -158,7 +158,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.canceled} display="flex">
-          <Field.Label htmlFor="canceled">Mark as canceled</Field.Label>
+          <Field.Label>Mark as canceled</Field.Label>
           <Controller
             name="canceled"
             control={control}
@@ -204,7 +204,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
           <Field.ErrorText>{errors.end && errors.end.message}</Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3">
-          <Field.Label htmlFor="location">Location</Field.Label>
+          <Field.Label>Location</Field.Label>
 
           <Controller
             control={control}

@@ -38,7 +38,6 @@ const AvatarButton = () => {
       <Button
         type="submit"
         colorPalette={SocialsProvider.DISCORD}
-        aria-label="Signin"
         w="100%"
         size="lg"
         borderRadius="full"
