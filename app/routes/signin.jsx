@@ -79,11 +79,11 @@ const SignIn = () => {
       {process.env.NODE_ENV === 'development' && (
         <Stack gap={5}>
           <HStack>
-            <Separator />
+            <Separator flex="1" borderColor={{ base: 'gray.300', _dark: 'gray.600' }} />
             <Text fontSize="sm" whiteSpace="nowrap" color="muted">
               or continue with
             </Text>
-            <Separator />
+            <Separator flex="1" borderColor={{ base: 'gray.300', _dark: 'gray.600' }} />
           </HStack>
           {actionData?.error && (
             <Alert.Root status="error" mb="10px">

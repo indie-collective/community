@@ -50,7 +50,8 @@ const SelectInput = ({
   const dropdownBg = useColorModeValue('gray.50', 'gray.900');
 
   return (
-    <Box position="relative">
+    // Full width: v3's Field.Root doesn't stretch its children.
+    <Box position="relative" width="100%">
       <InputGroup
         startElement={leftIcon}
         endElement={
