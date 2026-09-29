@@ -11,7 +11,7 @@ import {
   Field,
   Icon,
 } from '@chakra-ui/react';
-import { redirect,
+import { data, redirect,
   Form,
   Link,
   useActionData,
@@ -19,7 +19,6 @@ import { redirect,
   useNavigation } from 'react-router';
 import { FaDiscord } from 'react-icons/fa6';
 
-import { authenticator } from '../utils/auth.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { db } from '../utils/db.server';
 import { commitSession, getSession } from '../utils/session.server';
@@ -63,12 +62,13 @@ export async function action({ request }) {
     // manually get the session
     let session = await getSession(request.headers.get('cookie'));
     // and store the new email in the session data
-    session.set(authenticator.sessionKey, updatedUser);
+    // 'user' is the key every read uses; remix-auth v4 has no sessionKey.
+    session.set('user', updatedUser);
 
     // commit the session
     let headers = new Headers({ 'Set-Cookie': await commitSession(session) });
 
-    return { currentUser: updatedUser }, { headers };
+    return data({ currentUser: updatedUser }, { headers });
   } catch (error) {
     const values = Object.fromEntries(formData);
     return {
