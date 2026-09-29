@@ -146,7 +146,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
         })}
       >
         <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
-          <Field.Label htmlFor="name">Name</Field.Label>
+          <Field.Label htmlFor="name">Name<Field.RequiredIndicator /></Field.Label>
           <Input
             {...register('name')}
             id="name"
@@ -179,7 +179,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root invalid={errors.start} required>
-          <Field.Label htmlFor="start">Start</Field.Label>
+          <Field.Label htmlFor="start">Start<Field.RequiredIndicator /></Field.Label>
           <Input
             {...register('start')}
             id="start"
@@ -192,7 +192,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="2 / 3" invalid={errors.end} required>
-          <Field.Label htmlFor="end">End</Field.Label>
+          <Field.Label htmlFor="end">End<Field.RequiredIndicator /></Field.Label>
           <Input
             {...register('end')}
             id="end"
