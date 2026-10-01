@@ -1,6 +1,4 @@
-import { expect, test } from '@playwright/test';
-
-import { MEMBER, signIn } from './helpers';
+import { expect, test, MEMBER, signIn } from './helpers';
 
 // #170 (multipart parsing) and #171 (the session key): saving the profile
 // works and the header shows the new name straight away.

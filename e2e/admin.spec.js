@@ -1,6 +1,4 @@
-import { expect, test } from '@playwright/test';
-
-import { ADMIN, MEMBER, signIn } from './helpers';
+import { expect, test, ADMIN, MEMBER, signIn, waitForHydration } from './helpers';
 
 test('a member creates an organisation and an admin deletes it', async ({ browser }) => {
   const name = `E2E Studio ${Date.now() % 100000}`;
@@ -8,6 +6,7 @@ test('a member creates an organisation and an admin deletes it', async ({ browse
   const member = await browser.newPage();
   await signIn(member, MEMBER);
   await member.goto('/orgs/create');
+  await waitForHydration(member);
   await member.getByText('Association', { exact: true }).click();
   await member.getByLabel(/^name/i).fill(name);
   await member.getByRole('button', { name: /submit/i }).click();
@@ -19,6 +18,7 @@ test('a member creates an organisation and an admin deletes it', async ({ browse
   const admin = await browser.newPage();
   await signIn(admin, ADMIN);
   await admin.goto(orgUrl);
+  await waitForHydration(admin);
   await admin.getByRole('button', { name: 'Options' }).click();
   await admin.getByRole('menuitem', { name: /delete/i }).click();
   await admin.getByRole('dialog').getByRole('button', { name: /delete/i }).click();

@@ -1,6 +1,4 @@
-import { expect, test } from '@playwright/test';
-
-import { MEMBER, signIn } from './helpers';
+import { expect, test, MEMBER, signIn } from './helpers';
 
 // #172: a dialog opened over the event page for signed-in users and blocked
 // every control, including joining.

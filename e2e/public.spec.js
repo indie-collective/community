@@ -1,6 +1,4 @@
-import { expect, test } from '@playwright/test';
-
-import { watchErrors } from './helpers';
+import { expect, test, watchErrors } from './helpers';
 
 const pages = ['/', '/games', '/events', '/studios', '/associations', '/about', '/countries', '/places', '/rewind', '/search?q=Conference', '/signin'];
 
