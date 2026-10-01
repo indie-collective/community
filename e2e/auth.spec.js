@@ -1,6 +1,4 @@
-import { expect, test } from '@playwright/test';
-
-import { MEMBER, signIn } from './helpers';
+import { expect, test, MEMBER, signIn } from './helpers';
 
 test('protected pages send signed-out visitors to sign-in', async ({ page }) => {
   await page.goto('/profile');
