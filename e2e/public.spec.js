@@ -48,12 +48,13 @@ test('clicking a place on the map highlights its card', async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto('/places', { waitUntil: 'networkidle' });
   // Threw "highlight is not defined" when the list rendered the selected card.
-  // The first studio pin (clusters come first), clicked on its tip: the
-  // middle is the logo's masked-out hole.
+  // The first studio pin (clusters come first). Seeded locations are random,
+  // so another pin can sit on top of it: dispatch the click on the pin itself
+  // rather than clicking where it is on screen.
   await page
-    .locator('.pigeon-overlays [data-part="trigger"]')
+    .locator('.pigeon-overlays [data-part="trigger"] svg')
     .first()
-    .click({ position: { x: 24, y: 40 } });
+    .dispatchEvent('click');
   await expect(page).toHaveURL(/#[0-9a-f-]{36}$/);
   const id = new URL(page.url()).hash.slice(1);
   await expect(page.locator(`[id="${id}"]`)).toHaveCSS('animation-name', 'highlight');
