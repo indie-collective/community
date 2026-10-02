@@ -1,4 +1,4 @@
-import { Box, Image, Grid, AspectRatio, IconButton, Spinner, Presence } from '@chakra-ui/react';
+import { Box, Image, Grid, AspectRatio, IconButton, Spinner } from '@chakra-ui/react';
 import { LuTrash2 } from 'react-icons/lu';
 import { useState } from 'react';
 
@@ -43,9 +43,9 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                 onClick={() => {
                   setSelectedIndex(index);
                 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.2 }}
+                transition="transform 0.2s"
+                _hover={{ transform: 'scale(1.02)' }}
+                _active={{ transform: 'scale(0.98)' }}
               />
             </AspectRatio>
             {image.uploading && (
@@ -93,15 +93,16 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
           />
         )}
       </Grid>
-      <Presence>
-        {selectedIndex !== null && (
-          <Lightbox
-            images={allImages}
-            index={selectedIndex}
-            onClose={() => setSelectedIndex(null)}
-          />
-        )}
-      </Presence>
+      {/* Not wrapped in Chakra's Presence: it renders nothing unless given
+          `present`, so the lightbox never opened (main used framer-motion's
+          AnimatePresence, which needs no prop). */}
+      {selectedIndex !== null && (
+        <Lightbox
+          images={allImages}
+          index={selectedIndex}
+          onClose={() => setSelectedIndex(null)}
+        />
+      )}
     </>
   );
 };

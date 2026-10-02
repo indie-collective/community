@@ -30,6 +30,36 @@ test('descriptions render, with off-site links in a new tab', async ({ page }) =
   }
 });
 
+test('clicking a game image opens the lightbox', async ({ page }) => {
+  await page.goto('/games');
+  await page.locator('a[href^="/game/"]').first().click();
+  await expect(page.getByRole('heading', { name: 'Made by' })).toBeVisible();
+  // The gallery's Chakra Presence had no `present` prop, and the lightbox
+  // referenced an undefined Presence, so nothing opened.
+  const errors = watchErrors(page);
+  await page.locator('main img[alt=""]').first().click();
+  await expect(page.getByRole('button', { name: 'Close Lightbox' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: 'Close Lightbox' })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('clicking a place on the map highlights its card', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/places', { waitUntil: 'networkidle' });
+  // Threw "highlight is not defined" when the list rendered the selected card.
+  // The first studio pin (clusters come first), clicked on its tip: the
+  // middle is the logo's masked-out hole.
+  await page
+    .locator('.pigeon-overlays [data-part="trigger"]')
+    .first()
+    .click({ position: { x: 24, y: 40 } });
+  await expect(page).toHaveURL(/#[0-9a-f-]{36}$/);
+  const id = new URL(page.url()).hash.slice(1);
+  await expect(page.locator(`[id="${id}"]`)).toHaveCSS('animation-name', 'highlight');
+  expect(errors).toEqual([]);
+});
+
 test.describe('phone width', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
