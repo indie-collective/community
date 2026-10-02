@@ -88,17 +88,17 @@ const Row = ({ index, data, style }) => (
   <div key={data.orgs[index].id} style={style}>
     <OrgCard
       id={data.orgs[index].id}
-      sx={{
+      // `highlight` is the animation token (and keyframes) in theme.js.
+      css={{
         '&:target': {
-          animation: `highlight 500ms ease-in-out 500ms`,
+          animation: 'highlight',
         },
       }}
       {...data.orgs[index]}
       onMouseEnter={() => data.onMouseEnter(data.orgs[index])}
       onMouseOut={() => data.onMouseOut(data.orgs[index])}
       animation={
-        data.selectedId === data.orgs[index].id &&
-        `${highlight} 500ms ease-in-out 500ms`
+        data.selectedId === data.orgs[index].id ? 'highlight' : undefined
       }
     />
   </div>
