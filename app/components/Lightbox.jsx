@@ -1,46 +1,22 @@
-import { Box, IconButton, Image, Flex, Portal } from '@chakra-ui/react';
-import { useColorModeValue } from "./ui/color-mode";
-import {
-  LuX,
-  LuChevronLeft,
-  LuChevronRight,
-  LuArrowRight,
-} from 'react-icons/lu';
+import { Box, IconButton, Image, Portal } from '@chakra-ui/react';
+import { LuX, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 import { FaExpand, FaCompress } from 'react-icons/fa';
 import { useState, useEffect, useCallback } from 'react';
 
-const variants = {
-  enter: (direction) => ({
-    x: direction > 0 ? '50%' : '-50%',
-    opacity: 0,
-    scale: 0.9,
-  }),
-  center: {
-    zIndex: 1,
-    x: 0,
-    opacity: 1,
-    scale: 1,
-  },
-  exit: (direction) => ({
-    zIndex: 0,
-    x: direction < 0 ? '50%' : '-50%',
-    opacity: 0,
-    scale: 0.9,
-  }),
-};
-
+// v2 animated with framer-motion (AnimatePresence + motion.div slide
+// variants). The migration dropped framer-motion, so transitions use Chakra's
+// animation props: the overlay and each image fade in.
 const Lightbox = ({ images, index, onClose }) => {
-  const [[page, direction], setPage] = useState([index, 0]);
+  const [currentIndex, setCurrentIndex] = useState(index);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const currentIndex = page;
-
-  const paginate = useCallback((newDirection) => {
-    setPage(([prevPage]) => {
-      const nextPage = (prevPage + newDirection + images.length) % images.length;
-      return [nextPage, newDirection];
-    });
-  }, [images.length]);
+  const paginate = useCallback(
+    (step) =>
+      setCurrentIndex(
+        (current) => (current + step + images.length) % images.length
+      ),
+    [images.length]
+  );
 
   const handleNext = useCallback(() => paginate(1), [paginate]);
   const handlePrev = useCallback(() => paginate(-1), [paginate]);
@@ -79,9 +55,6 @@ const Lightbox = ({ images, index, onClose }) => {
   return (
     <Portal>
       <Box
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
         position="fixed"
         inset={0}
         zIndex={10000}
@@ -91,6 +64,8 @@ const Lightbox = ({ images, index, onClose }) => {
         justifyContent="center"
         userSelect="none"
         overflow="hidden"
+        animationName="fade-in"
+        animationDuration="moderate"
       >
         {/* Close Button */}
         <IconButton
@@ -127,7 +102,7 @@ const Lightbox = ({ images, index, onClose }) => {
               color="white"
               _hover={{ bg: 'whiteAlpha.200' }}
               aria-label="Previous Image"
-              zIndex={10002}><LuChevronLeft w={10} h={10} /></IconButton>
+              zIndex={10002}><LuChevronLeft size={40} /></IconButton>
             <IconButton
               position="absolute"
               right={4}
@@ -136,7 +111,7 @@ const Lightbox = ({ images, index, onClose }) => {
               color="white"
               _hover={{ bg: 'whiteAlpha.200' }}
               aria-label="Next Image"
-              zIndex={10002}><LuChevronRight w={10} h={10} /></IconButton>
+              zIndex={10002}><LuChevronRight size={40} /></IconButton>
           </>
         )}
 
@@ -149,42 +124,28 @@ const Lightbox = ({ images, index, onClose }) => {
           justifyContent="center"
           position="relative"
         >
-          <Presence initial={false} custom={direction}>
-            <Box
-              key={page}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 },
-              }}
-              style={{
-                position: 'absolute',
-                maxWidth: '90%',
-                maxHeight: '90%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Image
-                src={images[currentIndex].url}
-                alt={`Image ${currentIndex + 1}`}
-                maxW="100%"
-                maxH="100%"
-                objectFit="contain"
-                draggable={false}
-                boxShadow="0 20px 50px rgba(0,0,0,0.5)"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
-              />
-            </Box>
-          </Presence>
+          {/* Keyed on the index so the fade replays on every change. */}
+          <Box
+            key={currentIndex}
+            position="absolute"
+            maxWidth="90%"
+            maxHeight="90%"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            animationName="fade-in, scale-in"
+            animationDuration="moderate"
+          >
+            <Image
+              src={images[currentIndex].url}
+              alt={`Image ${currentIndex + 1}`}
+              maxW="100%"
+              maxH="100%"
+              objectFit="contain"
+              draggable={false}
+              boxShadow="0 20px 50px rgba(0,0,0,0.5)"
+            />
+          </Box>
         </Box>
 
         {/* Index Indicator */}
