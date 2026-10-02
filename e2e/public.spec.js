@@ -44,6 +44,18 @@ test('clicking a game image opens the lightbox', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('places allows page zoom', async ({ page }) => {
+  await page.goto('/places');
+  const viewports = await page.locator('meta[name="viewport"]').evaluateAll(
+    (elements) => elements.map((element) => element.content),
+  );
+  expect(viewports.length).toBeGreaterThan(0);
+  for (const viewport of viewports) {
+    expect(viewport).toContain('width=device-width');
+    expect(viewport).not.toMatch(/(?:maximum-scale|user-scalable)\s*=/i);
+  }
+});
+
 test('clicking a place on the map highlights its card', async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto('/places', { waitUntil: 'networkidle' });
