@@ -1,4 +1,4 @@
-import { expect, test, watchErrors } from './helpers';
+import { expect, test, watchErrors, MEMBER, signIn } from './helpers';
 
 // #175: the loader discarded its query result, so every country page was a 500.
 test('country pages render their cities, and unknown countries are a 404', async ({ page }) => {
@@ -44,4 +44,24 @@ test('clicking a place on the map highlights its card', async ({ page }) => {
   const id = new URL(page.url()).hash.slice(1);
   await expect(page.locator(`[id="${id}"]`)).toHaveCSS('animation-name', 'highlight');
   expect(errors).toEqual([]);
+});
+
+// #212: the event form asked a random a./b./c. OSM subdomain for "@2x"
+// tiles, which OSM answers with 400; every map now uses one tile provider.
+test.describe('on a high-density screen', () => {
+  test.use({ deviceScaleFactor: 2 });
+
+  test('maps load tiles from tile.openstreetmap.org only', async ({ page }) => {
+    await signIn(page, MEMBER);
+    const events = await (await page.request.get('/events')).text();
+    const event = events.match(/\/event\/[0-9a-f-]{36}/)[0];
+
+    for (const path of ['/places', event, `${event}/edit`]) {
+      await page.goto(path, { waitUntil: 'networkidle' });
+      const tiles = await page.locator('img[src*="openstreetmap.org"]').evaluateAll((imgs) => imgs.map((img) => img.src));
+      expect(tiles.length, path).toBeGreaterThan(0);
+      for (const src of tiles) expect(src, path).toMatch(/^https:\/\/tile\.openstreetmap\.org\/\d+\/\d+\/\d+\.png$/);
+      await expect(page.getByRole('link', { name: 'OpenStreetMap' }).first()).toBeVisible();
+    }
+  });
 });

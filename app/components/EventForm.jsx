@@ -16,7 +16,7 @@ import {
   Field,
 } from '@chakra-ui/react';
 import { LuPencil } from 'react-icons/lu';
-import { Map } from 'pigeon-maps';
+import TileMap from './TileMap';
 import { viewport } from '@mapbox/geo-viewport';
 import { format } from 'date-fns';
 
@@ -78,8 +78,6 @@ const propTypes = {
   }),
 };
 
-
-const OSMServer = 'abc'.charAt(Math.floor(Math.random() * 3));
 
 // Defaults as parameters: React 19 ignores defaultProps on function components.
 const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
@@ -233,17 +231,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
               borderRadius={5}
               mt={2}
             >
-              <Map
-                provider={(x, y, z, dpr) => {
-                  const retina =
-                    typeof dpr !== 'undefined'
-                      ? dpr >= 2
-                      : typeof window !== 'undefined' &&
-                        window.devicePixelRatio >= 2;
-                  return `https://${OSMServer}.tile.openstreetmap.org/${z}/${x}/${y}${
-                    retina ? '@2x' : ''
-                  }.png`;
-                }}
+              <TileMap
                 defaultWidth={800}
                 defaultHeight={100}
                 center={[location.value.latitude, location.value.longitude]}

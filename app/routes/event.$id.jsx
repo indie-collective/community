@@ -33,7 +33,7 @@ import {
   useRouteError,
 } from 'react-router';
 
-import { Map } from 'pigeon-maps';
+import TileMap from '../components/TileMap';
 
 import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
@@ -363,14 +363,14 @@ const Event = () => {
                 mb={[2, -2]}
                 mt={[2]}
               >
-                <Map
+                <TileMap
                   defaultWidth={1200}
                   defaultHeight={150}
                   center={[location.latitude, location.longitude]}
                   zoom={location.street ? 16 : 11}
                   mouseEvents={false}
                   touchEvents={false}
-                ></Map>
+                ></TileMap>
               </Box>
             )}
 
