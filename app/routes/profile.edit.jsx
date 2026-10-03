@@ -13,6 +13,7 @@ import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
 import ProfileForm from '../components/ProfileForm';
 import { commitSession, getSession } from '../utils/session.server';
+import toSessionUser from '../utils/sessionUser.server';
 import getImageLinks from '../utils/imageLinks.server';
 
 export const loader = async ({ request }) => {
@@ -57,17 +58,16 @@ export const action = async ({ request }) => {
       },
     });
 
-    delete user.password_hash;
-
     // updating session
     let session = await getSession(request.headers.get('cookie'));
     // 'user' is the key every read uses; remix-auth v4 has no sessionKey.
-    session.set('user', {
-      ...user,
-      avatar: user.avatar
-        ? getImageLinks(user.avatar).thumbnail_url
-        : undefined,
-    });
+    session.set(
+      'user',
+      toSessionUser({
+        ...user,
+        avatar: user.avatar ? getImageLinks(user.avatar) : null,
+      })
+    );
 
     return redirect(`/profile`, {
       headers: { 'Set-Cookie': await commitSession(session) },

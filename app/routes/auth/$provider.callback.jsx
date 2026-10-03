@@ -2,6 +2,7 @@ import { redirect } from 'react-router';
 
 import { authenticator } from '../../utils/auth.server';
 import { commitSession, getSession } from '../../utils/session.server';
+import toSessionUser from '../../utils/sessionUser.server';
 
 export async function loader({ request, params }) {
   try {
@@ -9,7 +10,7 @@ export async function loader({ request, params }) {
 
     const session = await getSession(request.headers.get('cookie'));
 
-    session.set('user', user);
+    session.set('user', toSessionUser(user));
 
     return redirect('/', {
       headers: {

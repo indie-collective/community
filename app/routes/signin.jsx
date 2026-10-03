@@ -18,6 +18,7 @@ import { FaDiscord } from 'react-icons/fa6';
 import { authenticator } from '../utils/auth.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { commitSession, getSession } from '../utils/session.server';
+import toSessionUser from '../utils/sessionUser.server';
 import SigninForm from '../components/SigninForm';
 
 export let loader = async ({ request }) => {
@@ -32,7 +33,7 @@ export let action = async ({ request }) => {
 
     const session = await getSession(request.headers.get('cookie'));
 
-    session.set('user', user);
+    session.set('user', toSessionUser(user));
 
     return redirect('/', {
       headers: {

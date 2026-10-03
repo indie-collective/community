@@ -11,6 +11,7 @@ import { redirect, Link, useActionData, useNavigation  } from 'react-router';
 import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { commitSession, getSession } from '../utils/session.server';
+import toSessionUser from '../utils/sessionUser.server';
 import SignupForm from '../components/SignupForm';
 
 export const loader = async ({ request }) => {
@@ -47,7 +48,7 @@ export const action = async ({ request }) => {
 
     let session = await getSession(request.headers.get('cookie'));
 
-    session.set('user', user);
+    session.set('user', toSessionUser(user));
 
     return redirect('/welcome', {
       headers: { 'Set-Cookie': await commitSession(session) },

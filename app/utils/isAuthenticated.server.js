@@ -2,6 +2,7 @@ import { redirect } from 'react-router';
 
 import { db } from './db.server';
 import { sessionStorage } from './session.server';
+import toSessionUser from './sessionUser.server';
 
 async function hasEmail({ user, request }) {
   const url = new URL(request.url);
@@ -32,7 +33,9 @@ export default async function isAuthenticated(request, required) {
     return null;
   }
 
-  const currentUser = session.get('user');
+  // Cookies written before #180 hold the whole person row: read every
+  // session back as the minimal session user.
+  const currentUser = toSessionUser(session.get('user'));
 
   if (!currentUser?.id) {
     if (required) await redirectToSignin(request, session);
