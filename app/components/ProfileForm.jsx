@@ -20,10 +20,12 @@ import { Form, useFetcher, useSubmit } from 'react-router';
 import debounce from 'lodash.debounce';
 import useMergeRefs from '../hooks/useMergeRefs';
 
+// Last name and About are optional, as at sign-up: null in the database
+// for accounts created without them (#177).
 const validationSchema = yup.object().shape({
-  username: yup.string().required(),
-  firstName: yup.string().required(),
-  lastName: yup.string().required(),
+  username: yup.string().required('Username is required'),
+  firstName: yup.string().required('First name is required'),
+  lastName: yup.string(),
   about: yup.string(),
 });
 
@@ -59,11 +61,12 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
     watch,
   } = useForm({
     resolver: yupResolver(validationSchema),
+    // Inputs hold strings: null columns would fail the string schema.
     defaultValues: {
-      username,
-      firstName,
-      lastName,
-      about,
+      username: username ?? '',
+      firstName: firstName ?? '',
+      lastName: lastName ?? '',
+      about: about ?? '',
     },
   });
 
