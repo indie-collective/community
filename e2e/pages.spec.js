@@ -30,3 +30,14 @@ test.describe('phone width', () => {
     });
   }
 });
+
+// #195: og:url was "undefined://undefined/..." (and /org/ on event pages).
+for (const [type, list] of [['game', '/games'], ['event', '/events'], ['org', '/studios']]) {
+  test(`${type} pages share their own absolute URL`, async ({ request, baseURL }) => {
+    const html = await (await request.get(list)).text();
+    const path = html.match(new RegExp(`/${type}/[0-9a-f-]{36}`))[0];
+    const page = await (await request.get(path)).text();
+    expect(page).not.toContain('undefined://');
+    expect(page).toContain(`<meta property="og:url" content="${new URL(path, baseURL)}"/>`);
+  });
+}
