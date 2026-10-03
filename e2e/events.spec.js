@@ -49,3 +49,20 @@ test('an event without a cover shows the placeholder', async ({ page }) => {
     await db.event.delete({ where: { id: event.id } });
   }
 });
+
+// #208: the location picker didn't ask Mapbox for a language, so places
+// were saved under their local names ("Warszawa").
+test('the location picker asks for English place names', async ({ page }) => {
+  const requests = [];
+  await page.route('https://api.mapbox.com/geocoding/**', (route) => {
+    requests.push(new URL(route.request().url()));
+    route.fulfill({ json: { type: 'FeatureCollection', features: [] } });
+  });
+
+  await signIn(page, MEMBER);
+  await page.goto('/events/create');
+  await page.getByRole('textbox', { name: 'Location' }).fill('Warszawa');
+
+  await expect.poll(() => requests.length).toBeGreaterThan(0);
+  expect(requests.at(-1).searchParams.get('language')).toBe('en');
+});
