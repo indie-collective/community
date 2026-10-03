@@ -30,9 +30,19 @@ export const Organizations = {
     await userEvent.click(canvas.getByText('Has published games'));
     await waitFor(() => expect(submittedSearch()).toContain('has_games=on'));
 
+    // #205: the country filter is a searchable combobox; typing narrows it.
     loader.mockClear();
-    await userEvent.selectOptions(canvas.getByRole('combobox'), 'BE');
+    const country = canvas.getByRole('combobox', { name: 'Country' });
+    await userEvent.click(country);
+    await userEvent.type(country, 'belg');
+    const page = within(canvasElement.ownerDocument.body);
+    await waitFor(() => expect(page.queryByRole('option', { name: /France/ })).toBeNull());
+    await userEvent.click(page.getByRole('option', { name: /Belgium/ }));
     await waitFor(() => expect(submittedSearch()).toContain('country=BE'));
+
+    loader.mockClear();
+    await userEvent.click(canvas.getByRole('button', { name: 'Clear country' }));
+    await waitFor(() => expect(submittedSearch()).not.toContain('country='));
   },
 };
 
@@ -41,7 +51,7 @@ export const Events = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     loader.mockClear();
-    const [, period] = canvas.getAllByRole('combobox');
+    const period = canvas.getAllByRole('combobox').find((element) => element.tagName === 'SELECT');
     await userEvent.selectOptions(period, '2025');
     await waitFor(() => expect(submittedSearch()).toContain('period=2025'));
     await expect(period).toHaveValue('2025');
