@@ -49,3 +49,27 @@ test('an event without a cover shows the placeholder', async ({ page }) => {
     await db.event.delete({ where: { id: event.id } });
   }
 });
+
+// Attendee avatars were raw image rows without thumbnail_url, so every
+// attendee showed their initial instead of their picture.
+test('event attendees show their avatar', async ({ page }) => {
+  const member = await db.person.findUnique({ where: { email: MEMBER } });
+  const event = await db.event.findFirst({ where: { cover_id: { not: null }, location_id: { not: null } } });
+  const url = 'https://cdn.example.test/avatar-check.png';
+  const image = await db.image.create({ data: { image_file: { name: url } } });
+  await db.person.update({ where: { id: member.id }, data: { avatar_id: image.id } });
+  await db.event_participant.upsert({
+    where: { event_id_person_id: { event_id: event.id, person_id: member.id } },
+    create: { event_id: event.id, person_id: member.id },
+    update: {},
+  });
+
+  try {
+    await page.goto(`/event/${event.id}`);
+    await expect(page.locator(`[title="@${member.username}"] img`)).toHaveAttribute('src', url);
+  } finally {
+    await db.event_participant.deleteMany({ where: { event_id: event.id, person_id: member.id } });
+    await db.person.update({ where: { id: member.id }, data: { avatar_id: member.avatar_id } });
+    await db.image.delete({ where: { id: image.id } });
+  }
+});
