@@ -11,6 +11,20 @@ async function computeEntityEvent(entityEvent) {
   };
 }
 
+// Participants' avatars arrive as raw image rows; the page needs their
+// thumbnail URL, or every attendee falls back to their initial.
+function computeEventParticipant(eventParticipant) {
+  const { person } = eventParticipant;
+
+  return {
+    ...eventParticipant,
+    person: person && {
+      ...person,
+      avatar: person.avatar ? getImageLinks(person.avatar) : null,
+    },
+  };
+}
+
 async function computeGameEvent(gameEvent) {
   return {
     ...gameEvent,
@@ -30,5 +44,6 @@ export default async function computeEvent(event) {
     cover: event.cover ? getImageLinks(event.cover) : null,
     entity_event: event.entity_event ? await Promise.all(event.entity_event?.map(computeEntityEvent)) : undefined,
     game_event: event.game_event ? await Promise.all(event.game_event?.map(computeGameEvent)) : undefined,
+    event_participant: event.event_participant?.map(computeEventParticipant),
   };
 }
