@@ -2,7 +2,8 @@ import { Box, Heading, Text, Flex, Button } from '@chakra-ui/react';
 import { useColorModeValue } from "./ui/color-mode";
 import { LuChevronRight } from 'react-icons/lu';
 import { Link } from 'react-router';
-import { Map, Overlay } from 'pigeon-maps';
+import { Overlay } from 'pigeon-maps';
+import TileMap from './TileMap';
 
 const PlacesWidget = ({ placesCount, placesPoints }) => {
   const bg = useColorModeValue('white', 'gray.900');
@@ -27,7 +28,7 @@ const PlacesWidget = ({ placesCount, placesPoints }) => {
         opacity={0.4}
         pointerEvents="none"
       >
-        <Map
+        <TileMap
           defaultCenter={[40, 0]}
           defaultZoom={3}
           touchEvents={false}
@@ -38,7 +39,7 @@ const PlacesWidget = ({ placesCount, placesPoints }) => {
               <Box w="6px" h="6px" bg="green.500" borderRadius="full" />
             </Overlay>
           ))}
-        </Map>
+        </TileMap>
       </Box>
       <Flex
         justify="space-between"

@@ -19,7 +19,7 @@ import {
   RadioCard,
 } from '@chakra-ui/react';
 import { LuPencil } from 'react-icons/lu';
-import { Map } from 'pigeon-maps';
+import TileMap from './TileMap';
 import { viewport } from '@mapbox/geo-viewport';
 
 import PlacesSearch from '../components/PlacesSearch';
@@ -237,7 +237,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
               borderRadius={5}
               mt={2}
             >
-              <Map
+              <TileMap
                 defaultWidth={800}
                 defaultHeight={100}
                 center={[location.value.latitude, location.value.longitude]}

@@ -1,7 +1,7 @@
 // Mostly taken from `pigeon-cluster` but some changes needed to make it work
 
 import memoize from 'memoize-one';
-import { Map } from 'pigeon-maps';
+import TileMap from './TileMap';
 import React, { Component } from 'react';
 import Supercluster from 'supercluster';
 
@@ -104,12 +104,12 @@ export default class ClusterMap extends Component {
     );
 
     return (
-      <Map zoom={zoom} {...props}>
+      <TileMap zoom={zoom} {...props}>
         {React.Children.toArray(children).filter(
           (child) => !child.key || !child.props.anchor
         )}
         {displayElements}
-      </Map>
+      </TileMap>
     );
   }
 }
