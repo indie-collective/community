@@ -1,0 +1,2 @@
+// Local workerd check only (`npm run worker`); not a deployment config.
+{ "name": "atproto-oauth-spike", "main": "worker.mjs", "compatibility_date": "2026-09-01", "compatibility_flags": ["nodejs_compat"] }
