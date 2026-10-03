@@ -16,7 +16,6 @@ import {
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
 import {
-  Form,
   Link,
   useFetcher,
   useLoaderData,
@@ -194,38 +193,44 @@ const Games = () => {
 
   return (
     <Box p={5} ref={divHeight}>
-      <Wrap gap={2} mb={10} align="flex-end" method="get" asChild>
-        <Form>
-          {tags.slice(0, 30).map((tag) => (
+      <Wrap gap={2} mb={10} align="flex-end" role="group" aria-label="Filter by tag">
+        {tags.slice(0, 30).map((tag) => {
+          const selected = selectedTags.includes(tag.name);
+          return (
             <WrapItem key={tag.id}>
+              {/* A real toggle button, so the filter works with the keyboard (#224). */}
               <Tag.Root
+                asChild
                 size="lg"
                 variant="solid"
-                colorPalette={
-                  selectedTags.includes(tag.name) ? 'green' : 'gray'
-                }
+                colorPalette={selected ? 'green' : 'gray'}
                 // v3's solid gray is near-black; v2's unselected chips were gray.500.
-                {...(!selectedTags.includes(tag.name) && {
+                {...(!selected && {
                   bg: 'gray.500',
                   color: 'white',
                 })}
                 cursor="pointer"
-                onClick={() =>
-                  setSearchParams({
-                    tags: selectedTags.includes(tag.name)
-                      ? selectedTags.filter((t) => t !== tag.name)
-                      : [...selectedTags, tag.name],
-                  })
-                }
               >
-                <Tag.Label>{tag.name}</Tag.Label>
-                <Badge variant="subtle" ml={1}>
-                  {tag.game_tag.length}
-                </Badge>
+                <button
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() =>
+                    setSearchParams({
+                      tags: selected
+                        ? selectedTags.filter((t) => t !== tag.name)
+                        : [...selectedTags, tag.name],
+                    })
+                  }
+                >
+                  <Tag.Label>{tag.name}</Tag.Label>
+                  <Badge variant="subtle" ml={1}>
+                    {tag.game_tag.length}
+                  </Badge>
+                </button>
               </Tag.Root>
             </WrapItem>
-          ))}
-        </Form>
+          );
+        })}
       </Wrap>
       <Grid
         gap={5}
