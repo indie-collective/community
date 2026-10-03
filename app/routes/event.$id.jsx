@@ -277,7 +277,7 @@ const Event = () => {
             <Image
               size="100%"
               objectFit="cover"
-              src={cover && cover.url}
+              src={cover?.url ?? placeholder}
               alt="Event cover"
               rounded={5}
             />
