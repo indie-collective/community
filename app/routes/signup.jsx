@@ -39,7 +39,7 @@ export const action = async ({ request }) => {
     const user = await db.person.create({
       data: {
         first_name: firstName,
-        last_name: lastName,
+        last_name: lastName || null,
         email,
       },
     });
