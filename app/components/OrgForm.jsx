@@ -26,6 +26,7 @@ import PlacesSearch from '../components/PlacesSearch';
 import PossibleOrgDuplicates from '../components/PossibleOrgDuplicates';
 import usePlaceholder from '../hooks/usePlaceholder';
 import useMergeRefs from '../hooks/useMergeRefs';
+import { ORG_TYPES, orgTypeColor } from '../utils/orgTypes';
 
 const validationSchema = yup.object().shape({
   type: yup.string().oneOf(['studio', 'association']).required(),
@@ -63,13 +64,6 @@ const propTypes = {
     about: PropTypes.string,
   }),
 };
-
-
-const TYPES_COLORS = {
-  studio: 'yellow',
-  association: 'green',
-};
-
 
 // Defaults as parameters: React 19 ignores defaultProps on function components.
 const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
@@ -172,15 +166,12 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
             width="100%"
           >
             <HStack gap={2} align="stretch">
-              {[
-                ['studio', 'Studio'],
-                ['association', 'Association'],
-              ].map(([value, label]) => (
+              {Object.entries(ORG_TYPES).map(([value, { label }]) => (
                 <RadioCard.Item
                   key={value}
                   value={value}
                   flex="1"
-                  colorPalette={TYPES_COLORS[value]}
+                  colorPalette={orgTypeColor(value)}
                 >
                   <RadioCard.ItemHiddenInput {...register('type')} />
                   <RadioCard.ItemControl justifyContent="center">
