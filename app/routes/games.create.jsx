@@ -8,6 +8,7 @@ import { authorizer, canWrite } from '../utils/auth.server';
 import { notifyDiscord } from '../utils/discordNotification.server';
 import { toaster } from '../components/ui/toaster';
 import GameForm from '../components/GameForm';
+import { resolveTagNames } from '../utils/tags.server';
 
 export async function action(args) {
   const { request } = args;
@@ -17,12 +18,7 @@ export async function action(args) {
 
   const data = await request.formData();
 
-  const tagsList =
-    data
-      .get('tags')
-      ?.split(',')
-      .map((t) => t.trim().toLowerCase())
-      .filter(Boolean) || [];
+  const tagsList = await resolveTagNames(db, data.get('tags'));
 
   try {
     const [, igdb_slug = null] =
