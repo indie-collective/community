@@ -41,3 +41,22 @@ for (const [type, list] of [['event', '/events'], ['org', '/studios']]) {
     expect(unknown.status()).toBe(404);
   });
 }
+
+// #178: signing in always landed on / instead of the page that required it.
+test('signing in returns to the page that required it', async ({ page }) => {
+  await page.goto('/profile');
+  await expect(page).toHaveURL(/\/signin\?prev=\/profile$/);
+  await page.getByLabel(/email/i).fill(MEMBER);
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+  await expect(page).toHaveURL('/profile');
+});
+
+test('an off-site prev sends signed-in users home instead', async ({ page }) => {
+  await page.goto('/signin?prev=//evil.example/');
+  await page.getByLabel(/email/i).fill(MEMBER);
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+  await expect(page).toHaveURL('/');
+
+  await page.goto('/signin?prev=/games');
+  await expect(page).toHaveURL('/games');
+});

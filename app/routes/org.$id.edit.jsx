@@ -57,7 +57,6 @@ export async function action(args) {
 
   const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
-    failureRedirect: `/signin?redirect=/orgs/${id}/edit`,
   });
 
   const data = await parseFormWithUploads(request, ['logo']);

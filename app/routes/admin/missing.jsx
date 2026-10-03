@@ -15,9 +15,7 @@ import isAuthenticated from '../../utils/isAuthenticated.server';
 import { db } from '../../utils/db.server';
 
 export const loader = async ({ request }) => {
-  const currentUser = await isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   if (!currentUser.isAdmin) {
     throw new Response('Not Found', {

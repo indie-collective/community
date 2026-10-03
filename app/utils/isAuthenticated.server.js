@@ -19,9 +19,11 @@ async function hasEmail({ user, request }) {
 // resolves, so calling it bare leaves an unhandled rejection behind and
 // lets execution fall through as if the user were authenticated.
 async function redirectToSignin(request, session) {
-  const prevURL = new URL(request.url);
+  const { pathname, search } = new URL(request.url);
+  // Keep the query string too; '/' stays readable in the URL.
+  const prev = encodeURIComponent(pathname + search).replace(/%2F/gi, '/');
 
-  throw redirect('/signin?prev=' + prevURL.pathname, {
+  throw redirect('/signin?prev=' + prev, {
     headers: { 'Set-Cookie': await sessionStorage.destroySession(session) },
   });
 }

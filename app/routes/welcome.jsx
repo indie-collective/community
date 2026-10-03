@@ -25,17 +25,13 @@ import { commitSession, getSession } from '../utils/session.server';
 import toSessionUser from '../utils/sessionUser.server';
 
 export const loader = async ({ request }) => {
-  const currentUser = await isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   return { currentUser };
 };
 
 export async function action({ request }) {
-  const currentUser = await isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   if (!currentUser) {
     return redirect('/login');

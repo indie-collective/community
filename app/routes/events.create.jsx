@@ -77,9 +77,7 @@ export async function action(args) {
 }
 
 export const loader = async ({ request }) => {
-  return await isAuthenticated(request, {
-    failureRedirect: '/signin?redirect=/events/create',
-  });
+  return await isAuthenticated(request, true);
 };
 
 export const meta = () => [{

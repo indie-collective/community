@@ -7,9 +7,7 @@ import { db } from '../../utils/db.server';
 import { LuPlus, LuTrash2, LuPencil } from 'react-icons/lu';
 
 export const action = async ({ request }) => {
-  const currentUser = await isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   if (!currentUser.isAdmin) {
     throw new Response('Forbidden', {
@@ -32,9 +30,7 @@ export const action = async ({ request }) => {
 };
 
 export const loader = async ({ request }) => {
-  const currentUser = await isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   if (!currentUser.isAdmin) {
     throw new Response('Not Found', {
