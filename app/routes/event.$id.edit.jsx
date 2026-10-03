@@ -3,6 +3,7 @@ import { redirect, useActionData, useLoaderData, useNavigation } from 'react-rou
 import { useEffect } from 'react';
 
 import { db } from '../utils/db.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
@@ -11,8 +12,11 @@ import EventForm from '../components/EventForm';
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-export const loader = async ({ params }) => {
+export const loader = async ({ request, params }) => {
   const { id } = params;
+
+  // Redirects to sign-in before anything is loaded.
+  await isAuthenticated(request, true);
 
   if (!uuidRegex.test(id))
     throw new Response('Not Found', {
@@ -27,6 +31,11 @@ export const loader = async ({ params }) => {
     },
   });
 
+  if (!event)
+    throw new Response('Not Found', {
+      status: 404,
+    });
+
   const data = {
     event: {
       ...event,
@@ -36,12 +45,6 @@ export const loader = async ({ params }) => {
             thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${event.cover.image_file.name}`,
           }
         : null,
-    },
-    currentUser: {
-      id: '1',
-      username: 'admin',
-      name: 'John Doe',
-      email: 'test@test.com',
     },
   };
 
