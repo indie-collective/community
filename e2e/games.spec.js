@@ -24,3 +24,21 @@ test('clicking a game image opens the lightbox', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Close Lightbox' })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+// #224: the filter's tags were clickable spans, out of reach of the keyboard.
+test('the games tag filter works with the keyboard', async ({ page }) => {
+  await page.goto('/games');
+  const tag = page.getByRole('group', { name: 'Filter by tag' }).getByRole('button').first();
+  await expect(tag).toHaveAttribute('aria-pressed', 'false');
+  const name = (await tag.innerText()).split('\n')[0].trim();
+
+  await tag.focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(new RegExp(`tags=${encodeURIComponent(name).replace(/%20/g, '(\\+|%20)')}`, 'i'));
+  await expect(tag).toHaveAttribute('aria-pressed', 'true');
+
+  await tag.focus();
+  await page.keyboard.press('Space');
+  await expect(tag).toHaveAttribute('aria-pressed', 'false');
+  await expect(page).not.toHaveURL(/tags=/);
+});
