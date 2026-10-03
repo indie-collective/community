@@ -94,10 +94,15 @@ export const loader = async ({ request, params }) => {
           },
         },
       },
+      // Loader data is serialised into the page, so select only what the
+      // attendee list shows: never the whole person row (email, password
+      // hash, provider ids).
       event_participant: {
-        include: {
+        select: {
           person: {
-            include: {
+            select: {
+              id: true,
+              username: true,
               avatar: true,
             },
           },

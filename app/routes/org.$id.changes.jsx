@@ -68,7 +68,7 @@ export const loader = async ({ request, params }) => {
       select: {
         id: true,
         operation: true,
-        author: true,
+        author: { select: { username: true } },
         created_at: true,
       },
       orderBy: {
