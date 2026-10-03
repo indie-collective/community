@@ -5,6 +5,7 @@ import { LuSearch } from 'react-icons/lu';
 
 import SelectInput from './SelectInput';
 import useDebounce from '../hooks/useDebounce';
+import { geocodingUrl } from '../utils/geocoding';
 
 
 const propTypes = {
@@ -58,11 +59,7 @@ const MapboxAutocomplete = ({
   useEffect(() => {
     async function getLocation() {
       const header = { 'Content-Type': 'application/json' };
-      let path = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${token}&autocomplete=true`;
-
-      if (types) {
-        path += `&types=${types.join(',')}`;
-      }
+      const path = geocodingUrl(query, { token, types });
 
       if (query.length > 2) {
         try {

@@ -77,11 +77,9 @@ const PlacesSearch = ({
 
             if (context.id.includes('place')) city = context.text;
 
-            if (context.id.includes('address')) {
-              if (address.address)
-                street = address.address + ' ' + address.text;
-              else street = address.text;
-            }
+            // `address` was never defined here: an address in the context
+            // threw a ReferenceError.
+            if (context.id.includes('address')) street = context.text;
           });
 
           // there are some territories with short codes on region instead, e.g RE for Reunion Island
