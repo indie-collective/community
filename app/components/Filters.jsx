@@ -1,15 +1,7 @@
-import { Box, NativeSelect, Checkbox, Flex, Stack, HStack, Wrap } from '@chakra-ui/react';
+import { Box, NativeSelect, Checkbox, Wrap } from '@chakra-ui/react';
 
 import { Form, useSubmit } from 'react-router';
-import countryNames from '../assets/countries.json';
-
-function getFlagEmoji(countryCode) {
-  let codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map((char) => 127397 + char.charCodeAt());
-  return String.fromCodePoint(...codePoints);
-}
+import CountryCombobox from './CountryCombobox';
 
 const Filters = ({ facets, selected, type }) => {
   const submit = useSubmit();
@@ -22,24 +14,11 @@ const Filters = ({ facets, selected, type }) => {
     <Box method="get" mb={5} asChild>
       <Form>
         <Wrap gap={4}>
-          <NativeSelect.Root size="sm" width="240px">
-            <NativeSelect.Field
-              name="country"
-              placeholder="All countries"
-              defaultValue={selected.country}
-              onChange={handleChange}
-              borderRadius="md"
-              width="auto"
-            >
-              {facets.countries.map(({ country_code, _count }) => (
-                <option key={country_code} value={country_code}>
-                  {getFlagEmoji(country_code)}{' '}
-                  {countryNames[country_code] || country_code} ({_count})
-                </option>
-              ))}
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
+          <CountryCombobox
+            countries={facets.countries}
+            defaultValue={selected.country}
+            onChange={(form) => submit(form)}
+          />
 
           {type === 'event' ? (
             <NativeSelect.Root>
