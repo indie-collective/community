@@ -36,6 +36,7 @@ import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
+import SectionHeading from '../components/SectionHeading';
 
 const TYPES_COLORS = {
   studio: 'yellow',
@@ -261,18 +262,9 @@ const Org = () => {
       </Box>
       {games.length > 0 && (
         <Box pl={5} pr={5} mb={5}>
-          <Heading size="md" mb={2}>
+          <SectionHeading mb={2} count={games.length} countLabel="games">
             Games
-            <Badge
-              verticalAlign="baseline"
-              fontSize="md"
-              ml={2}
-              variant="subtle"
-              colorPalette="green"
-            >
-              {games.length}
-            </Badge>
-          </Heading>
+          </SectionHeading>
 
           <Box
             initial="initial"
@@ -302,18 +294,9 @@ const Org = () => {
       )}
       {events.length > 0 && (
         <Box pl={5} pr={5} mb={5}>
-          <Heading size="md" mb={2}>
+          <SectionHeading mb={2} count={events.length} countLabel="events">
             Hosted events
-            <Badge
-              verticalAlign="baseline"
-              fontSize="md"
-              ml={2}
-              variant="subtle"
-              colorPalette="green"
-            >
-              {events.length}
-            </Badge>
-          </Heading>
+          </SectionHeading>
 
           <Box
             initial="initial"
