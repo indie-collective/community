@@ -18,7 +18,12 @@ createServer(async (req, res) => {
       const { session, state } = await client.callback(url.searchParams);
       const agent = new Agent(session);
       const { data: account } = await agent.com.atproto.server.getSession();
-      const { data: profile } = await agent.getProfile({ actor: session.did });
+      // Profiles are public: read them from the AppView without the user's
+      // tokens, so sign-in needs no extra rpc: permission scope.
+      const profileResponse = await fetch(
+        `https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(session.did)}`
+      );
+      const profile = profileResponse.ok ? await profileResponse.json() : {};
       // What sign-in would keep: the DID as the identity, the rest for display.
       const identity = {
         did: session.did,
