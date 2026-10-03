@@ -30,6 +30,7 @@ import { ClientStyleContext, ServerStyleContext } from './context';
 // via the route's `links` export below.
 import slickStyles from 'slick-carousel/slick/slick.css?url';
 import isAuthenticated from './utils/isAuthenticated.server';
+import getOrigin from './utils/origin.server';
 import { Provider as ChakraProvider } from './components/ui/provider';
 import Error from './components/Error';
 import Navigation from './components/Navigation';
@@ -189,7 +190,7 @@ export function ErrorBoundary({ error }) {
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request);
 
-  return { currentUser };
+  return { currentUser, origin: getOrigin(request) };
 };
 
 export default function App() {

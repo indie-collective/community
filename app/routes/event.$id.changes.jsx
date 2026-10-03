@@ -22,6 +22,7 @@ import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
 import computeEvent from '../models/event';
 import { formatDistanceToNow } from 'date-fns';
+import { ogUrl } from '../utils/meta';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -72,7 +73,7 @@ export const loader = async ({ request, params }) => {
 
 export const meta = ({
   data,
-  location
+  matches
 }) => {
   if (!data?.event) return [{
     title: 'Event Not Found'
@@ -88,10 +89,7 @@ export const meta = ({
   }, {
     property: 'og:description',
     content: `Version history of ${event.name}.`
-  }, {
-    property: 'og:url',
-    content: `${location.protocol}://${location.host}/event/${event.id}`
-  }, {
+  }, ...ogUrl(matches, `/event/${event.id}`), {
     name: 'twitter:site',
     content: '@IndieColle'
   }, {

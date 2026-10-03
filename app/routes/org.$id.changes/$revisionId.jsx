@@ -13,6 +13,7 @@ import { isRouteErrorResponse, useLoaderData, useRouteError } from 'react-router
 import { db } from '../../utils/db.server';
 import isAuthenticated from '../../utils/isAuthenticated.server'
 import computeOrg from '../../models/org';
+import { ogUrl } from '../../utils/meta';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -111,7 +112,7 @@ export const loader = async ({ request, params }) => {
 
 export const meta = ({
   data,
-  location
+  matches
 }) => {
   if (!data?.org) return [{
     title: 'Organization Not Found'
@@ -127,10 +128,7 @@ export const meta = ({
   }, {
     property: 'og:description',
     content: `Version history of ${org.name}.`
-  }, {
-    property: 'og:url',
-    content: `${location.protocol}://${location.host}/org/${org.id}`
-  }, {
+  }, ...ogUrl(matches, `/org/${org.id}`), {
     name: 'twitter:site',
     content: '@IndieColle'
   }, {
