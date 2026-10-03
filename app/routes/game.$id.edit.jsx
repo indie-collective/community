@@ -10,6 +10,7 @@ import { authorizer, canWrite } from '../utils/auth.server';
 import computeGame from '../models/game';
 import { toaster } from '../components/ui/toaster';
 import GameForm from '../components/GameForm';
+import { resolveTagNames } from '../utils/tags.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -60,12 +61,7 @@ export async function action(args) {
     const [, igdb_slug = null] =
       (data.get('igdb_url') || '').match(/games\/(.+)/) || [];
 
-    const tagsList =
-      data
-        .get('tags')
-        ?.split(',')
-        .map((t) => t.trim().toLowerCase())
-        .filter(Boolean) || [];
+    const tagsList = await resolveTagNames(db, data.get('tags'));
 
     const tags = await db.$transaction(
       tagsList.map((tag) =>
