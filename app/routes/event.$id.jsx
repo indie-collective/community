@@ -118,10 +118,11 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const relatedEvents = await db.event.findMany({
+  const relatedSearch = getFullTextSearchQuery(event.name);
+  const relatedEvents = relatedSearch ? await db.event.findMany({
     where: {
       name: {
-        search: getFullTextSearchQuery(event.name),
+        search: relatedSearch,
       },
       id: {
         not: id,
@@ -139,7 +140,7 @@ export const loader = async ({ request, params }) => {
       event_participant: true,
     },
     take: 5,
-  });
+  }) : [];
 
   const data = {
     event: await computeEvent(event),

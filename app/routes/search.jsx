@@ -34,6 +34,8 @@ export const loader = async ({ request }) => {
   const q = searchParams.get('q');
   const search = getFullTextSearchQuery(q);
 
+  if (!search) return { search: q?.trim() ?? '', games: [], orgs: [], events: [] };
+
   const data = {
     search: q,
     games: await db.game.findMany({
@@ -72,11 +74,9 @@ export const loader = async ({ request }) => {
   return data;
 };
 
-export const meta = ({
-  data
-}) => [{
-  title: `Results for "${data.search}" | Search`
-}];
+export const meta = ({ data }) => [
+  { title: data?.search ? `Results for "${data.search}" | Search` : 'Search' },
+];
 
 const SearchPage = () => {
   const helpTextColor = useColorModeValue('gray.300', 'gray.600');

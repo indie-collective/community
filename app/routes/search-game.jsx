@@ -14,6 +14,7 @@ export async function loader({ request }) {
 
   const q = searchParams.get('q');
   const search = getFullTextSearchQuery(q);
+  if (!search) return [];
 
   const excludedIds = searchParams.get('notId');
   const excludedIdsArray = excludedIds ? excludedIds.split(',') : [];
