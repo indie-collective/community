@@ -22,6 +22,7 @@ import { FaDiscord } from 'react-icons/fa6';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { db } from '../utils/db.server';
 import { commitSession, getSession } from '../utils/session.server';
+import toSessionUser from '../utils/sessionUser.server';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, {
@@ -54,10 +55,10 @@ export async function action({ request }) {
       },
     });
 
-    const updatedUser = {
+    const updatedUser = toSessionUser({
       ...currentUser,
       email,
-    };
+    });
 
     // manually get the session
     let session = await getSession(request.headers.get('cookie'));

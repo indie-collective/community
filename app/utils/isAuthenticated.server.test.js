@@ -41,7 +41,32 @@ describe('isAuthenticated', () => {
 
   it('returns the session user when they still exist', async () => {
     const user = { id: 'p1', email: 'p1@indieco.test' };
-    expect(await isAuthenticated(await requestAs(user))).toEqual(user);
+    expect(await isAuthenticated(await requestAs(user))).toMatchObject(user);
+  });
+
+  // #180: cookies written before the session user was trimmed hold the whole
+  // person row; they stay valid but are read back as the minimal shape.
+  it('reads a legacy full-row cookie back as the minimal session user', async () => {
+    const legacy = {
+      id: 'p1',
+      username: 'member',
+      first_name: 'Member',
+      last_name: 'Walker',
+      about: 'Hi',
+      email: 'p1@indieco.test',
+      isAdmin: true,
+      password_hash: '$2a$06$not-a-real-hash',
+      discord_id: '123',
+      avatar: 'https://cdn.test/thumb_a.png',
+    };
+    expect(await isAuthenticated(await requestAs(legacy))).toEqual({
+      id: 'p1',
+      username: 'member',
+      first_name: 'Member',
+      email: 'p1@indieco.test',
+      isAdmin: true,
+      avatar: 'https://cdn.test/thumb_a.png',
+    });
   });
 
   it('signs out a session whose user was deleted', async () => {
@@ -53,6 +78,6 @@ describe('isAuthenticated', () => {
   it('sends users without an email to /welcome, except on /welcome itself', async () => {
     const user = { id: 'p1', email: null };
     expect(await redirectOf(isAuthenticated(await requestAs(user, '/games')))).toBe('/welcome');
-    expect(await isAuthenticated(await requestAs(user, '/welcome'))).toEqual(user);
+    expect(await isAuthenticated(await requestAs(user, '/welcome'))).toMatchObject(user);
   });
 });

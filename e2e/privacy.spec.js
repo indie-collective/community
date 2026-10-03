@@ -72,3 +72,31 @@ test('change history does not expose authors’ private fields', async ({ page, 
 });
 
 test.afterAll(() => db.$disconnect());
+
+// The session cookie is signed, not encrypted: anyone holding it can read it.
+// It must hold only the minimal session user (#180), whichever way it's written.
+const SESSION_KEYS = ['avatar', 'email', 'first_name', 'id', 'isAdmin', 'username'];
+
+async function sessionUserKeys(page) {
+  const cookie = (await page.context().cookies()).find(({ name }) => name === '_session');
+  const value = decodeURIComponent(cookie.value);
+  const payload = value.slice(0, value.lastIndexOf('.'));
+  const session = JSON.parse(decodeURIComponent(escape(Buffer.from(payload, 'base64').toString('binary'))));
+  return Object.keys(session.user).sort();
+}
+
+test('the session cookie holds only the minimal session user', async ({ page }) => {
+  await page.goto('/signin');
+  await page.getByLabel(/email/i).fill(MEMBER);
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+  await expect(page).toHaveURL('/');
+  expect(await sessionUserKeys(page)).toEqual(SESSION_KEYS);
+
+  // Saving the profile rewrites the session user.
+  await page.goto('/profile/edit');
+  await page.getByLabel(/last name/i).fill('Walker');
+  await page.getByLabel(/about/i).fill('Edited by the end-to-end tests.');
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page).toHaveURL('/profile');
+  expect(await sessionUserKeys(page)).toEqual(SESSION_KEYS);
+});
