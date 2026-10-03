@@ -12,6 +12,24 @@ for (const path of pages) {
   });
 }
 
+// #224: the filter's tags were clickable spans, out of reach of the keyboard.
+test('the games tag filter works with the keyboard', async ({ page }) => {
+  await page.goto('/games');
+  const tag = page.getByRole('group', { name: 'Filter by tag' }).getByRole('button').first();
+  await expect(tag).toHaveAttribute('aria-pressed', 'false');
+  const name = (await tag.innerText()).split('\n')[0].trim();
+
+  await tag.focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(new RegExp(`tags=${encodeURIComponent(name).replace(/%20/g, '(\\+|%20)')}`, 'i'));
+  await expect(tag).toHaveAttribute('aria-pressed', 'true');
+
+  await tag.focus();
+  await page.keyboard.press('Space');
+  await expect(tag).toHaveAttribute('aria-pressed', 'false');
+  await expect(page).not.toHaveURL(/tags=/);
+});
+
 test('unknown pages show the 404 inside the site layout', async ({ page }) => {
   const response = await page.goto('/this-page-does-not-exist');
   expect(response.status()).toBe(404);
