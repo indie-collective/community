@@ -36,6 +36,7 @@ import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
+import { ogUrl } from '../utils/meta';
 
 const TYPES_COLORS = {
   studio: 'yellow',
@@ -136,17 +137,14 @@ export const loader = async ({ request, params }) => {
   };
 };
 
-export const meta = ({ data, location }) =>
+export const meta = ({ data, matches }) =>
   data?.org
     ? [
         { title: data.org.name },
         { name: 'description', content: `${data.org.about}.` },
         { property: 'og:title', content: data.org.name },
         { property: 'og:description', content: `${data.org.about}.` },
-        {
-          property: 'og:url',
-          content: `${location.protocol}://${location.host}/org/${data.org.id}`,
-        },
+        ...ogUrl(matches, `/org/${data.org.id}`),
         { property: 'og:image', content: data.org.logo?.thumbnail_url },
         { name: 'twitter:card', content: 'summary' },
         { name: 'twitter:title', content: data.org.name },

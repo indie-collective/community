@@ -50,6 +50,7 @@ import { SearchGameModal } from './search-game';
 // Named, not default: React Router wraps a route module's default export and
 // drops the props passed to it here.
 import { SearchOrgModal } from './search-org';
+import { ogUrl } from '../utils/meta';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -151,7 +152,7 @@ export const loader = async ({ request, params }) => {
   return data;
 };
 
-export const meta = ({ data, location }) => {
+export const meta = ({ data, matches }) => {
   if (!data?.event)
     return [
       {
@@ -190,10 +191,7 @@ export const meta = ({ data, location }) => {
       property: 'og:description',
       content: description,
     },
-    {
-      property: 'og:url',
-      content: `${location.protocol}://${location.host}/org/${event.id}`,
-    },
+    ...ogUrl(matches, `/event/${event.id}`),
     {
       property: 'og:image',
       content: event.cover?.thumbnail_url,

@@ -36,6 +36,7 @@ import { SearchOrgModal } from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
+import { ogUrl } from '../utils/meta';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -93,7 +94,7 @@ export const loader = async ({ request, params }) => {
   return data;
 };
 
-export const meta = ({ data, location }) => {
+export const meta = ({ data, matches }) => {
   if (!data?.game)
     return [
       {
@@ -113,10 +114,7 @@ export const meta = ({ data, location }) => {
       property: 'og:description',
       content: `${game.about}.`,
     },
-    {
-      property: 'og:url',
-      content: `${location.protocol}://${location.host}/game/${game.id}`,
-    },
+    ...ogUrl(matches, `/game/${game.id}`),
     {
       property: 'og:image',
       content: game.game_image[0]?.image.thumbnail_url,
