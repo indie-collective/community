@@ -8,12 +8,11 @@ import {
   Button,
   useDisclosure,
   IconButton,
-  Tag,
-  Link as ChakraLink,
   List,
   Flex,
   Dialog,
   Portal,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
 import { LuPlus, LuPencil, LuExternalLink } from 'react-icons/lu';
 
@@ -36,6 +35,7 @@ import { SearchOrgModal } from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
+import TagList from '../components/TagList';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -213,29 +213,8 @@ const Game = () => {
           />
         </Box>
 
-        {tags && (
-          <Box
-            ml="3px"
-            mt="5px"
-            fontWeight="semibold"
-            letterSpacing="wide"
-            textTransform="uppercase"
-          >
-            {tags.map((tag) => (
-              <Link key={tag.id} to={`/games?tags=${tag.name}`}>
-                <Tag.Root
-                  mr={1}
-                  size="md"
-                  colorPalette="green"
-                  variant="solid"
-                  fontSize="0.8rem"
-                  _hover={{ opacity: 0.8 }}
-                >
-                  {tag.name}
-                </Tag.Root>
-              </Link>
-            ))}
-          </Box>
+        {tags?.length > 0 && (
+          <TagList tags={tags} size="md" fontSize="0.8rem" linked ml="3px" mt="5px" />
         )}
 
         {about && (
