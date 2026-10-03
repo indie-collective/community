@@ -1,5 +1,5 @@
-import { Box, Heading, LinkBox, LinkOverlay, SimpleGrid, Stack, Text } from '@chakra-ui/react';
-import { data, redirect, Link, useLoaderData  } from 'react-router';
+import { Box, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/react';
+import { redirect, useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
 import countryNames from '../assets/countries.json';
@@ -16,38 +16,30 @@ export const loader = async ({ params }) => {
 
   // fetch country data and use right locale
 
-  await db.$queryRaw`select city as name, count(e.id)::int from location l left join entity e on l.id = e.location_id where country_code = ${params.code.toUpperCase()} group by city order by count desc limit 10`;
+  const cities = await db.$queryRaw`select city as name, count(e.id)::int from location l left join entity e on l.id = e.location_id where country_code = ${countryCode} and city is not null group by city order by count desc limit 10`;
 
-  // country does not exist
-  if (cities.length === 0) {
-    return new data(
-      {
-        error: 'Country not found',
-      },
-      { status: 404 }
-    );
+  // country does not exist, or has no places yet
+  if (cities.length === 0 || !countryNames[countryCode]) {
+    throw new Response('Not Found', { status: 404 });
   }
 
-  console.log(cities);
-
-  const data = {
+  return {
     country: {
       code: countryCode,
       name: countryNames[countryCode],
       cities,
     },
   };
-
-  return data;
 };
 
-export const meta = ({
-  data: {
-    country
-  }
-}) => [{
-  title: `${country.name} | Indie Collective - Community powered video game data`
-}];
+export const meta = ({ data }) =>
+  data?.country
+    ? [
+        {
+          title: `${data.country.name} | Indie Collective - Community powered video game data`,
+        },
+      ]
+    : [{ title: 'Country not found' }];
 
 const CountriesPage = () => {
   const { country } = useLoaderData();
@@ -64,9 +56,10 @@ const CountriesPage = () => {
         columns={{ base: 4, sm: 5, md: 6 }}
         gap={{ base: '5', md: '6' }}
       >
-        {country.cities.map(({ code, name, count }) => (
-          <LinkBox
-            key={code}
+        {/* No per-city page exists yet, so cities aren't links. */}
+        {country.cities.map(({ name, count }) => (
+          <Box
+            key={name}
             px={{ base: '4', md: '6' }}
             py={{ base: '5', md: '6' }}
             bg="bg-surface"
@@ -74,13 +67,11 @@ const CountriesPage = () => {
             border="1px solid"
           >
             <Stack>
-              <LinkOverlay asChild><Link to={`/city/${name.toLowerCase()}`}>
-                  <Text fontSize="sm">{name}</Text>
-                </Link></LinkOverlay>
+              <Text fontSize="sm">{name}</Text>
               <Heading size={{ base: 'md', md: 'lg' }}>{count}</Heading>
-              <Text>stuctures</Text>
+              <Text>{count === 1 ? 'structure' : 'structures'}</Text>
             </Stack>
-          </LinkBox>
+          </Box>
         ))}
       </SimpleGrid>
     </Box>
