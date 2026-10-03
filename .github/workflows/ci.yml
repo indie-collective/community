@@ -20,6 +20,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Don't rely on @prisma/client's install hook: it sometimes leaves no
+      # generated client, and seeding then fails with "did not initialize yet".
+      - run: npx prisma generate
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:unit
@@ -56,6 +59,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Don't rely on @prisma/client's install hook: it sometimes leaves no
+      # generated client, and seeding then fails with "did not initialize yet".
+      - run: npx prisma generate
       - run: npx playwright install --with-deps chromium
       - run: npx prisma migrate deploy
       - run: node prisma/seed.js
