@@ -13,28 +13,47 @@ import {
   Center,
   Spinner,
   Presence,
+  Input,
+  InputGroup,
+  NativeSelect,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
 import {
-  Form,
   Link,
   useFetcher,
   useLoaderData,
   useSearchParams,
 } from 'react-router';
-import { LuPlus } from 'react-icons/lu';
+import { LuPlus, LuSearch } from 'react-icons/lu';
 
 import { db } from '../utils/db.server';
 import computeGame from '../models/game';
 import GameCard from '../components/GameCard';
+import useDebounce from '../hooks/useDebounce';
+
+// The sort options: user input picks one by name, never reaches Prisma.
+const SORTS = {
+  updated: { label: 'Recently updated', orderBy: { updated_at: 'desc' } },
+  newest: { label: 'Recently added', orderBy: { created_at: 'desc' } },
+  name: { label: 'Name (A–Z)', orderBy: { name: 'asc' } },
+};
+const DEFAULT_SORT = 'updated';
 
 export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
   const page = Number(searchParams.get('page') || '1');
   const selectedTags = searchParams.getAll('tags');
+  const q = searchParams.get('q')?.trim() || null;
+  const sort = SORTS[searchParams.get('sort')] ? searchParams.get('sort') : DEFAULT_SORT;
 
   const where = {
     deleted: false,
+    ...(q && {
+      OR: [
+        { name: { contains: q, mode: 'insensitive' } },
+        { about: { contains: q, mode: 'insensitive' } },
+      ],
+    }),
     ...(selectedTags.length > 0 && {
       AND: selectedTags.map((tag) => ({
         game_tag: {
@@ -77,7 +96,8 @@ export const loader = async ({ request }) => {
     }),
     db.game.findMany({
       where,
-      orderBy: { updated_at: 'desc' },
+      // id last, so pages don't overlap when sorted values tie.
+      orderBy: [SORTS[sort].orderBy, { id: 'asc' }],
       skip: (page - 1) * 10,
       take: 10,
       include: {
@@ -103,6 +123,8 @@ export const loader = async ({ request }) => {
   const data = {
     tags,
     games: await Promise.all(games.map(computeGame)),
+    q: q ?? '',
+    sort,
   };
 
   return data;
@@ -115,10 +137,33 @@ export const meta = () => [
 ];
 
 const Games = () => {
-  const { games: initialGames, tags } = useLoaderData();
+  const { games: initialGames, tags, q, sort } = useLoaderData();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const selectedTags = searchParams.getAll('tags');
+
+  // Change some parameters and keep the others (search, sort, tags).
+  const updateParams = useCallback(
+    (changes, options) =>
+      setSearchParams((params) => {
+        const next = new URLSearchParams(params);
+        next.delete('page');
+        for (const [key, value] of Object.entries(changes)) {
+          next.delete(key);
+          for (const v of [].concat(value ?? [])) if (v !== '') next.append(key, v);
+        }
+        return next;
+      }, options),
+    [setSearchParams]
+  );
+
+  const [query, setQuery] = useState(q);
+  // Follow the URL when it changes elsewhere (back button, links).
+  useEffect(() => setQuery(q), [q]);
+  const debouncedQuery = useDebounce(query, 300);
+  useEffect(() => {
+    if (debouncedQuery.trim() !== q) updateParams({ q: debouncedQuery.trim() }, { replace: true });
+  }, [debouncedQuery]);
 
   const [games, setGames] = useState(initialGames);
   const fetcher = useFetcher();
@@ -194,38 +239,69 @@ const Games = () => {
 
   return (
     <Box p={5} ref={divHeight}>
-      <Wrap gap={2} mb={10} align="flex-end" method="get" asChild>
-        <Form>
-          {tags.slice(0, 30).map((tag) => (
+      <Flex gap={3} mb={5} wrap="wrap" align="center">
+        <InputGroup startElement={<LuSearch />} maxW="320px" flex="1 1 220px">
+          <Input
+            type="search"
+            aria-label="Search games"
+            placeholder="Search games"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </InputGroup>
+        <NativeSelect.Root size="md" width="auto">
+          <NativeSelect.Field
+            aria-label="Sort by"
+            value={sort}
+            onChange={(event) => updateParams({ sort: event.target.value === 'updated' ? '' : event.target.value })}
+          >
+            {Object.entries(SORTS).map(([value, { label }]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      </Flex>
+      <Wrap gap={2} mb={10} align="flex-end" role="group" aria-label="Filter by tag">
+        {tags.slice(0, 30).map((tag) => {
+          const selected = selectedTags.includes(tag.name);
+          return (
             <WrapItem key={tag.id}>
+              {/* A real toggle button, so the filter works with the keyboard (#224). */}
               <Tag.Root
+                asChild
                 size="lg"
                 variant="solid"
-                colorPalette={
-                  selectedTags.includes(tag.name) ? 'green' : 'gray'
-                }
+                colorPalette={selected ? 'green' : 'gray'}
                 // v3's solid gray is near-black; v2's unselected chips were gray.500.
-                {...(!selectedTags.includes(tag.name) && {
+                {...(!selected && {
                   bg: 'gray.500',
                   color: 'white',
                 })}
                 cursor="pointer"
-                onClick={() =>
-                  setSearchParams({
-                    tags: selectedTags.includes(tag.name)
-                      ? selectedTags.filter((t) => t !== tag.name)
-                      : [...selectedTags, tag.name],
-                  })
-                }
               >
-                <Tag.Label>{tag.name}</Tag.Label>
-                <Badge variant="subtle" ml={1}>
-                  {tag.game_tag.length}
-                </Badge>
+                <button
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() =>
+                    updateParams({
+                      tags: selected
+                        ? selectedTags.filter((t) => t !== tag.name)
+                        : [...selectedTags, tag.name],
+                    })
+                  }
+                >
+                  <Tag.Label>{tag.name}</Tag.Label>
+                  <Badge variant="subtle" ml={1}>
+                    {tag.game_tag.length}
+                  </Badge>
+                </button>
               </Tag.Root>
             </WrapItem>
-          ))}
-        </Form>
+          );
+        })}
       </Wrap>
       <Grid
         gap={5}
