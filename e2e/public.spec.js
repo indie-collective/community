@@ -12,6 +12,23 @@ for (const path of pages) {
   });
 }
 
+// #175: the loader discarded its query result, so every country page was a 500.
+test('country pages render their cities, and unknown countries are a 404', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/countries');
+  const href = await page.locator('a[href^="/country/"]').first().getAttribute('href');
+
+  const response = await page.goto(href, { waitUntil: 'networkidle' });
+  expect(response.status()).toBe(200);
+  await expect(page.getByRole('heading', { name: 'Most vibrant cities' })).toBeVisible();
+  await expect(page.getByText(/structures?$/).first()).toBeVisible();
+  expect(errors).toEqual([]);
+
+  const unknown = await page.goto('/country/zz');
+  expect(unknown.status()).toBe(404);
+  await expect(page.getByText('Not Found')).toBeVisible();
+});
+
 test('unknown pages show the 404 inside the site layout', async ({ page }) => {
   const response = await page.goto('/this-page-does-not-exist');
   expect(response.status()).toBe(404);
