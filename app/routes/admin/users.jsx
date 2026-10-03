@@ -20,9 +20,7 @@ import computePerson from '../../models/person';
 import { Tooltip } from '../../components/ui/tooltip';
 
 export const action = async ({ request }) => {
-  const currentUser = await isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   if (!currentUser.isAdmin) {
     throw new Response('Forbidden', {
@@ -45,9 +43,7 @@ export const action = async ({ request }) => {
 };
 
 export const loader = async ({ request }) => {
-  const currentUser = await isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   if (!currentUser.isAdmin) {
     throw new Response('Not Found', {

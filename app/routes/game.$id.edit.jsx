@@ -17,9 +17,7 @@ const uuidRegex =
 export const loader = async ({ request, params }) => {
   const { id } = params;
 
-  const currentUser = await isAuthenticated(request, {
-    failureRedirect: `/signin?redirect=/games/${id}/edit`,
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   if (!uuidRegex.test(id))
     throw new Response('Not Found', {

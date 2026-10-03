@@ -11,7 +11,7 @@ import {
   Icon,
 } from '@chakra-ui/react';
 
-import { Form, redirect, useActionData, useNavigation } from 'react-router';
+import { Form, redirect, useActionData, useNavigation, useSearchParams } from 'react-router';
 import { SocialsProvider } from 'remix-auth-socials';
 import { FaDiscord } from 'react-icons/fa6';
 
@@ -20,11 +20,15 @@ import isAuthenticated from '../utils/isAuthenticated.server';
 import { commitSession, getSession } from '../utils/session.server';
 import toSessionUser from '../utils/sessionUser.server';
 import SigninForm from '../components/SigninForm';
+import { safeRedirectPath } from '../utils/safeRedirect';
+
+// Where to go after signing in: the page that required it (#178).
+const prevOf = (request) => safeRedirectPath(new URL(request.url).searchParams.get('prev'));
 
 export let loader = async ({ request }) => {
   const user = await isAuthenticated(request);
 
-  if (user) return redirect('/');
+  if (user) return redirect(prevOf(request));
 };
 
 export let action = async ({ request }) => {
@@ -35,7 +39,7 @@ export let action = async ({ request }) => {
 
     session.set('user', toSessionUser(user));
 
-    return redirect('/', {
+    return redirect(prevOf(request), {
       headers: {
         'Set-Cookie': await commitSession(session),
       },
@@ -58,6 +62,8 @@ export const meta = () => [
 const SignIn = () => {
   const navigation = useNavigation();
   const actionData = useActionData();
+  const [searchParams] = useSearchParams();
+  const prev = searchParams.get('prev');
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -65,6 +71,7 @@ const SignIn = () => {
         Sign in
       </Heading>
       <Form action={`/auth/${SocialsProvider.DISCORD}`} method="post">
+        {prev && <input type="hidden" name="prev" value={prev} />}
         <Button
           type="submit"
           colorPalette={SocialsProvider.DISCORD}

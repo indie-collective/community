@@ -6,9 +6,7 @@ import isAuthenticated from '../utils/isAuthenticated.server'
 export async function action({ params, request }) {
   const { id } = params;
 
-  const user = await isAuthenticated(request, {
-    failureRedirect: '/signin',
-  });
+  const user = await isAuthenticated(request, true);
 
   await db.event_participant.upsert({
     where: {

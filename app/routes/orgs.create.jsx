@@ -78,11 +78,9 @@ export async function action(args) {
 }
 
 export const loader = async ({ request }) => {
-  const { pathname, search, searchParams } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
 
-  const currentUser = await isAuthenticated(request, {
-    failureRedirect: `/signin?redirect=${pathname}?${search}`,
-  });
+  const currentUser = await isAuthenticated(request, true);
 
   return {
     values: {
