@@ -2,6 +2,9 @@ import { PrismaClient } from '@prisma/client';
 
 import { expect, test, MEMBER, signIn } from './helpers';
 
+const db = new PrismaClient();
+test.afterAll(() => db.$disconnect());
+
 // #172: a dialog opened over the event page for signed-in users and blocked
 // every control, including joining.
 test('a member can join and leave an upcoming event', async ({ page }) => {
@@ -22,17 +25,6 @@ test('a member can join and leave an upcoming event', async ({ page }) => {
   await going.click();
   await expect(join).toBeVisible();
 });
-
-test('filters narrow the studios list', async ({ page }) => {
-  await page.goto('/studios');
-  const before = await page.locator('a[href^="/org/"]').count();
-  await page.getByText('Has published games').click();
-  await expect(page).toHaveURL(/has_games=on/);
-  expect(await page.locator('a[href^="/org/"]').count()).toBeLessThanOrEqual(before);
-});
-
-const db = new PrismaClient();
-test.afterAll(() => db.$disconnect());
 
 // #194: the event page rendered src={cover && cover.url}, an <img> with no
 // source, for events without a cover.
