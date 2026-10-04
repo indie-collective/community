@@ -8,6 +8,7 @@ import { authorizer, canWrite } from '../utils/auth.server';
 import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
 import OrgForm from '../components/OrgForm';
+import { checkBlueskyHandle } from '../utils/bluesky.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -70,6 +71,14 @@ export async function action(args) {
     longitude: parseFloat(data.get('longitude')) || null,
   };
 
+  // Checked before the update, so the form shows why it failed (#161).
+  let bsky_handle;
+  try {
+    bsky_handle = await checkBlueskyHandle(data.get('bsky_handle'));
+  } catch (err) {
+    return { error: err.message, values: Object.fromEntries(data) };
+  }
+
   try {
     const [, igdb_slug] =
       (data.get('igdb_url') || '').match(/companies\/(.+)/) || [];
@@ -81,6 +90,7 @@ export async function action(args) {
         lastModifiedById: currentUser.id,
         type: data.get('type').toLowerCase(),
         site: data.get('site'),
+        bsky_handle,
         about: data.get('about'),
         // igdb_slug,
         location: Object.values(location).some((l) => l !== null)

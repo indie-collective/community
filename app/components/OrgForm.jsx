@@ -61,6 +61,7 @@ const propTypes = {
       longitude: PropTypes.number.isRequired,
     }),
     site: PropTypes.string,
+    bsky_handle: PropTypes.string,
     about: PropTypes.string,
   }),
 };
@@ -71,7 +72,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
   const logoRef = useRef();
   const [logo, setLogo] = useState(defaultData.logo);
 
-  const { id, type = 'studio', name, location: l, site, about } = defaultData;
+  const { id, type = 'studio', name, location: l, site, bsky_handle, about } = defaultData;
   const {
     handleSubmit,
     register,
@@ -95,6 +96,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
         value: l || null,
       },
       site,
+      bsky_handle: bsky_handle ?? '',
       about,
     },
   });
@@ -253,6 +255,11 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
           <Field.ErrorText>
             {errors.site && errors.site.message}
           </Field.ErrorText>
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3">
+          <Field.Label>Bluesky handle</Field.Label>
+          <Input {...register('bsky_handle')} placeholder="studio.bsky.social" />
+          <Field.HelperText>Checked with Bluesky when you save.</Field.HelperText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.about}>
           <Field.Label>About</Field.Label>
