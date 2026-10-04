@@ -34,7 +34,7 @@
     "discord.js": "^14.18.0",
     "enquire.js": "^2.1.6",
     "globals": "^17.6.0",
-    "igdb-api-node": "^5.0.1",
+    "igdb-api-node": "^6.0.5",
     "jimp": "^1.6.1",
     "lodash.debounce": "^4.0.8",
     "memoize-one": "^6.0.0",
