@@ -35,7 +35,6 @@ import { SearchOrgModal } from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
-import { ogUrl } from '../utils/meta';
 import TagList from '../components/TagList';
 import { formatEventRange } from '../utils/eventTime';
 import { pageMeta, summarize } from '../utils/meta';
