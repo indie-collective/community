@@ -25,7 +25,7 @@ We start on the free plans. These limits shape the code:
 
 Discord sign-in goes at the cutover. Bluesky (AT Protocol OAuth, already proven on Workers in the `chore/atproto-oauth-spike` branch) replaces it, with OAuth state and sessions in D1. The OAuth client ID is a URL, so it's configured per hostname (`workers.dev` while testing, then the real domain).
 
-**Roles are stored in the database** (#153, option 1). Discord membership no longer decides who can edit; admins grant rights from `/admin/users`. **YoruNoHikage and engleek stay admins.** At the cutover their accounts (and the four other existing people) are linked to their Bluesky identities through a new `did` column. The session secret comes from a Worker secret instead of the hard-coded value, so everyone signs in again once. New-member notifications keep going to Discord, since they're only a webhook call.
+**Roles are stored in the database** (#153, option 1). Discord membership no longer decides who can edit; admins grant rights from `/admin/users`. **YoruNoHikage and engleek stay admins.** At the cutover their accounts (and the four other existing people) are linked to their Bluesky identities through a new `did` column. The session secret (`SESSION_SECRET`) becomes a Worker secret. Sessions change with the sign-in method, so everyone signs in again once. New-member notifications keep going to Discord, since they're only a webhook call.
 
 ## Images: R2 with pre-generated thumbnails
 
