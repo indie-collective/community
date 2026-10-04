@@ -15,6 +15,7 @@ import countryNames from '../assets/countries.json';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Card from './Card';
 import CardLink from './CardLink';
+import { formatEventDate } from '../utils/eventTime';
 
 function EventCard({
   ref,
@@ -27,15 +28,12 @@ function EventCard({
   event_participant,
   starts_at: startsAt,
   ends_at: endsAt,
+  time_zone: timeZone,
 }) {
   const placeholder = usePlaceholder();
 
-  const startsAtText = new Date(startsAt).toLocaleString(undefined, {
-    day: 'numeric',
-    month: 'short',
-    hour: 'numeric',
-    minute: 'numeric',
-  });
+  // In the event's own time zone, identical on server and browser (#204).
+  const startsAtText = formatEventDate(startsAt, timeZone);
 
   return (
     <Card
@@ -85,7 +83,7 @@ function EventCard({
             <LuCalendar />
           </Icon>
           <Box asChild lineClamp={1} ml={1}>
-            <time dateTime={startsAt}>{startsAtText}</time>
+            <time dateTime={startsAt && new Date(startsAt).toISOString()}>{startsAtText}</time>
           </Box>
         </Flex>
 

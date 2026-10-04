@@ -9,6 +9,8 @@ import { notifyDiscord } from '../utils/discordNotification.server';
 import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
 import EventForm from '../components/EventForm';
+import { zonedInputToDate } from '../utils/eventTime';
+import { timeZoneAt } from '../utils/timeZone.server';
 
 export async function action(args) {
   const { request } = args;
@@ -27,14 +29,17 @@ export async function action(args) {
     latitude: parseFloat(data.get('latitude')) || null,
     longitude: parseFloat(data.get('longitude')) || null,
   };
+  // Times are entered as wall-clock time where the event happens (#204).
+  const timeZone = timeZoneAt(location.latitude, location.longitude);
 
   try {
     const event = await db.event.create({
       data: {
         name: data.get('name'),
         status: data.get('canceled') ? 'canceled' : 'ongoing',
-        starts_at: new Date(data.get('start')),
-        ends_at: new Date(data.get('end')),
+        time_zone: timeZone,
+        starts_at: zonedInputToDate(data.get('start'), timeZone),
+        ends_at: zonedInputToDate(data.get('end'), timeZone),
         about: data.get('about'),
         site: data.get('site'),
         cover: data.get('cover')

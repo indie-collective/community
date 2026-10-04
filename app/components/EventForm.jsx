@@ -18,12 +18,12 @@ import {
 import { LuPencil } from 'react-icons/lu';
 import TileMap from './TileMap';
 import { viewport } from '@mapbox/geo-viewport';
-import { format } from 'date-fns';
 
 import PlacesSearch from './PlacesSearch';
 import usePlaceholder from '../hooks/usePlaceholder';
 import useMergeRefs from '../hooks/useMergeRefs';
 import { Form, useSubmit } from 'react-router';
+import { dateToZonedInput } from '../utils/eventTime';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
@@ -88,6 +88,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
     status,
     starts_at: startsAt,
     ends_at: endsAt,
+    time_zone: timeZone,
     location: l,
     about,
   } = defaultData;
@@ -106,10 +107,9 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
     defaultValues: {
       name,
       canceled: status === 'canceled',
-      start: startsAt
-        ? format(new Date(startsAt), "yyyy-MM-dd'T'HH:mm")
-        : undefined,
-      end: endsAt ? format(new Date(endsAt), "yyyy-MM-dd'T'HH:mm") : undefined,
+      // Wall-clock time where the event happens, as the action reads it (#204).
+      start: startsAt ? dateToZonedInput(startsAt, timeZone) : undefined,
+      end: endsAt ? dateToZonedInput(endsAt, timeZone) : undefined,
       location: {
         label: l
           ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${

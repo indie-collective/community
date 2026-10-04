@@ -37,6 +37,7 @@ import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
 import { ogUrl } from '../utils/meta';
 import TagList from '../components/TagList';
+import { formatEventRange } from '../utils/eventTime';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -170,12 +171,6 @@ const Game = () => {
   const entities = game_entity.map(({ entity }) => entity);
   const events = game_event.map(({ event }) => event);
 
-  const dateTimeFormat = new Intl.DateTimeFormat('en', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-
   const igdb_images = igdb_game
     ? igdb_game.screenshots.map((image) => ({
         external: true,
@@ -305,11 +300,8 @@ const Game = () => {
               <List.Item key={event.key}>
                 <ChakraLink asChild>
                   <Link to={`/event/${event.id}`}>
-                    <time dateTime={event.starts_at + '/' + event.ends_at}>
-                      {dateTimeFormat.formatRange(
-                        new Date(event.starts_at),
-                        new Date(event.ends_at)
-                      )}
+                    <time dateTime={`${new Date(event.starts_at).toISOString()}/${new Date(event.ends_at).toISOString()}`}>
+                      {formatEventRange(event.starts_at, event.ends_at, event.time_zone, { time: false })}
                     </time>
                     . {event.name}
                   </Link>
