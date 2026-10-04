@@ -8,13 +8,13 @@ import {
   Text,
   Heading,
   Skeleton,
-  Tag,
 } from '@chakra-ui/react';
 import { LuTrash2 } from 'react-icons/lu';
 
 import usePlaceholder from '../hooks/usePlaceholder';
 import Card from './Card';
 import CardLink from './CardLink';
+import TagList from './TagList';
 
 export const GameCardSkeleton = () => (
   <Box>
@@ -144,27 +144,7 @@ function GameCard({
           <CardLink to={`/game/${id}`}>{name}</CardLink>
         </Heading>
       </Box>
-      {tags && (
-        <Box
-          ml="3px"
-          fontWeight="semibold"
-          letterSpacing="wide"
-          textTransform="uppercase"
-        >
-          {tags.map((tag) => (
-            <Tag.Root
-              key={tag.id}
-              mr={1}
-              size="sm"
-              colorPalette="green"
-              variant="solid"
-              fontSize="0.6rem"
-            >
-              {tag.name}
-            </Tag.Root>
-          ))}
-        </Box>
-      )}
+      {tags?.length > 0 && <TagList tags={tags} ml="3px" />}
     </Card>
   );
 }
