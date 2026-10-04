@@ -44,13 +44,8 @@ export const loader = async ({ request }) => {
       name: true,
     },
     where: {
-      AND: {
-        game_author: {
-          none: {},
-        },
-        game_entity: {
-          none: {},
-        },
+      game_entity: {
+        none: {},
       },
     },
     orderBy: {

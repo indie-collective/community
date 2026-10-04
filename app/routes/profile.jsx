@@ -13,7 +13,7 @@ import {
   Icon,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { FaDiscord, FaGithub, FaMoon, FaSun } from 'react-icons/fa6';
+import { FaDiscord, FaMoon, FaSun } from 'react-icons/fa6';
 import { LuPencil, LuLink } from 'react-icons/lu';
 import { Form, Link, useLoaderData, useSearchParams } from 'react-router';
 
@@ -38,7 +38,6 @@ export const loader = async ({ request }) => {
       about: true,
       avatar: true,
       discord_id: true,
-      github_id: true,
     },
   });
 
@@ -88,7 +87,6 @@ const Profile = () => {
     about,
     avatar,
     discord_url,
-    github_url,
   } = currentUser;
 
   return (
@@ -147,27 +145,6 @@ const Profile = () => {
                 provider="discord"
                 icon={<FaDiscord />}
                 name="Discord"
-              />
-            )}
-            {github_url ? (
-              <IconButton
-                aria-label="GitHub"
-                colorPalette="github"
-                asChild
-              >
-                <ChakraLink
-                  href={github_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaGithub />
-                </ChakraLink>
-              </IconButton>
-            ) : (
-              <LinkSocialButton
-                provider="github"
-                icon={<FaGithub />}
-                name="GitHub"
               />
             )}
           </ButtonGroup>
