@@ -12,6 +12,8 @@ datasource db {
 model entity {
   id            String          @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
   type          entity_type?
+  /// #39: whether the organisation is still active.
+  status        entity_status   @default(active)
   name          String
   about         String?
   location_id   String?         @db.Uuid
@@ -23,9 +25,11 @@ model entity {
   location      location?       @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   logo          image?          @relation(fields: [logo_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   entity_event  entity_event[]
-  entity_image  entity_image[]
-  entity_member entity_member[]
   game_entity   game_entity[]
+
+  @@index([location_id])
+  @@index([logo_id])
+  @@index([type])
 }
 
 model entity_event {
@@ -37,29 +41,10 @@ model entity_event {
   event      event     @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([entity_id, event_id])
+  @@index([event_id])
 }
 
-model entity_image {
-  entity_id  String    @db.Uuid
-  image_id   String    @db.Uuid
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @updatedAt
-  entity     entity    @relation(fields: [entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  image      image     @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@id([entity_id, image_id])
-}
-
-model entity_member {
-  entity_id  String    @db.Uuid
-  person_id  String    @db.Uuid
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @updatedAt
-  entity     entity    @relation(fields: [entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "team_member_entity_id_fkey")
-  person     person    @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "team_member_person_id_fkey")
-
-  @@id([entity_id, person_id])
-}
 
 model event {
   id                String              @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
@@ -79,6 +64,10 @@ model event {
   entity_event      entity_event[]
   event_participant event_participant[]
   game_event        game_event[]
+
+  @@index([location_id])
+  @@index([cover_id])
+  @@index([starts_at])
 }
 
 model event_participant {
@@ -89,6 +78,7 @@ model event_participant {
   person    person    @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([event_id, person_id])
+  @@index([person_id])
 }
 
 model game {
@@ -96,17 +86,17 @@ model game {
   name        String
   about       String?
   site        String?
-  tag_list    String[]      @db.VarChar(30)
   created_at  DateTime?     @default(now()) @db.Timestamptz(6)
   updated_at  DateTime?     @updatedAt
   igdb_slug   String?       @unique
   lastModifiedById String? @db.Uuid
-  game_author game_author[]
   game_entity game_entity[]
   game_event  game_event[]
   game_image  game_image[]
   game_tag    game_tag[]
   deleted     Boolean       @default(false)
+
+  @@index([deleted])
 }
 
 model change {
@@ -118,40 +108,35 @@ model change {
   created_at DateTime?      @default(now()) @db.Timestamptz(6)
   author_id  String?        @db.Uuid
   author     person?        @relation(fields: [author_id], references: [id])
+
+  @@index([table_name, record_id])
 }
 
-model game_author {
-  game_id    String    @db.Uuid
-  person_id  String    @db.Uuid
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @updatedAt
-  game       game      @relation(fields: [game_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  person     person    @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([game_id, person_id])
-}
 
 model game_entity {
   game_id    String    @db.Uuid
   entity_id  String    @db.Uuid
+  /// #40: how the organisation took part in the game.
+  role       game_entity_role @default(developer)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   updated_at DateTime? @updatedAt
   entity     entity    @relation(fields: [entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   game       game      @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([game_id, entity_id])
+  @@index([entity_id])
 }
 
 model game_event {
   game_id    String    @db.Uuid
   event_id   String    @db.Uuid
-  tags       String[]  @db.VarChar(100)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   updated_at DateTime? @updatedAt
   event      event     @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   game       game      @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([game_id, event_id])
+  @@index([event_id])
 }
 
 model game_image {
@@ -163,6 +148,7 @@ model game_image {
   image      image     @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([game_id, image_id])
+  @@index([image_id])
 }
 
 model game_tag {
@@ -174,6 +160,7 @@ model game_tag {
   tag        tag       @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([game_id, tag_id])
+  @@index([tag_id])
 }
 
 model image {
@@ -182,7 +169,6 @@ model image {
   created_at   DateTime?      @default(now()) @db.Timestamptz(6)
   updated_at   DateTime?      @updatedAt
   entity       entity[]
-  entity_image entity_image[]
   event        event[]
   game_image   game_image[]
   person       person[]
@@ -201,6 +187,7 @@ model location {
   event        event[]
 
   @@unique([street, city, region, country_code, latitude, longitude])
+  @@index([country_code])
 }
 
 model person {
@@ -213,27 +200,16 @@ model person {
   avatar_id         String?             @db.Uuid
   discord_id        String?             @unique
   email             String?             @unique
-  github_id         String?             @unique
   isAdmin           Boolean             @default(false)
-  password_hash     String?
-  steam_id          String?             @unique
   username          String              @unique @db.VarChar(30)
   avatar_oauth      String?
   avatar            image?              @relation(fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  entity_member     entity_member[]
   event_participant event_participant[]
-  game_author       game_author[]
   changes           change[]
-  tokens            reset_token[]
+
+  @@index([avatar_id])
 }
 
-model reset_token {
-  id         String    @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
-  person     person    @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  person_id  String    @db.Uuid
-  token      String    @default(dbgenerated("gen_random_uuid()"))
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-}
 
 model tag {
   id         String     @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
@@ -257,4 +233,18 @@ enum entity_type {
 enum event_status {
   ongoing
   canceled
+}
+
+enum entity_status {
+  active
+  closed
+  hiatus
+}
+
+enum game_entity_role {
+  developer
+  co_developer
+  publisher
+  porting
+  support
 }

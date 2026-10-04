@@ -29,7 +29,6 @@
     "@react-router/remix-routes-option-adapter": "^7.14.2",
     "@react-router/serve": "^7.14.2",
     "@remix-run/v1-route-convention": "^0.1.4",
-    "@sendgrid/mail": "^7.7.0",
     "aws-sdk": "^2.780.0",
     "date-fns": "^2.16.1",
     "diff": "^5.1.0",

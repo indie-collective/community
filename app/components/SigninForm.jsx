@@ -7,7 +7,6 @@ import * as yup from 'yup';
 import { Input, Button, Link as ChakraLink, Flex, HStack, Checkbox, Field } from '@chakra-ui/react';
 import { Form, Link, useSearchParams, useSubmit } from 'react-router';
 
-import { PasswordInput } from './PasswordInput';
 
 const validationSchema = yup.object().shape({
   email: yup.string().email().required(),

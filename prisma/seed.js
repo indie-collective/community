@@ -80,7 +80,6 @@ async function main() {
         name: faker.commerce.productName(),
         about: faker.lorem.paragraph(),
         site: faker.internet.url(),
-        tag_list: randomTags.map((tag) => tag.name),
         created_at: createdAt,
         game_tag: {
           create: randomTags.map((tag) => ({
@@ -201,34 +200,12 @@ async function main() {
     locations.push(location);
   }
 
-  // Connect games to people (authors)
-  for (const game of games) {
-    const randomPerson = faker.helpers.arrayElement(people);
-    await prisma.game_author.create({
-      data: {
-        game_id: game.id,
-        person_id: randomPerson.id,
-      },
-    });
-  }
-
   // Connect events to people (participants)
   for (const event of events) {
     const randomPerson = faker.helpers.arrayElement(people);
     await prisma.event_participant.create({
       data: {
         event_id: event.id,
-        person_id: randomPerson.id,
-      },
-    });
-  }
-
-  // Connect entities to people (members)
-  for (const entity of entities) {
-    const randomPerson = faker.helpers.arrayElement(people);
-    await prisma.entity_member.create({
-      data: {
-        entity_id: entity.id,
         person_id: randomPerson.id,
       },
     });
