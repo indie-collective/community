@@ -3,6 +3,7 @@ import { Box, Heading, Text, Stat, StatGroup } from '@chakra-ui/react';
 import { useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
+import { pageMeta } from '../utils/meta';
 
 export const loader = async () => {
   const data = {
@@ -18,30 +19,12 @@ export const loader = async () => {
   return data;
 };
 
-export const meta = () => [{
-  title: 'About'
-}, {
-  name: 'description',
-  content: 'Video game related events around you and all over the world.'
-}, {
-  property: 'og:title',
-  content: 'About'
-}, {
-  property: 'og:description',
-  content: 'Video game related events around you and all over the world.'
-}, {
-  name: 'twitter:card',
-  content: 'summary'
-}, {
-  name: 'twitter:site',
-  content: '@IndieColle'
-}, {
-  name: 'twitter:title',
-  content: 'About'
-}, {
-  name: 'twitter:description',
-  content: 'Video game related events around you and all over the world.'
-}];
+export const meta = ({ matches, location }) =>
+  pageMeta(matches, {
+    title: 'About',
+    description: 'An open-source, crowd-sourced database of indie games, studios, associations and events from all around the world.',
+    path: location.pathname,
+  });
 
 const AboutPage = () => {
   const { gamesCount, entitiesCount, eventsCount } = useLoaderData();

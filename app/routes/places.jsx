@@ -20,6 +20,7 @@ import { Tooltip } from '../components/ui/tooltip';
 import ClusterMap from '../components/ClusterMap';
 import OrgCard from '../components/OrgCard';
 import SwipeableEdgeDrawer from '../components/SwipeableEdgeDrawer';
+import { pageMeta } from '../utils/meta';
 
 const TYPES_COLORS = {
   studio: 'yellow',
@@ -178,46 +179,12 @@ export const loader = async ({ request }) => {
   return data;
 };
 
-export const meta = () => [
-  {
+export const meta = ({ matches, location }) =>
+  pageMeta(matches, {
     title: 'Places',
-  },
-  {
-    name: 'description',
-    content:
-      'Video game related companies and organizations all over the world.',
-  },
-  {
-    property: 'og:title',
-    content: 'Places',
-  },
-  {
-    property: 'og:description',
-    content:
-      'Video game related companies and organizations all over the world.',
-  },
-  {
-    name: 'twitter:card',
-    content: 'summary_large_image',
-  },
-  {
-    name: 'twitter:site',
-    content: '@IndieColle',
-  },
-  {
-    name: 'twitter:title',
-    content: 'Places',
-  },
-  {
-    name: 'twitter:description',
-    content:
-      'Video game related companies and organizations all over the world.',
-  },
-  {
-    name: 'viewport',
-    content: 'width=device-width, initial-scale=1.0',
-  },
-];
+    description: 'Video game studios and associations on a map of the world.',
+    path: location.pathname,
+  });
 
 const Places = () => {
   const containerRef = useRef();

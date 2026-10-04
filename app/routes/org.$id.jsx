@@ -36,7 +36,7 @@ import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
-import { ogUrl } from '../utils/meta';
+import { pageMeta, summarize } from '../utils/meta';
 
 const TYPES_COLORS = {
   studio: 'yellow',
@@ -137,21 +137,19 @@ export const loader = async ({ request, params }) => {
   };
 };
 
-export const meta = ({ data, matches }) =>
-  data?.org
-    ? [
-        { title: data.org.name },
-        { name: 'description', content: `${data.org.about}.` },
-        { property: 'og:title', content: data.org.name },
-        { property: 'og:description', content: `${data.org.about}.` },
-        ...ogUrl(matches, `/org/${data.org.id}`),
-        { property: 'og:image', content: data.org.logo?.thumbnail_url },
-        { name: 'twitter:card', content: 'summary' },
-        { name: 'twitter:title', content: data.org.name },
-        { name: 'twitter:description', content: `${data.org.about}.` },
-        { name: 'twitter:image', content: data.org.logo?.thumbnail_url },
-      ]
-    : [{ title: 'Organization not found!' }];
+export const meta = ({ data, matches }) => {
+  if (!data?.org) return [{ title: 'Organization not found!' }];
+  const { org } = data;
+  // Without an "about", describe it from what we know (#196).
+  const kind = org.type === 'association' ? 'Video game association' : 'Video game studio';
+  const place = [org.location?.city, org.location?.country_code].filter(Boolean).join(', ');
+  return pageMeta(matches, {
+    title: org.name,
+    description: summarize(org.about) || `${kind}${place ? ` in ${place}` : ''}.`,
+    image: org.logo?.thumbnail_url,
+    path: `/org/${org.id}`,
+  });
+};
 
 const Org = () => {
   const navigate = useNavigate();

@@ -50,7 +50,7 @@ import { SearchGameModal } from './search-game';
 // Named, not default: React Router wraps a route module's default export and
 // drops the props passed to it here.
 import { SearchOrgModal } from './search-org';
-import { ogUrl } from '../utils/meta';
+import { pageMeta, summarize } from '../utils/meta';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -176,44 +176,13 @@ export const meta = ({ data, matches }) => {
       l.region
     }, ${l.country_code}`;
   }
-  return [
-    {
-      title: `${event.name} | Events`,
-    },
-    {
-      name: 'description',
-      content: description,
-    },
-    {
-      property: 'og:title',
-      content: event.name,
-    },
-    {
-      property: 'og:description',
-      content: description,
-    },
-    ...ogUrl(matches, `/event/${event.id}`),
-    {
-      property: 'og:image',
-      content: event.cover?.thumbnail_url,
-    },
-    {
-      name: 'twitter:card',
-      content: event.cover ? 'summary_large_image' : 'summary',
-    },
-    {
-      name: 'twitter:title',
-      content: event.name,
-    },
-    {
-      name: 'twitter:description',
-      content: description,
-    },
-    {
-      name: 'twitter:image',
-      content: event.cover?.thumbnail_url,
-    },
-  ];
+  return pageMeta(matches, {
+    title: `${event.name} | Events`,
+    shareTitle: event.name,
+    description: summarize(event.about) || description,
+    image: event.cover?.thumbnail_url,
+    path: `/event/${event.id}`,
+  });
 };
 
 const Event = () => {

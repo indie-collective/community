@@ -36,7 +36,7 @@ import { SearchOrgModal } from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
-import { ogUrl } from '../utils/meta';
+import { pageMeta, summarize } from '../utils/meta';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -102,44 +102,19 @@ export const meta = ({ data, matches }) => {
       },
     ];
   const { game } = data;
-  return [
-    {
-      title: `${game.name} - Games`,
-    },
-    {
-      property: 'og:title',
-      content: game.name,
-    },
-    {
-      property: 'og:description',
-      content: `${game.about}.`,
-    },
-    ...ogUrl(matches, `/game/${game.id}`),
-    {
-      property: 'og:image',
-      content: game.game_image[0]?.image.thumbnail_url,
-    },
-    {
-      name: 'twitter:card',
-      content: game.game_image[0] ? 'summary_large_image' : 'summary',
-    },
-    {
-      name: 'twitter:site',
-      content: '@IndieColle',
-    },
-    {
-      name: 'twitter:title',
-      content: game.name,
-    },
-    {
-      name: 'twitter:description',
-      content: `${game.about}.`,
-    },
-    {
-      name: 'twitter:image',
-      content: game.game_image[0]?.image.thumbnail_url,
-    },
-  ];
+  // Without an "about", describe it from what we know (#196).
+  const studios = (game.entities ?? []).map((entity) => entity?.name).filter(Boolean);
+  const tags = (game.tags ?? []).map((tag) => tag?.name).filter(Boolean);
+  const generated = [`Indie game${studios.length ? ` by ${studios.join(', ')}` : ''}`, tags.length ? `tagged ${tags.join(', ')}` : '']
+    .filter(Boolean)
+    .join(', ');
+  return pageMeta(matches, {
+    title: `${game.name} - Games`,
+    shareTitle: game.name,
+    description: summarize(game.about) || `${generated}.`,
+    image: game.game_image?.[0]?.image?.thumbnail_url,
+    path: `/game/${game.id}`,
+  });
 };
 
 const Game = () => {

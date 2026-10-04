@@ -3,6 +3,7 @@ import { redirect, useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
 import countryNames from '../assets/countries.json';
+import { pageMeta } from '../utils/meta';
 
 export const loader = async ({ params }) => {
   if (!params.code) {
@@ -32,13 +33,13 @@ export const loader = async ({ params }) => {
   };
 };
 
-export const meta = ({ data }) =>
+export const meta = ({ data, matches, location }) =>
   data?.country
-    ? [
-        {
-          title: `${data.country.name} | Indie Collective - Community powered video game data`,
-        },
-      ]
+    ? pageMeta(matches, {
+        title: `${data.country.name} | Indie Collective - Community powered video game data`,
+        description: `${data.country.name}'s game industry: its most active cities for indie game studios and associations.`,
+        path: location.pathname,
+      })
     : [{ title: 'Country not found' }];
 
 const CountriesPage = () => {

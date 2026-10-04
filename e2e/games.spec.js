@@ -42,3 +42,16 @@ test('the games tag filter works with the keyboard', async ({ page }) => {
   await expect(tag).toHaveAttribute('aria-pressed', 'false');
   await expect(page).not.toHaveURL(/tags=/);
 });
+
+test('a game without an "about" gets a generated description', async ({ request }) => {
+  const { PrismaClient } = await import('@prisma/client');
+  const db = new PrismaClient();
+  const game = await db.game.create({ data: { name: `Undescribed ${Date.now() % 100000}`, about: '' } });
+  try {
+    const html = await (await request.get(`/game/${game.id}`)).text();
+    expect(html).toContain('<meta name="description" content="Indie game."/>');
+  } finally {
+    await db.game.delete({ where: { id: game.id } });
+    await db.$disconnect();
+  }
+});
