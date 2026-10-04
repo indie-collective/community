@@ -37,6 +37,7 @@ import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
 import { ogUrl } from '../utils/meta';
+import EmptyHint from '../components/EmptyHint';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -256,6 +257,7 @@ const Game = () => {
           </Button>
         )}
       </Box>
+      {(currentUser || entities.length > 0) && (
       <Box mb={5} pl={5} pr={5}>
         <Heading size="md" mb={2}>
           Made by
@@ -289,6 +291,9 @@ const Game = () => {
               }
             />
           ))}
+          {currentUser && entities.length === 0 && (
+            <EmptyHint>Who made this game? Add a studio or association.</EmptyHint>
+          )}
           {currentUser && (
             <>
               <IconButton
@@ -316,6 +321,7 @@ const Game = () => {
           )}
         </Grid>
       </Box>
+      )}
       {events.length > 0 && (
         <Box mb={5} pl={5} pr={5}>
           <Heading size="md" mb={2}>

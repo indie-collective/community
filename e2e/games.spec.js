@@ -1,4 +1,4 @@
-import { expect, test, watchErrors } from './helpers';
+import { expect, test, watchErrors, MEMBER, signIn } from './helpers';
 
 test('descriptions render, with off-site links in a new tab', async ({ page }) => {
   await page.goto('/games');
@@ -41,4 +41,25 @@ test('the games tag filter works with the keyboard', async ({ page }) => {
   await page.keyboard.press('Space');
   await expect(tag).toHaveAttribute('aria-pressed', 'false');
   await expect(page).not.toHaveURL(/tags=/);
+});
+
+// #198: empty sections are hidden from visitors; signed-in users get a hint.
+test('a game with no studio hides "Made by" from visitors only', async ({ page }) => {
+  const { PrismaClient } = await import('@prisma/client');
+  const db = new PrismaClient();
+  const game = await db.game.create({ data: { name: `Unattributed ${Date.now() % 100000}` } });
+  try {
+    await page.goto(`/game/${game.id}`);
+    await expect(page.getByRole('heading', { name: game.name })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Made by' })).toHaveCount(0);
+
+    await signIn(page, MEMBER);
+    await page.goto(`/game/${game.id}`);
+    await expect(page.getByRole('heading', { name: 'Made by' })).toBeVisible();
+    await expect(page.getByText('Who made this game?')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Add an author to the game' })).toBeVisible();
+  } finally {
+    await db.game.delete({ where: { id: game.id } });
+    await db.$disconnect();
+  }
 });

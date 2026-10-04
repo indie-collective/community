@@ -37,6 +37,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import { ogUrl } from '../utils/meta';
+import EmptyHint from '../components/EmptyHint';
 
 const TYPES_COLORS = {
   studio: 'yellow',
@@ -337,6 +338,25 @@ const Org = () => {
               ))}
             </Grid>
           </Box>
+        </Box>
+      )}
+      {/* Empty sections stay hidden from visitors; members get a way in (#198). */}
+      {currentUser && (games.length === 0 || events.length === 0) && (
+        <Box pl={5} pr={5} mb={5}>
+          {games.length === 0 && (
+            <EmptyHint mb={1}>
+              No games yet. <ChakraLink asChild textDecoration="underline">
+                <Link to="/games/create">Add a game</Link>
+              </ChakraLink>, then link this organization from its page.
+            </EmptyHint>
+          )}
+          {events.length === 0 && (
+            <EmptyHint>
+              No hosted events yet. <ChakraLink asChild textDecoration="underline">
+                <Link to="/events/create">Add an event</Link>
+              </ChakraLink>, then add this organization as an organizer.
+            </EmptyHint>
+          )}
         </Box>
       )}
       {currentUser && (
