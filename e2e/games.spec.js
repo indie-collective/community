@@ -128,3 +128,16 @@ test('a game with no studio hides "Made by" from visitors only', async ({ page }
     await db.$disconnect();
   }
 });
+
+// #86: the game form points to an IGDB search for the name, and says which site to give.
+test('the game form links to an IGDB search for the name', async ({ page }) => {
+  await signIn(page, MEMBER);
+  await page.goto('/games/create');
+  await expect(page.getByText("The game's official website, or else its Steam or itch.io page.")).toBeVisible();
+  await expect(page.getByRole('link', { name: /searching IGDB/ })).toHaveCount(0);
+
+  await page.getByPlaceholder(/Super Tractor Simulator/).fill('Héros & Co');
+  const search = page.getByRole('link', { name: 'searching IGDB for “Héros & Co”' });
+  await expect(search).toHaveAttribute('href', 'https://www.igdb.com/search?q=H%C3%A9ros%20%26%20Co');
+  await expect(search).toHaveAttribute('target', '_blank');
+});

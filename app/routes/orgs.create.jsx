@@ -88,6 +88,10 @@ export const loader = async ({ request }) => {
   return {
     values: {
       name: searchParams.get('name') || '',
+      // Pre-selected from the studios or associations list (#86).
+      ...(['studio', 'association'].includes(searchParams.get('type')) && {
+        type: searchParams.get('type'),
+      }),
     },
     currentUser,
   };
