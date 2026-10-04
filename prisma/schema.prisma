@@ -19,6 +19,8 @@ model entity {
   updated_at    DateTime?       @updatedAt
   logo_id       String?         @db.Uuid
   site          String?
+  /// #161: the org's Bluesky handle, e.g. studio.bsky.social.
+  bsky_handle   String?         @db.VarChar(253)
   lastModifiedById String?    @db.Uuid
   location      location?       @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   logo          image?          @relation(fields: [logo_id], references: [id], onDelete: Cascade, onUpdate: NoAction)

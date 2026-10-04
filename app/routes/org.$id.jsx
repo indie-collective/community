@@ -37,6 +37,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import { ogUrl } from '../utils/meta';
+import { FaBluesky } from 'react-icons/fa6';
 
 const TYPES_COLORS = {
   studio: 'yellow',
@@ -165,6 +166,7 @@ const Org = () => {
     name,
     type,
     site,
+    bsky_handle,
     about,
     location,
     logo,
@@ -201,6 +203,17 @@ const Org = () => {
                 {type}
               </Badge>
             </DarkMode>
+            {bsky_handle && (
+              <ChakraLink
+                href={`https://bsky.app/profile/${bsky_handle}`}
+                ml={2}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Bluesky: @${bsky_handle}`}
+              >
+                <FaBluesky />@{bsky_handle}
+              </ChakraLink>
+            )}
             {site && (
               <ChakraLink
                 href={site}

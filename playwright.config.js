@@ -22,7 +22,12 @@ export default defineConfig({
     command:
       'npx react-router build && node node_modules/@react-router/serve/bin.js build/server/index.js',
     url: `http://localhost:${PORT}/about`,
-    env: { PORT: String(PORT), NODE_ENV: 'development' },
+    env: {
+      PORT: String(PORT),
+      NODE_ENV: 'development',
+      // A local stand-in for Bluesky's public API (see orgs.spec.js).
+      BLUESKY_API: 'http://127.0.0.1:3198',
+    },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
