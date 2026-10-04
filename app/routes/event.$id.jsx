@@ -53,6 +53,7 @@ import { ogUrl } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
 import { formatEventDate, formatEventRange } from '../utils/eventTime';
 import { pageMeta, summarize } from '../utils/meta';
+import EmptyHint from '../components/EmptyHint';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -434,6 +435,9 @@ const Event = () => {
                   />
                 </Box>
               ))}
+              {currentUser && games.length === 0 && (
+                <EmptyHint>Which games were shown here? Add them.</EmptyHint>
+              )}
               {currentUser && (
                 <>
                   <IconButton
@@ -498,6 +502,9 @@ const Event = () => {
                   }
                 />
               ))}
+              {currentUser && entities.length === 0 && (
+                <EmptyHint>Who organises it? Add a studio or association.</EmptyHint>
+              )}
               {currentUser && (
                 <>
                   <IconButton
@@ -577,11 +584,13 @@ const Event = () => {
           </Box>
         )}
       </Box>
-      <Box m={[2, 0]}>
-        <Heading>Related events</Heading>
+      {relatedEvents.length > 0 && (
+        <Box m={[2, 0]}>
+          <Heading>Related events</Heading>
 
-        <RelatedEvents events={relatedEvents} />
-      </Box>
+          <RelatedEvents events={relatedEvents} />
+        </Box>
+      )}
     </Grid>
   );
 };

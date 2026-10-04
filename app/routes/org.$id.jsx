@@ -39,6 +39,7 @@ import ActionMenu from '../components/ActionMenu';
 import { pageMeta, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
 import { orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
+import EmptyHint from '../components/EmptyHint';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -314,6 +315,25 @@ const Org = () => {
               ))}
             </Grid>
           </Box>
+        </Box>
+      )}
+      {/* Empty sections stay hidden from visitors; members get a way in (#198). */}
+      {currentUser && (games.length === 0 || events.length === 0) && (
+        <Box pl={5} pr={5} mb={5}>
+          {games.length === 0 && (
+            <EmptyHint mb={1}>
+              No games yet. <ChakraLink asChild textDecoration="underline">
+                <Link to="/games/create">Add a game</Link>
+              </ChakraLink>, then link this organization from its page.
+            </EmptyHint>
+          )}
+          {events.length === 0 && (
+            <EmptyHint>
+              No hosted events yet. <ChakraLink asChild textDecoration="underline">
+                <Link to="/events/create">Add an event</Link>
+              </ChakraLink>, then add this organization as an organizer.
+            </EmptyHint>
+          )}
         </Box>
       )}
       {currentUser && (
