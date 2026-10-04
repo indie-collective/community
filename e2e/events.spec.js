@@ -165,3 +165,19 @@ test.describe('event lists in another time zone', () => {
     expect(await first.getAttribute('datetime')).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   });
 });
+
+// #198: "Related events" only appears when there are some.
+test('an event with no related events has no empty "Related events" section', async ({ page }) => {
+  const { location_id } = await db.event.findFirst({ where: { location_id: { not: null } } });
+  const event = await db.event.create({
+    data: { name: `Zyxwvut ${Date.now() % 100000}`, starts_at: new Date(Date.now() + 86400000), ends_at: new Date(Date.now() + 2 * 86400000), location_id },
+  });
+  try {
+    await page.goto(`/event/${event.id}`);
+    await expect(page.getByRole('heading', { name: event.name })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Related events' })).toHaveCount(0);
+    await expect(page.getByText('No related events.')).toHaveCount(0);
+  } finally {
+    await db.event.delete({ where: { id: event.id } });
+  }
+});
