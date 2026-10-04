@@ -136,3 +136,15 @@ test('the studios list loads past the first 50, keeping the filters', async ({ p
     await db.$disconnect();
   }
 });
+
+// #86: "Add organisation" from the associations list starts an association.
+test('adding an organisation from a list pre-selects its type', async ({ page }) => {
+  await signIn(page, MEMBER);
+  for (const [list, type] of [['/associations', 'Association'], ['/studios', 'Studio']]) {
+    await page.goto(list);
+    await page.getByRole('button', { name: 'Add new' }).click();
+    await page.getByRole('menuitem', { name: 'Add organisation' }).click();
+    await expect(page).toHaveURL(`/orgs/create?type=${type.toLowerCase()}`);
+    await expect(page.getByRole('radio', { name: type })).toBeChecked();
+  }
+});

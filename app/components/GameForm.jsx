@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Input, Button, Textarea, Grid, Field } from '@chakra-ui/react';
+import { Input, Button, Textarea, Grid, Field, Link as ChakraLink } from '@chakra-ui/react';
 
 import PossibleGameDuplicates from '../components/PossibleGameDuplicates';
 
@@ -73,7 +73,7 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
             {errors.name && errors.name.message}
           </Field.ErrorText>
         </Field.Root>
-        <Field.Root gridColumn="1 / 3" invalid={errors.name}>
+        <Field.Root gridColumn="1 / 3" invalid={errors.igdb_url}>
           <Field.Label>IGDB</Field.Label>
           <Input
             {...register('igdb_url')}
@@ -81,8 +81,22 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
             type="url"
             pattern="https://www.igdb.com\/games\/(.+)"
           />
+          {newGameName?.trim() && (
+            <Field.HelperText>
+              Find its page by{' '}
+              <ChakraLink
+                href={`https://www.igdb.com/search?q=${encodeURIComponent(newGameName.trim())}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                textDecoration="underline"
+              >
+                searching IGDB for “{newGameName.trim()}”
+              </ChakraLink>
+              .
+            </Field.HelperText>
+          )}
           <Field.ErrorText>
-            {errors.name && errors.name.message}
+            {errors.igdb_url && errors.igdb_url.message}
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.about}>
@@ -105,6 +119,9 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
             placeholder="https://example.com"
             type="url"
           />
+          <Field.HelperText>
+            The game's official website, or else its Steam or itch.io page.
+          </Field.HelperText>
           <Field.ErrorText>
             {errors.site && errors.site.message}
           </Field.ErrorText>

@@ -6,10 +6,14 @@ import {
   Icon,
 } from '@chakra-ui/react';
 import { LuPlus } from 'react-icons/lu';
-import { useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
+
+// On a studios or associations list, a new organisation starts as that type (#86).
+const ORG_TYPE_BY_PATH = { '/studios': 'studio', '/associations': 'association' };
 
 const AddMenuButton = () => {
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const orgType = ORG_TYPE_BY_PATH[pathname];
 
   return (
     <Menu.Root>
@@ -28,13 +32,13 @@ const AddMenuButton = () => {
         <Menu.Positioner>
           <Menu.Content>
             <Menu.Item _hover={{ textDecor: 'none' }} value="item-0" asChild>
-              <ChakraLink href="games/create">Add game</ChakraLink>
+              <ChakraLink href="/games/create">Add game</ChakraLink>
             </Menu.Item>
             <Menu.Item _hover={{ textDecor: 'none' }} value="item-1" asChild>
               <ChakraLink href="/events/create">Add event</ChakraLink>
             </Menu.Item>
             <Menu.Item _hover={{ textDecor: 'none' }} value="item-2" asChild>
-              <ChakraLink href="/orgs/create">Add organisation</ChakraLink>
+              <ChakraLink href={orgType ? `/orgs/create?type=${orgType}` : '/orgs/create'}>Add organisation</ChakraLink>
             </Menu.Item>
           </Menu.Content>
         </Menu.Positioner>
