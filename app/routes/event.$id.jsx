@@ -51,6 +51,7 @@ import { SearchGameModal } from './search-game';
 import { SearchOrgModal } from './search-org';
 import { ogUrl } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
+import { formatEventDate, formatEventRange } from '../utils/eventTime';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -161,15 +162,7 @@ export const meta = ({ data, matches }) => {
       },
     ];
   const { event } = data;
-  let description = `Event on ${new Date(event.starts_at).toLocaleString(
-    'en-US',
-    {
-      day: 'numeric',
-      month: 'short',
-      hour: 'numeric',
-      minute: 'numeric',
-    }
-  )}`;
+  let description = `Event on ${formatEventDate(event.starts_at, event.time_zone)}`;
   if (event.location) {
     const l = event.location;
     description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${
@@ -240,6 +233,7 @@ const Event = () => {
     about,
     site,
     starts_at: startsAt,
+    time_zone: timeZone,
     ends_at: endsAt,
     location,
     game_event,
@@ -254,14 +248,6 @@ const Event = () => {
 
   const isGoing =
     currentUser && participants.some(({ id }) => id === currentUser.id);
-
-  const dateTimeFormat = new Intl.DateTimeFormat('en', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: false,
-  });
 
   return (
     <Grid
@@ -287,6 +273,7 @@ const Event = () => {
             right={2}
             bottom={3}
             value={new Date(startsAt)}
+            timeZone={timeZone}
           />
         </Box>
 
@@ -330,11 +317,9 @@ const Event = () => {
               whiteSpace="nowrap"
               asChild
             >
-              <time dateTime={startsAt + '/' + endsAt}>
-                {dateTimeFormat.formatRange(
-                  new Date(startsAt),
-                  new Date(endsAt)
-                )}
+              <time dateTime={`${new Date(startsAt).toISOString()}/${new Date(endsAt).toISOString()}`}>
+                {/* In the event's own time zone, identical on server and browser (#204). */}
+                {formatEventRange(startsAt, endsAt, timeZone)}
               </time>
             </Text>
 

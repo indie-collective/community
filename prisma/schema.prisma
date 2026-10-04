@@ -59,6 +59,8 @@ model event {
   updated_at        DateTime?           @updatedAt
   cover_id          String?             @db.Uuid
   status            event_status        @default(ongoing)
+  /// IANA zone the event's times are shown and entered in (#204).
+  time_zone         String              @default("Europe/Paris") @db.VarChar(64)
   cover             image?              @relation(fields: [cover_id], references: [id], onUpdate: NoAction)
   location          location?           @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entity_event      entity_event[]

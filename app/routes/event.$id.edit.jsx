@@ -8,6 +8,8 @@ import { authorizer, canWrite } from '../utils/auth.server';
 import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
 import EventForm from '../components/EventForm';
+import { zonedInputToDate } from '../utils/eventTime';
+import { timeZoneAt } from '../utils/timeZone.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -71,6 +73,13 @@ export async function action(args) {
       longitude: parseFloat(data.get('longitude')) || null,
     };
 
+    // Times are entered as wall-clock time where the event happens (#204):
+    // a new location brings its zone, otherwise the event keeps its own.
+    const timeZone =
+      location.latitude !== null && location.longitude !== null
+        ? timeZoneAt(location.latitude, location.longitude)
+        : (await db.event.findUnique({ where: { id }, select: { time_zone: true } }))?.time_zone;
+
     const event = await db.event.update({
       where: { id },
       data: {
@@ -81,8 +90,9 @@ export async function action(args) {
             ? 'canceled'
             : 'ongoing'
           : undefined,
-        starts_at: new Date(data.get('start')) || undefined,
-        ends_at: new Date(data.get('end')) || undefined,
+        time_zone: timeZone,
+        starts_at: zonedInputToDate(data.get('start'), timeZone) ?? undefined,
+        ends_at: zonedInputToDate(data.get('end'), timeZone) ?? undefined,
         about: data.get('about') || undefined,
         site: data.get('site') || undefined,
         cover: data.get('cover')
