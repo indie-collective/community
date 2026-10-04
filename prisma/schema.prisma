@@ -10,7 +10,7 @@ datasource db {
 }
 
 model entity {
-  id            String          @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   type          entity_type?
   /// #39: whether the organisation is still active.
   status        entity_status   @default(active)
@@ -49,7 +49,7 @@ model entity_event {
 
 
 model event {
-  id                String              @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name              String
   about             String?
   location_id       String?             @db.Uuid
@@ -86,7 +86,7 @@ model event_participant {
 }
 
 model game {
-  id          String        @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String
   about       String?
   site        String?
@@ -105,7 +105,7 @@ model game {
 
 model change {
   operation  operation_type
-  id         String         @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   table_name String
   record_id  String         @db.Uuid
   data       Json
@@ -168,7 +168,7 @@ model game_tag {
 }
 
 model image {
-  id           String         @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   image_file   Json           @default("{}")
   created_at   DateTime?      @default(now()) @db.Timestamptz(6)
   updated_at   DateTime?      @updatedAt
@@ -179,7 +179,7 @@ model image {
 }
 
 model location {
-  id           String    @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   city         String?
   latitude     Float?
   longitude    Float?
@@ -195,7 +195,7 @@ model location {
 }
 
 model person {
-  id                String              @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   first_name        String
   last_name         String?
   about             String?
@@ -216,7 +216,7 @@ model person {
 
 
 model tag {
-  id         String      @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name       String      @unique @db.VarChar(30)
   created_at DateTime?   @default(now()) @db.Timestamptz(6)
   updated_at DateTime?   @updatedAt

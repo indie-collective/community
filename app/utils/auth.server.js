@@ -10,6 +10,7 @@ import getImageLinks from './imageLinks.server';
 import { sessionStorage } from './session.server';
 import { Authorizer } from './authorizer.server';
 import { notifyNewMember } from './discordNotification.server';
+import { createPerson } from './username.server';
 
 export let authenticator = new Authenticator();
 
@@ -42,13 +43,11 @@ if (process.env.NODE_ENV === 'development') {
 
         if (!user) {
           const username = email.split('@')[0];
-          user = await db.person.create({
-            data: {
-              email,
-              username,
-              first_name: username,
-              isAdmin: true,
-            },
+          user = await createPerson(db, {
+            email,
+            username,
+            first_name: username,
+            isAdmin: true,
           });
           await notifyNewMember(user);
         }
@@ -140,16 +139,14 @@ authenticator.use(
           //     'A user with the same email already exists, please connect your account first.'
           //   );
 
-          user = await db.person.create({
-            data: {
-              email: profile.email,
-              discord_id: profile.id,
-              first_name: profile.global_name || profile.username,
-              last_name: '',
-              username: profile.username,
-              avatar_oauth: discordAvatar, // needed to be seen by other users
-              isAdmin,
-            },
+          user = await createPerson(db, {
+            email: profile.email,
+            discord_id: profile.id,
+            first_name: profile.global_name || profile.username,
+            last_name: '',
+            username: profile.username,
+            avatar_oauth: discordAvatar, // needed to be seen by other users
+            isAdmin,
           });
           await notifyNewMember(user);
         }
