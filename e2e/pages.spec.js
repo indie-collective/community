@@ -41,3 +41,23 @@ for (const [type, list] of [['game', '/games'], ['event', '/events'], ['org', '/
     expect(page).toContain(`<meta property="og:url" content="${new URL(path, baseURL)}"/>`);
   });
 }
+
+// #197: count badges sat inside the headings, which then read "Games23".
+test('section headings do not include their counts', async ({ page, request }) => {
+  const paths = ['/places'];
+  for (const [type, list] of [['org', '/studios'], ['org', '/associations'], ['event', '/events']]) {
+    const html = await (await request.get(list)).text();
+    paths.push(...[...new Set(html.match(new RegExp(`/${type}/[0-9a-f-]{36}`, 'g')))].slice(0, 4));
+  }
+
+  let checked = 0;
+  for (const path of paths) {
+    await page.goto(path);
+    const headings = page.getByRole('heading', { name: /^(Games|Hosted events|Locations)\b/ });
+    for (const text of await headings.allTextContents()) {
+      expect(text, path).toMatch(/^(Games|Hosted events|Locations)$/);
+      checked += 1;
+    }
+  }
+  expect(checked).toBeGreaterThan(0);
+});
