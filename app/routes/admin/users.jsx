@@ -11,7 +11,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
-import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { FaDiscord } from 'react-icons/fa6';
 import { LuCircleHelp } from 'react-icons/lu';
 
 import isAuthenticated from '../../utils/isAuthenticated.server';
@@ -59,7 +59,6 @@ export const loader = async ({ request }) => {
       first_name: true,
       last_name: true,
       email: true,
-      github_id: true,
       discord_id: true,
       isAdmin: true,
       avatar: true,
@@ -149,7 +148,6 @@ const Profile = () => {
                 last_name,
                 email,
                 discord_url,
-                github_url,
                 isAdmin,
               }) => (
                 <Table.Row key={id}>
@@ -180,21 +178,6 @@ const Profile = () => {
                           rel="noopener noreferrer"
                         >
                           <FaDiscord />
-                        </ChakraLink>
-                      </IconButton>
-                    )}
-                    {github_url && (
-                      <IconButton
-                        colorPalette="github"
-                        size="xs"
-                        asChild
-                      >
-                        <ChakraLink
-                          href={github_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <FaGithub />
                         </ChakraLink>
                       </IconButton>
                     )}
