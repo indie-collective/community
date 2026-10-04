@@ -191,7 +191,9 @@ async function main() {
     const location = await prisma.location.create({
       data: {
         city: faker.location.city(),
-        latitude: faker.location.latitude(),
+        // Within ±80°: Web Mercator maps (pigeon-maps) stop near ±85°, so a
+        // place closer to a pole renders no map tiles, which made tests flaky.
+        latitude: faker.location.latitude({ min: -80, max: 80 }),
         longitude: faker.location.longitude(),
         street: faker.location.streetAddress(),
         country_code: faker.location.countryCode(),
