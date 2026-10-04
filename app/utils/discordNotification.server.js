@@ -11,9 +11,20 @@ export async function notifyDiscord(content) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content }),
+      // Messages include names people typed: never let them ping anyone
+      // (e.g. a game called "@everyone").
+      body: JSON.stringify({ content, allowed_mentions: { parse: [] } }),
     });
   } catch (err) {
     console.error('Failed to send Discord notification', err);
   }
+}
+
+/**
+ * Tells the team someone joined (#34). Called wherever an account is
+ * created, whichever way they signed in. No email or other private field.
+ */
+export function notifyNewMember({ username, first_name }) {
+  const membersPage = process.env.BASE_URL ? ` ${process.env.BASE_URL}/admin/users` : '';
+  return notifyDiscord(`👋 New member: **@${username}** (${first_name}) joined Community.${membersPage}`);
 }
