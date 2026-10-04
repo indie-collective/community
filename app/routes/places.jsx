@@ -19,11 +19,7 @@ import ClusterMap from '../components/ClusterMap';
 import OrgCard from '../components/OrgCard';
 import SwipeableEdgeDrawer from '../components/SwipeableEdgeDrawer';
 import SectionHeading from '../components/SectionHeading';
-
-const TYPES_COLORS = {
-  studio: 'yellow',
-  association: 'green',
-};
+import { orgTypeColor } from '../utils/orgTypes';
 
 const OrgMarker = React.memo(
   ({ id, logo, name, type, highlighted, onClick }) => (
@@ -48,7 +44,7 @@ const OrgMarker = React.memo(
             width="48px"
             height="48px"
             viewBox="0 0 480 480"
-            color={TYPES_COLORS[type] + '.500'}
+            color={orgTypeColor(type) + '.500'}
           >
             <defs>
               <mask id="mask">
