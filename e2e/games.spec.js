@@ -42,3 +42,18 @@ test('the games tag filter works with the keyboard', async ({ page }) => {
   await expect(tag).toHaveAttribute('aria-pressed', 'false');
   await expect(page).not.toHaveURL(/tags=/);
 });
+
+// #201: tags were bare chips in a <div>, so text tools read "soloplatformaction".
+test('game tags are lists of separate items', async ({ page }) => {
+  await page.goto('/games');
+  const tagList = page.locator('main').getByRole('list', { name: 'Tags' }).first();
+  await expect(tagList).toBeVisible();
+  const names = await tagList.getByRole('listitem').allInnerTexts();
+  expect(names.length).toBeGreaterThan(1);
+  const text = await tagList.innerText();
+  for (const name of names) expect(text.split(/\s*\n\s*/)).toContain(name.trim());
+
+  await tagList.locator('xpath=ancestor::*[.//a[starts-with(@href, "/game/")]][1]').locator('a[href^="/game/"]').first().click();
+  // The game's own tags (related game cards below have their own lists).
+  await expect(page.locator('main').getByRole('list', { name: 'Tags' }).first()).toBeVisible();
+});
