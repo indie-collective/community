@@ -9,6 +9,7 @@ import isAuthenticated from '../utils/isAuthenticated.server'
 import computeOrg from '../models/org';
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
 import Filters from '../components/Filters';
+import { pageMeta } from '../utils/meta';
 
 const PAGE_SIZE = 50;
 
@@ -90,30 +91,12 @@ export const loader = async ({ request }) => {
   return data;
 };
 
-export const meta = () => [{
-  title: 'Associations'
-}, {
-  name: 'description',
-  content: 'Video game related associations around you and all over the world.'
-}, {
-  property: 'og:title',
-  content: 'Associations'
-}, {
-  property: 'og:description',
-  content: 'Video game related associations around you and all over the world.'
-}, {
-  name: 'twitter:card',
-  content: 'summary'
-}, {
-  name: 'twitter:site',
-  content: '@IndieColle'
-}, {
-  name: 'twitter:title',
-  content: 'Associations'
-}, {
-  name: 'twitter:description',
-  content: 'Video game related associations around you and all over the world.'
-}];
+export const meta = ({ matches, location }) =>
+  pageMeta(matches, {
+    title: 'Associations',
+    description: 'Video game related associations around you and all over the world.',
+    path: location.pathname,
+  });
 
 const OrgsList = () => {
   const { associations = [] } = useLoaderData();

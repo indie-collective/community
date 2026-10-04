@@ -7,6 +7,7 @@ import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
 import computeOrg from '../models/org';
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
+import { pageMeta } from '../utils/meta';
 
 const PAGE_SIZE = 50;
 
@@ -38,30 +39,12 @@ export const loader = async ({ request }) => {
   return data;
 };
 
-export const meta = () => [{
-  title: 'Organizations'
-}, {
-  name: 'description',
-  content: 'Video game related organizations around you and all over the world.'
-}, {
-  property: 'og:title',
-  content: 'Organizations'
-}, {
-  property: 'og:description',
-  content: 'Video game related organizations around you and all over the world.'
-}, {
-  name: 'twitter:card',
-  content: 'summary'
-}, {
-  name: 'twitter:site',
-  content: '@IndieColle'
-}, {
-  name: 'twitter:title',
-  content: 'Organizations'
-}, {
-  name: 'twitter:description',
-  content: 'Video game related organizations around you and all over the world.'
-}];
+export const meta = ({ matches, location }) =>
+  pageMeta(matches, {
+    title: 'Organizations',
+    description: 'Video game related organizations around you and all over the world.',
+    path: location.pathname,
+  });
 
 const OrgsList = () => {
   // const orgs = useAsyncValue();

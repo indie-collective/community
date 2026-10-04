@@ -21,6 +21,7 @@ import { commitSession, getSession } from '../utils/session.server';
 import toSessionUser from '../utils/sessionUser.server';
 import SigninForm from '../components/SigninForm';
 import { safeRedirectPath } from '../utils/safeRedirect';
+import { pageMeta } from '../utils/meta';
 
 // Where to go after signing in: the page that required it (#178).
 const prevOf = (request) => safeRedirectPath(new URL(request.url).searchParams.get('prev'));
@@ -53,11 +54,11 @@ export let action = async ({ request }) => {
   }
 };
 
-export const meta = () => [
-  {
+export const meta = ({ matches, location }) =>
+  pageMeta(matches, {
     title: 'Sign In',
-  },
-];
+    path: location.pathname,
+  });
 
 const SignIn = () => {
   const navigation = useNavigation();

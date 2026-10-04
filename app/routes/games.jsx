@@ -30,6 +30,7 @@ import { db } from '../utils/db.server';
 import computeGame from '../models/game';
 import GameCard from '../components/GameCard';
 import useDebounce from '../hooks/useDebounce';
+import { pageMeta } from '../utils/meta';
 
 // The sort options: user input picks one by name, never reaches Prisma.
 const SORTS = {
@@ -130,11 +131,12 @@ export const loader = async ({ request }) => {
   return data;
 };
 
-export const meta = () => [
-  {
+export const meta = ({ matches, location }) =>
+  pageMeta(matches, {
     title: 'Games',
-  },
-];
+    description: 'Indie games from the community: browse them by tag, see who made them and where they were shown.',
+    path: location.pathname,
+  });
 
 const Games = () => {
   const { games: initialGames, tags, q, sort } = useLoaderData();

@@ -94,3 +94,16 @@ test('the games list can be searched and sorted', async ({ page }) => {
   const all = await cards.allInnerTexts();
   expect(all).toEqual([...all].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })));
 });
+
+test('a game without an "about" gets a generated description', async ({ request }) => {
+  const { PrismaClient } = await import('@prisma/client');
+  const db = new PrismaClient();
+  const game = await db.game.create({ data: { name: `Undescribed ${Date.now() % 100000}`, about: '' } });
+  try {
+    const html = await (await request.get(`/game/${game.id}`)).text();
+    expect(html).toContain('<meta name="description" content="Indie game."/>');
+  } finally {
+    await db.game.delete({ where: { id: game.id } });
+    await db.$disconnect();
+  }
+});

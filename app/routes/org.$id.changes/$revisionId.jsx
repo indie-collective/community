@@ -13,7 +13,7 @@ import { isRouteErrorResponse, useLoaderData, useRouteError } from 'react-router
 import { db } from '../../utils/db.server';
 import isAuthenticated from '../../utils/isAuthenticated.server'
 import computeOrg from '../../models/org';
-import { ogUrl } from '../../utils/meta';
+import { pageMeta } from '../../utils/meta';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -120,24 +120,11 @@ export const meta = ({
   const {
     org
   } = data;
-  return [{
-    title: `Version history - ${org.name}`
-  }, {
-    property: 'og:title',
-    content: `Version history - ${org.name}`
-  }, {
-    property: 'og:description',
-    content: `Version history of ${org.name}.`
-  }, ...ogUrl(matches, `/org/${org.id}`), {
-    name: 'twitter:site',
-    content: '@IndieColle'
-  }, {
-    name: 'twitter:title',
-    content: `Version history - ${org.name}`
-  }, {
-    name: 'twitter:description',
-    content: `Version history of ${org.name}.`
-  }];
+  return pageMeta(matches, {
+    title: `Version history - ${org.name}`,
+    description: `Version history of ${org.name}.`,
+    path: `/org/${org.id}`,
+  });
 };
 
 const OrgRevision = () => {
