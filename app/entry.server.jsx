@@ -1,75 +1,51 @@
 import { CacheProvider } from '@emotion/react';
-import { createReadableStreamFromReadable } from '@react-router/node';
 import { isbot } from 'isbot';
-import { PassThrough } from 'node:stream';
-import { renderToPipeableStream } from 'react-dom/server';
+import { renderToReadableStream } from 'react-dom/server';
 import { ServerRouter } from 'react-router';
 
 import createEmotionCache from './createEmotionCache';
 
 export const streamTimeout = 5_000;
 
-export default function handleRequest(
+// Workers have no Node streams: render to a web ReadableStream.
+export default async function handleRequest(
   request,
   responseStatusCode,
   responseHeaders,
-  routerContext,
-  loadContext
-  // If you have middleware enabled:
-  // loadContext: unstable_RouterContextProvider
+  routerContext
 ) {
-  return new Promise((resolve, reject) => {
-    let shellRendered = false;
-    let userAgent = request.headers.get('user-agent');
+  const userAgent = request.headers.get('user-agent');
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), streamTimeout + 1000);
 
-    // Ensure requests from bots and SPA Mode renders wait for all content to load before responding
-    // https://react.dev/reference/react-dom/server/renderToPipeableStream#waiting-for-all-content-to-load-for-crawlers-and-static-generation
-    let readyOption =
-      (userAgent && isbot(userAgent)) || routerContext.isSpaMode
-        ? 'onAllReady'
-        : 'onShellReady';
+  let shellRendered = false;
+  const body = await renderToReadableStream(
+    <CacheProvider value={createEmotionCache()}>
+      <ServerRouter context={routerContext} url={request.url} />
+    </CacheProvider>,
+    {
+      signal: controller.signal,
+      onError(error) {
+        responseStatusCode = 500;
+        // Errors in the shell reject and are logged by the router.
+        if (shellRendered) console.error(error);
+      },
+    }
+  );
+  shellRendered = true;
 
-    // Create a new emotion cache for this request
-    const cache = createEmotionCache();
+  // Bots and SPA mode wait for all content, as before.
+  if ((userAgent && isbot(userAgent)) || routerContext.isSpaMode) {
+    await body.allReady;
+  }
 
-    const { pipe, abort } = renderToPipeableStream(
-      <CacheProvider value={cache}>
-        <ServerRouter context={routerContext} url={request.url} />
-      </CacheProvider>,
-      {
-        [readyOption]() {
-          shellRendered = true;
-          const body = new PassThrough();
-          const stream = createReadableStreamFromReadable(body);
-
-          responseHeaders.set('Content-Type', 'text/html');
-
-          resolve(
-            new Response(stream, {
-              headers: responseHeaders,
-              status: responseStatusCode,
-            })
-          );
-
-          pipe(body);
-        },
-        onShellError(error) {
-          reject(error);
-        },
-        onError(error) {
-          responseStatusCode = 500;
-          // Log streaming rendering errors from inside the shell.  Don't log
-          // errors encountered during initial shell rendering since they'll
-          // reject and get logged in handleDocumentRequest.
-          if (shellRendered) {
-            console.error(error);
-          }
-        },
-      }
-    );
-
-    // Abort the rendering stream after the `streamTimeout` so it has time to
-    // flush down the rejected boundaries
-    setTimeout(abort, streamTimeout + 1000);
+  responseHeaders.set('Content-Type', 'text/html');
+  return new Response(body, {
+    headers: responseHeaders,
+    status: responseStatusCode,
   });
+}
+
+export function handleError(error) {
+  console.error('[spike] server error:', error?.stack ?? error);
 }

@@ -27,3 +27,11 @@ generated
 /test-results
 /playwright-report
 /storybook-static
+.dev.vars*
+.wrangler/
+spike/fixtures.json
+spike/orm-*/node_modules/
+spike/orm-*/out/
+spike/orm-*/.wrangler/
+spike/orm-prisma/src/generated/
+spike/*.sql
