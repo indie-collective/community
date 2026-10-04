@@ -49,7 +49,6 @@ import { SearchGameModal } from './search-game';
 // Named, not default: React Router wraps a route module's default export and
 // drops the props passed to it here.
 import { SearchOrgModal } from './search-org';
-import { ogUrl } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
 import { formatEventDate, formatEventRange } from '../utils/eventTime';
 import { pageMeta, summarize } from '../utils/meta';
