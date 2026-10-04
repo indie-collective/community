@@ -1,10 +1,8 @@
 import { useLoaderData, useLocation, useNavigate } from 'react-router';
 import React, { useTransition, useCallback, useEffect, useMemo, useRef, useState  } from 'react';
 import {
-  Badge,
   Box,
   Flex,
-  Heading,
   useBreakpointValue,
   Icon,
 } from '@chakra-ui/react';
@@ -20,6 +18,7 @@ import { Tooltip } from '../components/ui/tooltip';
 import ClusterMap from '../components/ClusterMap';
 import OrgCard from '../components/OrgCard';
 import SwipeableEdgeDrawer from '../components/SwipeableEdgeDrawer';
+import SectionHeading from '../components/SectionHeading';
 
 const TYPES_COLORS = {
   studio: 'yellow',
@@ -333,12 +332,16 @@ const Places = () => {
         <MovingBand
           containerRef={containerRef}
           header={
-            <Heading size="md" textAlign="center" m={2} mt={6}>
+            <SectionHeading
+              justify="center"
+              m={2}
+              mt={6}
+              count={orgsInBounds.length}
+              countLabel="locations"
+              badgeProps={{ variant: 'solid', fontSize: 'xl' }}
+            >
               Locations
-              <Badge colorPalette="green" variant="solid" ml={2} fontSize="xl">
-                {orgsInBounds.length}
-              </Badge>
-            </Heading>
+            </SectionHeading>
           }
           isOpen={isMovingBandOpen}
           onClose={() => setMovingBandOpen(false)}

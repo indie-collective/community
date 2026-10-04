@@ -1,5 +1,5 @@
 import {
-    AspectRatio,
+  AspectRatio,
   Image,
   Box,
   Grid,
@@ -11,7 +11,6 @@ import {
   Stack,
   IconButton,
   useDisclosure,
-  Badge,
   Wrap,
   Link as ChakraLink,
   Dialog,
@@ -51,6 +50,7 @@ import { SearchGameModal } from './search-game';
 // drops the props passed to it here.
 import { SearchOrgModal } from './search-org';
 import { ogUrl } from '../utils/meta';
+import SectionHeading from '../components/SectionHeading';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -453,18 +453,9 @@ const Event = () => {
 
         {(currentUser || games.length > 0) && (
           <Box m={[2, 0]} mb={[5, 5]}>
-            <Heading size="md" mb={2}>
+            <SectionHeading mb={2} count={games.length} countLabel="games">
               Games
-              <Badge
-                verticalAlign="baseline"
-                fontSize="md"
-                ml={2}
-                variant="subtle"
-                colorPalette="green"
-              >
-                {games.length}
-              </Badge>
-            </Heading>
+            </SectionHeading>
             <Wrap gap={2}>
               {games.map((game) => (
                 <Box key={game.id} position="relative">
