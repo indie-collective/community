@@ -23,6 +23,7 @@ import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 import PlacesWidget from '../components/PlacesWidget';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
+import { pageMeta } from '../utils/meta';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request);
@@ -200,39 +201,11 @@ export const loader = async ({ request }) => {
   return data;
 };
 
-export const meta = () => [
-  {
+export const meta = ({ matches, location }) =>
+  pageMeta(matches, {
     title: 'Indie Collective - Community powered video game data',
-  },
-  {
-    name: 'description',
-    content: 'Video game related events around you and all over the world.',
-  },
-  {
-    property: 'og:title',
-    content: 'Indie Collective - Community powered video game data',
-  },
-  {
-    property: 'og:description',
-    content: 'Video game related events around you and all over the world.',
-  },
-  {
-    name: 'twitter:card',
-    content: 'summary',
-  },
-  {
-    name: 'twitter:site',
-    content: '@IndieColle',
-  },
-  {
-    name: 'twitter:title',
-    content: 'Indie Collective - Community powered video game data',
-  },
-  {
-    name: 'twitter:description',
-    content: 'Video game related events around you and all over the world.',
-  },
-];
+    path: location.pathname,
+  });
 
 const HomePage = () => {
   const {

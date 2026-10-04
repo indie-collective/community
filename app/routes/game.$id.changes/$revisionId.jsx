@@ -13,7 +13,7 @@ import { isRouteErrorResponse, useLoaderData, useRouteError } from 'react-router
 import { db } from '../../utils/db.server';
 import isAuthenticated from '../../utils/isAuthenticated.server'
 import computeGame from '../../models/game';
-import { ogUrl } from '../../utils/meta';
+import { pageMeta } from '../../utils/meta';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -120,24 +120,11 @@ export const meta = ({
   const {
     game
   } = data;
-  return [{
-    title: `Version history - ${game.name}`
-  }, {
-    property: 'og:title',
-    content: `Version history - ${game.name}`
-  }, {
-    property: 'og:description',
-    content: `Version history of ${game.name}.`
-  }, ...ogUrl(matches, `/game/${game.id}`), {
-    name: 'twitter:site',
-    content: '@IndieColle'
-  }, {
-    name: 'twitter:title',
-    content: `Version history - ${game.name}`
-  }, {
-    name: 'twitter:description',
-    content: `Version history of ${game.name}.`
-  }];
+  return pageMeta(matches, {
+    title: `Version history - ${game.name}`,
+    description: `Version history of ${game.name}.`,
+    path: `/game/${game.id}`,
+  });
 };
 
 const Game = () => {

@@ -61,3 +61,34 @@ test('section headings do not include their counts', async ({ page, request }) =
   }
   expect(checked).toBeGreaterThan(0);
 });
+
+// #196: descriptions were copied from the events page (or missing, or "."),
+// and list pages and the homepage had no share image.
+const metaOf = (html, key) =>
+  html.match(new RegExp(`<meta (?:name|property)="${key}" content="([^"]*)"`))?.[1];
+
+test('every public page has its own description and a share image', async ({ request }) => {
+  const listPages = ['/', '/games', '/events', '/studios', '/associations', '/about', '/places', '/countries'];
+  const games = await (await request.get('/games')).text();
+  const detail = [
+    games.match(/\/game\/[0-9a-f-]{36}/)[0],
+    (await (await request.get('/events')).text()).match(/\/event\/[0-9a-f-]{36}/)[0],
+    (await (await request.get('/studios')).text()).match(/\/org\/[0-9a-f-]{36}/)[0],
+  ];
+
+  const descriptions = new Map();
+  for (const path of [...listPages, ...detail]) {
+    const html = await (await request.get(path)).text();
+    const description = metaOf(html, 'description');
+    expect(description, path).toMatch(/[\p{L}\p{N}]/u);
+    expect(metaOf(html, 'og:description'), path).toBe(description);
+    expect(metaOf(html, 'og:image'), path).toMatch(/^https?:\/\//);
+    expect(metaOf(html, 'twitter:card'), path).toBe('summary_large_image');
+    if (listPages.includes(path)) descriptions.set(path, description);
+  }
+  // No two list pages share a description.
+  expect(new Set(descriptions.values()).size).toBe(descriptions.size);
+
+  const image = await request.get(new URL(metaOf(await (await request.get('/')).text(), 'og:image')).pathname);
+  expect(image.headers()['content-type']).toBe('image/png');
+});

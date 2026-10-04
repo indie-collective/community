@@ -12,6 +12,7 @@ import Carousel from '../components/Carousel.client';
 import ClientCarousel from '../components/ClientCarousel';
 import Filters from '../components/Filters';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
+import { pageMeta } from '../utils/meta';
 
 const getPage = (searchParams) => Number(searchParams.get('page') || '1');
 const getCursor = (searchParams) => searchParams.get('cursor') || undefined;
@@ -151,30 +152,12 @@ export const loader = async ({ request }) => {
   return data;
 };
 
-export const meta = () => [{
-  title: 'Events'
-}, {
-  name: 'description',
-  content: 'Video game related events around you and all over the world.'
-}, {
-  property: 'og:title',
-  content: 'Events'
-}, {
-  property: 'og:description',
-  content: 'Video game related events around you and all over the world.'
-}, {
-  name: 'twitter:card',
-  content: 'summary'
-}, {
-  name: 'twitter:site',
-  content: '@IndieColle'
-}, {
-  name: 'twitter:title',
-  content: 'Events'
-}, {
-  name: 'twitter:description',
-  content: 'Video game related events around you and all over the world.'
-}];
+export const meta = ({ matches, location }) =>
+  pageMeta(matches, {
+    title: 'Events',
+    description: 'Indie game events around you and around the world: festivals, conventions, meetups and game jams.',
+    path: location.pathname,
+  });
 
 const Events = () => {
   const { events, pastEvents, currentUser, facets, selected } = useLoaderData();

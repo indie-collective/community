@@ -3,6 +3,7 @@ import { Box, Heading, LinkBox, LinkOverlay, SimpleGrid, Stack, Text } from '@ch
 import { Link, useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
+import { pageMeta } from '../utils/meta';
 
 export const loader = async () => {
   const data = {
@@ -15,9 +16,12 @@ export const loader = async () => {
   return data;
 };
 
-export const meta = () => [{
-  title: 'Countries | Indie Collective - Community powered video game data'
-}];
+export const meta = ({ matches, location }) =>
+  pageMeta(matches, {
+    title: 'Countries | Indie Collective - Community powered video game data',
+    description: 'Indie game studios and associations, country by country.',
+    path: location.pathname,
+  });
 
 const CountriesPage = () => {
   const { countries } = useLoaderData();

@@ -36,6 +36,7 @@ import Error from './components/Error';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import { Toaster } from './components/ui/toaster';
+import { pageMeta } from './utils/meta';
 
 export function links() {
   return [
@@ -53,42 +54,8 @@ export function links() {
   ];
 }
 
-export const meta = () => [
-  {
-    charSet: 'utf-8',
-  },
-  {
-    title: 'Community',
-  },
-  {
-    name: 'description',
-    content: 'Video game related events around you and all over the world.',
-  },
-  {
-    name: 'viewport',
-    content: 'width=device-width,initial-scale=1',
-  },
-  {
-    property: 'og:title',
-    content: 'Community',
-  },
-  {
-    property: 'og:description',
-    content: 'Video game related events around you and all over the world.',
-  },
-  {
-    name: 'twitter:site',
-    content: '@IndieColle',
-  },
-  {
-    name: 'twitter:title',
-    content: 'Community',
-  },
-  {
-    name: 'twitter:description',
-    content: 'Video game related events around you and all over the world.',
-  },
-];
+// The charset and viewport tags are in Layout; routes return the full set.
+export const meta = ({ matches, location }) => pageMeta(matches, { title: 'Community', path: location.pathname });
 
 export const Layout = withEmotionCache((props, cache) => {
   const { children } = props;

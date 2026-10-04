@@ -22,7 +22,7 @@ import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
 import computeEvent from '../models/event';
 import { formatDistanceToNow } from 'date-fns';
-import { ogUrl } from '../utils/meta';
+import { pageMeta } from '../utils/meta';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -81,24 +81,11 @@ export const meta = ({
   const {
     event
   } = data;
-  return [{
-    title: `Version history - ${event.name}`
-  }, {
-    property: 'og:title',
-    content: `Version history - ${event.name}`
-  }, {
-    property: 'og:description',
-    content: `Version history of ${event.name}.`
-  }, ...ogUrl(matches, `/event/${event.id}`), {
-    name: 'twitter:site',
-    content: '@IndieColle'
-  }, {
-    name: 'twitter:title',
-    content: `Version history - ${event.name}`
-  }, {
-    name: 'twitter:description',
-    content: `Version history of ${event.name}.`
-  }];
+  return pageMeta(matches, {
+    title: `Version history - ${event.name}`,
+    description: `Version history of ${event.name}.`,
+    path: `/event/${event.id}`,
+  });
 };
 
 const operationsColors = {
