@@ -30,6 +30,8 @@ export default defineConfig({
       TZ: 'UTC',
       // A local catcher (see auth.spec.js) stands in for Discord's webhook.
       DISCORD_NOTIFICATION_WEBHOOK: 'http://127.0.0.1:3199/discord-webhook',
+      // A local stand-in for Bluesky's public API (see orgs.spec.js).
+      BLUESKY_API: 'http://127.0.0.1:3198',
     },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

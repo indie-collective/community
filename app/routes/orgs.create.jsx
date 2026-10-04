@@ -9,6 +9,7 @@ import { notifyDiscord } from '../utils/discordNotification.server';
 import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
 import OrgForm from '../components/OrgForm';
+import { checkBlueskyHandle } from '../utils/bluesky.server';
 
 export async function action(args) {
   const { request } = args;
@@ -34,6 +35,8 @@ export async function action(args) {
         name: data.get('name'),
         type: data.get('type').toLowerCase(),
         site: data.get('site'),
+        // Throws a message for the form if it doesn't resolve (#161).
+        bsky_handle: await checkBlueskyHandle(data.get('bsky_handle')),
         about: data.get('about'),
         // igdb_slug,
         location: Object.values(location).some((l) => l !== null)

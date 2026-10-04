@@ -40,6 +40,7 @@ import { pageMeta, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
 import { orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
 import EmptyHint from '../components/EmptyHint';
+import { FaBluesky } from 'react-icons/fa6';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -161,6 +162,7 @@ const Org = () => {
     name,
     type,
     site,
+    bsky_handle,
     about,
     location,
     logo,
@@ -197,6 +199,17 @@ const Org = () => {
                 {orgTypeLabel(type)}
               </Badge>
             </DarkMode>
+            {bsky_handle && (
+              <ChakraLink
+                href={`https://bsky.app/profile/${bsky_handle}`}
+                ml={2}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Bluesky: @${bsky_handle}`}
+              >
+                <FaBluesky />@{bsky_handle}
+              </ChakraLink>
+            )}
             {site && (
               <ChakraLink
                 href={site}
