@@ -9,6 +9,7 @@ import { db } from './db.server';
 import getImageLinks from './imageLinks.server';
 import { sessionStorage } from './session.server';
 import { Authorizer } from './authorizer.server';
+import { notifyNewMember } from './discordNotification.server';
 
 export let authenticator = new Authenticator();
 
@@ -49,6 +50,7 @@ if (process.env.NODE_ENV === 'development') {
               isAdmin: true,
             },
           });
+          await notifyNewMember(user);
         }
 
         let avatar;
@@ -149,6 +151,7 @@ authenticator.use(
               isAdmin,
             },
           });
+          await notifyNewMember(user);
         }
 
         let avatar = discordAvatar;

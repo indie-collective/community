@@ -60,3 +60,35 @@ test('an off-site prev sends signed-in users home instead', async ({ page }) => 
   await page.goto('/signin?prev=/games');
   await expect(page).toHaveURL('/games');
 });
+
+// #34: the team hears about new members on Discord, once, without emails.
+test.describe('new member notifications', () => {
+  const posts = [];
+  let server;
+  test.beforeAll(async () => {
+    const { createServer } = await import('node:http');
+    server = createServer((req, res) => {
+      let body = '';
+      req.on('data', (chunk) => (body += chunk));
+      req.on('end', () => {
+        posts.push(JSON.parse(body));
+        res.writeHead(204).end();
+      });
+    });
+    await new Promise((resolve) => server.listen(3199, '127.0.0.1', resolve));
+  });
+  test.afterAll(() => new Promise((resolve) => server.close(resolve)));
+
+  test('a new account is announced once', async ({ page }) => {
+    const email = `newcomer-${Date.now()}@indieco.test`;
+    await signIn(page, email);
+    const announced = posts.filter((post) => post.content.startsWith('👋 New member'));
+    expect(announced).toHaveLength(1);
+    expect(announced[0].content).toContain('**@newcomer-');
+    expect(announced[0].content).not.toContain(email);
+    expect(announced[0].allowed_mentions).toEqual({ parse: [] });
+
+    await signIn(page, email);
+    expect(posts.filter((post) => post.content.startsWith('👋 New member'))).toHaveLength(1);
+  });
+});
