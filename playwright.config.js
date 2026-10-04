@@ -22,7 +22,9 @@ export default defineConfig({
     command:
       'npx react-router build && node node_modules/@react-router/serve/bin.js build/server/index.js',
     url: `http://localhost:${PORT}/about`,
-    env: { PORT: String(PORT), NODE_ENV: 'development' },
+    // UTC like CI (and most hosts): event times must not depend on the
+    // server's time zone (#204).
+    env: { PORT: String(PORT), NODE_ENV: 'development', TZ: 'UTC' },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

@@ -212,7 +212,7 @@ const Profile = () => {
                     </Switch.Root>
                   </Table.Cell>
                   <Table.Cell>
-                    <time dateTime={created_at} title={created_at}>
+                    <time dateTime={created_at && new Date(created_at).toISOString()} title={created_at && new Date(created_at).toISOString()}>
                       {formatDistanceToNow(new Date(created_at), {
                         addSuffix: true,
                       })}
