@@ -18,16 +18,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import countryNames from '../assets/countries.json';
 import Card from './Card';
 import CardLink from './CardLink';
-
-const TYPES_ABBR = {
-  studio: 'studio',
-  association: 'assoc',
-};
-
-const TYPES_COLORS = {
-  studio: 'yellow',
-  association: 'green',
-};
+import { orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
 
 export const OrgCardSkeleton = () => (
   <Flex position="relative" alignItems="center">
@@ -100,10 +91,10 @@ const OrgCard = ({
               right="3px"
               rounded={3}
               variant="solid"
-              colorPalette={TYPES_COLORS[type]}
+              colorPalette={orgTypeColor(type)}
               fontSize="0.55em"
             >
-              {TYPES_ABBR[type]}
+              {orgTypeLabel(type, { short: true })}
             </Badge>
           </DarkMode>
         </Flex>

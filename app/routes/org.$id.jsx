@@ -37,11 +37,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import { ogUrl } from '../utils/meta';
-
-const TYPES_COLORS = {
-  studio: 'yellow',
-  association: 'green',
-};
+import { orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -196,9 +192,9 @@ const Org = () => {
               <Badge
                 rounded={3}
                 variant="solid"
-                colorPalette={TYPES_COLORS[type]}
+                colorPalette={orgTypeColor(type)}
               >
-                {type}
+                {orgTypeLabel(type)}
               </Badge>
             </DarkMode>
             {site && (
