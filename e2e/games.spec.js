@@ -57,3 +57,40 @@ test('game tags are lists of separate items', async ({ page }) => {
   // The game's own tags (related game cards below have their own lists).
   await expect(page.locator('main').getByRole('list', { name: 'Tags' }).first()).toBeVisible();
 });
+
+// #206: the games list could only be filtered by tag.
+test('the games list can be searched and sorted', async ({ page }) => {
+  await page.goto('/games?sort=name');
+  const names = await page.locator('main h3 a[href^="/game/"]').allInnerTexts();
+  expect(names.length).toBeGreaterThan(1);
+  expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })));
+  await expect(page.getByLabel('Sort by')).toHaveValue('name');
+
+  const target = names[1];
+  const word = target.split(/\s+/).find((w) => w.length > 3) ?? target;
+  await page.getByRole('searchbox', { name: 'Search games' }).fill(word);
+  await expect(page).toHaveURL(new RegExp(`[?&]q=${encodeURIComponent(word)}`));
+  await expect(page).toHaveURL(/[?&]sort=name/);
+  await expect(page.locator('main h3 a[href^="/game/"]', { hasText: target })).toBeVisible();
+  for (const name of await page.locator('main h3 a[href^="/game/"]').allInnerTexts()) {
+    expect(name.toLowerCase()).toContain(word.toLowerCase());
+  }
+
+  // Tag filters keep the search and the sort.
+  await page.getByRole('group', { name: 'Filter by tag' }).getByRole('button').first().click();
+  await expect(page).toHaveURL(/[?&]tags=/);
+  await expect(page).toHaveURL(/[?&]q=/);
+  await expect(page).toHaveURL(/[?&]sort=name/);
+
+  // Unknown sorts fall back to the default.
+  expect((await page.request.get('/games?sort=bogus')).status()).toBe(200);
+
+  // Loading more on scroll keeps the sort.
+  await page.goto('/games?sort=name');
+  const cards = page.locator('main h3 a[href^="/game/"]');
+  const firstPage = await cards.count();
+  await page.mouse.wheel(0, 20000);
+  await expect.poll(() => cards.count()).toBeGreaterThan(firstPage);
+  const all = await cards.allInnerTexts();
+  expect(all).toEqual([...all].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })));
+});
