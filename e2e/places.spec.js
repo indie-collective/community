@@ -9,12 +9,49 @@ test('country pages render their cities, and unknown countries are a 404', async
   const response = await page.goto(href, { waitUntil: 'networkidle' });
   expect(response.status()).toBe(200);
   await expect(page.getByRole('heading', { name: 'Most vibrant cities' })).toBeVisible();
-  await expect(page.getByText(/structures?$/).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Upcoming events' })).toBeVisible();
   expect(errors).toEqual([]);
 
   const unknown = await page.goto('/country/zz');
   expect(unknown.status()).toBe(404);
   await expect(page.getByText('Not Found')).toBeVisible();
+});
+
+// #73: cities ranked with their region and a bar, and the next events in the country.
+test('a country page ranks its cities and lists its next events', async ({ page }) => {
+  const { PrismaClient } = await import('@prisma/client');
+  const db = new PrismaClient();
+  const tag = Date.now() % 100000;
+  const day = 24 * 60 * 60 * 1000;
+  const place = await db.location.create({
+    data: { country_code: 'AQ', city: `Frostville ${tag}`, region: 'Ross Dependency' },
+  });
+  const orgs = await Promise.all(
+    [1, 2].map((n) => db.entity.create({ data: { name: `Ice Studio ${tag}-${n}`, type: 'studio', location_id: place.id } }))
+  );
+  const event = (name, data) =>
+    db.event.create({ data: { name: `${name} ${tag}`, location_id: place.id, starts_at: new Date('2000-01-01'), ends_at: new Date(Date.now() + day), ...data } });
+  const events = await Promise.all([
+    event('Polar Jam', {}),
+    event('Called-off Jam', { status: 'canceled' }),
+    event('Old Jam', { ends_at: new Date(Date.now() - day) }),
+  ]);
+  try {
+    await page.goto('/country/aq');
+    const city = page.getByRole('listitem').filter({ hasText: `Frostville ${tag}` });
+    await expect(city).toContainText('Ross Dependency');
+    await expect(city).toContainText('2 structures');
+
+    await expect(page.getByText(`Polar Jam ${tag}`)).toBeVisible();
+    await expect(page.getByText(`Called-off Jam ${tag}`)).toHaveCount(0);
+    await expect(page.getByText(`Old Jam ${tag}`)).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'All events in Antarctica' })).toHaveAttribute('href', '/events?country=AQ');
+  } finally {
+    await db.event.deleteMany({ where: { id: { in: events.map((e) => e.id) } } });
+    await db.entity.deleteMany({ where: { id: { in: orgs.map((o) => o.id) } } });
+    await db.location.delete({ where: { id: place.id } });
+    await db.$disconnect();
+  }
 });
 
 test('places allows page zoom', async ({ page }) => {
