@@ -18,12 +18,7 @@ import {
   NativeSelect,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  Link,
-  useFetcher,
-  useLoaderData,
-  useSearchParams,
-} from 'react-router';
+import { Link, useFetcher, useLoaderData, useSearchParams } from 'react-router';
 import { LuPlus, LuSearch } from 'react-icons/lu';
 
 import { db } from '../utils/db.server';
@@ -31,6 +26,7 @@ import computeGame from '../models/game';
 import GameCard from '../components/GameCard';
 import useDebounce from '../hooks/useDebounce';
 import { pageMeta } from '../utils/meta';
+import countryNames from '../assets/countries.json';
 
 // The sort options: user input picks one by name, never reaches Prisma.
 const SORTS = {
@@ -45,10 +41,20 @@ export const loader = async ({ request }) => {
   const page = Number(searchParams.get('page') || '1');
   const selectedTags = searchParams.getAll('tags');
   const q = searchParams.get('q')?.trim() || null;
-  const sort = SORTS[searchParams.get('sort')] ? searchParams.get('sort') : DEFAULT_SORT;
+  const sort = SORTS[searchParams.get('sort')]
+    ? searchParams.get('sort')
+    : DEFAULT_SORT;
+  // Games made in a country: by one of its studios (#258).
+  const countryCode = searchParams.get('country')?.toUpperCase();
+  const country = countryNames[countryCode] ? countryCode : null;
 
   const where = {
     deleted: false,
+    ...(country && {
+      game_entity: {
+        some: { entity: { location: { country_code: country } } },
+      },
+    }),
     ...(q && {
       OR: [
         { name: { contains: q, mode: 'insensitive' } },
@@ -127,6 +133,7 @@ export const loader = async ({ request }) => {
     games: await Promise.all(games.map(computeGame)),
     q: q ?? '',
     sort,
+    country: country && { code: country, name: countryNames[country] },
   };
 
   return data;
@@ -135,12 +142,13 @@ export const loader = async ({ request }) => {
 export const meta = ({ matches, location }) =>
   pageMeta(matches, {
     title: 'Games',
-    description: 'Indie games from the community: browse them by tag, see who made them and where they were shown.',
+    description:
+      'Indie games from the community: browse them by tag, see who made them and where they were shown.',
     path: location.pathname,
   });
 
 const Games = () => {
-  const { games: initialGames, tags, q, sort } = useLoaderData();
+  const { games: initialGames, tags, q, sort, country } = useLoaderData();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const selectedTags = searchParams.getAll('tags');
@@ -153,7 +161,8 @@ const Games = () => {
         next.delete('page');
         for (const [key, value] of Object.entries(changes)) {
           next.delete(key);
-          for (const v of [].concat(value ?? [])) if (v !== '') next.append(key, v);
+          for (const v of [].concat(value ?? []))
+            if (v !== '') next.append(key, v);
         }
         return next;
       }, options),
@@ -165,7 +174,8 @@ const Games = () => {
   useEffect(() => setQuery(q), [q]);
   const debouncedQuery = useDebounce(query, 300);
   useEffect(() => {
-    if (debouncedQuery.trim() !== q) updateParams({ q: debouncedQuery.trim() }, { replace: true });
+    if (debouncedQuery.trim() !== q)
+      updateParams({ q: debouncedQuery.trim() }, { replace: true });
   }, [debouncedQuery]);
 
   const [games, setGames] = useState(initialGames);
@@ -256,7 +266,12 @@ const Games = () => {
           <NativeSelect.Field
             aria-label="Sort by"
             value={sort}
-            onChange={(event) => updateParams({ sort: event.target.value === 'updated' ? '' : event.target.value })}
+            onChange={(event) =>
+              updateParams({
+                sort:
+                  event.target.value === 'updated' ? '' : event.target.value,
+              })
+            }
           >
             {Object.entries(SORTS).map(([value, { label }]) => (
               <option key={value} value={value}>
@@ -266,8 +281,25 @@ const Games = () => {
           </NativeSelect.Field>
           <NativeSelect.Indicator />
         </NativeSelect.Root>
+        {country && (
+          <Tag.Root size="lg" variant="subtle" colorPalette="green">
+            <Tag.Label>Made in {country.name}</Tag.Label>
+            <Tag.EndElement>
+              <Tag.CloseTrigger
+                aria-label={`Show games from every country`}
+                onClick={() => updateParams({ country: '' })}
+              />
+            </Tag.EndElement>
+          </Tag.Root>
+        )}
       </Flex>
-      <Wrap gap={2} mb={10} align="flex-end" role="group" aria-label="Filter by tag">
+      <Wrap
+        gap={2}
+        mb={10}
+        align="flex-end"
+        role="group"
+        aria-label="Filter by tag"
+      >
         {tags.slice(0, 30).map((tag) => {
           const selected = selectedTags.includes(tag.name);
           return (

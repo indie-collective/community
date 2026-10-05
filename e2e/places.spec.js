@@ -8,13 +8,75 @@ test('country pages render their cities, and unknown countries are a 404', async
 
   const response = await page.goto(href, { waitUntil: 'networkidle' });
   expect(response.status()).toBe(200);
-  await expect(page.getByRole('heading', { name: 'Most vibrant cities' })).toBeVisible();
-  await expect(page.getByText(/structures?$/).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Cities', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Upcoming events' })).toBeVisible();
   expect(errors).toEqual([]);
 
   const unknown = await page.goto('/country/zz');
   expect(unknown.status()).toBe(404);
   await expect(page.getByText('Not Found')).toBeVisible();
+});
+
+// #258: a country page is the overview of its scene: numbers, cities with
+// the studio/association split, associations by city, games made there,
+// and its next events.
+test('a country page gives the overview of its scene', async ({ page }) => {
+  const { PrismaClient } = await import('@prisma/client');
+  const db = new PrismaClient();
+  const tag = Date.now() % 100000;
+  const day = 24 * 60 * 60 * 1000;
+  const place = await db.location.create({
+    data: { country_code: 'AQ', city: `Frostville ${tag}`, region: 'Ross Dependency' },
+  });
+  const org = (name, type) => db.entity.create({ data: { name: `${name} ${tag}`, type, location_id: place.id } });
+  const orgs = await Promise.all([org('Ice Studio 1', 'studio'), org('Ice Studio 2', 'studio'), org('Penguin Club', 'association')]);
+  const game = await db.game.create({
+    data: { name: `Glacier Run ${tag}`, game_entity: { create: { entity_id: orgs[0].id } } },
+  });
+  const event = (name, data) =>
+    db.event.create({ data: { name: `${name} ${tag}`, location_id: place.id, starts_at: new Date('2000-01-01'), ends_at: new Date(Date.now() + day), ...data } });
+  const events = await Promise.all([
+    event('Polar Jam', {}),
+    event('Called-off Jam', { status: 'canceled' }),
+    event('Old Jam', { ends_at: new Date(Date.now() - day) }),
+  ]);
+  try {
+    await page.goto('/country/aq');
+    await expect(page.getByRole('heading', { name: "Antarctica's indie game scene" })).toBeVisible();
+    await expect(page).toHaveTitle('Indie game studios and associations in Antarctica');
+    for (const [label, list] of [['studios', 'studios'], ['associations', 'associations'], ['games', 'games'], ['upcoming events', 'events']]) {
+      await expect(page.getByRole('link', { name: new RegExp(`^[\\d,]+ ${label.replace(/s$/, '')}s?$`) })).toHaveAttribute('href', `/${list}?country=AQ`);
+    }
+
+    const city = page.getByRole('listitem').filter({ hasText: `Frostville ${tag}` });
+    await expect(city).toContainText('Ross Dependency');
+    await expect(city).toContainText('2 studios, 1 association');
+
+    await expect(page.getByRole('link', { name: `Penguin Club ${tag}` })).toHaveAttribute('href', `/org/${orgs[2].id}`);
+    await expect(page.getByRole('heading', { name: 'Games made in Antarctica' })).toBeVisible();
+    await expect(page.getByText(`Glacier Run ${tag}`)).toBeVisible();
+
+    await expect(page.getByText(`Polar Jam ${tag}`)).toBeVisible();
+    await expect(page.getByText(`Called-off Jam ${tag}`)).toHaveCount(0);
+    await expect(page.getByText(`Old Jam ${tag}`)).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'All events in Antarctica' })).toHaveAttribute('href', '/events?country=AQ');
+
+    // The games list follows: only games made in Antarctica, until the filter is removed.
+    await page.getByRole('link', { name: /^All [\d,]+ games?$/ }).click();
+    await expect(page).toHaveURL('/games?country=AQ');
+    await expect(page.getByText('Made in Antarctica')).toBeVisible();
+    await expect(page.getByText(`Glacier Run ${tag}`)).toBeVisible();
+    await page.getByRole('button', { name: 'Show games from every country' }).click();
+    await expect(page).toHaveURL('/games');
+    await expect(page.getByText('Made in Antarctica')).toHaveCount(0);
+  } finally {
+    await db.event.deleteMany({ where: { id: { in: events.map((e) => e.id) } } });
+    await db.game_entity.deleteMany({ where: { game_id: game.id } });
+    await db.game.delete({ where: { id: game.id } });
+    await db.entity.deleteMany({ where: { id: { in: orgs.map((o) => o.id) } } });
+    await db.location.delete({ where: { id: place.id } });
+    await db.$disconnect();
+  }
 });
 
 test('places allows page zoom', async ({ page }) => {
