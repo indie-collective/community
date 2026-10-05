@@ -141,6 +141,7 @@ const Navigation = ({ search }) => {
                 <NavLink href="/studios">Studios</NavLink>
                 <NavLink href="/associations">Associations</NavLink>
                 <NavLink href="/events">Events</NavLink>
+                <NavLink href="/countries">Countries</NavLink>
                 <NavLink href="/places">Map</NavLink>
 
                 {currentUser?.isAdmin && <AdminDropdown isMobile />}
@@ -206,6 +207,7 @@ const Navigation = ({ search }) => {
           <NavLink href="/studios">Studios</NavLink>
           <NavLink href="/associations">Associations</NavLink>
           <NavLink href="/events">Events</NavLink>
+          <NavLink href="/countries">Countries</NavLink>
           <NavLink href="/places">Map</NavLink>
           <Spacer />
           {currentUser?.isAdmin && <AdminDropdown />}

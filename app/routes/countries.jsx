@@ -1,25 +1,48 @@
-import { Box, Heading, LinkBox, LinkOverlay, SimpleGrid, Stack, Text } from '@chakra-ui/react';
-
-import { Link, useLoaderData } from 'react-router';
+import { Box, Heading, Text } from '@chakra-ui/react';
+import { useLoaderData } from 'react-router';
 
 import { db } from '../utils/db.server';
+import countryNames from '../assets/countries.json';
+import continents from '../assets/continents.json';
+import { countryTable } from '../utils/countryTable';
+import CountriesTable from '../components/CountriesTable';
 import { pageMeta } from '../utils/meta';
 
+// Every country with something placed in it, as a periodic table (#258).
 export const loader = async () => {
-  const data = {
-    countries:
-      await db.$queryRaw`select country_code, count(e.id)::int from location l left join entity e on l.id = e.location_id group by country_code order by count desc;`,
+  const [locations, gameLinks, events] = await Promise.all([
+    db.location.findMany({
+      select: { country_code: true, entity: { select: { type: true } } },
+    }),
+    // Games made by each country's studios.
+    db.game_entity.findMany({
+      where: { game: { deleted: false } },
+      select: {
+        game_id: true,
+        entity: { select: { location: { select: { country_code: true } } } },
+      },
+    }),
+    db.event.findMany({
+      select: { location: { select: { country_code: true } } },
+    }),
+  ]);
+
+  return {
+    countries: countryTable({
+      locations,
+      gameLinks,
+      events,
+      names: countryNames,
+      continents,
+    }),
   };
-
-  console.log('data', data);
-
-  return data;
 };
 
 export const meta = ({ matches, location }) =>
   pageMeta(matches, {
-    title: 'Countries | Indie Collective - Community powered video game data',
-    description: 'Indie game studios and associations, country by country.',
+    title: 'Indie game scenes, country by country',
+    description:
+      'Indie game studios and associations, country by country: where they are, the games they make and their events.',
     path: location.pathname,
   });
 
@@ -28,31 +51,14 @@ const CountriesPage = () => {
 
   return (
     <Box mb={5} px={5}>
-      <Heading as="h3" size="xl" mb={5}>
+      <Heading as="h2" size="2xl" mt={5} mb={2}>
         Countries
       </Heading>
-      <SimpleGrid
-        columns={{ base: 4, sm: 5, md: 6 }}
-        gap={{ base: '5', md: '6' }}
-      >
-        {countries.map(({ country_code, count }) => (
-          <LinkBox
-            key={country_code}
-            px={{ base: '4', md: '6' }}
-            py={{ base: '5', md: '6' }}
-            bg="bg-surface"
-            borderRadius="lg"
-            border="1px solid"
-          >
-            <Stack>
-              <LinkOverlay asChild><Link to={`/country/${country_code.toLowerCase()}`}>
-                  <Text fontSize="sm">{country_code}</Text>
-                </Link></LinkOverlay>
-              <Heading size={{ base: 'md', md: 'lg' }}>{count}</Heading>
-            </Stack>
-          </LinkBox>
-        ))}
-      </SimpleGrid>
+      <Text color="fg.muted" mb={5}>
+        Every country with indie game studios, associations or events, by
+        continent. The number is its rank by studios and associations.
+      </Text>
+      <CountriesTable countries={countries} />
     </Box>
   );
 };
