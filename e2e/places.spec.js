@@ -8,7 +8,8 @@ test('country pages render their cities, and unknown countries are a 404', async
 
   const response = await page.goto(href, { waitUntil: 'networkidle' });
   expect(response.status()).toBe(200);
-  await expect(page.getByRole('heading', { name: 'Cities', exact: true })).toBeVisible();
+  // The map where the country has one, a list of cities otherwise.
+  await expect(page.getByRole('heading', { name: /^(Where .+'s scene is|Cities)$/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Upcoming events' })).toBeVisible();
   expect(errors).toEqual([]);
 
@@ -26,7 +27,8 @@ test('a country page gives the overview of its scene', async ({ page }) => {
   const tag = Date.now() % 100000;
   const day = 24 * 60 * 60 * 1000;
   const place = await db.location.create({
-    data: { country_code: 'AQ', city: `Frostville ${tag}`, region: 'Ross Dependency' },
+    // McMurdo Station.
+    data: { country_code: 'AQ', city: `Frostville ${tag}`, region: 'Ross Dependency', latitude: -77.85, longitude: 166.67 },
   });
   const org = (name, type) => db.entity.create({ data: { name: `${name} ${tag}`, type, location_id: place.id } });
   const orgs = await Promise.all([org('Ice Studio 1', 'studio'), org('Ice Studio 2', 'studio'), org('Penguin Club', 'association')]);
@@ -48,11 +50,30 @@ test('a country page gives the overview of its scene', async ({ page }) => {
       await expect(page.getByRole('link', { name: new RegExp(`^[\\d,]+ ${label.replace(/s$/, '')}s?$`) })).toHaveAttribute('href', `/${list}?country=AQ`);
     }
 
-    const city = page.getByRole('listitem').filter({ hasText: `Frostville ${tag}` });
-    await expect(city).toContainText('Ross Dependency');
-    await expect(city).toContainText('2 studios, 1 association');
+    // The city, in the list and as a circle on the map; choosing it shows who's there.
+    // The map, with the city called out; choosing it shows its studios and associations.
+    await expect(page.getByRole('heading', { name: "Where Antarctica's scene is" })).toBeVisible();
+    const map = page.getByRole('group', { name: 'Map of the main areas for indie games' });
+    const callout = map.getByRole('button', { name: `Frostville ${tag}: 2 studios, 1 association` });
+    await expect(callout).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Explore Antarctica on the map' })).toHaveAttribute('href', '/places?country=AQ');
 
-    await expect(page.getByRole('link', { name: `Penguin Club ${tag}` })).toHaveAttribute('href', `/org/${orgs[2].id}`);
+    await callout.click();
+    await expect(callout).toHaveAttribute('aria-pressed', 'true');
+    const details = page.locator('[aria-live="polite"]', {
+      has: page.getByRole('heading', { level: 4, name: new RegExp(`^Frostville ${tag}`) }),
+    });
+    await expect(details.getByRole('link', { name: '2 studios' })).toHaveAttribute(
+      'href',
+      `/studios?country=AQ&city=Frostville%20${tag}`
+    );
+    await expect(details.getByRole('link', { name: '1 association' })).toHaveAttribute(
+      'href',
+      `/associations?country=AQ&city=Frostville%20${tag}`
+    );
+
+    const associations = page.locator('section', { has: page.getByRole('heading', { name: 'Associations', exact: true }) });
+    await expect(associations.getByRole('link', { name: `Penguin Club ${tag}` })).toHaveAttribute('href', `/org/${orgs[2].id}`);
     await expect(page.getByRole('heading', { name: 'Games made in Antarctica' })).toBeVisible();
     await expect(page.getByText(`Glacier Run ${tag}`)).toBeVisible();
 
