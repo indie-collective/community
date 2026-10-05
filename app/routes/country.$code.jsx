@@ -5,7 +5,6 @@ import {
   Heading,
   Image,
   Link as ChakraLink,
-  List,
   SimpleGrid,
   Stack,
   Text,
@@ -22,7 +21,9 @@ import EventCard from '../components/EventCard';
 import GameCard from '../components/GameCard';
 import EmptyHint from '../components/EmptyHint';
 import { pageMeta } from '../utils/meta';
-import { associationsByCity, topCities } from '../utils/countryOverview';
+import { associationsByCity, citiesOf } from '../utils/countryOverview';
+import countryMaps from '../assets/countryMaps.json';
+import CountryCities from '../components/CountryCities';
 
 // A country page is the overview of its indie scene, for newcomers and
 // peers, and for search (#258). /places is for exploring on a map.
@@ -66,7 +67,9 @@ export const loader = async ({ request, params }) => {
         id: true,
         name: true,
         type: true,
-        location: { select: { city: true, region: true } },
+        location: {
+          select: { city: true, region: true, latitude: true, longitude: true },
+        },
       },
     }),
     db.game.count({ where: gamesMadeHere }),
@@ -96,6 +99,7 @@ export const loader = async ({ request, params }) => {
   ]);
 
   const associations = orgs.filter((org) => org.type === 'association');
+  const cities = citiesOf(orgs);
 
   return {
     country: {
@@ -106,11 +110,10 @@ export const loader = async ({ request, params }) => {
         associations: associations.length,
         games: gameCount,
         events: eventCount,
-        cities: new Set(
-          orgs.map((org) => org.location?.city?.trim()).filter(Boolean)
-        ).size,
+        cities: cities.length,
       },
-      cities: topCities(orgs),
+      cities,
+      hasMap: countryMaps.includes(countryCode),
       associations: associationsByCity(associations).map(
         ({ city, associations: list }) => ({
           city,
@@ -142,9 +145,6 @@ export const meta = ({ data, matches, location }) => {
     path: location.pathname,
   });
 };
-
-const STUDIO = 'yellow.solid';
-const ASSOCIATION = 'green.solid';
 
 const Section = ({ title, action, children, ...rest }) => (
   <Box as="section" mb={12} {...rest}>
@@ -192,14 +192,6 @@ const AssociationGroups = ({ groups }) => (
   </Grid>
 );
 
-const splitText = ({ studios, associations }) =>
-  [
-    studios && plural(studios, 'studio'),
-    associations && plural(associations, 'association'),
-  ]
-    .filter(Boolean)
-    .join(', ');
-
 const CountryPage = () => {
   const { country, currentUser } = useLoaderData();
   const {
@@ -207,11 +199,11 @@ const CountryPage = () => {
     name,
     counts,
     cities,
+    hasMap,
     associations,
     recentGames,
     upcomingEvents,
   } = country;
-  const most = cities[0]?.count ?? 0;
 
   const stats = [
     [counts.studios, 'studio', 'studios', `/studios?country=${code}`],
@@ -271,63 +263,13 @@ const CountryPage = () => {
         ))}
       </SimpleGrid>
 
-      <Section
-        title="Cities"
-        maxW="44rem"
-        action={
-          <Flex gap={4} fontSize="sm" color="fg.muted" aria-hidden>
-            <Flex align="center" gap={1}>
-              <Box w="12px" h="12px" borderRadius="sm" bg={STUDIO} /> Studios
-            </Flex>
-            <Flex align="center" gap={1}>
-              <Box w="12px" h="12px" borderRadius="sm" bg={ASSOCIATION} />{' '}
-              Associations
-            </Flex>
-          </Flex>
-        }
-      >
-        {cities.length > 0 ? (
-          // No per-city page exists yet, so cities aren't links.
-          <List.Root listStyle="none" gap={3}>
-            {cities.map((city) => (
-              <List.Item key={city.name} display="block">
-                <Flex justify="space-between" gap={3}>
-                  <Text fontWeight="semibold" lineClamp={1}>
-                    {city.name}
-                    {city.region && city.region !== city.name && (
-                      <Text as="span" fontWeight="normal" color="fg.muted">
-                        , {city.region}
-                      </Text>
-                    )}
-                  </Text>
-                  <Text whiteSpace="nowrap" fontSize="sm" color="fg.muted">
-                    {splitText(city)}
-                  </Text>
-                </Flex>
-                <Flex
-                  aria-hidden
-                  mt={1}
-                  h="8px"
-                  gap="2px"
-                  w={`${Math.max((city.count / most) * 100, 2)}%`}
-                >
-                  {city.studios > 0 && (
-                    <Box flex={city.studios} bg={STUDIO} borderRadius="full" />
-                  )}
-                  {city.associations > 0 && (
-                    <Box
-                      flex={city.associations}
-                      bg={ASSOCIATION}
-                      borderRadius="full"
-                    />
-                  )}
-                </Flex>
-              </List.Item>
-            ))}
-          </List.Root>
-        ) : (
-          <Text color="fg.muted">No studios or associations here yet.</Text>
-        )}
+      <Section title="Cities">
+        <CountryCities
+          code={code}
+          name={name}
+          cities={cities}
+          hasMap={hasMap}
+        />
       </Section>
 
       <Section

@@ -26,7 +26,8 @@ test('a country page gives the overview of its scene', async ({ page }) => {
   const tag = Date.now() % 100000;
   const day = 24 * 60 * 60 * 1000;
   const place = await db.location.create({
-    data: { country_code: 'AQ', city: `Frostville ${tag}`, region: 'Ross Dependency' },
+    // McMurdo Station.
+    data: { country_code: 'AQ', city: `Frostville ${tag}`, region: 'Ross Dependency', latitude: -77.85, longitude: 166.67 },
   });
   const org = (name, type) => db.entity.create({ data: { name: `${name} ${tag}`, type, location_id: place.id } });
   const orgs = await Promise.all([org('Ice Studio 1', 'studio'), org('Ice Studio 2', 'studio'), org('Penguin Club', 'association')]);
@@ -48,11 +49,23 @@ test('a country page gives the overview of its scene', async ({ page }) => {
       await expect(page.getByRole('link', { name: new RegExp(`^[\\d,]+ ${label.replace(/s$/, '')}s?$`) })).toHaveAttribute('href', `/${list}?country=AQ`);
     }
 
+    // The city, in the list and as a circle on the map; choosing it shows who's there.
     const city = page.getByRole('listitem').filter({ hasText: `Frostville ${tag}` });
     await expect(city).toContainText('Ross Dependency');
     await expect(city).toContainText('2 studios, 1 association');
+    const map = page.getByRole('group', { name: 'Map of cities, circles sized by number of studios and associations' });
+    await expect(map.getByRole('button', { name: `Frostville ${tag}: 2 studios, 1 association` })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Explore Antarctica on the map' })).toHaveAttribute('href', '/places?country=AQ');
 
-    await expect(page.getByRole('link', { name: `Penguin Club ${tag}` })).toHaveAttribute('href', `/org/${orgs[2].id}`);
+    await city.getByRole('button').click();
+    await expect(city.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+    const studiosHere = page.getByRole('link', { name: `All studios in Frostville ${tag}` });
+    await expect(studiosHere).toHaveAttribute('href', `/studios?country=AQ&city=Frostville%20${tag}`);
+    await expect(page.getByRole('link', { name: `All associations in Frostville ${tag}` })).toBeVisible();
+    await expect(page.getByRole('link', { name: `Ice Studio 1 ${tag}` })).toHaveAttribute('href', `/org/${orgs[0].id}`);
+
+    const associations = page.locator('section', { has: page.getByRole('heading', { name: 'Associations', exact: true }) });
+    await expect(associations.getByRole('link', { name: `Penguin Club ${tag}` })).toHaveAttribute('href', `/org/${orgs[2].id}`);
     await expect(page.getByRole('heading', { name: 'Games made in Antarctica' })).toBeVisible();
     await expect(page.getByText(`Glacier Run ${tag}`)).toBeVisible();
 
