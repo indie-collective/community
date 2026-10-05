@@ -148,3 +148,39 @@ test('adding an organisation from a list pre-selects its type', async ({ page })
     await expect(page.getByRole('radio', { name: type })).toBeChecked();
   }
 });
+
+// #258: a country page's cities link to the lists filtered by city.
+test('the studios list filters by city, and keeps it across other filters', async ({ page }) => {
+  const { PrismaClient } = await import('@prisma/client');
+  const db = new PrismaClient();
+  const tag = Date.now() % 100000;
+  const places = await Promise.all(
+    ['Fjordheim', 'Snowdale'].map((city) =>
+      db.location.create({ data: { country_code: 'NO', city: `${city} ${tag}`, region: 'Vestland' } })
+    )
+  );
+  const [here, there] = await Promise.all(
+    places.map((place, i) =>
+      db.entity.create({ data: { name: `Aurora Studio ${tag}-${i}`, type: 'studio', location_id: place.id } })
+    )
+  );
+  try {
+    await page.goto(`/studios?country=NO&city=${encodeURIComponent(`fjordheim ${tag}`)}`);
+    await expect(page.getByText(`In fjordheim ${tag}`)).toBeVisible();
+    await expect(page.getByText(here.name)).toBeVisible();
+    await expect(page.getByText(there.name)).toHaveCount(0);
+
+    // Another filter keeps the city.
+    await page.getByText('Has published games').click();
+    await expect(page).toHaveURL(/has_games=on/);
+    await expect(page).toHaveURL(/city=fjordheim/);
+
+    await page.getByRole('button', { name: 'Show every city' }).click();
+    await expect(page).not.toHaveURL(/city=/);
+    await expect(page.getByText(`In fjordheim ${tag}`)).toHaveCount(0);
+  } finally {
+    await db.entity.deleteMany({ where: { id: { in: [here.id, there.id] } } });
+    await db.location.deleteMany({ where: { id: { in: places.map((p) => p.id) } } });
+    await db.$disconnect();
+  }
+});

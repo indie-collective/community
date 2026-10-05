@@ -108,6 +108,31 @@ test('clicking a place on the map highlights its card', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+// #258: "Explore on the map" from a country page opens /places on it.
+test('places opens on a country when given one', async ({ page }) => {
+  const { PrismaClient } = await import('@prisma/client');
+  const db = new PrismaClient();
+  const tag = Date.now() % 100000;
+  const [reykjavik, sydney] = await Promise.all([
+    db.location.create({ data: { country_code: 'IS', city: `Reykjavík ${tag}`, region: 'Capital Region', latitude: 64.1466, longitude: -21.9426 } }),
+    db.location.create({ data: { country_code: 'AU', city: `Sydney ${tag}`, region: 'New South Wales', latitude: -33.8688, longitude: 151.2093 } }),
+  ]);
+  const [near, far] = await Promise.all([
+    db.entity.create({ data: { name: `Geyser Games ${tag}`, type: 'studio', location_id: reykjavik.id } }),
+    db.entity.create({ data: { name: `Harbour Games ${tag}`, type: 'studio', location_id: sydney.id } }),
+  ]);
+  try {
+    await page.goto('/places?country=IS', { waitUntil: 'networkidle' });
+    // The list beside the map shows what's in view: Iceland, not Australia.
+    await expect(page.locator(`[id="${near.id}"]`)).toBeAttached();
+    await expect(page.locator(`[id="${far.id}"]`)).toHaveCount(0);
+  } finally {
+    await db.entity.deleteMany({ where: { id: { in: [near.id, far.id] } } });
+    await db.location.deleteMany({ where: { id: { in: [reykjavik.id, sydney.id] } } });
+    await db.$disconnect();
+  }
+});
+
 // #212: the event form asked a random a./b./c. OSM subdomain for "@2x"
 // tiles, which OSM answers with 400; every map now uses one tile provider.
 test.describe('on a high-density screen', () => {

@@ -1,10 +1,20 @@
-import { Box, NativeSelect, Checkbox, Wrap } from '@chakra-ui/react';
+import { Box, NativeSelect, Checkbox, Tag, Wrap } from '@chakra-ui/react';
 
-import { Form, useSubmit } from 'react-router';
+import { Form, useNavigate, useSearchParams, useSubmit } from 'react-router';
 import CountryCombobox from './CountryCombobox';
 
 const Filters = ({ facets, selected, type }) => {
   const submit = useSubmit();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Lists filtered to a city (from a country page, #258) keep the city
+  // across the other filters, until it's removed or the country changes.
+  const withoutCity = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('city');
+    return `?${next}`;
+  };
 
   const handleChange = (event) => {
     submit(event.currentTarget.form);
@@ -17,8 +27,33 @@ const Filters = ({ facets, selected, type }) => {
           <CountryCombobox
             countries={facets.countries}
             defaultValue={selected.country}
-            onChange={(form) => submit(form)}
+            onChange={(form) => {
+              form.querySelector('input[name="city"]')?.remove();
+              submit(form);
+            }}
           />
+
+          {selected.city && (
+            <>
+              <input type="hidden" name="city" value={selected.city} />
+              <Tag.Root
+                size="lg"
+                variant="subtle"
+                colorPalette="green"
+                alignSelf="center"
+              >
+                <Tag.Label>In {selected.city}</Tag.Label>
+                <Tag.EndElement>
+                  <Tag.CloseTrigger
+                    // Inside the form: a submit button would send the city again.
+                    type="button"
+                    aria-label="Show every city"
+                    onClick={() => navigate(withoutCity())}
+                  />
+                </Tag.EndElement>
+              </Tag.Root>
+            </>
+          )}
 
           {type === 'event' ? (
             <NativeSelect.Root>
