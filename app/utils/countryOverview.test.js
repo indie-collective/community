@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { topCities } from './countryOverview';
+import { orgPoints, topCities } from './countryOverview';
 
 const at = (city, region) => ({ city, region });
 
@@ -31,5 +31,22 @@ describe('topCities', () => {
     const many = Array.from({ length: 12 }, (_, i) => at(`City ${String(i).padStart(2, '0')}`, null));
     expect(topCities(many)).toHaveLength(10);
     expect(topCities(many, 3).map((c) => c.name)).toEqual(['City 00', 'City 01', 'City 02']);
+  });
+});
+
+describe('orgPoints', () => {
+  it('groups organisations by place, skipping places without coordinates', () => {
+    expect(
+      orgPoints([
+        { latitude: 48.11, longitude: -1.68 },
+        { latitude: 48.11, longitude: -1.68 },
+        { latitude: 45.76, longitude: 4.84 },
+        { latitude: null, longitude: 2 },
+        null,
+      ])
+    ).toEqual([
+      { lat: 48.11, lng: -1.68, count: 2 },
+      { lat: 45.76, lng: 4.84, count: 1 },
+    ]);
   });
 });

@@ -19,7 +19,9 @@ import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import EventCard from '../components/EventCard';
 import EmptyHint from '../components/EmptyHint';
 import { pageMeta } from '../utils/meta';
-import { topCities } from '../utils/countryOverview';
+import { orgPoints, topCities } from '../utils/countryOverview';
+import countryMaps from '../assets/countryMaps.json';
+import CountryRegionMap from '../components/CountryRegionMap';
 
 export const loader = async ({ request, params }) => {
   if (!params.code) {
@@ -39,7 +41,11 @@ export const loader = async ({ request, params }) => {
   const [orgs, upcomingEvents, currentUser] = await Promise.all([
     db.entity.findMany({
       where: { location: { country_code: countryCode } },
-      select: { location: { select: { city: true, region: true } } },
+      select: {
+        location: {
+          select: { city: true, region: true, latitude: true, longitude: true },
+        },
+      },
     }),
     db.event.findMany({
       where: {
@@ -64,6 +70,10 @@ export const loader = async ({ request, params }) => {
       code: countryCode,
       name: countryNames[countryCode],
       cities: topCities(orgs.map(({ location }) => location)),
+      // The region map is drawn in the browser, from these points.
+      points: countryMaps.includes(countryCode)
+        ? orgPoints(orgs.map(({ location }) => location))
+        : null,
       upcomingEvents: upcomingEvents.map((event) => ({
         ...event,
         cover: event.cover ? getImageLinks(event.cover) : null,
@@ -84,7 +94,7 @@ export const meta = ({ data, matches, location }) =>
 
 const CountriesPage = () => {
   const { country, currentUser } = useLoaderData();
-  const { code, name, cities, upcomingEvents } = country;
+  const { code, name, cities, points, upcomingEvents } = country;
   const most = cities[0]?.count ?? 0;
 
   return (
@@ -93,46 +103,67 @@ const CountriesPage = () => {
         {name}'s Game Industry
       </Heading>
 
-      <Box as="section" mb={10} maxW="40rem">
-        <Heading as="h3" size="lg" mb={5}>
-          Most vibrant cities
-        </Heading>
-        {cities.length > 0 ? (
-          // No per-city page exists yet, so cities aren't links.
-          <List.Root listStyle="none" gap={3}>
-            {cities.map(({ name: city, region, count }) => (
-              <List.Item key={city} display="block">
-                <Flex justify="space-between" gap={3}>
-                  <Text fontWeight="semibold" lineClamp={1}>
-                    {city}
-                    {region && region !== city && (
-                      <Text as="span" fontWeight="normal" color="fg.muted">
-                        , {region}
-                      </Text>
-                    )}
-                  </Text>
-                  <Text whiteSpace="nowrap">
-                    {count} {count === 1 ? 'structure' : 'structures'}
-                  </Text>
-                </Flex>
-                <Box
-                  aria-hidden
-                  mt={1}
-                  h="8px"
-                  borderRadius="full"
-                  bg="green.solid"
-                  w={`${Math.max((count / most) * 100, 2)}%`}
-                />
-              </List.Item>
-            ))}
-          </List.Root>
-        ) : (
-          <Text color="fg.muted">No studios or associations here yet.</Text>
+      <Grid
+        templateColumns={{
+          base: '1fr',
+          lg: points?.length
+            ? 'minmax(0, 2fr) minmax(0, 3fr)'
+            : 'minmax(0, 40rem)',
+        }}
+        gap={10}
+        mb={10}
+      >
+        <Box as="section">
+          <Heading as="h3" size="lg" mb={5}>
+            Most vibrant cities
+          </Heading>
+          {cities.length > 0 ? (
+            // No per-city page exists yet, so cities aren't links.
+            <List.Root listStyle="none" gap={3}>
+              {cities.map(({ name: city, region, count }) => (
+                <List.Item key={city} display="block">
+                  <Flex justify="space-between" gap={3}>
+                    <Text fontWeight="semibold" lineClamp={1}>
+                      {city}
+                      {region && region !== city && (
+                        <Text as="span" fontWeight="normal" color="fg.muted">
+                          , {region}
+                        </Text>
+                      )}
+                    </Text>
+                    <Text whiteSpace="nowrap">
+                      {count} {count === 1 ? 'structure' : 'structures'}
+                    </Text>
+                  </Flex>
+                  <Box
+                    aria-hidden
+                    mt={1}
+                    h="8px"
+                    borderRadius="full"
+                    bg="green.solid"
+                    w={`${Math.max((count / most) * 100, 2)}%`}
+                  />
+                </List.Item>
+              ))}
+            </List.Root>
+          ) : (
+            <Text color="fg.muted">No studios or associations here yet.</Text>
+          )}
+        </Box>
+
+        {points?.length > 0 && (
+          <CountryRegionMap code={code} name={name} points={points} />
         )}
-      </Box>
+      </Grid>
 
       <Box as="section">
-        <Flex align="baseline" justify="space-between" gap={3} mb={5} wrap="wrap">
+        <Flex
+          align="baseline"
+          justify="space-between"
+          gap={3}
+          mb={5}
+          wrap="wrap"
+        >
           <Heading as="h3" size="lg">
             Upcoming events
           </Heading>

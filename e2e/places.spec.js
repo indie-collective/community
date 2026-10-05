@@ -54,6 +54,37 @@ test('a country page ranks its cities and lists its next events', async ({ page 
   }
 });
 
+// #73: regions shaded by how many organisations their coordinates put there.
+test('a country page maps its organisations by region', async ({ page }) => {
+  const { PrismaClient } = await import('@prisma/client');
+  const db = new PrismaClient();
+  const tag = Date.now() % 100000;
+  // Central Reykjavík: its own region on the map, though the stored region
+  // name differs. Organisations are placed by coordinates, not names.
+  const place = await db.location.create({
+    data: { country_code: 'IS', city: `Geysir ${tag}`, region: 'Capital Region', latitude: 64.1466, longitude: -21.9426 },
+  });
+  const org = await db.entity.create({ data: { name: `Aurora Games ${tag}`, type: 'studio', location_id: place.id } });
+  try {
+    await page.goto('/country/is');
+    const map = page.getByRole('group', { name: "Map of Iceland's regions, shaded by number of studios and associations" });
+    await expect(map).toBeVisible();
+    const region = map.locator('path[aria-label^="Reykjavík:"]');
+    await expect(region).toHaveAttribute('aria-label', /^Reykjavík: [1-9]\d* structures?$/);
+
+    await region.focus();
+    await expect(page.getByText(/^Reykjavík: [1-9]\d* structures?$/)).toBeVisible();
+    await expect(page.getByRole('list', { name: 'Legend: studios and associations per region' })).toBeVisible();
+
+    await page.getByText('Regions as a list').click();
+    await expect(page.getByRole('listitem').filter({ hasText: 'Reykjavík' })).toBeVisible();
+  } finally {
+    await db.entity.delete({ where: { id: org.id } });
+    await db.location.delete({ where: { id: place.id } });
+    await db.$disconnect();
+  }
+});
+
 test('places allows page zoom', async ({ page }) => {
   await page.goto('/places');
   const viewports = await page.locator('meta[name="viewport"]').evaluateAll(

@@ -25,3 +25,20 @@ export function topCities(locations, limit = 10) {
         [...regions].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? null,
     }));
 }
+
+/**
+ * Organisations as map points: one per place with coordinates, with how
+ * many organisations are there.
+ */
+export function orgPoints(locations) {
+  const byPlace = new Map();
+  for (const location of locations) {
+    const { latitude: lat, longitude: lng } = location ?? {};
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+    const key = `${lat},${lng}`;
+    const point = byPlace.get(key) ?? { lat, lng, count: 0 };
+    point.count += 1;
+    byPlace.set(key, point);
+  }
+  return [...byPlace.values()];
+}

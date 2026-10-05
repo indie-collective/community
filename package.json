@@ -29,6 +29,8 @@
     "@prisma/client": "^4.4.0",
     "@react-router/serve": "^7.18.4",
     "aws-sdk": "^2.780.0",
+    "d3-composite-projections": "^2.0.0",
+    "d3-geo": "^3.1.1",
     "date-fns": "^2.16.1",
     "diff": "^5.1.0",
     "discord.js": "^14.18.0",
@@ -62,6 +64,7 @@
     "remix-auth-socials": "^3.0.0",
     "slick-carousel": "^1.8.1",
     "supercluster": "^7.1.5",
+    "topojson-client": "^3.1.0",
     "use-debounce": "^8.0.3",
     "yup": "^0.32.9"
   },
