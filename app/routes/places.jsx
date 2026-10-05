@@ -16,6 +16,7 @@ import computeOrg from '../models/org';
 // import Error from '../../../client/pages/_error';
 import { Tooltip } from '../components/ui/tooltip';
 import ClusterMap from '../components/ClusterMap';
+import { focusOn, zoomToFit } from '../utils/mapFocus';
 import OrgCard from '../components/OrgCard';
 import SwipeableEdgeDrawer from '../components/SwipeableEdgeDrawer';
 import SectionHeading from '../components/SectionHeading';
@@ -154,6 +155,11 @@ const MovingBand = React.memo(({ header, children, isOpen, onClose }) => {
 });
 
 export const loader = async ({ request }) => {
+  // ?country=XX opens the map on that country's organisations (#258).
+  const countryCode = new URL(request.url).searchParams
+    .get('country')
+    ?.toUpperCase();
+
   const orgs = await db.entity
     .findMany({
       where: {
@@ -168,8 +174,16 @@ export const loader = async ({ request }) => {
     })
     .then((orgs) => orgs.map(computeOrg));
 
+  const computed = await Promise.all(orgs);
   const data = {
-    orgs: await Promise.all(orgs),
+    orgs: computed,
+    focus: countryCode
+      ? focusOn(
+          computed
+            .filter((org) => org.location?.country_code === countryCode)
+            .map((org) => org.location)
+        )
+      : null,
   };
   return data;
 };
@@ -185,8 +199,11 @@ const Places = () => {
   const containerRef = useRef();
   const listRef = useRef();
   const [isPending, startTransition] = useTransition();
-  const [center, setCenter] = useState([0, 0]);
-  const [zoom, setZoom] = useState(2);
+  const { orgs, focus } = useLoaderData();
+  const [center, setCenter] = useState(focus?.center ?? [0, 0]);
+  const [zoom, setZoom] = useState(() =>
+    focus ? zoomToFit(focus, { width: 1240, height: 835 }) : 2
+  );
   const [currentBounds, setCurrentBounds] = useState();
   const [highlightedOrg, setHighlightedOrg] = useState();
   const [isMovingBandOpen, setMovingBandOpen] = useState(false);
@@ -195,7 +212,11 @@ const Places = () => {
   const selectedId = location.hash?.substring(1);
   const prevSelectedId = usePrevious(selectedId);
 
-  const { orgs } = useLoaderData();
+  // Fit the country to the map's real size once it's on screen.
+  useEffect(() => {
+    const box = containerRef.current?.getBoundingClientRect();
+    if (focus && box?.width) setZoom(zoomToFit(focus, box));
+  }, [focus]);
 
   useEffect(() => {
     if (!window) return;
