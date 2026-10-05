@@ -9,7 +9,9 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { Link, redirect, useLoaderData } from 'react-router';
+import { Link, redirect, useLoaderData, useSearchParams } from 'react-router';
+import PrototypeSwitcher from '../components/PrototypeSwitcher';
+import CountryAnnotatedMap from '../components/CountryAnnotatedMap.prototype';
 
 import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
@@ -194,6 +196,9 @@ const AssociationGroups = ({ groups }) => (
 
 const CountryPage = () => {
   const { country, currentUser } = useLoaderData();
+  // PROTOTYPE: ?variant=annotated (the map at the centre) or linked (#257).
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('variant') ?? 'annotated';
   const {
     code,
     name,
@@ -263,14 +268,27 @@ const CountryPage = () => {
         ))}
       </SimpleGrid>
 
-      <Section title="Cities">
-        <CountryCities
-          code={code}
-          name={name}
-          cities={cities}
-          hasMap={hasMap}
-        />
-      </Section>
+      <PrototypeSwitcher
+        variants={[
+          ['annotated', 'Map at the centre, areas called out'],
+          ['linked', '#257: list and map, linked'],
+        ]}
+        current={variant}
+      />
+      {variant === 'annotated' && hasMap ? (
+        <Section title={`Where ${name}'s scene is`}>
+          <CountryAnnotatedMap code={code} name={name} cities={cities} />
+        </Section>
+      ) : (
+        <Section title="Cities">
+          <CountryCities
+            code={code}
+            name={name}
+            cities={cities}
+            hasMap={hasMap}
+          />
+        </Section>
+      )}
 
       <Section
         title="Associations"
