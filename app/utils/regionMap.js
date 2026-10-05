@@ -119,7 +119,7 @@ export function classLabels(bounds) {
  * largest. Fitting the view to these keeps far-off specks (Japan's Pacific
  * islands, Norway's Bouvet Island) from shrinking the map.
  */
-function mainland(regions) {
+export function mainland(regions) {
   const polygons = regions.flatMap(({ geometry }) =>
     geometry.type === 'Polygon'
       ? [geometry.coordinates]

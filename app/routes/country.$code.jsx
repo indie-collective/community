@@ -9,7 +9,8 @@ import {
   List,
   Text,
 } from '@chakra-ui/react';
-import { Link, redirect, useLoaderData } from 'react-router';
+import { Link, redirect, useLoaderData, useSearchParams } from 'react-router';
+import PrototypeSwitcher from '../components/PrototypeSwitcher';
 
 import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
@@ -19,7 +20,8 @@ import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import EventCard from '../components/EventCard';
 import EmptyHint from '../components/EmptyHint';
 import { pageMeta } from '../utils/meta';
-import { orgPoints, topCities } from '../utils/countryOverview';
+import { orgPoints, prototypeCities, topCities } from '../utils/countryOverview';
+import CountryCityMapPrototype from '../components/CountryCityMapPrototype';
 import countryMaps from '../assets/countryMaps.json';
 import CountryRegionMap from '../components/CountryRegionMap';
 
@@ -42,6 +44,9 @@ export const loader = async ({ request, params }) => {
     db.entity.findMany({
       where: { location: { country_code: countryCode } },
       select: {
+        id: true,
+        name: true,
+        type: true,
         location: {
           select: { city: true, region: true, latitude: true, longitude: true },
         },
@@ -70,6 +75,9 @@ export const loader = async ({ request, params }) => {
       code: countryCode,
       name: countryNames[countryCode],
       cities: topCities(orgs.map(({ location }) => location)),
+      // PROTOTYPE: every city with its organisations, for ?variant=.
+      prototypeCities: prototypeCities(orgs),
+      hasMap: countryMaps.includes(countryCode),
       // The region map is drawn in the browser, from these points.
       points: countryMaps.includes(countryCode)
         ? orgPoints(orgs.map(({ location }) => location))
@@ -96,6 +104,9 @@ const CountriesPage = () => {
   const { country, currentUser } = useLoaderData();
   const { code, name, cities, points, upcomingEvents } = country;
   const most = cities[0]?.count ?? 0;
+  // PROTOTYPE: ?variant=A|B|C, or "current" for #257's region map.
+  const [searchParams] = useSearchParams();
+  const variant = searchParams.get('variant') ?? 'A';
 
   return (
     <Box my={5} px={5}>
@@ -103,6 +114,26 @@ const CountriesPage = () => {
         {name}'s Game Industry
       </Heading>
 
+      <PrototypeSwitcher
+        variants={[
+          ['A', 'Linked list + city map'],
+          ['B', 'Map first, city drill-down'],
+          ['C', 'No map: split list'],
+          ['current', '#257 region map'],
+        ]}
+        current={variant}
+      />
+      {variant !== 'current' ? (
+        <Box mb={10}>
+          <CountryCityMapPrototype
+            variant={variant}
+            code={code}
+            name={name}
+            cities={country.prototypeCities}
+            hasMap={country.hasMap}
+          />
+        </Box>
+      ) : (
       <Grid
         templateColumns={{
           base: '1fr',
@@ -155,6 +186,7 @@ const CountriesPage = () => {
           <CountryRegionMap code={code} name={name} points={points} />
         )}
       </Grid>
+      )}
 
       <Box as="section">
         <Flex
