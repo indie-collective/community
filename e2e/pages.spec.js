@@ -92,3 +92,29 @@ test('every public page has its own description and a share image', async ({ req
   const image = await request.get(new URL(metaOf(await (await request.get('/')).text(), 'og:image')).pathname);
   expect(image.headers()['content-type']).toBe('image/png');
 });
+
+// #258: countries are in the navigation, by name, and search engines get a
+// sitemap of every page.
+test('countries are in the navigation, listed by name', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('navigation').getByRole('link', { name: 'Countries' }).first().click();
+  await expect(page).toHaveURL('/countries');
+  await expect(page).toHaveTitle('Indie game scenes, country by country');
+  const first = page.getByRole('listitem').first();
+  await expect(first.getByRole('heading')).not.toHaveText(/^[A-Z]{2}$/);
+  await expect(first).toContainText(/\d+ (studio|association)s?|Events only/);
+});
+
+test('robots.txt points to a sitemap listing every kind of page', async ({ request }) => {
+  const robots = await request.get('/robots.txt');
+  expect(robots.headers()['content-type']).toContain('text/plain');
+  const sitemapUrl = (await robots.text()).match(/^Sitemap: (.+)$/m)[1];
+  expect(sitemapUrl).toMatch(/\/sitemap\.xml$/);
+
+  const sitemap = await request.get(new URL(sitemapUrl).pathname);
+  expect(sitemap.headers()['content-type']).toContain('application/xml');
+  const xml = await sitemap.text();
+  for (const pattern of [/<loc>[^<]+\/countries<\/loc>/, /\/country\/[a-z]{2}<\/loc>/, /\/game\/[0-9a-f-]{36}<\/loc>/, /\/org\/[0-9a-f-]{36}<\/loc>/, /\/event\/[0-9a-f-]{36}<\/loc>/]) {
+    expect(xml).toMatch(pattern);
+  }
+});
