@@ -92,3 +92,52 @@ test('every public page has its own description and a share image', async ({ req
   const image = await request.get(new URL(metaOf(await (await request.get('/')).text(), 'og:image')).pathname);
   expect(image.headers()['content-type']).toBe('image/png');
 });
+
+// #258: countries are in the navigation, as a periodic table: code as the
+// symbol, rank as the number, grouped by continent; search engines also get
+// a sitemap of every page.
+test('countries are in the navigation, as a periodic table', async ({ page }) => {
+  const { PrismaClient } = await import('@prisma/client');
+  const db = new PrismaClient();
+  const place = await db.location.create({ data: { country_code: 'AQ', city: `Base ${Date.now() % 100000}`, region: 'Ross' } });
+  const org = await db.entity.create({ data: { name: `Polar Studio ${Date.now() % 100000}`, type: 'studio', location_id: place.id } });
+  try {
+    await page.goto('/');
+    await page.getByRole('navigation').getByRole('link', { name: 'Countries' }).first().click();
+    await expect(page).toHaveURL('/countries');
+    await expect(page).toHaveTitle('Indie game scenes, country by country');
+
+    // Each tile links to its country, named in full for screen readers.
+    const tiles = page.getByRole('list').last().getByRole('listitem');
+    expect(await tiles.count()).toBeGreaterThan(1);
+    const first = tiles.first();
+    await expect(first.getByRole('link')).toHaveAccessibleName(
+      /^.+: [\d,]+ studios?, [\d,]+ associations?, [\d,]+ games?, [\d,]+ events?$/
+    );
+    await expect(first.getByText(/^[A-Z]{2}$/)).toBeVisible();
+
+    const antarctica = page.getByRole('link', { name: /^Antarctica: / });
+    await expect(antarctica).toHaveAttribute('href', '/country/aq');
+    // Antarctica is its own group, so it comes after every other continent.
+    const links = await page.getByRole('list').last().getByRole('link').evaluateAll((all) => all.map((a) => a.getAttribute('href')));
+    expect(links.at(-1)).toBe('/country/aq');
+  } finally {
+    await db.entity.delete({ where: { id: org.id } });
+    await db.location.delete({ where: { id: place.id } });
+    await db.$disconnect();
+  }
+});
+
+test('robots.txt points to a sitemap listing every kind of page', async ({ request }) => {
+  const robots = await request.get('/robots.txt');
+  expect(robots.headers()['content-type']).toContain('text/plain');
+  const sitemapUrl = (await robots.text()).match(/^Sitemap: (.+)$/m)[1];
+  expect(sitemapUrl).toMatch(/\/sitemap\.xml$/);
+
+  const sitemap = await request.get(new URL(sitemapUrl).pathname);
+  expect(sitemap.headers()['content-type']).toContain('application/xml');
+  const xml = await sitemap.text();
+  for (const pattern of [/<loc>[^<]+\/countries<\/loc>/, /\/country\/[a-z]{2}<\/loc>/, /\/game\/[0-9a-f-]{36}<\/loc>/, /\/org\/[0-9a-f-]{36}<\/loc>/, /\/event\/[0-9a-f-]{36}<\/loc>/]) {
+    expect(xml).toMatch(pattern);
+  }
+});

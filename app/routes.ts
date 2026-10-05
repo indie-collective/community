@@ -6,6 +6,8 @@ export default [
   index('routes/index.jsx'),
 
   route('about', 'routes/about.jsx'),
+  route('sitemap.xml', 'routes/sitemap.xml.js'),
+  route('robots.txt', 'routes/robots.txt.js'),
   route('coffee', 'routes/coffee.jsx'),
   route('healthcheck', 'routes/healthcheck.jsx'),
   route('rewind', 'routes/rewind.jsx'),
