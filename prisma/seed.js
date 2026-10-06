@@ -59,7 +59,8 @@ async function main() {
         first_name: faker.person.firstName(),
         last_name: faker.person.lastName(),
         email: faker.internet.email(),
-        username: faker.internet.username(),
+        // person.username is VARCHAR(30); faker occasionally exceeds that.
+        username: faker.internet.username().slice(0, 30),
         about: faker.lorem.paragraph(),
       },
     });
