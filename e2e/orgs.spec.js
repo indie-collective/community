@@ -95,3 +95,44 @@ test.describe('Bluesky handles on organizations', () => {
     await expect(link).toHaveAttribute('href', 'https://bsky.app/profile/sky-studio.bsky.social');
   });
 });
+
+// The lists showed the first 50 orgs and nothing more; the rest load in pages.
+test('the studios list loads past the first 50, keeping the filters', async ({ page }) => {
+  const { PrismaClient } = await import('@prisma/client');
+  const db = new PrismaClient();
+  // XQ is a user-assigned ISO code: no seeded org lives there.
+  const location = await db.location.create({ data: { country_code: 'XQ' } });
+  // The same updated_at for all, so only the id tie-break keeps pages apart.
+  const updated_at = new Date();
+  await db.entity.createMany({
+    data: Array.from({ length: 55 }, (_, i) => ({
+      name: `Paged Studio ${i + 1}`,
+      type: 'studio',
+      location_id: location.id,
+      updated_at,
+    })),
+  });
+  try {
+    await page.goto('/studios?country=XQ');
+    const cards = page.locator('main a[href^="/org/"]');
+    await expect(cards).toHaveCount(50);
+
+    const next = page.waitForRequest((request) => /[?&]page=2\b/.test(request.url()));
+    await page.getByRole('button', { name: 'Load more' }).click();
+    expect(new URL((await next).url()).searchParams.get('country')).toBe('XQ');
+
+    await expect(cards).toHaveCount(55);
+    const hrefs = await cards.evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+    expect(new Set(hrefs).size).toBe(55);
+    await expect(page.getByRole('button', { name: 'Load more' })).toHaveCount(0);
+
+    // Changing a filter starts the list over: none of these has games.
+    await page.getByText('Has published games').click();
+    await expect(page).toHaveURL(/has_games=on/);
+    await expect(cards).toHaveCount(0);
+  } finally {
+    await db.entity.deleteMany({ where: { location_id: location.id } });
+    await db.location.delete({ where: { id: location.id } });
+    await db.$disconnect();
+  }
+});
