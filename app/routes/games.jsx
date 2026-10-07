@@ -102,6 +102,7 @@ export const loader = async ({ request }) => {
       skip: (page - 1) * 10,
       take: 10,
       include: {
+        igdb: true,
         game_image: {
           include: {
             image: true,

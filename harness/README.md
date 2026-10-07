@@ -61,7 +61,7 @@ Mark these unverifiable, never broken. They need the maintainer with real creden
 |---|---|---|
 | `CDN_HOST` | Every uploaded image 404s, on both versions | `/`, `/games`, `/game/:id`, `/events`, `/event/:id`, `/orgs`, `/studios`, `/associations`, `/org/:id`, `/search?q=`, `/rewind`, the edit forms' existing images |
 | `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Uploads cannot be stored | image upload on `orgs.create`, `org.$id.edit`, `events.create`, `event.$id.edit`, `game.$id/images.add`, `profile.edit` |
-| `IGDB_CLIENT_ID`, `IGDB_CLIENT_SECRET` | IGDB lookup fails | `games.create`, `game.$id.edit`, IGDB data on `game.$id`, `orgs.create`, `org.$id.edit` |
+| `IGDB_CLIENT_ID`, `IGDB_CLIENT_SECRET` | IGDB data isn't fetched or refreshed; what's stored still shows (#254) | the refresh after a `game.$id` view, `scripts/refresh-igdb.mjs` |
 | `SENDGRID_API_KEY` | No email sent | `forgot` → `reset.$token` |
 | `BASE_URL` | Links in notifications and emails point at localhost | `forgot`, the three `*.create` routes, OAuth callbacks |
 | `DISCORD_NOTIFICATION_WEBHOOK` | No notification posted | the three `*.create` routes |

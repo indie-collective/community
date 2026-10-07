@@ -30,6 +30,7 @@ export const loader = async ({ request }) => {
 
   const games = await db.game.findMany({
     include: {
+      igdb: true,
       game_image: {
         include: {
           image: true,

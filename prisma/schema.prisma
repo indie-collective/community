@@ -99,8 +99,33 @@ model game {
   game_image  game_image[]
   game_tag    game_tag[]
   deleted     Boolean       @default(false)
+  igdb        game_igdb?
 
   @@index([deleted])
+}
+
+/// #254: a game's stored IGDB data, refreshed after page views and by a
+/// scheduled script. Kept out of `game` so a refresh neither bumps the game's
+/// updated_at nor adds an entry to its change history.
+model game_igdb {
+  game_id            String    @id @db.Uuid
+  /// The slug `data` was fetched for; data for another slug is ignored.
+  slug               String
+  /// Null when IGDB has no game for `slug`.
+  data               Json?
+  fetched_at         DateTime? @db.Timestamptz(6)
+  /// Set while a refresh runs, so concurrent views start at most one.
+  refresh_started_at DateTime? @db.Timestamptz(6)
+  game               game      @relation(fields: [game_id], references: [id], onDelete: Cascade)
+
+  @@index([fetched_at])
+}
+
+/// Small values the app keeps between requests, like the IGDB access token.
+model kv_store {
+  key        String    @id
+  value      String
+  expires_at DateTime? @db.Timestamptz(6)
 }
 
 model change {
