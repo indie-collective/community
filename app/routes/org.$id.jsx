@@ -83,6 +83,7 @@ export const loader = async ({ request, params }) => {
         include: {
           game: {
             include: {
+              igdb: true,
               game_image: {
                 include: {
                   image: true,

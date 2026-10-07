@@ -28,6 +28,7 @@ import {
 import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import computeGame from '../models/game';
+import { refreshIfStale } from '../utils/igdbData.server';
 import OrgCard from '../components/OrgCard';
 // Named, not default: React Router wraps a route module's default export and
 // drops the props passed to it here.
@@ -43,7 +44,7 @@ import EmptyHint from '../components/EmptyHint';
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
-export const loader = async ({ request, params }) => {
+export const loader = async ({ request, params, context }) => {
   const { id } = params;
 
   if (!uuidRegex.test(id))
@@ -56,6 +57,7 @@ export const loader = async ({ request, params }) => {
       id,
     },
     include: {
+      igdb: true,
       game_image: {
         include: {
           image: true,
@@ -87,6 +89,9 @@ export const loader = async ({ request, params }) => {
     throw new Response('Not Found', {
       status: 404,
     });
+
+  // Never waits for IGDB: stale data shows now and is refreshed afterwards.
+  refreshIfStale(db, game, context);
 
   const data = {
     game: await computeGame(game),
