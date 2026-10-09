@@ -21,7 +21,7 @@ What still shapes the code:
 | D1: rows read and written per month | Our data is small, but list pages read whole tables (`/places` reads ~2,000 rows). The edge cache and indexes on filtered columns keep reads down. |
 | Images: unique transformations are capped | Thumbnails are **pre-generated**, not transformed on request (see below). |
 
-**The ORM:** the spike measured Drizzle at 34 KB against 1.2 MB for Prisma with its D1 adapter. Drizzle was also about half the time per query, and Prisma's WebAssembly query compiler costs ~80 ms on a cold isolate. **Drizzle is the recommendation**, to be confirmed before the port starts.
+**The ORM:** the spike measured Drizzle at 34 KB against 1.2 MB for Prisma with its D1 adapter. Drizzle was also about half the time per query, and Prisma's WebAssembly query compiler costs ~80 ms on a cold isolate. **We use Drizzle** (decided by engleek on 2026-10-09; the schema is ADR 0003).
 
 ## Sign-in: Bluesky replaces Discord
 
