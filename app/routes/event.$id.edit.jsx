@@ -2,7 +2,11 @@ import { Box, Heading } from '@chakra-ui/react';
 import { redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
-import { db } from '../utils/db.server';
+import {
+  getEventForEdit,
+  getEventTimeZone,
+  updateEvent,
+} from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import { parseFormWithUploads } from '../utils/createUploadHandler.server';
@@ -25,30 +29,14 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const event = await db.event.findUnique({
-    where: { id },
-    include: {
-      cover: true,
-      location: true,
-    },
-  });
+  const event = await getEventForEdit(id);
 
   if (!event)
     throw new Response('Not Found', {
       status: 404,
     });
 
-  const data = {
-    event: {
-      ...event,
-      cover: event.cover
-        ? {
-            url: `https://${process.env.CDN_HOST}/${event.cover.image_file.name}`,
-            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${event.cover.image_file.name}`,
-          }
-        : null,
-    },
-  };
+  const data = { event };
 
   return data;
 };
@@ -78,44 +66,23 @@ export async function action(args) {
     const timeZone =
       location.latitude !== null && location.longitude !== null
         ? timeZoneAt(location.latitude, location.longitude)
-        : (await db.event.findUnique({ where: { id }, select: { time_zone: true } }))?.time_zone;
+        : await getEventTimeZone(id);
 
-    const event = await db.event.update({
-      where: { id },
-      data: {
-        name: data.get('name') || undefined,
-        lastModifiedById: currentUser.id,
-        status: data.has('canceled')
-          ? data.get('canceled')
-            ? 'canceled'
-            : 'ongoing'
-          : undefined,
-        time_zone: timeZone,
-        starts_at: zonedInputToDate(data.get('start'), timeZone) ?? undefined,
-        ends_at: zonedInputToDate(data.get('end'), timeZone) ?? undefined,
-        about: data.get('about') || undefined,
-        site: data.get('site') || undefined,
-        cover: data.get('cover')
-          ? {
-              connect: {
-                id: data.get('cover'),
-              },
-            }
-          : undefined,
-        location: Object.values(location).some((l) => l !== null)
-          ? {
-              connectOrCreate: {
-                where: {
-                  street_city_region_country_code_latitude_longitude: location,
-                },
-                create: location,
-              },
-            }
-          : undefined,
-      },
-      select: {
-        id: true,
-      },
+    const event = await updateEvent(id, {
+      name: data.get('name') || undefined,
+      status: data.has('canceled')
+        ? data.get('canceled')
+          ? 'canceled'
+          : 'ongoing'
+        : undefined,
+      timeZone,
+      startsAt: zonedInputToDate(data.get('start'), timeZone) ?? undefined,
+      endsAt: zonedInputToDate(data.get('end'), timeZone) ?? undefined,
+      about: data.get('about') || undefined,
+      site: data.get('site') || undefined,
+      coverId: data.get('cover'),
+      location,
+      authorId: currentUser.id,
     });
 
     return redirect(`/event/${event.id}`);

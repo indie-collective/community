@@ -4,9 +4,8 @@ import { Link, useLoaderData } from 'react-router';
 
 import React, { useCallback, useState } from 'react';
 
-import { db } from '../utils/db.server';
+import { listEvents } from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
-import getImageLinks from '../utils/imageLinks.server';
 import EventCard from '../components/EventCard';
 import Carousel from '../components/Carousel.client';
 import ClientCarousel from '../components/ClientCarousel';
@@ -26,115 +25,10 @@ export const loader = async ({ request }) => {
 
   const currentUser = await isAuthenticated(request);
 
-  const where = {};
-
-  if (country) {
-    where.location = {
-      country_code: country,
-    };
-  }
-
-  if (period === 'upcoming') {
-    where.ends_at = {
-      gte: new Date(),
-    };
-  } else {
-    const year = parseInt(period, 10);
-    if (!isNaN(year)) {
-      where.starts_at = {
-        gte: new Date(`${year}-01-01`),
-        lte: new Date(`${year}-12-31`),
-      };
-    }
-  }
-
-  const events = await db.event
-    .findMany({
-      where,
-      include: {
-        event_participant: true,
-        game_event: {
-          where: {
-            game: {
-              deleted: false,
-            },
-          },
-        },
-        location: true,
-        cover: true,
-      },
-      orderBy: {
-        starts_at: period === 'upcoming' ? 'asc' : 'desc',
-      },
-      // cursor, // Disabled cursor for now as it complicates filtered pagination
-      // take: 6, // Removed take limit for filter view consistency for now
-    })
-    .then((events) =>
-      events.map((event) => ({
-        ...event,
-        cover: event.cover ? getImageLinks(event.cover) : null,
-      }))
-    );
-
-  // We only fetch past events for the default view or if we want to show everything
-  // But with filters, we usually show a single results list.
-  // The original UI showed "Upcoming" (Carousel) + "Past" (Grid).
-  // If we filter, we probably just show the results.
-  // If period is 'upcoming', it matches the original 'events' query (mostly).
-
-  // Let's re-use 'events' for the main visual.
-
-  // Original 'pastEvents' logic:
-  let pastEvents = [];
-  if (period === 'upcoming') {
-    pastEvents = await db.event.findMany({
-      where: {
-        ends_at: {
-          lt: new Date(),
-        },
-        ...(country ? { location: { country_code: country } } : {}),
-      },
-      include: {
-        location: true,
-        cover: true,
-      },
-      orderBy: {
-        starts_at: 'desc',
-      },
-      take: 10,
-    }).then((events) =>
-      events.map((event) => ({
-        ...event,
-        cover: event.cover ? getImageLinks(event.cover) : null,
-      }))
-    );
-  }
-
-  const countries = await db.location.groupBy({
-    by: ['country_code'],
-    where: {
-      event: {
-        some: {},
-      },
-    },
-    _count: true,
-    orderBy: {
-      _count: {
-        country_code: 'desc',
-      },
-    },
+  const { events, pastEvents, countries, years } = await listEvents({
+    country,
+    period,
   });
-
-  // Get distinct years. EXTRACT returns numeric, which Prisma hands back as a
-  // Decimal object; json() used to stringify it, React Router 7 passes it as
-  // is and React can't render it.
-  const years = (
-    await db.$queryRaw`
-      SELECT DISTINCT EXTRACT(YEAR FROM starts_at) as year
-      FROM event
-      ORDER BY year DESC
-    `
-  ).map(({ year }) => ({ year: String(year) }));
 
   const data = {
     events,

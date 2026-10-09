@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 
-import { db } from "../../utils/db.server";
+import { removeEventOrganization } from '../../data/events.server';
 import { authorizer, canWrite } from "../../utils/auth.server";
 
 export async function action(args) {
@@ -13,14 +13,7 @@ export async function action(args) {
 
   const data = await request.formData();
 
-  await db.entity_event.delete({
-    where: {
-      entity_id_event_id: {
-        entity_id: data.get('id'),
-        event_id: id,
-      },
-    },
-  });
+  await removeEventOrganization(id, data.get('id'));
 
   return redirect(`/event/${id}`);
 }

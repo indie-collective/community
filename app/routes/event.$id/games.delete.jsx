@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 
-import { db } from "../../utils/db.server";
+import { removeEventGame } from '../../data/events.server';
 import { authorizer, canWrite } from "../../utils/auth.server";
 
 export async function action(args) {
@@ -13,14 +13,7 @@ export async function action(args) {
 
   const data = await request.formData();
 
-  await db.game_event.delete({
-    where: {
-      game_id_event_id: {
-        game_id: data.get('id'),
-        event_id: id,
-      },
-    },
-  });
+  await removeEventGame(id, data.get('id'));
 
   return redirect(`/event/${id}`);
 }

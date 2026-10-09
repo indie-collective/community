@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 
-import { db } from '../../utils/db.server';
+import { deleteEvent } from '../../data/events.server';
 import { authorizer, canDelete } from '../../utils/auth.server';
 
 export async function action(args) {
@@ -11,11 +11,7 @@ export async function action(args) {
     rules: [canDelete],
   });
 
-  await db.event.delete({
-    where: {
-      id,
-    },
-  });
+  await deleteEvent(id);
 
   return redirect(`/events`);
 }
