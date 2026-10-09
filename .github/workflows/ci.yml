@@ -34,7 +34,10 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16
+        # Docker Hub's official image, through Amazon ECR Public's mirror:
+        # anonymous pulls from Docker Hub hit its rate limit on GitHub's
+        # shared runners and failed whole CI runs.
+        image: public.ecr.aws/docker/library/postgres:16
         env:
           POSTGRES_USER: indieco
           POSTGRES_PASSWORD: indieco
