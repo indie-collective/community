@@ -3,9 +3,8 @@ import { Suspense } from 'react';
 import { LuPlus } from 'react-icons/lu';
 import { Link, useLoaderData } from 'react-router';
 
-import { db } from '../utils/db.server';
+import { listRecentOrganizations } from '../data/organizations.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
-import computeOrg from '../models/org';
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
 import { pageMeta } from '../utils/meta';
 
@@ -17,21 +16,10 @@ export const loader = async ({ request }) => {
 
   const currentUser = await isAuthenticated(request);
 
-  const orgs = await db.entity
-    .findMany({
-      include: {
-        location: true,
-        logo: true,
-      },
-      orderBy: {
-        updated_at: 'desc',
-      },
-      take: PAGE_SIZE,
-    })
-    .then((orgs) => orgs.map(computeOrg));
+  const orgs = await listRecentOrganizations({ limit: PAGE_SIZE });
 
   const data = {
-    orgs: await Promise.all(orgs),
+    orgs,
     currentUser,
   };
 

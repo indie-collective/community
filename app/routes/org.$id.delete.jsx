@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 
-import { db } from "../utils/db.server";
+import { deleteOrganization } from '../data/organizations.server';
 import { authorizer, canWrite } from "../utils/auth.server";
 
 export async function action(args) {
@@ -11,11 +11,7 @@ export async function action(args) {
     rules: [canWrite],
   });
 
-  await db.entity.delete({
-    where: {
-      id,
-    },
-  });
+  await deleteOrganization(id);
 
   return redirect('/orgs');
 }

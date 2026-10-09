@@ -2,7 +2,7 @@ import { Box, Heading } from '@chakra-ui/react';
 import { redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
-import { db } from '../utils/db.server';
+import { createOrganization } from '../data/organizations.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import { notifyDiscord } from '../utils/discordNotification.server';
@@ -30,36 +30,15 @@ export async function action(args) {
   };
 
   try {
-    const org = await db.entity.create({
-      data: {
-        name: data.get('name'),
-        type: data.get('type').toLowerCase(),
-        site: data.get('site'),
-        // Throws a message for the form if it doesn't resolve (#161).
-        bsky_handle: await checkBlueskyHandle(data.get('bsky_handle')),
-        about: data.get('about'),
-        // igdb_slug,
-        location: Object.values(location).some((l) => l !== null)
-          ? {
-              connectOrCreate: {
-                where: {
-                  street_city_region_country_code_latitude_longitude: location,
-                },
-                create: location,
-              },
-            }
-          : undefined,
-        logo: data.get('logo')
-          ? {
-              connect: {
-                id: data.get('logo'),
-              },
-            }
-          : undefined,
-      },
-      select: {
-        id: true,
-      },
+    const org = await createOrganization({
+      name: data.get('name'),
+      type: data.get('type').toLowerCase(),
+      site: data.get('site'),
+      // Throws a message for the form if it doesn't resolve (#161).
+      bskyHandle: await checkBlueskyHandle(data.get('bsky_handle')),
+      about: data.get('about'),
+      location,
+      logoId: data.get('logo'),
     });
 
     const port = process.env.PORT ?? 3000;
