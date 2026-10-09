@@ -17,7 +17,7 @@ import {
   InputGroup,
   NativeSelect,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useFetcher, useLoaderData, useSearchParams } from 'react-router';
 import { LuPlus, LuSearch } from 'react-icons/lu';
 
@@ -181,77 +181,55 @@ const Games = () => {
   const [games, setGames] = useState(initialGames);
   const fetcher = useFetcher();
 
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [clientHeight, setClientHeight] = useState(0);
-  const [height, setHeight] = useState(null);
-
-  const [shouldFetch, setShouldFetch] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(2);
+  // The last page asked for, so a page is never requested twice.
+  const requested = useRef(1);
 
   useEffect(() => {
     setGames(initialGames);
     setPage(2);
-    setShouldFetch(true);
+    setHasMore(true);
+    requested.current = 1;
   }, [initialGames]);
 
-  // Set the height of the parent container whenever games are loaded
-  const divHeight = useCallback(
-    (node) => {
-      if (node !== null) {
-        setHeight(node.getBoundingClientRect().height);
-      }
-    },
-    [games.length]
-  );
-
-  // Add Listeners to scroll and client resize
+  // Whether the end of the list is in view, scrolled to or not: when the
+  // first page fits on a tall screen, there's nothing to scroll, and the
+  // next pages must still load.
+  const end = useRef(null);
+  const [atEnd, setAtEnd] = useState(false);
   useEffect(() => {
-    const scrollListener = () => {
-      setClientHeight(window.innerHeight);
-      setScrollPosition(window.scrollY);
-    };
-
-    // Avoid running during SSR
-    if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', scrollListener);
-    }
-
-    // Clean up
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('scroll', scrollListener);
-      }
-    };
+    const node = end.current;
+    if (!node || typeof IntersectionObserver === 'undefined') return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => setAtEnd(entry.isIntersecting),
+      { rootMargin: '0px 0px 200px 0px' }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
   }, []);
 
-  // Listen on scrolls. Fire on some self-described breakpoint
+  // Merge each loaded page; an empty one means there are no more.
   useEffect(() => {
-    if (!shouldFetch || !height) return;
-    if (clientHeight + scrollPosition + 100 < height) return;
-
-    fetcher.load(`/games?page=${page}&${searchParams.toString()}`);
-
-    setShouldFetch(false);
-  }, [clientHeight, scrollPosition, fetcher, searchParams]);
-
-  // Merge games, increment page, and allow fetching again
-  useEffect(() => {
-    // Discontinue API calls if the last page has been reached
-    if (fetcher.data && fetcher.data.games.length === 0) {
-      setShouldFetch(false);
+    if (!fetcher.data) return;
+    if (fetcher.data.games.length === 0) {
+      setHasMore(false);
       return;
     }
-
-    // Games contain data, merge them and allow the possiblity of another fetch
-    if (fetcher.data && fetcher.data.games.length > 0) {
-      setGames((prevGames) => [...prevGames, ...fetcher.data.games]);
-      setPage((page) => page + 1);
-      setShouldFetch(true);
-    }
+    setGames((prevGames) => [...prevGames, ...fetcher.data.games]);
+    setPage((current) => current + 1);
   }, [fetcher.data]);
 
+  // Load the next page while the end is in view, until there are no more.
+  useEffect(() => {
+    if (!atEnd || !hasMore || fetcher.state !== 'idle') return;
+    if (requested.current >= page) return;
+    requested.current = page;
+    fetcher.load(`/games?page=${page}&${searchParams.toString()}`);
+  }, [atEnd, hasMore, fetcher.state, page, searchParams]);
+
   return (
-    <Box p={5} ref={divHeight}>
+    <Box p={5}>
       <Flex gap={3} mb={5} wrap="wrap" align="center">
         <InputGroup startElement={<LuSearch />} maxW="320px" flex="1 1 220px">
           <Input
@@ -362,6 +340,7 @@ const Games = () => {
           </Box>
         ))}
       </Grid>
+      <Box ref={end} aria-hidden />
       {fetcher.state === 'loading' && (
         <Center py={10}>
           <Spinner size="xl" color="green.500" borderWidth="4px" />

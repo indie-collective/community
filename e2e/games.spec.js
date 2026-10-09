@@ -102,6 +102,19 @@ test('the games list can be searched and sorted', async ({ page }) => {
   expect(all).toEqual([...all].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })));
 });
 
+// The next page only loaded after a scroll brought the bottom into view, so
+// when the first page fitted on a tall screen nothing more ever loaded.
+test('the games list loads more without scrolling when the first page fits', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 4000 });
+  await page.goto('/games');
+  const cards = page.locator('main h3 a[href^="/game/"]');
+  await expect(cards.first()).toBeVisible();
+  await expect.poll(() => cards.count()).toBeGreaterThan(10);
+  // No page is loaded twice.
+  const hrefs = await cards.evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+  expect(new Set(hrefs).size).toBe(hrefs.length);
+});
+
 test('a game without an "about" gets a generated description', async ({ request }) => {
   const { PrismaClient } = await import('@prisma/client');
   const db = new PrismaClient();
