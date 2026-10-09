@@ -134,8 +134,11 @@ test('places opens on a country when given one', async ({ page }) => {
   const { PrismaClient } = await import('@prisma/client');
   const db = new PrismaClient();
   const tag = Date.now() % 100000;
+  // XQ is a user-assigned ISO code, so no seeded place is in it: seeded
+  // places sit at random coordinates, and one in the country would widen
+  // the map to the world.
   const [reykjavik, sydney] = await Promise.all([
-    db.location.create({ data: { country_code: 'IS', city: `Reykjavík ${tag}`, region: 'Capital Region', latitude: 64.1466, longitude: -21.9426 } }),
+    db.location.create({ data: { country_code: 'XQ', city: `Reykjavík ${tag}`, region: 'Capital Region', latitude: 64.1466, longitude: -21.9426 } }),
     db.location.create({ data: { country_code: 'AU', city: `Sydney ${tag}`, region: 'New South Wales', latitude: -33.8688, longitude: 151.2093 } }),
   ]);
   const [near, far] = await Promise.all([
@@ -143,8 +146,8 @@ test('places opens on a country when given one', async ({ page }) => {
     db.entity.create({ data: { name: `Harbour Games ${tag}`, type: 'studio', location_id: sydney.id } }),
   ]);
   try {
-    await page.goto('/places?country=IS', { waitUntil: 'networkidle' });
-    // The list beside the map shows what's in view: Iceland, not Australia.
+    await page.goto('/places?country=XQ', { waitUntil: 'networkidle' });
+    // The list beside the map shows what's in view: Reykjavík, not Sydney.
     await expect(page.locator(`[id="${near.id}"]`)).toBeAttached();
     await expect(page.locator(`[id="${far.id}"]`)).toHaveCount(0);
   } finally {
