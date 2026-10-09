@@ -9,17 +9,19 @@ We've lost access to the VPS that serves community.indieco.xyz, so we can't depl
 - **Cutover:** test on `*.workers.dev`, freeze edits on the old site (an announcement, since we can't touch the VPS), export Supabase, copy into D1 and R2, then point the DNS record at the Worker.
 - **Backups:** a scheduled GitHub Action runs `wrangler d1 export` to the Scaleway bucket, replacing the `pg_dump` workflow. D1 Time Travel covers point-in-time restores.
 
-## Free plan first
+## Workers Paid, measured
 
-We start on the free plans. These limits shape the code:
+We planned to start on the free plans. The spike measured that the app can't fit (#152, 2026-10-09): server rendering takes **55–58 ms of CPU** for the lightest pages (about, a game, an org) and **160–222 ms** for the home page and the lists, against the free plan's 10 ms. Cloudflare cut off 3 of 79 requests. The bundle (1.28 MB gzipped) and startup (4 ms) were fine. **So we run on Workers Paid ($5/month, 30 s of CPU per request by default).** D1 and R2 stay on their included allowances. Decided by engleek on 2026-10-09.
+
+What still shapes the code:
 
 | Limit | Consequence |
 |---|---|
-| Worker: 10 ms CPU per request, 3 MB compressed | A spike measures the bundle and the CPU time per page before the port starts. If server rendering can't fit, Workers Paid ($5/month) is the fallback, not a redesign. MUI goes (see below). |
-| D1: 5M rows read and 100k written per day | Our data is small, but list pages read whole tables (`/places` reads ~2,000 rows). Pages for signed-out visitors get a short edge cache, and filtered columns get indexes. |
-| Images: 5,000 unique transformations a month | Thumbnails are **pre-generated**, not transformed on request (see below). |
+| CPU time is billed beyond the included amount | Pages for signed-out visitors get a short edge cache, which matters most for the lists. Lighter rendering (static CSS instead of runtime Emotion) is a later option, not a blocker. MUI goes (see below). |
+| D1: rows read and written per month | Our data is small, but list pages read whole tables (`/places` reads ~2,000 rows). The edge cache and indexes on filtered columns keep reads down. |
+| Images: unique transformations are capped | Thumbnails are **pre-generated**, not transformed on request (see below). |
 
-**The ORM is chosen by the spike:** Prisma with its D1 adapter (fewer code changes) or Drizzle (much smaller, built for D1). The bundle size decides.
+**The ORM:** the spike measured Drizzle at 34 KB against 1.2 MB for Prisma with its D1 adapter. Drizzle was also about half the time per query, and Prisma's WebAssembly query compiler costs ~80 ms on a cold isolate. **Drizzle is the recommendation**, to be confirmed before the port starts.
 
 ## Sign-in: Bluesky replaces Discord
 
