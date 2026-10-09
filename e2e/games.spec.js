@@ -71,7 +71,8 @@ test('the games list can be searched and sorted', async ({ page }) => {
   await page.getByRole('searchbox', { name: 'Search games' }).fill(word);
   await expect(page).toHaveURL(new RegExp(`[?&]q=${encodeURIComponent(word)}`));
   await expect(page).toHaveURL(/[?&]sort=name/);
-  await expect(page.locator('main h3 a[href^="/game/"]', { hasText: target })).toBeVisible();
+  // Seeded names are random: another game can share or contain the name.
+  await expect(page.locator('main h3 a[href^="/game/"]', { hasText: target }).first()).toBeVisible();
   for (const name of await page.locator('main h3 a[href^="/game/"]').allInnerTexts()) {
     expect(name.toLowerCase()).toContain(word.toLowerCase());
   }
@@ -89,8 +90,14 @@ test('the games list can be searched and sorted', async ({ page }) => {
   await page.goto('/games?sort=name');
   const cards = page.locator('main h3 a[href^="/game/"]');
   const firstPage = await cards.count();
-  await page.mouse.wheel(0, 20000);
-  await expect.poll(() => cards.count()).toBeGreaterThan(firstPage);
+  // Keep scrolling until the next page arrives: a single wheel event can
+  // land before the page has hydrated and listens for scrolls.
+  await expect
+    .poll(async () => {
+      await page.mouse.wheel(0, 20000);
+      return cards.count();
+    })
+    .toBeGreaterThan(firstPage);
   const all = await cards.allInnerTexts();
   expect(all).toEqual([...all].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })));
 });
