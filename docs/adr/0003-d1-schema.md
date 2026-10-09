@@ -35,7 +35,7 @@ Names are plural and snake_case in SQLite, camelCase in code. **New names** are 
 
 Indexes: every foreign key, `country_code` on organizations and events, `starts_at` and `ends_at` on events, `deleted_at` on the three soft-deleted tables, `(table_name, record_id)` on changes.
 
-## Three calls to confirm
+## Three calls, confirmed by engleek on 2026-10-09
 
 1. **`entity` becomes `organizations`.** The code and the UI already say "org" and "organisation"; only the table said "entity". With a new database the rename is free, and every query is rewritten for Drizzle anyway.
 2. **Orgs and events are soft-deleted too.** Today only games are; deleting an org or event removes it, and its history page loses its subject. With `deleted_at` on all three, deletion works the same everywhere and can be undone by an admin.
