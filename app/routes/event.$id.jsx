@@ -34,10 +34,8 @@ import {
 
 import TileMap from '../components/TileMap';
 
-import { db } from '../utils/db.server';
+import { getEvent, getRelatedEvents } from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
-import { getFullTextSearchQuery } from '../utils/search.server';
-import computeEvent from '../models/event';
 import usePlaceholder from '../hooks/usePlaceholder';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
@@ -67,89 +65,16 @@ export const loader = async ({ request, params }) => {
 
   const currentUser = await isAuthenticated(request);
 
-  const event = await db.event.findUnique({
-    where: { id },
-    include: {
-      entity_event: {
-        include: {
-          entity: {
-            include: {
-              logo: true,
-            },
-          },
-        },
-      },
-      game_event: {
-        where: {
-          game: {
-            deleted: false,
-          },
-        },
-        include: {
-          game: {
-            include: {
-              igdb: true,
-              game_image: {
-                include: {
-                  image: true,
-                },
-              },
-            },
-          },
-        },
-      },
-      // Loader data is serialised into the page, so select only what the
-      // attendee list shows: never the whole person row (email, password
-      // hash, provider ids).
-      event_participant: {
-        select: {
-          person: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-            },
-          },
-        },
-      },
-      cover: true,
-      location: true,
-    },
-  });
+  const event = await getEvent(id);
 
   if (!event)
     throw new Response('Not Found', {
       status: 404,
     });
 
-  const relatedSearch = getFullTextSearchQuery(event.name);
-  const relatedEvents = relatedSearch ? await db.event.findMany({
-    where: {
-      name: {
-        search: relatedSearch,
-      },
-      id: {
-        not: id,
-      },
-    },
-    include: {
-      cover: true,
-      game_event: {
-        where: {
-          game: {
-            deleted: false,
-          },
-        },
-      },
-      event_participant: true,
-    },
-    take: 5,
-  }) : [];
-
   const data = {
-    event: await computeEvent(event),
-    // todo: externalize to defer this?
-    relatedEvents: await Promise.all(relatedEvents.map(computeEvent)),
+    event,
+    relatedEvents: await getRelatedEvents(event),
     currentUser,
   };
 

@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 
-import { db } from '../../utils/db.server';
+import { addEventOrganization } from '../../data/events.server';
 import { authorizer, canWrite } from '../../utils/auth.server';
 
 export async function action(args) {
@@ -13,19 +13,7 @@ export async function action(args) {
 
   const data = await request.formData();
 
-  await db.entity_event.upsert({
-    where: {
-      entity_id_event_id: {
-        entity_id: data.get('id'),
-        event_id: id,
-      },
-    },
-    create: {
-      entity_id: data.get('id'),
-      event_id: id,
-    },
-    update: {},
-  });
+  await addEventOrganization(id, data.get('id'));
 
   return redirect(`/event/${id}`);
 }

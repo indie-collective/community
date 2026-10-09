@@ -1,36 +1,19 @@
 
 
-import { db } from '../utils/db.server';
-import { getFullTextSearchQuery } from '../utils/search.server';
+import { searchEvents } from '../data/events.server';
 
 export async function loader({ request }) {
   const { searchParams } = new URL(request.url);
 
   const q = searchParams.get('q');
-  const search = getFullTextSearchQuery(q);
-  if (!search) return [];
-
   const excludedIds = searchParams.get('notId');
   const excludedIdsArray = excludedIds ? excludedIds.split(',') : [];
 
   try {
-    const data = await db.event.findMany({
-      where: {
-        name: {
-          search,
-        },
-        id: {
-          notIn: excludedIdsArray,
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-      take: parseInt(url.searchParams.get('take')) || 10,
+    return await searchEvents(q, {
+      excludeIds: excludedIdsArray,
+      limit: parseInt(searchParams.get('take')) || 10,
     });
-
-    return data;
   } catch (err) {
     console.error(err);
     return { error: 'Something went wrong' };

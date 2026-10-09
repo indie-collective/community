@@ -2,7 +2,7 @@ import { Box, Heading } from '@chakra-ui/react';
 import { redirect, useActionData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
-import { db } from '../utils/db.server';
+import { createEvent } from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import { notifyDiscord } from '../utils/discordNotification.server';
@@ -33,36 +33,16 @@ export async function action(args) {
   const timeZone = timeZoneAt(location.latitude, location.longitude);
 
   try {
-    const event = await db.event.create({
-      data: {
-        name: data.get('name'),
-        status: data.get('canceled') ? 'canceled' : 'ongoing',
-        time_zone: timeZone,
-        starts_at: zonedInputToDate(data.get('start'), timeZone),
-        ends_at: zonedInputToDate(data.get('end'), timeZone),
-        about: data.get('about'),
-        site: data.get('site'),
-        cover: data.get('cover')
-          ? {
-              connect: {
-                id: data.get('cover'),
-              },
-            }
-          : undefined,
-        location: Object.values(location).some((l) => l !== null)
-          ? {
-              connectOrCreate: {
-                where: {
-                  street_city_region_country_code_latitude_longitude: location,
-                },
-                create: location,
-              },
-            }
-          : undefined,
-      },
-      select: {
-        id: true,
-      },
+    const event = await createEvent({
+      name: data.get('name'),
+      status: data.get('canceled') ? 'canceled' : 'ongoing',
+      timeZone,
+      startsAt: zonedInputToDate(data.get('start'), timeZone),
+      endsAt: zonedInputToDate(data.get('end'), timeZone),
+      about: data.get('about'),
+      site: data.get('site'),
+      coverId: data.get('cover'),
+      location,
     });
 
     const port = process.env.PORT ?? 3000;

@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 
-import { db } from "../utils/db.server";
+import { joinEvent } from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
 
 export async function action({ params, request }) {
@@ -8,19 +8,7 @@ export async function action({ params, request }) {
 
   const user = await isAuthenticated(request, true);
 
-  await db.event_participant.upsert({
-    where: {
-      event_id_person_id: {
-        event_id: id,
-        person_id: user.id,
-      },
-    },
-    create: {
-      event_id: id,
-      person_id: user.id,
-    },
-    update: {}
-  })
+  await joinEvent(id, user.id);
 
   return redirect(`/event/${id}`);
 }
