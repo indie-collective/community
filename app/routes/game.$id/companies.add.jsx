@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 
-import { db } from '../../utils/db.server';
+import { addGameOrganization } from '../../data/games.server';
 import { authorizer, canWrite } from '../../utils/auth.server';
 
 export async function action(args) {
@@ -13,19 +13,7 @@ export async function action(args) {
 
   const data = await request.formData();
 
-  await db.game_entity.upsert({
-    where: {
-      game_id_entity_id: {
-        game_id: id,
-        entity_id: data.get('id'),
-      },
-    },
-    create: {
-      game_id: id,
-      entity_id: data.get('id'),
-    },
-    update: {},
-  });
+  await addGameOrganization(id, data.get('id'));
 
   return redirect(`/game/${id}`);
 }

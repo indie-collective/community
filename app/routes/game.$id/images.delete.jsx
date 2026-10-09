@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 
-import { db } from '../../utils/db.server';
+import { removeGameImages } from '../../data/games.server';
 import { authorizer, canDelete } from '../../utils/auth.server';
 
 export async function action(args) {
@@ -13,14 +13,7 @@ export async function action(args) {
 
   const data = await request.formData();
 
-  await db.game_image.deleteMany({
-    where: {
-      OR: data.getAll('id').map((deleteId) => ({
-        game_id: id,
-        image_id: deleteId,
-      })),
-    },
-  });
+  await removeGameImages(id, data.getAll('id'));
 
   return redirect(`/game/${id}`);
 }

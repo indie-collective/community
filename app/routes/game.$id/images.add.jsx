@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 
-import { db } from '../../utils/db.server';
+import { addGameImages } from '../../data/games.server';
 import { authorizer, canWrite } from '../../utils/auth.server';
 import { parseFormWithUploads } from '../../utils/createUploadHandler.server';
 
@@ -14,12 +14,7 @@ export async function action(args) {
 
   const data = await parseFormWithUploads(request, ['images']);
 
-  await db.game_image.createMany({
-    data: data.getAll('images').map((imageId) => ({
-      game_id: id,
-      image_id: imageId,
-    })),
-  });
+  await addGameImages(id, data.getAll('images'));
 
   return redirect(`/game/${id}`);
 }

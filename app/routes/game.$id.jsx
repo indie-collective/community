@@ -25,10 +25,8 @@ import {
   useRouteError,
 } from 'react-router';
 
-import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
-import computeGame from '../models/game';
-import { refreshIfStale } from '../utils/igdbData.server';
+import { getGame } from '../data/games.server';
 import OrgCard from '../components/OrgCard';
 // Named, not default: React Router wraps a route module's default export and
 // drops the props passed to it here.
@@ -52,49 +50,16 @@ export const loader = async ({ request, params, context }) => {
       status: 404,
     });
 
-  const game = await db.game.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      igdb: true,
-      game_image: {
-        include: {
-          image: true,
-        },
-      },
-      game_tag: {
-        include: {
-          tag: true,
-        },
-      },
-      game_entity: {
-        include: {
-          entity: {
-            include: {
-              logo: true,
-            },
-          },
-        },
-      },
-      game_event: {
-        include: {
-          event: true,
-        },
-      },
-    },
-  });
+  // Stale IGDB data is refreshed after the response (#254).
+  const game = await getGame(id, { context });
 
   if (!game)
     throw new Response('Not Found', {
       status: 404,
     });
 
-  // Never waits for IGDB: stale data shows now and is refreshed afterwards.
-  refreshIfStale(db, game, context);
-
   const data = {
-    game: await computeGame(game),
+    game,
     currentUser: await isAuthenticated(request),
   };
 

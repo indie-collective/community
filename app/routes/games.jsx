@@ -21,18 +21,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useFetcher, useLoaderData, useSearchParams } from 'react-router';
 import { LuPlus, LuSearch } from 'react-icons/lu';
 
-import { db } from '../utils/db.server';
-import computeGame from '../models/game';
+import { listGames } from '../data/games.server';
 import GameCard from '../components/GameCard';
 import useDebounce from '../hooks/useDebounce';
 import { pageMeta } from '../utils/meta';
 import countryNames from '../assets/countries.json';
 
 // The sort options: user input picks one by name, never reaches Prisma.
+// The orders the list offers; data/games knows how to apply them.
 const SORTS = {
-  updated: { label: 'Recently updated', orderBy: { updated_at: 'desc' } },
-  newest: { label: 'Recently added', orderBy: { created_at: 'desc' } },
-  name: { label: 'Name (A–Z)', orderBy: { name: 'asc' } },
+  updated: { label: 'Recently updated' },
+  newest: { label: 'Recently added' },
+  name: { label: 'Name (A–Z)' },
 };
 const DEFAULT_SORT = 'updated';
 
@@ -48,89 +48,17 @@ export const loader = async ({ request }) => {
   const countryCode = searchParams.get('country')?.toUpperCase();
   const country = countryNames[countryCode] ? countryCode : null;
 
-  const where = {
-    deleted: false,
-    ...(country && {
-      game_entity: {
-        some: { entity: { location: { country_code: country } } },
-      },
-    }),
-    ...(q && {
-      OR: [
-        { name: { contains: q, mode: 'insensitive' } },
-        { about: { contains: q, mode: 'insensitive' } },
-      ],
-    }),
-    ...(selectedTags.length > 0 && {
-      AND: selectedTags.map((tag) => ({
-        game_tag: {
-          some: {
-            tag: {
-              name: tag,
-            },
-          },
-        },
-      })),
-    }),
-  };
-
-  const [tags, games] = await Promise.all([
-    db.tag.findMany({
-      where: {
-        game_tag: {
-          some: {
-            game: where,
-          },
-        },
-      },
-      include: {
-        game_tag: {
-          where: {
-            game: where,
-          },
-        },
-      },
-      orderBy: [
-        {
-          game_tag: {
-            _count: 'desc',
-          },
-        },
-        {
-          name: 'asc',
-        },
-      ],
-    }),
-    db.game.findMany({
-      where,
-      // id last, so pages don't overlap when sorted values tie.
-      orderBy: [SORTS[sort].orderBy, { id: 'asc' }],
-      skip: (page - 1) * 10,
-      take: 10,
-      include: {
-        igdb: true,
-        game_image: {
-          include: {
-            image: true,
-          },
-        },
-        game_tag: {
-          include: {
-            tag: true,
-          },
-        },
-        game_entity: {
-          include: {
-            entity: true,
-          },
-        },
-      },
-    }),
-  ]);
+  const { tags, games } = await listGames({
+    page,
+    tags: selectedTags,
+    q,
+    sort,
+    country,
+  });
 
   const data = {
     tags,
-    games: await Promise.all(games.map(computeGame)),
+    games,
     q: q ?? '',
     sort,
     country: country && { code: country, name: countryNames[country] },
