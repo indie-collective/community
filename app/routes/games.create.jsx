@@ -2,13 +2,12 @@ import { Box, Heading } from '@chakra-ui/react';
 import { redirect, useActionData, useLoaderData, useNavigation  } from 'react-router';
 import { useEffect } from 'react';
 
-import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import { notifyDiscord } from '../utils/discordNotification.server';
 import { toaster } from '../components/ui/toaster';
 import GameForm from '../components/GameForm';
-import { resolveTagNames } from '../utils/tags.server';
+import { createGame, resolveGameTags } from '../data/games.server';
 
 export async function action(args) {
   const { request } = args;
@@ -18,44 +17,19 @@ export async function action(args) {
 
   const data = await request.formData();
 
-  const tagsList = await resolveTagNames(db, data.get('tags'));
+  const tagsList = await resolveGameTags(data.get('tags'));
 
   try {
     const [, igdb_slug = null] =
       (data.get('igdb_url') || '').match(/games\/(.+)/) || [];
 
-    const tags = await db.$transaction(
-      tagsList.map((tag) =>
-        db.tag.upsert({
-          where: {
-            name: tag,
-          },
-          create: {
-            name: tag,
-          },
-          update: {},
-        })
-      )
-    );
-
-    const game = await db.game.create({
-      data: {
-        name: data.get('name'),
-        about: data.get('about'),
-        site: data.get('site'),
-        igdb_slug,
-        lastModifiedById: currentUser.id,
-        game_tag: {
-          createMany: {
-            data: tags.map((tag) => ({
-              tag_id: tag.id,
-            })),
-          },
-        },
-      },
-      select: {
-        id: true,
-      },
+    const game = await createGame({
+      name: data.get('name'),
+      about: data.get('about'),
+      site: data.get('site'),
+      igdbSlug: igdb_slug,
+      tagNames: tagsList,
+      authorId: currentUser.id,
     });
 
     const port = process.env.PORT ?? 3000;

@@ -4,39 +4,18 @@ import { List, Input, Text, Box, Dialog, Portal } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { useState, useRef, useEffect } from 'react';
 
-import { db } from '../utils/db.server';
-import { getFullTextSearchQuery } from '../utils/search.server';
-import computeGame from '../models/game';
+import { searchGames } from '../data/games.server';
 import useDebounce from '../hooks/useDebounce';
 
 export async function loader({ request }) {
   const { searchParams } = new URL(request.url);
 
   const q = searchParams.get('q');
-  const search = getFullTextSearchQuery(q);
-  if (!search) return [];
-
   const excludedIds = searchParams.get('notId');
   const excludedIdsArray = excludedIds ? excludedIds.split(',') : [];
 
   try {
-    const games = await db.game.findMany({
-      where: {
-        name: {
-          search,
-        },
-        id: {
-          notIn: excludedIdsArray,
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-      take: 10,
-    });
-
-    return await Promise.all(games.map(computeGame));
+    return await searchGames(q, { excludeIds: excludedIdsArray });
   } catch (err) {
     console.error(err);
     return { error: 'Something went wrong' };

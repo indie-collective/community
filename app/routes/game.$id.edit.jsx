@@ -4,13 +4,11 @@ import { redirect } from 'react-router';
 import { useActionData, useLoaderData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
-import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { authorizer, canWrite } from '../utils/auth.server';
-import computeGame from '../models/game';
 import { toaster } from '../components/ui/toaster';
 import GameForm from '../components/GameForm';
-import { resolveTagNames } from '../utils/tags.server';
+import { getGameForEdit, resolveGameTags, updateGame } from '../data/games.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -25,24 +23,11 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const game = await db.game.findUnique({
-    where: { id },
-    include: {
-      game_image: {
-        include: {
-          image: true,
-        },
-      },
-      game_tag: {
-        include: {
-          tag: true,
-        },
-      },
-    },
-  });
+  const game = await getGameForEdit(id);
+  if (!game) throw new Response('Not Found', { status: 404 });
 
   return {
-    game: await computeGame(game),
+    game,
     currentUser,
   };
 };
@@ -61,47 +46,13 @@ export async function action(args) {
     const [, igdb_slug = null] =
       (data.get('igdb_url') || '').match(/games\/(.+)/) || [];
 
-    const tagsList = await resolveTagNames(db, data.get('tags'));
-
-    const tags = await db.$transaction(
-      tagsList.map((tag) =>
-        db.tag.upsert({
-          where: {
-            name: tag,
-          },
-          create: {
-            name: tag,
-          },
-          update: {},
-        })
-      )
-    );
-
-    const game = await db.game.update({
-      where: { id },
-      data: {
-        name: data.get('name'),
-        about: data.get('about'),
-        site: data.get('site'),
-        igdb_slug,
-        lastModifiedById: currentUser.id,
-        game_tag: {
-          createMany: {
-            data: tags.map((tag) => ({
-              tag_id: tag.id,
-            })),
-            skipDuplicates: true,
-          },
-          deleteMany: {
-            tag_id: {
-              notIn: tags.map((t) => t.id),
-            },
-          },
-        },
-      },
-      select: {
-        id: true,
-      },
+    const game = await updateGame(id, {
+      name: data.get('name'),
+      about: data.get('about'),
+      site: data.get('site'),
+      igdbSlug: igdb_slug,
+      tagNames: await resolveGameTags(data.get('tags')),
+      authorId: currentUser.id,
     });
 
     return redirect(`/game/${game.id}`);
