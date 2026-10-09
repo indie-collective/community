@@ -1,0 +1,17 @@
+{
+  // Cloudflare config (ADR 0002). For now only the D1 database (#151);
+  // the Worker itself comes with the runtime switch.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "indieco-community",
+  "compatibility_date": "2026-09-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "indieco-community",
+      // Replaced by the real ID once the database is created on Cloudflare
+      // (wrangler d1 create indieco-community); local use doesn't need it.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "drizzle/migrations"
+    }
+  ]
+}
