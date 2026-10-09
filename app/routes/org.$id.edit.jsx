@@ -2,7 +2,10 @@ import { Box, Heading } from '@chakra-ui/react';
 import { redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
-import { db } from '../utils/db.server';
+import {
+  getOrganizationForEdit,
+  updateOrganization,
+} from '../data/organizations.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import { parseFormWithUploads } from '../utils/createUploadHandler.server';
@@ -24,30 +27,14 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const org = await db.entity.findUnique({
-    where: { id },
-    include: {
-      logo: true,
-      location: true,
-    },
-  });
+  const org = await getOrganizationForEdit(id);
 
   if (!org)
     throw new Response('Not Found', {
       status: 404,
     });
 
-  const data = {
-    org: {
-      ...org,
-      logo: org.logo
-        ? {
-            url: `https://${process.env.CDN_HOST}/${org.logo.image_file.name}`,
-            thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${org.logo.image_file.name}`,
-          }
-        : null,
-    },
-  };
+  const data = { org };
 
   return data;
 };
@@ -83,37 +70,15 @@ export async function action(args) {
     const [, igdb_slug] =
       (data.get('igdb_url') || '').match(/companies\/(.+)/) || [];
 
-    const org = await db.entity.update({
-      where: { id },
-      data: {
-        name: data.get('name'),
-        lastModifiedById: currentUser.id,
-        type: data.get('type').toLowerCase(),
-        site: data.get('site'),
-        bsky_handle,
-        about: data.get('about'),
-        // igdb_slug,
-        location: Object.values(location).some((l) => l !== null)
-          ? {
-              connectOrCreate: {
-                where: {
-                  street_city_region_country_code_latitude_longitude: location,
-                },
-                create: location,
-              },
-            }
-          : undefined,
-        logo: data.get('logo')
-          ? {
-              connect: {
-                id: data.get('logo'),
-              },
-            }
-          : undefined,
-      },
-      select: {
-        id: true,
-      },
+    const org = await updateOrganization(id, {
+      name: data.get('name'),
+      type: data.get('type').toLowerCase(),
+      site: data.get('site'),
+      bskyHandle: bsky_handle,
+      about: data.get('about'),
+      location,
+      logoId: data.get('logo'),
+      authorId: currentUser.id,
     });
 
     return redirect(`/org/${org.id}`);

@@ -27,10 +27,9 @@ import {
   useRouteError,
 } from 'react-router';
 
-import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import countryNames from '../assets/countries.json';
-import computeOrg from '../models/org';
+import { getOrganization } from '../data/organizations.server';
 import GameCard from '../components/GameCard';
 import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
@@ -71,59 +70,7 @@ export const loader = async ({ request, params }) => {
 
   const currentUser = await isAuthenticated(request);
 
-  const org = await db.entity.findUnique({
-    where: { id },
-    include: {
-      game_entity: {
-        where: {
-          game: {
-            deleted: false,
-          },
-        },
-        include: {
-          game: {
-            include: {
-              igdb: true,
-              game_image: {
-                include: {
-                  image: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          game: {
-            created_at: 'desc',
-          },
-        },
-      },
-      entity_event: {
-        include: {
-          event: {
-            include: {
-              game_event: {
-                where: {
-                  game: {
-                    deleted: false,
-                  },
-                },
-              },
-              event_participant: true,
-              cover: true,
-            },
-          },
-        },
-        orderBy: {
-          event: {
-            ends_at: 'desc',
-          },
-        },
-      },
-      logo: true,
-      location: true,
-    },
-  });
+  const org = await getOrganization(id);
 
   if (!org) {
     throw new Response('Not Found', {
@@ -132,7 +79,7 @@ export const loader = async ({ request, params }) => {
   }
 
   return {
-    org: await computeOrg(org),
+    org,
     currentUser,
   };
 };
