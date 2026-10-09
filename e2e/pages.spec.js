@@ -118,9 +118,20 @@ test('countries are in the navigation, as a periodic table', async ({ page }) =>
 
     const antarctica = page.getByRole('link', { name: /^Antarctica: / });
     await expect(antarctica).toHaveAttribute('href', '/country/aq');
-    // Antarctica is its own group, so it comes after every other continent.
-    const links = await page.getByRole('list').last().getByRole('link').evaluateAll((all) => all.map((a) => a.getAttribute('href')));
-    expect(links.at(-1)).toBe('/country/aq');
+    // Tiles come grouped by continent, in the legend's order, Antarctica
+    // last. Seeded places are random, so other Antarctic territories (South
+    // Georgia…) can share its group: check the grouping, not the last tile.
+    const { default: continents } = await import('../app/assets/continents.json', { with: { type: 'json' } });
+    const order = ['EU', 'NA', 'SA', 'AS', 'OC', 'AF', 'AN'];
+    const codes = await page
+      .getByRole('list')
+      .last()
+      .getByRole('link')
+      .evaluateAll((all) => all.map((a) => a.getAttribute('href').replace('/country/', '').toUpperCase()));
+    const groups = codes.map((code) => order.indexOf(continents[code] ?? 'AN'));
+    expect(groups).toEqual([...groups].sort((a, b) => a - b));
+    expect(continents[codes.at(-1)]).toBe('AN');
+    expect(codes).toContain('AQ');
   } finally {
     await db.entity.delete({ where: { id: org.id } });
     await db.location.delete({ where: { id: place.id } });
