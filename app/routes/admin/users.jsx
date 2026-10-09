@@ -15,8 +15,8 @@ import { FaDiscord } from 'react-icons/fa6';
 import { LuCircleHelp } from 'react-icons/lu';
 
 import isAuthenticated from '../../utils/isAuthenticated.server';
-import { db } from '../../utils/db.server';
-import computePerson from '../../models/person';
+import { countPeople, listPeople, setAdmin } from '../../data/people.server';
+import { listRecentChanges } from '../../data/changes.server';
 import { Tooltip } from '../../components/ui/tooltip';
 
 export const action = async ({ request }) => {
@@ -30,14 +30,7 @@ export const action = async ({ request }) => {
 
   const data = await request.formData();
 
-  await db.person.update({
-    where: {
-      id: data.get('userId'),
-    },
-    data: {
-      isAdmin: data.get('isAdmin') === 'on',
-    },
-  });
+  await setAdmin(data.get('userId'), data.get('isAdmin') === 'on');
 
   return redirect('/admin/users');
 };
@@ -51,51 +44,11 @@ export const loader = async ({ request }) => {
     });
   }
 
-  const people = await db.person.findMany({
-    select: {
-      id: true,
-      created_at: true,
-      username: true,
-      first_name: true,
-      last_name: true,
-      email: true,
-      discord_id: true,
-      isAdmin: true,
-      avatar: true,
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  });
-
-  const lastChanges = await db.change.findMany({
-    orderBy: {
-      created_at: 'desc',
-    },
-    take: 10,
-    select: {
-      id: true,
-      operation: true,
-      created_at: true,
-      table_name: true,
-      record_id: true,
-      data: true,
-      author: {
-        select: {
-          id: true,
-          first_name: true,
-          last_name: true,
-          isAdmin: true,
-        },
-      },
-    },
-  });
-
   const data = {
     currentUser,
-    people: await Promise.all(people.map(computePerson)),
-    nbOfPeople: await db.person.count(),
-    lastChanges,
+    people: await listPeople(),
+    nbOfPeople: await countPeople(),
+    lastChanges: await listRecentChanges({ limit: 10 }),
   };
 
   return data;

@@ -5,12 +5,18 @@ import { FormStrategy } from 'remix-auth-form';
 import { SocialsProvider } from 'remix-auth-socials';
 import { DiscordStrategy } from 'remix-auth-discord';
 
-import { db } from './db.server';
-import getImageLinks from './imageLinks.server';
+import {
+  avatarThumbnail,
+  createPerson,
+  findPersonByDiscordId,
+  findPersonByEmail,
+  isAdmin,
+  setAdmin,
+  setProviderAvatar,
+} from '../data/people.server';
 import { sessionStorage } from './session.server';
 import { Authorizer } from './authorizer.server';
 import { notifyNewMember } from './discordNotification.server';
-import { createPerson } from './username.server';
 
 export let authenticator = new Authenticator();
 
@@ -35,15 +41,11 @@ if (process.env.NODE_ENV === 'development') {
     new FormStrategy(async ({ form }) => {
       let email = form.get('email');
       try {
-        let user = await db.person.findUnique({
-          where: {
-            email,
-          },
-        });
+        let user = await findPersonByEmail(email);
 
         if (!user) {
           const username = email.split('@')[0];
-          user = await createPerson(db, {
+          user = await createPerson({
             email,
             username,
             first_name: username,
@@ -52,18 +54,9 @@ if (process.env.NODE_ENV === 'development') {
           await notifyNewMember(user);
         }
 
-        let avatar;
-
-        if (user.avatar_id)
-          avatar = await db.image.findFirst({
-            where: {
-              id: user.avatar_id,
-            },
-          });
-
         return {
           ...user,
-          avatar: avatar ? getImageLinks(avatar).thumbnail_url : null,
+          avatar: await avatarThumbnail(user.avatar_id),
         };
       } catch (err) {
         console.log('err', err);
@@ -117,11 +110,7 @@ authenticator.use(
           // 694986277556060271 -> adhérent -> special status?
         }
 
-        let user = await db.person.findUnique({
-          where: {
-            discord_id: profile.id,
-          },
-        });
+        let user = await findPersonByDiscordId(profile.id);
 
         // user is new
         if (!user) {
@@ -139,7 +128,7 @@ authenticator.use(
           //     'A user with the same email already exists, please connect your account first.'
           //   );
 
-          user = await createPerson(db, {
+          user = await createPerson({
             email: profile.email,
             discord_id: profile.id,
             first_name: profile.global_name || profile.username,
@@ -154,28 +143,16 @@ authenticator.use(
         let avatar = discordAvatar;
 
         if (user.avatar_id) {
-          avatar = await db.image.findFirst({
-            where: {
-              id: user.avatar_id,
-            },
-          });
-
-          avatar = getImageLinks(avatar).thumbnail_url;
+          avatar = await avatarThumbnail(user.avatar_id);
         }
         // updating oauth avatar in case it is now different
         else if (user.avatar_oauth !== discordAvatar) {
-          await db.person.update({
-            where: { id: user.id },
-            data: { avatar_oauth: discordAvatar },
-          });
+          await setProviderAvatar(user.id, discordAvatar);
         }
 
         // is now admin
         if (!user.isAdmin && isAdmin) {
-          await db.person.update({
-            where: { id: user.id },
-            data: { isAdmin },
-          });
+          await setAdmin(user.id, isAdmin);
         }
 
         return {
@@ -226,11 +203,5 @@ export async function canWrite({ user }) {
 }
 
 export async function canDelete({ user }) {
-  return (
-    await db.person.findUnique({
-      where: {
-        id: user.id,
-      },
-    })
-  ).isAdmin;
+  return isAdmin(user.id);
 }

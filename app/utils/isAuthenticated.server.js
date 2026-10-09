@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 
-import { db } from './db.server';
+import { personExists } from '../data/people.server';
 import { sessionStorage } from './session.server';
 import toSessionUser from './sessionUser.server';
 
@@ -45,16 +45,7 @@ export default async function isAuthenticated(request, required) {
   }
 
   // check if user still exists in the database
-  const user = await db.person.findUnique({
-    where: {
-      id: currentUser.id,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!user) await redirectToSignin(request, session);
+  if (!(await personExists(currentUser.id))) await redirectToSignin(request, session);
 
   // this might get useless if authorized is used everywhere
   await hasEmail({ user: currentUser, request });
