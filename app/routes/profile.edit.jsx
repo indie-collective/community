@@ -7,32 +7,19 @@ import {
 } from 'react-router';
 import { useEffect } from 'react';
 
-import { db } from '../utils/db.server';
+import { getProfileForEdit, updateProfile } from '../data/people.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
 import ProfileForm from '../components/ProfileForm';
 import { commitSession, getSession } from '../utils/session.server';
 import toSessionUser from '../utils/sessionUser.server';
-import getImageLinks from '../utils/imageLinks.server';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
 
-  const user = await db.person.findUnique({
-    where: { id: currentUser.id },
-    include: {
-      avatar: true,
-    },
-  });
-
   return {
-    currentUser: {
-      ...user,
-      avatar: user.avatar
-        ? getImageLinks(user.avatar).thumbnail_url
-        : undefined,
-    },
+    currentUser: await getProfileForEdit(currentUser.id),
   };
 };
 
@@ -42,20 +29,12 @@ export const action = async ({ request }) => {
   const data = await parseFormWithUploads(request, ['avatar']);
 
   try {
-    const user = await db.person.update({
-      where: {
-        id: currentUser.id,
-      },
-      data: {
-        avatar_id: data.get('avatar') ? data.get('avatar') : undefined,
-        first_name: data.get('firstName'),
-        last_name: data.get('lastName') || null,
-        username: data.get('username'),
-        about: data.get('about') || null,
-      },
-      include: {
-        avatar: true,
-      },
+    const user = await updateProfile(currentUser.id, {
+      avatarId: data.get('avatar'),
+      firstName: data.get('firstName'),
+      lastName: data.get('lastName') || null,
+      username: data.get('username'),
+      about: data.get('about') || null,
     });
 
     // updating session
@@ -63,10 +42,7 @@ export const action = async ({ request }) => {
     // 'user' is the key every read uses; remix-auth v4 has no sessionKey.
     session.set(
       'user',
-      toSessionUser({
-        ...user,
-        avatar: user.avatar ? getImageLinks(user.avatar) : null,
-      })
+      toSessionUser(user)
     );
 
     return redirect(`/profile`, {

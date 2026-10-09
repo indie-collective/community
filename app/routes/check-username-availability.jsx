@@ -1,7 +1,7 @@
 
 import isAuthenticated from '../utils/isAuthenticated.server'
 
-import { db } from '../utils/db.server';
+import { isUsernameTaken } from '../data/people.server';
 
 export async function loader({ request }) {
   const { searchParams } = new URL(request.url);
@@ -14,11 +14,5 @@ export async function loader({ request }) {
 
   if (currentUser.username === query) return { available: true };
 
-  const user = await db.person.findUnique({
-    where: {
-      username: query,
-    },
-  });
-
-  return { available: !user };
+  return { available: !(await isUsernameTaken(query)) };
 }

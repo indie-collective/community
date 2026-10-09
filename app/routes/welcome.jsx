@@ -20,7 +20,7 @@ import { data, redirect,
 import { FaDiscord } from 'react-icons/fa6';
 
 import isAuthenticated from '../utils/isAuthenticated.server';
-import { db } from '../utils/db.server';
+import { setEmail } from '../data/people.server';
 import { commitSession, getSession } from '../utils/session.server';
 import toSessionUser from '../utils/sessionUser.server';
 
@@ -42,14 +42,7 @@ export async function action({ request }) {
   try {
     const email = formData.get('email');
 
-    await db.person.update({
-      where: {
-        id: currentUser.id,
-      },
-      data: {
-        email,
-      },
-    });
+    await setEmail(currentUser.id, email);
 
     const updatedUser = toSessionUser({
       ...currentUser,

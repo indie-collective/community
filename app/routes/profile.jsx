@@ -17,32 +17,15 @@ import { FaDiscord, FaMoon, FaSun } from 'react-icons/fa6';
 import { LuPencil, LuLink } from 'react-icons/lu';
 import { Form, Link, useLoaderData, useSearchParams } from 'react-router';
 
-import { db } from '../utils/db.server';
+import { getProfile } from '../data/people.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
-import computePerson from '../models/person';
 import { useColorMode } from '../components/ui/color-mode';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
 
-  const user = await db.person.findUnique({
-    where: {
-      id: currentUser.id,
-    },
-    select: {
-      id: true,
-      avatar_id: true,
-      username: true,
-      first_name: true,
-      last_name: true,
-      about: true,
-      avatar: true,
-      discord_id: true,
-    },
-  });
-
   return {
-    currentUser: await computePerson(user),
+    currentUser: await getProfile(currentUser.id),
   };
 };
 
