@@ -41,3 +41,18 @@ npx prisma migrate deploy
 # Verify all migrations have run well and sync with latest schema
 npx prisma migrate dev
 ```
+
+## D1 (Cloudflare), in progress
+
+The app is moving to Cloudflare D1 with Drizzle (ADR 0002, ADR 0003, #151). The schema is `app/db/schema.js`; it doesn't serve the app yet.
+
+```sh
+# Generate a migration after changing app/db/schema.js
+npm run db:generate -- --name <what-changed>
+
+# Create or update the local D1 (in .wrangler/)
+npm run db:migrate
+
+# Copy a Postgres in main's shape into the empty local D1, checking row counts
+DATABASE_URL=postgres://… npm run db:copy -- --apply local
+```

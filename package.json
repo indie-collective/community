@@ -13,7 +13,10 @@
     "test:stories": "vitest run --project storybook",
     "test:e2e": "playwright test",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply DB --local",
+    "db:copy": "node scripts/copy-to-d1.mjs"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.35.0",
@@ -34,6 +37,7 @@
     "date-fns": "^2.16.1",
     "diff": "^5.1.0",
     "discord.js": "^14.18.0",
+    "drizzle-orm": "^0.45.4",
     "enquire.js": "^2.1.6",
     "globals": "^17.6.0",
     "jimp": "^1.6.1",
@@ -76,17 +80,20 @@
     "@testing-library/react": "^16.3.3",
     "@vitest/browser": "^5.0.2",
     "@vitest/browser-playwright": "^5.0.2",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9.29.0",
     "eslint-plugin-import-x": "^4.16.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.5.0",
+    "pg": "^8.23.1",
     "playwright": "^1.63.0",
     "prettier": "^3.8.3",
     "prisma": "^4.3.1",
     "storybook": "^10.6.1",
     "vite": "^8.0.16",
-    "vitest": "^5.0.2"
+    "vitest": "^5.0.2",
+    "wrangler": "^4.149.0"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

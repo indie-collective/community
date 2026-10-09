@@ -27,3 +27,7 @@ generated
 /test-results
 /playwright-report
 /storybook-static
+
+# Local D1 (wrangler) and the copy script's output (#151)
+.wrangler/
+d1-copy.sql
