@@ -9,7 +9,7 @@
  */
 import { faker } from '@faker-js/faker';
 
-import { closeDb, db } from '../app/db/index.server.js';
+import { closeDb, db } from '../app/db/node.js';
 import {
   eventParticipants,
   events,

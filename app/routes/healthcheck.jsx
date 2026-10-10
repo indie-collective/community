@@ -1,16 +1,9 @@
 import { checkDatabase } from '../data/site.server';
 
-export const loader = async ({ request }) => {
+// OK when the database answers a query.
+export const loader = async () => {
   try {
-    const url = new URL(`http://localhost:${process.env.PORT ?? 3000}/`);
-    // if we can connect to the database and make a simple query
-    // and make a HEAD request to ourselves, then we're good.
-    await Promise.all([
-      checkDatabase(),
-      fetch(url.toString(), { method: 'HEAD' }).then((r) => {
-        if (!r.ok) return Promise.reject(r);
-      }),
-    ]);
+    await checkDatabase();
     return new Response('OK');
   } catch (error) {
     console.log('healthcheck ❌', { error });

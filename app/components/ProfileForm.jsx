@@ -19,6 +19,7 @@ import { LuCheck, LuX, LuPencil } from 'react-icons/lu';
 import { Form, useFetcher, useSubmit } from 'react-router';
 import debounce from 'lodash.debounce';
 import useMergeRefs from '../hooks/useMergeRefs';
+import ThumbnailFields from './ThumbnailFields';
 
 // Last name and About are optional, as at sign-up: null in the database
 // for accounts created without them (#177).
@@ -52,6 +53,7 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
     about,
   } = defaultData;
   const [avatar, setAvatar] = useState(defaultData.avatar);
+  const [avatarFile, setAvatarFile] = useState(null);
   const submit = useSubmit();
   const fetcher = useFetcher();
   const {
@@ -120,10 +122,12 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
 
             if (file) {
               setAvatar(window.URL.createObjectURL(file));
+              setAvatarFile(file);
             }
           }}
           accept="image/*"
         />
+        <ThumbnailFields name="avatar" file={avatarFile} />
       </Field.Root>
       <Field.Root mb={5}>
         <Field.Label htmlFor="email">Email</Field.Label>

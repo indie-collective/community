@@ -5,7 +5,7 @@
 - Node.js 22
 - NPM
 
-The database is Cloudflare D1 (ADR 0002, ADR 0003), with Drizzle; the schema is `app/db/schema.js`. Locally it's wrangler's local D1, in `.wrangler/`: no database server to install.
+The app is a Cloudflare Worker (ADR 0002): React Router, with D1 for data (ADR 0003, Drizzle; the schema is `app/db/schema.js`) and R2 for images. Locally it all runs in workerd, wrangler's runtime, with a local D1 and R2 in `.wrangler/`: no database server to install.
 
 ## Installation
 
@@ -18,11 +18,25 @@ npm run db:reset
 npm run dev
 ```
 
-Environment variables go in `.env` (the dev and start scripts load it). In development, `/signin` takes any email without a password; the seed creates `harness-admin@indieco.test` and `harness-member@indieco.test`.
+Variables and secrets go in `.env` (or `.dev.vars`); wrangler.jsonc lists them. In development, `/signin` takes any email without a password (`DEV_SIGNIN=true` does the same in a build: never set it in production); the seed creates `harness-admin@indieco.test` and `harness-member@indieco.test`. Without `CDN_HOST`, images are served from the local R2 at `/images`.
+
+```bash
+# The production build, in workerd
+npm run preview
+```
+
+## Deploying
+
+```bash
+npx wrangler login
+npm run deploy
+```
+
+The first time: create the database and bucket (`npx wrangler d1 create indieco-community`, then put its ID in wrangler.jsonc; `npx wrangler r2 bucket create indieco-community-images`), apply the migrations (`npx wrangler d1 migrations apply DB --remote`), set the secrets listed in wrangler.jsonc (`npx wrangler secret put SESSION_SECRET`, …) and the `BASE_URL` and `CDN_HOST` vars. A Cron Trigger refreshes stale IGDB data every hour.
 
 ## Session secret
 
-Session cookies are signed with `SESSION_SECRET`. It is required in production, and the server will not start without it. Generate one with `openssl rand -hex 32`.
+Session cookies are signed with `SESSION_SECRET`. It is required in production: without it, every request fails. Generate one with `openssl rand -hex 32`.
 
 To rotate it, set `SESSION_SECRET=new,old`: new cookies are signed with the first secret, and cookies signed with the others are still accepted until they expire.
 

@@ -11,11 +11,12 @@ import {
   Icon,
 } from '@chakra-ui/react';
 
-import { Form, redirect, useActionData, useNavigation, useSearchParams } from 'react-router';
+import { Form, redirect, useActionData, useLoaderData, useNavigation, useSearchParams } from 'react-router';
 import { SocialsProvider } from 'remix-auth-socials';
 import { FaDiscord } from 'react-icons/fa6';
 
 import { authenticator } from '../utils/auth.server';
+import { devSignIn } from '../utils/devSignIn.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { commitSession, getSession } from '../utils/session.server';
 import toSessionUser from '../utils/sessionUser.server';
@@ -30,6 +31,7 @@ export let loader = async ({ request }) => {
   const user = await isAuthenticated(request);
 
   if (user) return redirect(prevOf(request));
+  return { devSignIn: devSignIn() };
 };
 
 export let action = async ({ request }) => {
@@ -63,6 +65,7 @@ export const meta = ({ matches, location }) =>
 const SignIn = () => {
   const navigation = useNavigation();
   const actionData = useActionData();
+  const loaderData = useLoaderData();
   const [searchParams] = useSearchParams();
   const prev = searchParams.get('prev');
 
@@ -85,7 +88,7 @@ const SignIn = () => {
           </Icon>
         </Button>
       </Form>
-      {process.env.NODE_ENV === 'development' && (
+      {loaderData?.devSignIn && (
         <Stack gap={5}>
           <HStack>
             <Separator flex="1" borderColor={{ base: 'gray.300', _dark: 'gray.600' }} />

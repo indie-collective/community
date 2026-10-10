@@ -4,6 +4,8 @@ import { LuPlus } from 'react-icons/lu';
 import { useDropzone } from 'react-dropzone';
 import { useCallback } from 'react';
 
+import { makeThumbnail } from '../utils/thumbnail';
+
 const ImageUploader = ({ gameId, currentUser, fetcher }) => {
   const dzColor = useColorModeValue('gray.200', 'gray.700');
   const dzHoverColor = useColorModeValue('gray.400', 'gray.50');
@@ -18,9 +20,16 @@ const ImageUploader = ({ gameId, currentUser, fetcher }) => {
   const onDrop = useCallback(async (acceptedFiles) => {
     const form = new FormData();
 
-    for (const file of acceptedFiles) {
+    // Each image with its thumbnail and size (see utils/createUploadHandler);
+    // an empty thumbnail when the browser can't draw it.
+    const thumbnails = await Promise.all(acceptedFiles.map(makeThumbnail));
+    acceptedFiles.forEach((file, i) => {
+      const made = thumbnails[i];
       form.append('images', file);
-    }
+      form.append('images_thumb', made?.thumbnail ?? new File([], ''));
+      form.append('images_width', made?.width ?? '');
+      form.append('images_height', made?.height ?? '');
+    });
 
     await fetcher.submit(
       form,

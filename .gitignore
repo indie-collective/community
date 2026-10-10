@@ -6,6 +6,8 @@ static
 /public/build
 .env
 !.env.example
+# Local Worker secrets (wrangler)
+.dev.vars*
 
 yarn-error.log
 .DS_Store
