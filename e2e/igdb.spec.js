@@ -34,9 +34,10 @@ test.beforeAll(async () => {
 test.afterAll(() => new Promise((resolve) => server.close(resolve)));
 
 test('IGDB data is stored, refreshed after the response, and follows the slug', async ({ page }) => {
-  const { db, gameIgdb, games } = await import('./db.js');
+  const { db, gameIgdb, games, retryBusy } = await import('./db.js');
   const { eq } = await import('drizzle-orm');
-  const stored = async () => (await db.select().from(gameIgdb).where(eq(gameIgdb.gameId, game.id)))[0];
+  const stored = async () =>
+    (await retryBusy(() => db.select().from(gameIgdb).where(eq(gameIgdb.gameId, game.id))))[0];
   const name = `IGDB Stand-in ${Date.now() % 100000}`;
   const fetchedAt = async () => (await stored())?.fetchedAt;
 
@@ -46,7 +47,7 @@ test('IGDB data is stored, refreshed after the response, and follows the slug', 
     form: { ...form, igdb_url: 'https://www.igdb.com/games/standin-celeste' },
     maxRedirects: 0,
   });
-  const [game] = await db.select().from(games).where(eq(games.name, name));
+  const [game] = await retryBusy(() => db.select().from(games).where(eq(games.name, name)));
   try {
     // The first view doesn't wait for IGDB: no data yet, fetched afterwards.
     await page.goto(`/game/${game.id}`);
@@ -63,7 +64,9 @@ test('IGDB data is stored, refreshed after the response, and follows the slug', 
     expect(igdb.tokens).toBe(tokens);
 
     // Stale data: served at once by both concurrent views, refreshed once.
-    await db.update(gameIgdb).set({ fetchedAt: new Date(Date.now() - 2 * 864e5) }).where(eq(gameIgdb.gameId, game.id));
+    await retryBusy(() =>
+      db.update(gameIgdb).set({ fetchedAt: new Date(Date.now() - 2 * 864e5) }).where(eq(gameIgdb.gameId, game.id))
+    );
     const views = await Promise.all([1, 2].map(() => page.request.get(`/game/${game.id}`)));
     for (const view of views) expect(await view.text()).toContain('Celeste trailer');
     await expect.poll(async () => (await fetchedAt()) > new Date(Date.now() - 60e3)).toBe(true);
@@ -82,6 +85,6 @@ test('IGDB data is stored, refreshed after the response, and follows the slug', 
     await page.reload();
     await expect(page.locator('iframe[title="Hades trailer"]')).toBeAttached();
   } finally {
-    await db.delete(games).where(eq(games.id, game.id));
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
   }
 });
