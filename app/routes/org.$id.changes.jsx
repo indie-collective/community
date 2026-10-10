@@ -27,9 +27,8 @@ import {
   useRouteError,
 } from 'react-router';
 
-import { db } from '../utils/db.server';
+import { getHistorySubject, listChanges } from '../data/changes.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
-import computeOrg from '../models/org';
 import { formatDistanceToNow } from 'date-fns';
 import { pageMeta } from '../utils/meta';
 
@@ -46,11 +45,7 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const org = await db.entity.findUnique({
-    where: {
-      id,
-    },
-  });
+  const org = await getHistorySubject('organization', id);
 
   if (!org)
     throw new Response('Not Found', {
@@ -58,22 +53,8 @@ export const loader = async ({ request, params }) => {
     });
 
   const data = {
-    org: await computeOrg(org),
-    changes: await db.change.findMany({
-      where: {
-        record_id: org.id,
-        table_name: 'entity',
-      },
-      select: {
-        id: true,
-        operation: true,
-        author: { select: { username: true } },
-        created_at: true,
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    }),
+    org,
+    changes: await listChanges('organization', id),
     currentUser,
   };
 
@@ -140,9 +121,10 @@ const OrgChangeLayout = () => {
               </Heading>
 
               <Stack w="250px" asChild>
-                <List>
+                <List.Root listStyleType="none">
                   {changes.map(({ id, operation, author, created_at }) => (
                     <LinkBox
+                      as="li"
                       key={id}
                       transition="background-color 200ms ease-out"
                       cursor="pointer"
@@ -188,7 +170,7 @@ const OrgChangeLayout = () => {
                       </Stack>
                     </LinkBox>
                   ))}
-                </List>
+                </List.Root>
               </Stack>
             </Box>
 

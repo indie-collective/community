@@ -1,26 +1,15 @@
 import { Text } from '@chakra-ui/react';
 import { redirect } from 'react-router';
 
-import { db } from '../../utils/db.server';
+import { getLatestChangeId } from '../../data/changes.server';
 
 export async function loader({ params }) {
   const { id } = params;
 
-  const change = await db.change.findFirst({
-    where: {
-      record_id: id,
-      table_name: 'game',
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-    select: {
-      id: true,
-    },
-  });
+  const changeId = await getLatestChangeId('game', id);
 
-  if (change) {
-    return redirect(`/game/${params.id}/changes/${change.id}`, {
+  if (changeId) {
+    return redirect(`/game/${params.id}/changes/${changeId}`, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
       },

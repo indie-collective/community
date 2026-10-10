@@ -3,7 +3,8 @@ import { Heading, Link as ChakraLink, Text, List, Box } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
 import isAuthenticated from '../../utils/isAuthenticated.server'
-import { db } from '../../utils/db.server';
+import { listRecentChanges } from '../../data/changes.server';
+import { setAdmin } from '../../data/people.server';
 import { LuPlus, LuTrash2, LuPencil } from 'react-icons/lu';
 
 export const action = async ({ request }) => {
@@ -17,14 +18,7 @@ export const action = async ({ request }) => {
 
   const data = await request.formData();
 
-  await db.person.update({
-    where: {
-      id: data.get('userId'),
-    },
-    data: {
-      isAdmin: data.get('isAdmin') === 'on',
-    },
-  });
+  await setAdmin(data.get('userId'), data.get('isAdmin') === 'on');
 
   return redirect('/admin');
 };
@@ -38,28 +32,7 @@ export const loader = async ({ request }) => {
     });
   }
 
-  const lastChanges = await db.change.findMany({
-    orderBy: {
-      created_at: 'desc',
-    },
-    take: 10,
-    select: {
-      id: true,
-      operation: true,
-      created_at: true,
-      table_name: true,
-      record_id: true,
-      data: true,
-      author: {
-        select: {
-          id: true,
-          first_name: true,
-          last_name: true,
-          isAdmin: true,
-        },
-      },
-    },
-  });
+  const lastChanges = await listRecentChanges({ limit: 10 });
 
   const data = {
     currentUser,
@@ -103,9 +76,11 @@ const Profile = () => {
             record_id,
             data,
             created_at,
-          }) => (
-            <List.Item>
-              <List.Indicator color={operationsColors[operation]} asChild><operationsIcons.operation /></List.Indicator>
+          }) => {
+            const Icon = operationsIcons[operation];
+            return (
+            <List.Item key={id}>
+              <List.Indicator color={operationsColors[operation]} asChild><Icon /></List.Indicator>
               {author?.first_name} {author?.last_name}{' '}
               <ChakraLink asChild><Link
                   to={`/${
@@ -117,7 +92,7 @@ const Profile = () => {
                   to={`/${
                     table_name === 'entity' ? 'org' : table_name
                   }/${record_id}`}>
-                  {data.name}
+                  {data?.name}
                 </Link></ChakraLink>{' '}
               <Text as="span" opacity={0.6}>
                 {formatDistanceToNow(new Date(created_at), {
@@ -125,7 +100,8 @@ const Profile = () => {
                 })}
               </Text>
             </List.Item>
-          )
+            );
+          }
         )}
       </List.Root>
     </Box>
