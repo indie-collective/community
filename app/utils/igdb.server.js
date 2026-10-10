@@ -6,6 +6,8 @@
  * Both APIs are configurable (IGDB_API, TWITCH_OAUTH_API) so tests can stand
  * in for them.
  */
+import { getValue, setValue } from '../data/kv.server.js';
+
 const igdbApi = () => process.env.IGDB_API || 'https://api.igdb.com/v4';
 const twitchOAuthApi = () => process.env.TWITCH_OAUTH_API || 'https://id.twitch.tv/oauth2';
 
@@ -40,8 +42,8 @@ export const gameQuery = (slug) => `fields ${FIELDS.join(',')}; where slug = ${q
  * A token from the store while it has more than TOKEN_MARGIN_MS left, else a
  * new one from Twitch, which is stored with its expiry.
  */
-export async function getAccessToken(db, { now = new Date() } = {}) {
-  const stored = await db.kv_store.findUnique({ where: { key: TOKEN_KEY } });
+export async function getAccessToken({ now = new Date() } = {}) {
+  const stored = await getValue(TOKEN_KEY);
   if (stored?.expires_at && stored.expires_at.getTime() - TOKEN_MARGIN_MS > now.getTime()) {
     return stored.value;
   }
@@ -57,11 +59,7 @@ export async function getAccessToken(db, { now = new Date() } = {}) {
   if (!access_token) throw new Error('Twitch token response has no access_token');
 
   const expires_at = new Date(now.getTime() + Number(expires_in) * 1000);
-  await db.kv_store.upsert({
-    where: { key: TOKEN_KEY },
-    create: { key: TOKEN_KEY, value: access_token, expires_at },
-    update: { value: access_token, expires_at },
-  });
+  await setValue(TOKEN_KEY, access_token, { expiresAt: expires_at });
   return access_token;
 }
 
@@ -69,9 +67,9 @@ export async function getAccessToken(db, { now = new Date() } = {}) {
  * The IGDB game with this slug, or null when IGDB has none. Throws when a
  * request fails, so a failed refresh isn't mistaken for "no such game".
  */
-export async function fetchIGDBGame(db, slug, { now } = {}) {
+export async function fetchIGDBGame(slug, { now } = {}) {
   if (!isIGDBSlug(slug)) return null;
-  const token = await getAccessToken(db, { now });
+  const token = await getAccessToken({ now });
   const response = await fetch(`${igdbApi()}/games`, {
     method: 'POST',
     headers: {

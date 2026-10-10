@@ -91,7 +91,7 @@ export async function getGame(id, { context } = {}) {
     },
   });
   if (!game) return null;
-  refreshIfStale(db, game, context);
+  refreshIfStale(game, context);
   return computeGame(game);
 }
 

@@ -4,8 +4,7 @@
  * it after the response, and scripts/refresh-igdb.mjs refreshes the stalest
  * ones on a schedule.
  */
-import { Prisma } from '@prisma/client';
-
+import { claimIGDBRefresh, saveIGDBData } from '../data/igdb.server.js';
 import { fetchIGDBGame } from './igdb.server.js';
 
 export const STALE_AFTER_MS = 24 * 60 * 60 * 1000;
@@ -35,45 +34,16 @@ export function isStale(game, { now = new Date() } = {}) {
 }
 
 /**
- * Marks a refresh of this game as started, unless one started within
- * REFRESH_GUARD_MS. True when this caller got to start it: of concurrent
- * callers, only one does.
- */
-export async function claimRefresh(db, gameId, slug, { now = new Date() } = {}) {
-  const { count } = await db.game_igdb.updateMany({
-    where: {
-      game_id: gameId,
-      OR: [{ refresh_started_at: null }, { refresh_started_at: { lt: new Date(now.getTime() - REFRESH_GUARD_MS) } }],
-    },
-    data: { refresh_started_at: now },
-  });
-  if (count === 1) return true;
-
-  // No row yet: the first to create it gets the refresh.
-  try {
-    await db.game_igdb.create({ data: { game_id: gameId, slug, refresh_started_at: now } });
-    return true;
-  } catch (error) {
-    if (error?.code === 'P2002') return false; // It exists: someone else's refresh is running.
-    throw error;
-  }
-}
-
-/**
  * Fetches and stores a game's IGDB data, unless a refresh is already running.
  * When the request fails, the claim stays: the next try waits out
  * REFRESH_GUARD_MS.
  */
-export async function refreshIGDBData(db, { id, igdb_slug }, { now = new Date() } = {}) {
+export async function refreshIGDBData({ id, igdb_slug }, { now = new Date() } = {}) {
   if (!igdb_slug) return false;
-  if (!(await claimRefresh(db, id, igdb_slug, { now }))) return false;
+  if (!(await claimIGDBRefresh(id, igdb_slug, { now, guardMs: REFRESH_GUARD_MS }))) return false;
 
-  const data = await fetchIGDBGame(db, igdb_slug, { now });
-  await db.game_igdb.update({
-    where: { game_id: id },
-    // A SQL NULL when IGDB has no game with this slug.
-    data: { slug: igdb_slug, data: data ?? Prisma.DbNull, fetched_at: new Date(), refresh_started_at: null },
-  });
+  const data = await fetchIGDBGame(igdb_slug, { now });
+  await saveIGDBData(id, igdb_slug, data);
   return true;
 }
 
@@ -90,7 +60,7 @@ export function afterResponse(context, task) {
 }
 
 /** Refreshes the game's IGDB data after the response if it's stale. */
-export function refreshIfStale(db, game, context) {
+export function refreshIfStale(game, context) {
   if (!isStale(game)) return;
-  afterResponse(context, () => refreshIGDBData(db, game));
+  afterResponse(context, () => refreshIGDBData(game));
 }

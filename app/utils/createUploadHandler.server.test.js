@@ -13,8 +13,8 @@ vi.mock('jimp', () => ({
     })),
   },
 }));
-const createImage = vi.fn(async () => ({ id: 'image-1' }));
-vi.mock('./db.server', () => ({ db: { image: { create: (...args) => createImage(...args) } } }));
+const createImage = vi.fn(async () => 'image-1');
+vi.mock('../data/images.server', () => ({ createImage: (...args) => createImage(...args) }));
 
 const { parseFormWithUploads } = await import('./createUploadHandler.server');
 
