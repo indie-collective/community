@@ -1,47 +1,69 @@
-// Site-wide reads (#151, part 2): search across everything, the sitemap,
-// totals and the health check.
-import { db } from '../utils/db.server';
-import { getFullTextSearchQuery } from '../utils/search.server';
+// Site-wide reads (#151): search across everything, the sitemap, and the
+// health check.
+import { and, isNull, sql } from 'drizzle-orm';
+
+import { db } from '../db/index.server.js';
+import { events, games, organizations } from '../db/schema.js';
+import { matchesSearch } from '../db/search.js';
+import * as shape from './shapes.server';
 
 /**
- * Games, organisations and events whose name matches `q`; null for an
- * empty query. Events come with attendance and games (deleted ones left
- * out).
+ * Games, organisations and events whose name or description matches `q`;
+ * null for an empty query. Events come with attendance and games (deleted
+ * ones left out).
  */
 export async function searchSite(q) {
-  const search = getFullTextSearchQuery(q);
-  if (!search) return null;
-  const [games, orgs, events] = await Promise.all([
-    db.game.findMany({ where: { name: { search } } }),
-    db.entity.findMany({ where: { name: { search } } }),
-    db.event.findMany({
-      where: { name: { search } },
-      include: {
-        event_participant: true,
-        game_event: { where: { game: { deleted: false } } },
+  const where = (table) => {
+    const search = matchesSearch(table.searchText, q);
+    return search && and(search, isNull(table.deletedAt));
+  };
+  if (!where(games)) return null;
+  const [gameRows, orgRows, eventRows] = await Promise.all([
+    db.select().from(games).where(where(games)),
+    db.select().from(organizations).where(where(organizations)),
+    db.query.events.findMany({
+      where: where(events),
+      with: {
+        participants: true,
+        games: { with: { game: { columns: { deletedAt: true } } } },
       },
     }),
   ]);
-  return { games, orgs, events };
+  return {
+    games: gameRows.map(shape.game),
+    orgs: orgRows.map(shape.organization),
+    events: eventRows.map((row) => ({
+      ...shape.event(row),
+      event_participant: row.participants.map(({ eventId, personId }) => ({
+        event_id: eventId,
+        person_id: personId,
+      })),
+      game_event: row.games
+        .filter(({ game }) => game && !game.deletedAt)
+        .map(({ gameId, eventId }) => ({ game_id: gameId, event_id: eventId })),
+    })),
+  };
 }
 
 /**
- * What the sitemap lists: games (deleted ones left out), organisations and
- * events, each `{ id, updated_at }`.
+ * What the sitemap lists: games, organisations and events (deleted ones
+ * left out), each `{ id, updated_at }`.
  */
 export async function listSitemapRecords() {
-  const [games, orgs, events] = await Promise.all([
-    db.game.findMany({
-      where: { deleted: false },
-      select: { id: true, updated_at: true },
-    }),
-    db.entity.findMany({ select: { id: true, updated_at: true } }),
-    db.event.findMany({ select: { id: true, updated_at: true } }),
+  const list = (table) =>
+    db
+      .select({ id: table.id, updated_at: table.updatedAt })
+      .from(table)
+      .where(isNull(table.deletedAt));
+  const [gameRows, orgs, eventRows] = await Promise.all([
+    list(games),
+    list(organizations),
+    list(events),
   ]);
-  return { games, orgs, events };
+  return { games: gameRows, orgs, events: eventRows };
 }
 
 /** Rejects when the database can't be queried. */
 export async function checkDatabase() {
-  await db.game.count();
+  await db.run(sql`select 1`);
 }

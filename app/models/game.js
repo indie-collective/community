@@ -19,11 +19,11 @@ function computeGameImage(gameImage) {
 }
 
 /**
- * @typedef {import('@prisma/client').game} ExtendedGame
+ * @typedef {object} ExtendedGame
  * @property {object} igdb_game - The stored IGDB data, when the game was
  *   loaded with `include: { igdb: true }` (#254)
  *
- * @param {import("@prisma/client").game} game
+ * @param {object} game - in the shape data/shapes.server returns
  * @returns {ExtendedGame} The extended game
  */
 export default async function computeGame(game) {

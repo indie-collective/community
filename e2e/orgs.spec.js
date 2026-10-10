@@ -43,9 +43,12 @@ test('the studios country filter is searchable', async ({ page }) => {
 
 // #198: an org without games or events shows signed-in users how to add them.
 test('an empty org page hints at adding games and events when signed in', async ({ page }) => {
-  const { PrismaClient } = await import('@prisma/client');
-  const db = new PrismaClient();
-  const org = await db.entity.create({ data: { name: `Quiet Studio ${Date.now() % 100000}`, type: 'studio' } });
+  const { db, organizations } = await import('./db.js');
+  const { eq, inArray } = await import('drizzle-orm');
+  const [org] = await db
+    .insert(organizations)
+    .values({ name: `Quiet Studio ${Date.now() % 100000}`, type: 'studio' })
+    .returning();
   try {
     await page.goto(`/org/${org.id}`);
     await expect(page.getByText('No games yet.')).toHaveCount(0);
@@ -57,8 +60,7 @@ test('an empty org page hints at adding games and events when signed in', async 
     await expect(page.getByText('No hosted events yet.')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Add an event' })).toHaveAttribute('href', '/events/create');
   } finally {
-    await db.entity.delete({ where: { id: org.id } });
-    await db.$disconnect();
+    await db.delete(organizations).where(eq(organizations.id, org.id));
   }
 });
 
@@ -98,20 +100,16 @@ test.describe('Bluesky handles on organizations', () => {
 
 // The lists showed the first 50 orgs and nothing more; the rest load in pages.
 test('the studios list loads past the first 50, keeping the filters', async ({ page }) => {
-  const { PrismaClient } = await import('@prisma/client');
-  const db = new PrismaClient();
+  const { db, organizations } = await import('./db.js');
+  const { eq, inArray } = await import('drizzle-orm');
   // XQ is a user-assigned ISO code: no seeded org lives there.
-  const location = await db.location.create({ data: { country_code: 'XQ' } });
   // The same updated_at for all, so only the id tie-break keeps pages apart.
-  const updated_at = new Date();
-  await db.entity.createMany({
-    data: Array.from({ length: 55 }, (_, i) => ({
-      name: `Paged Studio ${i + 1}`,
-      type: 'studio',
-      location_id: location.id,
-      updated_at,
-    })),
-  });
+  const updatedAt = new Date();
+  await db.batch(
+    Array.from({ length: 55 }, (_, i) =>
+      db.insert(organizations).values({ name: `Paged Studio ${i + 1}`, type: 'studio', countryCode: 'XQ', updatedAt })
+    )
+  );
   try {
     await page.goto('/studios?country=XQ');
     const cards = page.locator('main a[href^="/org/"]');
@@ -131,9 +129,7 @@ test('the studios list loads past the first 50, keeping the filters', async ({ p
     await expect(page).toHaveURL(/has_games=on/);
     await expect(cards).toHaveCount(0);
   } finally {
-    await db.entity.deleteMany({ where: { location_id: location.id } });
-    await db.location.delete({ where: { id: location.id } });
-    await db.$disconnect();
+    await db.delete(organizations).where(eq(organizations.countryCode, 'XQ'));
   }
 });
 
@@ -151,19 +147,21 @@ test('adding an organisation from a list pre-selects its type', async ({ page })
 
 // #258: a country page's cities link to the lists filtered by city.
 test('the studios list filters by city, and keeps it across other filters', async ({ page }) => {
-  const { PrismaClient } = await import('@prisma/client');
-  const db = new PrismaClient();
+  const { db, organizations } = await import('./db.js');
+  const { eq, inArray } = await import('drizzle-orm');
   const tag = Date.now() % 100000;
-  const places = await Promise.all(
-    ['Fjordheim', 'Snowdale'].map((city) =>
-      db.location.create({ data: { country_code: 'NO', city: `${city} ${tag}`, region: 'Vestland' } })
+  const [here, there] = await db
+    .insert(organizations)
+    .values(
+      ['Fjordheim', 'Snowdale'].map((city, i) => ({
+        name: `Aurora Studio ${tag}-${i}`,
+        type: 'studio',
+        countryCode: 'NO',
+        city: `${city} ${tag}`,
+        region: 'Vestland',
+      }))
     )
-  );
-  const [here, there] = await Promise.all(
-    places.map((place, i) =>
-      db.entity.create({ data: { name: `Aurora Studio ${tag}-${i}`, type: 'studio', location_id: place.id } })
-    )
-  );
+    .returning();
   try {
     await page.goto(`/studios?country=NO&city=${encodeURIComponent(`fjordheim ${tag}`)}`);
     await expect(page.getByText(`In fjordheim ${tag}`)).toBeVisible();
@@ -179,8 +177,6 @@ test('the studios list filters by city, and keeps it across other filters', asyn
     await expect(page).not.toHaveURL(/city=/);
     await expect(page.getByText(`In fjordheim ${tag}`)).toHaveCount(0);
   } finally {
-    await db.entity.deleteMany({ where: { id: { in: [here.id, there.id] } } });
-    await db.location.deleteMany({ where: { id: { in: places.map((p) => p.id) } } });
-    await db.$disconnect();
+    await db.delete(organizations).where(inArray(organizations.id, [here.id, there.id]));
   }
 });

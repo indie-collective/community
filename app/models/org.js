@@ -17,9 +17,9 @@ async function computeOrgEvent(orgEvent) {
 }
 
 /**
- * @typedef {import('@prisma/client').entity} ExtendedOrg
+ * @typedef {object} ExtendedOrg
  *
- * @param {import("@prisma/client").entity} org
+ * @param {object} org - in the shape data/shapes.server returns
  * @returns {ExtendedOrg} The extended organization
  */
 export default async function computeOrg(org) {

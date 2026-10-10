@@ -7,11 +7,11 @@ export async function action(args) {
   const { params } = args;
   const { id } = params;
 
-  await authorizer.authorize(args, {
+  const currentUser = await authorizer.authorize(args, {
     rules: [canDelete],
   });
 
-  await deleteEvent(id);
+  await deleteEvent(id, { authorId: currentUser.id });
 
   return redirect(`/events`);
 }

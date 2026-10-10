@@ -1,11 +1,30 @@
-// Gaps in the data (#151, part 2), for the admin page that lists what
-// needs filling in.
-import { db } from '../utils/db.server';
+// Gaps in the data (#151), for the admin page that lists what needs
+// filling in.
+import { and, desc, eq, isNull, notExists, sql } from 'drizzle-orm';
 
-const newestFirst = {
-  select: { id: true, name: true },
-  orderBy: { created_at: 'desc' },
-};
+import { db } from '../db/index.server.js';
+import {
+  gameImages,
+  gameOrganizations,
+  games,
+  gameTags,
+  organizations,
+} from '../db/schema.js';
+
+const without = (table, column, id) =>
+  notExists(
+    db
+      .select({ one: sql`1` })
+      .from(table)
+      .where(eq(column, id))
+  );
+
+const newestFirst = (table, ...conditions) =>
+  db
+    .select({ id: table.id, name: table.name })
+    .from(table)
+    .where(and(isNull(table.deletedAt), ...conditions))
+    .orderBy(desc(table.createdAt));
 
 /**
  * Games without images, organisations or tags, and organisations without
@@ -19,14 +38,21 @@ export async function listMissingData() {
     entities_missing_games,
     entities_missing_location,
   ] = await Promise.all([
-    db.game.findMany({ ...newestFirst, where: { game_image: { none: {} } } }),
-    db.game.findMany({ ...newestFirst, where: { game_entity: { none: {} } } }),
-    db.game.findMany({ ...newestFirst, where: { game_tag: { none: {} } } }),
-    db.entity.findMany({
-      ...newestFirst,
-      where: { game_entity: { none: {} } },
-    }),
-    db.entity.findMany({ ...newestFirst, where: { location: { is: null } } }),
+    newestFirst(games, without(gameImages, gameImages.gameId, games.id)),
+    newestFirst(
+      games,
+      without(gameOrganizations, gameOrganizations.gameId, games.id)
+    ),
+    newestFirst(games, without(gameTags, gameTags.gameId, games.id)),
+    newestFirst(
+      organizations,
+      without(
+        gameOrganizations,
+        gameOrganizations.organizationId,
+        organizations.id
+      )
+    ),
+    newestFirst(organizations, isNull(organizations.countryCode)),
   ]);
   return {
     games_missing_images,

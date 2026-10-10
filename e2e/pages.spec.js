@@ -97,10 +97,12 @@ test('every public page has its own description and a share image', async ({ req
 // symbol, rank as the number, grouped by continent; search engines also get
 // a sitemap of every page.
 test('countries are in the navigation, as a periodic table', async ({ page }) => {
-  const { PrismaClient } = await import('@prisma/client');
-  const db = new PrismaClient();
-  const place = await db.location.create({ data: { country_code: 'AQ', city: `Base ${Date.now() % 100000}`, region: 'Ross' } });
-  const org = await db.entity.create({ data: { name: `Polar Studio ${Date.now() % 100000}`, type: 'studio', location_id: place.id } });
+  const { db, organizations } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const [org] = await db
+    .insert(organizations)
+    .values({ name: `Polar Studio ${Date.now() % 100000}`, type: 'studio', countryCode: 'AQ', city: `Base ${Date.now() % 100000}`, region: 'Ross' })
+    .returning();
   try {
     await page.goto('/');
     await page.getByRole('navigation').getByRole('link', { name: 'Countries' }).first().click();
@@ -133,9 +135,7 @@ test('countries are in the navigation, as a periodic table', async ({ page }) =>
     expect(continents[codes.at(-1)]).toBe('AN');
     expect(codes).toContain('AQ');
   } finally {
-    await db.entity.delete({ where: { id: org.id } });
-    await db.location.delete({ where: { id: place.id } });
-    await db.$disconnect();
+    await db.delete(organizations).where(eq(organizations.id, org.id));
   }
 });
 

@@ -7,7 +7,7 @@
  * Workers, see ADR 0002).
  *
  * Usage:
- *   IGDB_CLIENT_ID=… IGDB_CLIENT_SECRET=… DATABASE_URL=… node scripts/refresh-igdb.mjs [--limit N]
+ *   IGDB_CLIENT_ID=… IGDB_CLIENT_SECRET=… node scripts/refresh-igdb.mjs [--limit N]
  *
  * - Refreshes at most N games (default 20): those never fetched first, then
  *   the oldest. Games whose data is under a day old are skipped.
@@ -15,7 +15,7 @@
  * - Paces requests (~3 per second) to stay inside IGDB's 4 per second.
  */
 import { listLinkedGames } from '../app/data/igdb.server.js';
-import { db } from '../app/utils/db.server.js';
+import { closeDb } from '../app/db/index.server.js';
 import { isStale, refreshIGDBData } from '../app/utils/igdbData.server.js';
 
 const args = process.argv.slice(2);
@@ -45,5 +45,5 @@ try {
   }
   if (failed) process.exitCode = 1;
 } finally {
-  await db.$disconnect();
+  await closeDb();
 }

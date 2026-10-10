@@ -27,7 +27,7 @@ import useDebounce from '../hooks/useDebounce';
 import { pageMeta } from '../utils/meta';
 import countryNames from '../assets/countries.json';
 
-// The sort options: user input picks one by name, never reaches Prisma.
+// The sort options: user input picks one by name, never reaches the query.
 // The orders the list offers; data/games knows how to apply them.
 const SORTS = {
   updated: { label: 'Recently updated' },

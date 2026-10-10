@@ -11,7 +11,7 @@ export async function action(args) {
     rules: [canDelete],
   });
 
-  await deleteGame(id);
+  await deleteGame(id, { authorId: currentUser.id });
 
   return redirect('/games');
 }

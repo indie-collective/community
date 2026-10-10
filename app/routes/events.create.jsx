@@ -43,6 +43,7 @@ export async function action(args) {
       site: data.get('site'),
       coverId: data.get('cover'),
       location,
+      authorId: currentUser.id,
     });
 
     const port = process.env.PORT ?? 3000;

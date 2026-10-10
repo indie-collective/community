@@ -2,11 +2,16 @@ import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.E2E_PORT ?? 3100);
 
+// The local D1 the tests run against, made fresh when the server starts
+// (scripts/reset-local-db.mjs). The specs that read or write it directly
+// open it through the same variable.
+export const E2E_D1 = '.wrangler/e2e';
+process.env.D1_PERSIST_PATH = `${E2E_D1}/v3`;
+
 // End-to-end tests run against a build made and served with
 // NODE_ENV=development: the development-only form strategy signs in by email,
-// using the accounts prisma/seed.js creates, and unlike `react-router dev` a
+// using the accounts scripts/seed.mjs creates, and unlike `react-router dev` a
 // build doesn't re-optimise dependencies (and reload pages) mid-run.
-// DATABASE_URL must point at a database migrated and seeded for the run.
 export default defineConfig({
   testDir: 'e2e',
   fullyParallel: false,
@@ -19,11 +24,11 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command:
-      'npx react-router build && node node_modules/@react-router/serve/bin.js build/server/index.js',
+    command: `node scripts/reset-local-db.mjs ${E2E_D1} && npx react-router build && node --env-file-if-exists=.env node_modules/@react-router/serve/bin.js build/server/index.js`,
     url: `http://localhost:${PORT}/about`,
     env: {
       PORT: String(PORT),
+      D1_PERSIST_PATH: `${E2E_D1}/v3`,
       NODE_ENV: 'development',
       // UTC like CI (and most hosts): event times must not depend on the
       // server's time zone (#204).

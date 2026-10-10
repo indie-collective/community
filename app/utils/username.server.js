@@ -24,20 +24,28 @@ function generated({ first_name, last_name }) {
   return base + String(Math.floor(Math.random() * 10000)).padStart(4, '0');
 }
 
-const usernameTaken = (error) =>
-  error?.code === 'P2002' && [].concat(error.meta?.target ?? []).some((field) => String(field).includes('username'));
+// D1 reports a unique violation in the message of the error, or of the
+// error it wraps (Drizzle's DrizzleQueryError).
+const usernameTaken = (error) => {
+  for (let e = error; e; e = e.cause) {
+    if (/UNIQUE constraint failed: people\.username/.test(e.message)) return true;
+  }
+  return false;
+};
 
 /**
- * Creates a person, choosing a free username. Retries with a new one if
- * another sign-up takes it in the meantime; other errors are rethrown.
+ * Creates a person, choosing a free username, through `store`:
+ * `isUsernameTaken(username)` and `insert(username)`, which creates them
+ * with that username. Retries with a new one if another sign-up takes it in
+ * the meantime; other errors are rethrown.
  */
-export async function createPerson(db, data) {
+export async function createPerson(store, data) {
   let username = data.username?.slice(0, MAX_LENGTH);
-  if (!username || (await db.person.findUnique({ where: { username } }))) username = generated(data);
+  if (!username || (await store.isUsernameTaken(username))) username = generated(data);
 
   for (let attempt = 1; ; attempt += 1) {
     try {
-      return await db.person.create({ data: { ...data, username } });
+      return await store.insert(username);
     } catch (error) {
       if (!usernameTaken(error) || attempt >= ATTEMPTS) throw error;
       username = generated(data);

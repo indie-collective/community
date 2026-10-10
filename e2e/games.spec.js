@@ -116,23 +116,22 @@ test('the games list loads more without scrolling when the first page fits', asy
 });
 
 test('a game without an "about" gets a generated description', async ({ request }) => {
-  const { PrismaClient } = await import('@prisma/client');
-  const db = new PrismaClient();
-  const game = await db.game.create({ data: { name: `Undescribed ${Date.now() % 100000}`, about: '' } });
+  const { db, games } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const [game] = await db.insert(games).values({ name: `Undescribed ${Date.now() % 100000}`, about: '' }).returning();
   try {
     const html = await (await request.get(`/game/${game.id}`)).text();
     expect(html).toContain('<meta name="description" content="Indie game."/>');
   } finally {
-    await db.game.delete({ where: { id: game.id } });
-    await db.$disconnect();
+    await db.delete(games).where(eq(games.id, game.id));
   }
 });
 
 // #198: empty sections are hidden from visitors; signed-in users get a hint.
 test('a game with no studio hides "Made by" from visitors only', async ({ page }) => {
-  const { PrismaClient } = await import('@prisma/client');
-  const db = new PrismaClient();
-  const game = await db.game.create({ data: { name: `Unattributed ${Date.now() % 100000}` } });
+  const { db, games } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const [game] = await db.insert(games).values({ name: `Unattributed ${Date.now() % 100000}` }).returning();
   try {
     await page.goto(`/game/${game.id}`);
     await expect(page.getByRole('heading', { name: game.name })).toBeVisible();
@@ -144,8 +143,7 @@ test('a game with no studio hides "Made by" from visitors only', async ({ page }
     await expect(page.getByText('Who made this game?')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Add an author to the game' })).toBeVisible();
   } finally {
-    await db.game.delete({ where: { id: game.id } });
-    await db.$disconnect();
+    await db.delete(games).where(eq(games.id, game.id));
   }
 });
 

@@ -16,19 +16,21 @@ describe('slugifyName', () => {
   });
 });
 
-const uniqueViolation = () => Object.assign(new Error('Unique constraint failed'), { code: 'P2002', meta: { target: ['username'] } });
+// D1's error, wrapped as Drizzle wraps it.
+const uniqueViolation = () =>
+  new Error('Failed query: insert into "people"', {
+    cause: new Error('D1_ERROR: UNIQUE constraint failed: people.username: SQLITE_CONSTRAINT'),
+  });
 
 function fakeDb(taken = []) {
   const usernames = new Set(taken);
   return {
-    person: {
-      findUnique: vi.fn(async ({ where: { username } }) => (usernames.has(username) ? { username } : null)),
-      create: vi.fn(async ({ data }) => {
-        if (usernames.has(data.username)) throw uniqueViolation();
-        usernames.add(data.username);
-        return { id: 'p1', ...data };
-      }),
-    },
+    isUsernameTaken: vi.fn(async (username) => usernames.has(username)),
+    insert: vi.fn(async (username) => {
+      if (usernames.has(username)) throw uniqueViolation();
+      usernames.add(username);
+      return { id: 'p1', username };
+    }),
   };
 }
 
@@ -54,16 +56,16 @@ describe('createPerson', () => {
 
   it('retries when another sign-up takes the username first', async () => {
     const db = fakeDb();
-    db.person.findUnique.mockResolvedValueOnce(null);
-    db.person.create.mockRejectedValueOnce(uniqueViolation());
+    db.isUsernameTaken.mockResolvedValueOnce(false);
+    db.insert.mockRejectedValueOnce(uniqueViolation());
     const { username } = await createPerson(db, { username: 'member', first_name: 'Jean' });
     expect(username).toMatch(/^jean\d{4}$/);
-    expect(db.person.create).toHaveBeenCalledTimes(2);
+    expect(db.insert).toHaveBeenCalledTimes(2);
   });
 
   it('rethrows other errors, such as a taken email', async () => {
     const db = fakeDb();
-    db.person.create.mockRejectedValueOnce(Object.assign(new Error('email'), { code: 'P2002', meta: { target: ['email'] } }));
-    await expect(createPerson(db, { username: 'member', first_name: 'Jean' })).rejects.toThrow('email');
+    db.insert.mockRejectedValueOnce(new Error('Failed query', { cause: new Error('D1_ERROR: UNIQUE constraint failed: people.email') }));
+    await expect(createPerson(db, { username: 'member', first_name: 'Jean' })).rejects.toThrow('Failed query');
   });
 });
