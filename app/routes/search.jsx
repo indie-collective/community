@@ -4,8 +4,7 @@ import { useColorModeValue } from "../components/ui/color-mode";
 
 import { useLoaderData } from 'react-router';
 
-import { db } from '../utils/db.server';
-import { getFullTextSearchQuery } from '../utils/search.server';
+import { searchSite } from '../data/site.server';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
@@ -32,46 +31,11 @@ export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
 
   const q = searchParams.get('q');
-  const search = getFullTextSearchQuery(q);
+  const found = await searchSite(q);
 
-  if (!search) return { search: q?.trim() ?? '', games: [], orgs: [], events: [] };
+  if (!found) return { search: q?.trim() ?? '', games: [], orgs: [], events: [] };
 
-  const data = {
-    search: q,
-    games: await db.game.findMany({
-      where: {
-        name: {
-          search,
-        },
-      },
-    }),
-    orgs: await db.entity.findMany({
-      where: {
-        name: {
-          search,
-        },
-      },
-    }),
-    events: await db.event.findMany({
-      where: {
-        name: {
-          search,
-        },
-      },
-      include: {
-        event_participant: true,
-        game_event: {
-          where: {
-            game: {
-              deleted: false,
-            },
-          },
-        },
-      },
-    }),
-  };
-
-  return data;
+  return { search: q, ...found };
 };
 
 export const meta = ({ data }) => [

@@ -11,8 +11,6 @@ import { usePrevious } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List } from 'react-window';
 
-import { db } from '../utils/db.server';
-import computeOrg from '../models/org';
 // import Error from '../../../client/pages/_error';
 import { Tooltip } from '../components/ui/tooltip';
 import ClusterMap from '../components/ClusterMap';
@@ -22,6 +20,7 @@ import SwipeableEdgeDrawer from '../components/SwipeableEdgeDrawer';
 import SectionHeading from '../components/SectionHeading';
 import { orgTypeColor } from '../utils/orgTypes';
 import { pageMeta } from '../utils/meta';
+import { listMappedOrganizations } from '../data/organizations.server';
 
 const OrgMarker = React.memo(
   ({ id, logo, name, type, highlighted, onClick }) => (
@@ -160,32 +159,17 @@ export const loader = async ({ request }) => {
     .get('country')
     ?.toUpperCase();
 
-  const orgs = await db.entity
-    .findMany({
-      where: {
-        location: {
-          isNot: null,
-        },
-      },
-      include: {
-        location: true,
-        logo: true,
-      },
-    })
-    .then((orgs) => orgs.map(computeOrg));
-
-  const computed = await Promise.all(orgs);
-  const data = {
-    orgs: computed,
+  const orgs = await listMappedOrganizations();
+  return {
+    orgs,
     focus: countryCode
       ? focusOn(
-          computed
+          orgs
             .filter((org) => org.location?.country_code === countryCode)
             .map((org) => org.location)
         )
       : null,
   };
-  return data;
 };
 
 export const meta = ({ matches, location }) =>

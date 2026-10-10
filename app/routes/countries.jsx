@@ -1,31 +1,16 @@
 import { Box, Heading, Text } from '@chakra-ui/react';
 import { useLoaderData } from 'react-router';
 
-import { db } from '../utils/db.server';
 import countryNames from '../assets/countries.json';
 import continents from '../assets/continents.json';
 import { countryTable } from '../utils/countryTable';
 import CountriesTable from '../components/CountriesTable';
 import { pageMeta } from '../utils/meta';
+import { listCountryFacts } from '../data/countries.server';
 
 // Every country with something placed in it, as a periodic table (#258).
 export const loader = async () => {
-  const [locations, gameLinks, events] = await Promise.all([
-    db.location.findMany({
-      select: { country_code: true, entity: { select: { type: true } } },
-    }),
-    // Games made by each country's studios.
-    db.game_entity.findMany({
-      where: { game: { deleted: false } },
-      select: {
-        game_id: true,
-        entity: { select: { location: { select: { country_code: true } } } },
-      },
-    }),
-    db.event.findMany({
-      select: { location: { select: { country_code: true } } },
-    }),
-  ]);
+  const { locations, gameLinks, events } = await listCountryFacts();
 
   return {
     countries: countryTable({

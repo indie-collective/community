@@ -2,21 +2,18 @@ import { Box, Heading, Text, Stat, StatGroup } from '@chakra-ui/react';
 
 import { useLoaderData } from 'react-router';
 
-import { db } from '../utils/db.server';
 import { pageMeta } from '../utils/meta';
+import { countEvents } from '../data/events.server';
+import { countGames } from '../data/games.server';
+import { countOrganizations } from '../data/organizations.server';
 
 export const loader = async () => {
-  const data = {
-    gamesCount: await db.game.count({
-      where: {
-        deleted: false,
-      },
-    }),
-    entitiesCount: await db.entity.count(),
-    eventsCount: await db.event.count(),
-  };
-
-  return data;
+  const [gamesCount, entitiesCount, eventsCount] = await Promise.all([
+    countGames(),
+    countOrganizations(),
+    countEvents(),
+  ]);
+  return { gamesCount, entitiesCount, eventsCount };
 };
 
 export const meta = ({ matches, location }) =>

@@ -4,19 +4,10 @@ import React from 'react';
 
 import countryCodes from '../assets/countries.json';
 
-import { db } from '../utils/db.server';
+import { listPlaces } from '../data/countries.server';
 
 export const loader = async ({ request }) => {
-  const locations = await db.location.findMany({
-    include: {
-      _count: {
-        select: {
-          entity: true,
-          event: true,
-        },
-      },
-    },
-  });
+  const locations = await listPlaces();
 
   const countries = locations.reduce((acc, location) => {
     const code = location.country_code;
