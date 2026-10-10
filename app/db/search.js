@@ -15,6 +15,17 @@ export function searchWords(q) {
 // LIKE's wildcards, escaped with a backslash.
 const escapeLike = (text) => text.replace(/[\\%_]/g, (c) => '\\' + c);
 
+// Punctuation inside stored text that also separates words: "o'conner",
+// "co-op", "studio.io". The column is read with each as a space.
+const SEPARATORS = ["'", '-', '.', ',', ':', ';', '!', '?', '(', ')', '/', '&', '+', '"', '_', '#', '@'];
+// As SQL literals, not parameters: D1 allows 100 parameters per query.
+const spaced = (column) =>
+  SEPARATORS.reduce(
+    (text, separator) =>
+      sql`replace(${text}, ${sql.raw(`'${separator.replace(/'/g, "''")}'`)}, ' ')`,
+    column
+  );
+
 /**
  * A condition: every word of `q` starts a word of the column (as Postgres
  * prefix matching did: "cel" finds "Celeste"), or with `anywhere`, appears
@@ -27,7 +38,7 @@ export function matchesSearch(column, q, { anywhere = false } = {}) {
     ...words.map((word) =>
       anywhere
         ? sql`${column} like ${'%' + escapeLike(word) + '%'} escape '\\'`
-        : sql`(' ' || ${column}) like ${'% ' + escapeLike(word) + '%'} escape '\\'`
+        : sql`(' ' || ${spaced(column)}) like ${'% ' + escapeLike(word) + '%'} escape '\\'`
     )
   );
 }
