@@ -76,3 +76,7 @@ node scripts/copy-images-to-r2.mjs --to remote   # or local
 ```
 
 Prisma is only kept for this: the app itself doesn't use it.
+
+### Backups
+
+Every day, `.github/workflows/backup-d1.yml` exports the D1 database to the Scaleway bucket (`d1/`), after checking the export restores (`scripts/backup-d1.mjs`). It needs a `CLOUDFLARE_API_TOKEN` secret with D1 edit rights, besides the Scaleway ones. To restore one into an empty database: `npx wrangler d1 execute <database> --remote --file <backup.sql>`. D1 Time Travel covers point-in-time restores for the last 30 days.

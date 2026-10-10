@@ -1,9 +1,12 @@
 name: Database backup
 
+# The Supabase database, which the live v2 site still uses, until the
+# cutover to D1 (ADR 0002); then this goes, and backup-d1.yml remains.
+
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * SUN' # Runs every day at midnight UTC
+    - cron: '0 0 * * SUN' # Every Sunday at midnight UTC
 
 env:
   POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
