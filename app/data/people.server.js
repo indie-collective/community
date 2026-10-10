@@ -1,6 +1,6 @@
 // People: every read and write sign-in, profiles and the admin users page
 // make (#151). The only place that knows how people are stored.
-import { count, desc, eq } from 'drizzle-orm';
+import { and, count, desc, eq, isNotNull } from 'drizzle-orm';
 
 import { db } from '../db/index.server.js';
 import { people } from '../db/schema.js';
@@ -95,6 +95,43 @@ export async function avatarThumbnail(avatarId) {
   return avatarId ? getImageLinks(shape.image(avatarId)).thumbnail_url : null;
 }
 
+/** Thrown when linking a Bluesky identity another person already has. */
+export const DID_TAKEN =
+  'This Bluesky account is already linked to another profile.';
+
+/**
+ * Links a Bluesky identity to a person (#158); linking it again is fine.
+ * Throws DID_TAKEN when another person has it.
+ */
+export async function linkBluesky(id, did) {
+  const owner = await findPersonByDid(did);
+  if (owner && owner.id !== id) throw new Error(DID_TAKEN);
+  try {
+    await db.update(people).set({ did }).where(eq(people.id, id));
+  } catch (error) {
+    // Linked elsewhere in the meantime: the unique index says so.
+    for (let e = error; e; e = e.cause) {
+      if (/UNIQUE constraint failed: people\.did/.test(e.message)) {
+        throw new Error(DID_TAKEN);
+      }
+    }
+    throw error;
+  }
+}
+
+/**
+ * Unlinks a person's Bluesky identity, only while they can still sign in
+ * another way (Discord, until #159). True when it was unlinked.
+ */
+export async function unlinkBluesky(id) {
+  const unlinked = await db
+    .update(people)
+    .set({ did: null })
+    .where(and(eq(people.id, id), isNotNull(people.discordId)))
+    .returning({ id: people.id });
+  return unlinked.length === 1;
+}
+
 /** Remembers the picture from the sign-in provider. */
 export async function setProviderAvatar(id, url) {
   await db.update(people).set({ avatarUrl: url }).where(eq(people.id, id));
@@ -130,6 +167,10 @@ export async function getProfile(id) {
     about: person.about,
     avatar: person.avatar,
     discord_id: person.discord_id,
+    // #158: whether Bluesky is linked, and whether it can be unlinked (only
+    // while another sign-in method remains).
+    bluesky_linked: Boolean(person.did),
+    can_unlink_bluesky: Boolean(person.did && person.discord_id),
   });
 }
 
@@ -190,6 +231,7 @@ export async function listPeople() {
           discord_id,
           isAdmin,
           role,
+          did,
           avatar,
         }) =>
           computePerson({
@@ -202,6 +244,7 @@ export async function listPeople() {
             discord_id,
             isAdmin,
             role,
+            bluesky_linked: Boolean(did),
             avatar,
           })
       )

@@ -42,6 +42,12 @@ const memoryStore = () => {
   };
 };
 
+/**
+ * The OAuth state of a link to a signed-in person's profile (#158), rather
+ * than a sign-in, whose state is the page to return to.
+ */
+export const LINK_STATE = 'link';
+
 /** The callback's URL. */
 export const redirectUri = (origin) => `${origin}/auth/bluesky/callback`;
 
