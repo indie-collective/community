@@ -11,9 +11,12 @@ import {
   Link as ChakraLink,
   Field,
   Icon,
+  Alert,
+  HStack,
+  Input,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { FaDiscord, FaMoon, FaSun } from 'react-icons/fa6';
+import { FaBluesky, FaDiscord, FaMoon, FaSun } from 'react-icons/fa6';
 import { LuPencil, LuLink } from 'react-icons/lu';
 import { Form, Link, useLoaderData, useSearchParams } from 'react-router';
 
@@ -70,7 +73,10 @@ const Profile = () => {
     about,
     avatar,
     discord_url,
+    bluesky_linked,
+    can_unlink_bluesky,
   } = currentUser;
+  const error = searchParams.get('error');
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -106,6 +112,67 @@ const Profile = () => {
             @{username}
           </Heading>
         </Box>
+
+        <Stack as="section" alignSelf="stretch" gap={3} aria-labelledby="sign-in-methods">
+          <Heading as="h4" size="sm" id="sign-in-methods">
+            Sign-in methods
+          </Heading>
+          {error && (
+            <Alert.Root status="error">
+              <Alert.Indicator />
+              {error}
+            </Alert.Root>
+          )}
+          {bluesky_linked ? (
+            <Form method="post" action="/profile/bluesky">
+              <HStack justify="space-between">
+                <HStack>
+                  <Icon color="blue.500">
+                    <FaBluesky />
+                  </Icon>
+                  <Text>Bluesky is linked</Text>
+                </HStack>
+                <Button
+                  type="submit"
+                  name="intent"
+                  value="unlink"
+                  size="sm"
+                  variant="outline"
+                  disabled={!can_unlink_bluesky}
+                  title={
+                    can_unlink_bluesky
+                      ? undefined
+                      : "It's your only way to sign in."
+                  }
+                >
+                  Unlink
+                </Button>
+              </HStack>
+            </Form>
+          ) : (
+            <Form method="post" action="/profile/bluesky">
+              <Field.Root>
+                <Field.Label>Link your Bluesky account</Field.Label>
+                <HStack width="100%">
+                  <Input
+                    name="handle"
+                    placeholder="yourname.bsky.social"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                  />
+                  <Button type="submit" name="intent" value="link" colorPalette="blue">
+                    <FaBluesky />
+                    Link
+                  </Button>
+                </HStack>
+                <Field.HelperText>
+                  Then you can sign in with Bluesky, and keep everything you
+                  added.
+                </Field.HelperText>
+              </Field.Root>
+            </Form>
+          )}
+        </Stack>
 
         {searchParams.has('beta') && (
           <ButtonGroup>

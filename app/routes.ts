@@ -24,6 +24,7 @@ export default [
   route('auth/:provider/callback', 'routes/auth/$provider.callback.jsx'),
   route('profile', 'routes/profile.jsx'),
   route('profile/edit', 'routes/profile.edit.jsx'),
+  route('profile/bluesky', 'routes/profile.bluesky.jsx'),
 
   // Search
   route('search', 'routes/search.jsx'),

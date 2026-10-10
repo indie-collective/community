@@ -11,7 +11,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
-import { FaDiscord } from 'react-icons/fa6';
+import { FaBluesky, FaDiscord } from 'react-icons/fa6';
 import { LuCircleHelp } from 'react-icons/lu';
 
 import isAuthenticated from '../../utils/isAuthenticated.server';
@@ -120,6 +120,7 @@ const Profile = () => {
                 discord_url,
                 isAdmin,
                 role,
+                bluesky_linked,
               }) => (
                 <Table.Row key={id}>
                   <Table.Cell>
@@ -137,6 +138,11 @@ const Profile = () => {
                   </Table.Cell>
                   <Table.Cell>{email}</Table.Cell>
                   <Table.Cell>
+                    {bluesky_linked && (
+                      <Icon color="blue.500" mr={2} aria-label="Bluesky linked">
+                        <FaBluesky />
+                      </Icon>
+                    )}
                     {discord_url && (
                       <IconButton
                         colorPalette="discord"
