@@ -1,21 +1,4 @@
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
-import { createTheme } from '@mui/material/styles';
-import { red } from '@mui/material/colors';
-
-export const muiTheme = createTheme({
-  palette: {
-    primary: {
-      main: '#556cd6',
-    },
-    secondary: {
-      main: '#19857b',
-    },
-    error: {
-      main: red.A400,
-    },
-  },
-  shadows: Array(25).fill('none'),
-});
 
 const config = defineConfig({
   // v2 `styles.global` via `mode()` → v3 `globalCss` with the `_dark` selector.

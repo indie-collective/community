@@ -1,105 +1,148 @@
-import { Box, Button } from '@chakra-ui/react';
-import { useColorMode, useColorModeValue } from "./ui/color-mode";
-import { Global } from '@emotion/react';
-// Named import from the package root: in dev, MUI loads as CommonJS, where the
-// deep path's default export arrives as `{ default }` rather than the component.
-import { SwipeableDrawer } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import {
-  ThemeProvider as MUIThemeProvider,
-  THEME_ID,
-} from '@mui/material/styles';
+import { Box } from '@chakra-ui/react';
+import React, { useEffect, useRef, useState } from 'react';
 
-import { system, muiTheme } from '../theme';
+// How much of the drawer shows while it's closed, until its header is
+// measured: then, the whole header.
+const BLEEDING = 56;
+// A drag shorter than this is a tap; longer, it opens or closes the drawer.
+const DRAG_THRESHOLD = 40;
 
-const drawerBleeding = 56;
-
-function SwipeableEdgeDrawer(props) {
-  const { header, children, isOpen, onClose } = props;
+/**
+ * A drawer at the bottom of the screen, for phones (ADR 0002: what MUI's
+ * SwipeableDrawer did here, without MUI). Its header always shows; swipe
+ * it up or tap it to open the drawer to half the screen, and swipe it down,
+ * tap it or tap outside to close it. The content scrolls inside, and stays
+ * mounted while the drawer is closed.
+ */
+function SwipeableEdgeDrawer({ header, children, isOpen, onClose }) {
   const [open, setOpen] = useState(isOpen);
-  const listBgColor = useColorModeValue('white', 'gray.800');
-  const dragHandlebgColor = useColorModeValue('gray.300', 'gray.500');
-  const { colorMode } = useColorMode();
+  // How far the header is being dragged, in pixels (down is positive).
+  const [drag, setDrag] = useState(null);
+  const start = useRef(null);
+  const headerRef = useRef(null);
+  const [bleeding, setBleeding] = useState(BLEEDING);
 
   useEffect(() => {
-    // isOpen props changed, so we follow what's new
+    const element = headerRef.current;
+    if (!element || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(() =>
+      setBleeding(Math.ceil(element.getBoundingClientRect().height))
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    // isOpen changed: follow it.
     setOpen(isOpen);
-  }, [isOpen, setOpen]);
+  }, [isOpen]);
+
+  const close = () => {
+    setOpen(false);
+    onClose?.();
+  };
+
+  const onPointerDown = (event) => {
+    start.current = event.clientY;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDrag(0);
+  };
+  const onPointerMove = (event) => {
+    if (start.current !== null) setDrag(event.clientY - start.current);
+  };
+  const onPointerUp = (event) => {
+    if (start.current === null) return;
+    const moved = event.clientY - start.current;
+    start.current = null;
+    setDrag(null);
+    if (Math.abs(moved) < DRAG_THRESHOLD) {
+      if (open) close();
+      else setOpen(true);
+    } else if (moved < 0) {
+      setOpen(true);
+    } else {
+      close();
+    }
+  };
+
+  const closedOffset = '50dvh';
+  const offset = open ? '0px' : closedOffset;
+  const transform =
+    drag === null
+      ? `translateY(${offset})`
+      : // Follow the finger, within the open and closed positions.
+        `translateY(clamp(0px, calc(${offset} + ${drag}px), ${closedOffset}))`;
 
   return (
-    <MUIThemeProvider theme={{ ...system, [THEME_ID]: muiTheme }}>
-      <Box height="100%" bgColor={listBgColor}>
-        <Global
-          styles={{
-            '.MuiDrawer-root > .MuiPaper-root': {
-              height: `calc(50% - ${drawerBleeding}px)`,
-              overflow: 'visible',
-              background:
-                colorMode === 'light' ? 'white' : 'var(--chakra-colors-gray-800)',
-              color: 'inherit',
-            },
-          }}
+    <>
+      {open && (
+        <Box
+          data-testid="drawer-backdrop"
+          position="fixed"
+          inset={0}
+          zIndex="overlay"
+          bg="blackAlpha.400"
+          onClick={close}
         />
-        {/* <Box
-          textAlign="center"
-          pt={1}
-          position="absolute"
-          top="100px"
-          left={0}
-          right={0}
-        >
-          <Button
-            onClick={() => {
-              setOpen(true);
-            }}
-          >
-            Open
-          </Button>
-        </Box> */}
-        <SwipeableDrawer
-          anchor="bottom"
-          open={open}
-          onClose={() => {
-            setOpen(false);
-            onClose();
-          }}
-          onOpen={() => {
-            setOpen(true);
-          }}
-          swipeAreaWidth={drawerBleeding}
-          disableSwipeToOpen={false}
-          ModalProps={{
-            keepMounted: true,
+      )}
+      <Box
+        role="dialog"
+        aria-modal={open}
+        aria-label="Locations"
+        position="fixed"
+        left={0}
+        right={0}
+        bottom={0}
+        height={`calc(50dvh + ${bleeding}px)`}
+        zIndex="modal"
+        display="flex"
+        flexDirection="column"
+        bg={{ base: 'white', _dark: 'gray.800' }}
+        borderTopRadius="8px"
+        boxShadow={open ? 'lg' : 'md'}
+        transform={transform}
+        transition={drag === null ? 'transform 0.25s ease-out' : 'none'}
+      >
+        <Box
+          as="header"
+          ref={headerRef}
+          position="relative"
+          flex="0 0 auto"
+          cursor="grab"
+          touchAction="none"
+          userSelect="none"
+          aria-expanded={open}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={() => {
+            start.current = null;
+            setDrag(null);
           }}
         >
           <Box
-            bgColor={listBgColor}
+            width="30px"
+            height="6px"
+            bg={{ base: 'gray.300', _dark: 'gray.500' }}
+            borderRadius="3px"
             position="absolute"
-            top={-drawerBleeding + 'px'}
-            borderTopLeftRadius="8px"
-            borderTopRightRadius="8px"
-            visibility="visible"
-            right={0}
-            left={0}
-          >
-            <Box
-              width="30px"
-              height="6px"
-              backgroundColor={dragHandlebgColor}
-              borderRadius="3px"
-              position="absolute"
-              top="8px"
-              left="calc(50% - 15px)"
-            />
-            {header}
-          </Box>
+            top="8px"
+            left="calc(50% - 15px)"
+          />
+          {header}
+        </Box>
+        <Box
+          flex="1 1 auto"
+          minHeight={0}
+          overflow="auto"
+          display="flex"
+          inert={open ? undefined : true}
+        >
           {children}
-        </SwipeableDrawer>
+        </Box>
       </Box>
-    </MUIThemeProvider>
+    </>
   );
 }
-
-SwipeableEdgeDrawer.propTypes = {};
 
 export default SwipeableEdgeDrawer;
