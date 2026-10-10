@@ -1,8 +1,8 @@
 /**
  * Stored IGDB data (#254). Pages show what's in `game_igdb` and never wait
  * for IGDB: when it's missing or older than a day, the game page refreshes
- * it after the response, and scripts/refresh-igdb.mjs refreshes the stalest
- * ones on a schedule.
+ * it after the response, and a Cron Trigger refreshes the stalest ones
+ * every hour (utils/igdbRefresh.server).
  */
 import { claimIGDBRefresh, saveIGDBData } from '../data/igdb.server.js';
 import { fetchIGDBGame } from './igdb.server.js';

@@ -1,5 +1,4 @@
 import { redirect } from 'react-router';
-import { REST, Routes } from 'discord.js';
 import { Authenticator } from 'remix-auth';
 import { FormStrategy } from 'remix-auth-form';
 import { SocialsProvider } from 'remix-auth-socials';
@@ -16,6 +15,8 @@ import {
 } from '../data/people.server';
 import { sessionStorage } from './session.server';
 import { Authorizer } from './authorizer.server';
+import { devSignIn } from './devSignIn.server';
+import { getGuildMember } from './discordGuild.server';
 import { notifyNewMember } from './discordNotification.server';
 
 export let authenticator = new Authenticator();
@@ -29,14 +30,9 @@ if (!process.env.DISCORD_BOT_TOKEN) {
   console.error(
     'DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_BOT_TOKEN environment variables are needed to auth the users.'
   );
-  process.exit(-1);
 }
 
-const rest = new REST({ version: '10' }).setToken(
-  process.env.DISCORD_BOT_TOKEN // A bot token is needed to look for a user and its roles within the guild
-);
-
-if (process.env.NODE_ENV === 'development') {
+if (devSignIn()) {
   authenticator.use(
     new FormStrategy(async ({ form }) => {
       let email = form.get('email');
@@ -88,12 +84,7 @@ authenticator.use(
 
         const discordAvatar = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}`;
 
-        const guildMember = await rest.get(
-          Routes.guildMember(
-            '84687138729259008', // IC server
-            profile.id
-          )
-        );
+        const guildMember = await getGuildMember(profile.id);
 
         let isAdmin = false;
 
@@ -183,16 +174,8 @@ export let authorizer = new Authorizer(authenticator, [hasEmail]);
 
 /* Per route authorization rules */
 export async function canWrite({ user }) {
-  if (!user.discord_id) {
-    if (process.env.NODE_ENV === 'development') return true;
-    return false;
-  }
-  const guildMember = await rest.get(
-    Routes.guildMember(
-      '84687138729259008', // IC server
-      user.discord_id
-    )
-  );
+  if (!user.discord_id) return devSignIn();
+  const guildMember = await getGuildMember(user.discord_id);
 
   // TODO: maybe need to check another property, have to ban someone to try
 

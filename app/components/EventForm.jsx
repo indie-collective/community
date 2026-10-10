@@ -24,6 +24,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import useMergeRefs from '../hooks/useMergeRefs';
 import { Form, useSubmit } from 'react-router';
 import { dateToZonedInput } from '../utils/eventTime';
+import ThumbnailFields from './ThumbnailFields';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
@@ -94,6 +95,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
   } = defaultData;
   const coverRef = useRef();
   const [cover, setCover] = useState(defaultData.cover);
+  const [coverFile, setCoverFile] = useState(null);
   const {
     handleSubmit,
     register,
@@ -284,10 +286,12 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
 
               if (file) {
                 setCover({ url: window.URL.createObjectURL(file) });
+                setCoverFile(file);
               }
             }}
             accept="image/*"
           />
+          <ThumbnailFields name="cover" file={coverFile} />
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.about}>
           <Field.Label htmlFor="about">About</Field.Label>

@@ -29,14 +29,8 @@ jobs:
   e2e:
     name: End-to-end tests
     runs-on: ubuntu-latest
-    # The tests run on a fresh local D1 (wrangler's, in workerd), made when
-    # Playwright starts the server (see playwright.config.js).
-    env:
-      # auth.server.js exits at startup without these; the tests sign in with
-      # the development-only form strategy, so the values are never used.
-      DISCORD_CLIENT_ID: ci
-      DISCORD_CLIENT_SECRET: ci
-      DISCORD_BOT_TOKEN: ci
+    # The tests run against a build of the Worker in workerd, on a fresh
+    # local D1 and R2, with test variables (see scripts/e2e-server.mjs).
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

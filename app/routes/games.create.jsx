@@ -8,6 +8,7 @@ import { notifyDiscord } from '../utils/discordNotification.server';
 import { toaster } from '../components/ui/toaster';
 import GameForm from '../components/GameForm';
 import { createGame, resolveGameTags } from '../data/games.server';
+import getOrigin from '../utils/origin.server';
 
 export async function action(args) {
   const { request } = args;
@@ -32,8 +33,7 @@ export async function action(args) {
       authorId: currentUser.id,
     });
 
-    const port = process.env.PORT ?? 3000;
-    const BASE_URL = process.env.BASE_URL ?? `http://localhost:${port}`;
+    const BASE_URL = getOrigin(request);
 
     await notifyDiscord(
       `${currentUser.username} added game "${data.get(

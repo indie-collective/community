@@ -27,6 +27,7 @@ import PossibleOrgDuplicates from '../components/PossibleOrgDuplicates';
 import usePlaceholder from '../hooks/usePlaceholder';
 import useMergeRefs from '../hooks/useMergeRefs';
 import { ORG_TYPES, orgTypeColor } from '../utils/orgTypes';
+import ThumbnailFields from './ThumbnailFields';
 
 const validationSchema = yup.object().shape({
   type: yup.string().oneOf(['studio', 'association']).required(),
@@ -71,6 +72,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
   const placeholder = usePlaceholder();
   const logoRef = useRef();
   const [logo, setLogo] = useState(defaultData.logo);
+  const [logoFile, setLogoFile] = useState(null);
 
   const { id, type = 'studio', name, location: l, site, bsky_handle, about } = defaultData;
   const {
@@ -153,10 +155,12 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
 
               if (file) {
                 setLogo({ url: window.URL.createObjectURL(file) });
+                setLogoFile(file);
               }
             }}
             accept="image/*"
           />
+          <ThumbnailFields name="logo" file={logoFile} />
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.type} required>
           <Field.Label>Type<Field.RequiredIndicator /></Field.Label>

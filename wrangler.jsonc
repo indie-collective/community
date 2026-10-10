@@ -1,9 +1,12 @@
 {
-  // Cloudflare config (ADR 0002). For now only the D1 database (#151);
-  // the Worker itself comes with the runtime switch.
+  // The Worker and its bindings (ADR 0002).
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "indieco-community",
+  "main": "./workers/app.js",
   "compatibility_date": "2026-09-01",
+  // process.env holds the vars and secrets below, as the code reads them.
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
   "d1_databases": [
     {
       "binding": "DB",
@@ -13,5 +16,13 @@
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "drizzle/migrations"
     }
-  ]
+  ],
+  // Uploaded images and their thumbnails, served on CDN_HOST (ADR 0002).
+  "r2_buckets": [{ "binding": "IMAGES", "bucket_name": "indieco-community-images" }],
+  // The stalest IGDB data, every hour (#254).
+  "triggers": { "crons": ["17 * * * *"] }
+  // Secrets (wrangler secret put): SESSION_SECRET, DISCORD_CLIENT_ID,
+  // DISCORD_CLIENT_SECRET, DISCORD_BOT_TOKEN, DISCORD_NOTIFICATION_WEBHOOK,
+  // IGDB_CLIENT_ID, IGDB_CLIENT_SECRET. Vars: BASE_URL, CDN_HOST. Locally,
+  // they go in .dev.vars.
 }

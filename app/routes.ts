@@ -10,6 +10,7 @@ export default [
   route('robots.txt', 'routes/robots.txt.js'),
   route('coffee', 'routes/coffee.jsx'),
   route('healthcheck', 'routes/healthcheck.jsx'),
+  route('images/*', 'routes/images.$.js'),
   route('rewind', 'routes/rewind.jsx'),
   route('welcome', 'routes/welcome.jsx'),
 

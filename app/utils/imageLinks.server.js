@@ -1,3 +1,8 @@
+// An image's URLs: on CDN_HOST, the R2 bucket's domain (ADR 0002), or
+// without one (development, tests) from this app's /images route.
+const base = () =>
+  process.env.CDN_HOST ? `https://${process.env.CDN_HOST}` : '/images';
+
 export default function getImageLinks(image) {
   const name = image.image_file.name;
   if (name?.startsWith('http')) {
@@ -9,7 +14,7 @@ export default function getImageLinks(image) {
   }
   return {
     id: image.id,
-    url: `https://${process.env.CDN_HOST}/${name}`,
-    thumbnail_url: `https://${process.env.CDN_HOST}/thumb_${name}`,
+    url: `${base()}/${name}`,
+    thumbnail_url: `${base()}/thumb_${name}`,
   };
 }
