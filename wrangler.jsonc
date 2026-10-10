@@ -9,6 +9,8 @@
   // process.env holds the vars and secrets below, as the code reads them.
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  // BASE_URL and CDN_HOST are set in the dashboard: keep them on deploy.
+  "keep_vars": true,
   "d1_databases": [
     {
       "binding": "DB",
