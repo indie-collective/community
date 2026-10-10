@@ -1,25 +1,121 @@
-// Games: every read and write the routes make (#151, part 2). The only
-// place that knows how games are stored; the D1 port reimplements these
-// functions with the same results, and the routes don't change.
-import { db } from '../utils/db.server';
+// Games: every read and write the routes make (#151). The only place that
+// knows how games are stored.
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  exists,
+  inArray,
+  isNull,
+  max,
+  notInArray,
+  sql,
+} from 'drizzle-orm';
+
+import { db } from '../db/index.server.js';
+import {
+  gameImages,
+  gameOrganizations,
+  games,
+  gameTags,
+  organizations,
+  tags,
+} from '../db/schema.js';
+import { matchesSearch } from '../db/search.js';
 import computeGame from '../models/game';
 import { refreshIfStale } from '../utils/igdbData.server';
-import { getFullTextSearchQuery } from '../utils/search.server';
-import { resolveTagNames } from '../utils/tags.server';
+import { logChange } from './changes.server';
+import { getUploads } from './images.server';
+import * as shape from './shapes.server';
+import { resolveTagNames } from './tags.server';
 
 // The games list's orders, by the keys the page offers (routes/games).
 const ORDERS = {
-  updated: { updated_at: 'desc' },
-  newest: { created_at: 'desc' },
-  name: { name: 'asc' },
+  updated: desc(games.updatedAt),
+  newest: desc(games.createdAt),
+  name: asc(games.name),
 };
 
-const CARD_INCLUDE = {
+const notDeleted = isNull(games.deletedAt);
+
+// What game cards show: stored IGDB data, images, tags and organisations.
+const CARD_WITH = {
   igdb: true,
-  game_image: { include: { image: true } },
-  game_tag: { include: { tag: true } },
-  game_entity: { include: { entity: true } },
+  images: { orderBy: [asc(gameImages.position), asc(gameImages.createdAt)] },
+  tags: { with: { tag: true } },
+  organizations: { with: { organization: true } },
 };
+
+/**
+ * A game loaded with relations (`images`, `tags`, `organizations`,
+ * `events`, `igdb`) in the old shape: `game_image`, `game_tag`,
+ * `game_entity` (deleted organisations left out), `game_event` (deleted
+ * events left out) and `igdb`, each only when loaded.
+ */
+export function gameWithRelations(row) {
+  if (!row) return row;
+  const game = shape.game(row);
+  if (row.images) game.game_image = row.images.map(shape.gameImage);
+  if (row.tags) {
+    game.game_tag = row.tags.map((link) => ({
+      game_id: link.gameId,
+      tag_id: link.tagId,
+      tag: shape.tag(link.tag),
+    }));
+  }
+  if (row.organizations) {
+    game.game_entity = row.organizations
+      .filter((link) => link.organization && !link.organization.deletedAt)
+      .map((link) => ({
+        game_id: link.gameId,
+        entity_id: link.organizationId,
+        role: link.role,
+        created_at: link.createdAt,
+        entity: shape.organization(link.organization),
+      }));
+  }
+  if (row.events) {
+    game.game_event = row.events
+      .filter((link) => link.event && !link.event.deletedAt)
+      .map((link) => ({
+        game_id: link.gameId,
+        event_id: link.eventId,
+        event: shape.event(link.event),
+      }));
+  }
+  if ('igdb' in row) game.igdb = shape.igdb(row.igdb);
+  return game;
+}
+
+/** Games made by one of a country's organisations (#258). */
+export const madeIn = (countryCode) =>
+  exists(
+    db
+      .select({ one: sql`1` })
+      .from(gameOrganizations)
+      .innerJoin(
+        organizations,
+        eq(organizations.id, gameOrganizations.organizationId)
+      )
+      .where(
+        and(
+          eq(gameOrganizations.gameId, games.id),
+          eq(organizations.countryCode, countryCode),
+          isNull(organizations.deletedAt)
+        )
+      )
+  );
+
+const taggedWith = (name) =>
+  exists(
+    db
+      .select({ one: sql`1` })
+      .from(gameTags)
+      .innerJoin(tags, eq(tags.id, gameTags.tagId))
+      .where(and(eq(gameTags.gameId, games.id), eq(tags.name, name)))
+  );
 
 /**
  * One page of the games list and the tags of every matching game.
@@ -27,51 +123,61 @@ const CARD_INCLUDE = {
  * matches name or about; every tag in `tags` must be on the game.
  *
  * @returns {Promise<{ games: object[], tags: object[] }>} computed games
- *   (see models/game), and tags with their `game_tag` links among the matches
+ *   (see models/game), and tags with their `game_tag` links among the
+ *   matches, most used first
  */
 export async function listGames({
   page = 1,
   pageSize = 10,
-  tags = [],
+  tags: tagNames = [],
   q = null,
   sort = 'updated',
   country = null,
 }) {
-  const where = {
-    deleted: false,
-    ...(country && {
-      game_entity: {
-        some: { entity: { location: { country_code: country } } },
-      },
-    }),
-    ...(q && {
-      OR: [
-        { name: { contains: q, mode: 'insensitive' } },
-        { about: { contains: q, mode: 'insensitive' } },
-      ],
-    }),
-    ...(tags.length > 0 && {
-      AND: tags.map((tag) => ({ game_tag: { some: { tag: { name: tag } } } })),
-    }),
-  };
+  const where = and(
+    notDeleted,
+    country ? madeIn(country) : undefined,
+    q ? matchesSearch(games.searchText, q, { anywhere: true }) : undefined,
+    ...tagNames.map(taggedWith)
+  );
 
-  const [tagRows, games] = await Promise.all([
-    db.tag.findMany({
-      where: { game_tag: { some: { game: where } } },
-      include: { game_tag: { where: { game: where } } },
-      orderBy: [{ game_tag: { _count: 'desc' } }, { name: 'asc' }],
-    }),
-    db.game.findMany({
+  const [links, rows] = await Promise.all([
+    db
+      .select({
+        id: tags.id,
+        name: tags.name,
+        created_at: tags.createdAt,
+        updated_at: tags.updatedAt,
+        game_id: gameTags.gameId,
+      })
+      .from(gameTags)
+      .innerJoin(tags, eq(tags.id, gameTags.tagId))
+      .innerJoin(games, eq(games.id, gameTags.gameId))
+      .where(where),
+    db.query.games.findMany({
       where,
       // id last, so pages don't overlap when sorted values tie.
-      orderBy: [ORDERS[sort] ?? ORDERS.updated, { id: 'asc' }],
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      include: CARD_INCLUDE,
+      orderBy: [ORDERS[sort] ?? ORDERS.updated, asc(games.id)],
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
+      with: CARD_WITH,
     }),
   ]);
 
-  return { tags: tagRows, games: await Promise.all(games.map(computeGame)) };
+  const byTag = new Map();
+  for (const { game_id, ...tag } of links) {
+    if (!byTag.has(tag.id)) byTag.set(tag.id, { ...tag, game_tag: [] });
+    byTag.get(tag.id).game_tag.push({ game_id, tag_id: tag.id });
+  }
+  const tagRows = [...byTag.values()].sort(
+    (a, b) =>
+      b.game_tag.length - a.game_tag.length || a.name.localeCompare(b.name)
+  );
+
+  return {
+    tags: tagRows,
+    games: await Promise.all(rows.map(gameWithRelations).map(computeGame)),
+  };
 }
 
 /**
@@ -80,45 +186,76 @@ export async function listGames({
  * response (#254), so the page never waits for IGDB.
  */
 export async function getGame(id, { context } = {}) {
-  const game = await db.game.findUnique({
-    where: { id },
-    include: {
-      igdb: true,
-      game_image: { include: { image: true } },
-      game_tag: { include: { tag: true } },
-      game_entity: { include: { entity: { include: { logo: true } } } },
-      game_event: { include: { event: true } },
-    },
+  const row = await db.query.games.findFirst({
+    where: and(eq(games.id, id), notDeleted),
+    with: { ...CARD_WITH, events: { with: { event: true } } },
   });
-  if (!game) return null;
+  if (!row) return null;
+  const game = gameWithRelations(row);
   refreshIfStale(game, context);
   return computeGame(game);
 }
 
 /** A game for its edit form: with its images and tags, or null. */
 export async function getGameForEdit(id) {
-  const game = await db.game.findUnique({
-    where: { id },
-    include: {
-      game_image: { include: { image: true } },
-      game_tag: { include: { tag: true } },
-    },
+  const row = await db.query.games.findFirst({
+    where: and(eq(games.id, id), notDeleted),
+    with: { images: CARD_WITH.images, tags: CARD_WITH.tags },
   });
-  return game ? computeGame(game) : null;
+  return row ? computeGame(gameWithRelations(row)) : null;
 }
 
 /** The tag names typed in a form, with aliases resolved to their tags (#207). */
 export function resolveGameTags(value) {
-  return resolveTagNames(db, value);
+  return resolveTagNames(value);
 }
 
-// The tags named, created when they don't exist yet.
-function upsertTags(names) {
-  return db.$transaction(
-    names.map((name) =>
-      db.tag.upsert({ where: { name }, create: { name }, update: {} })
-    )
+// Statements creating the tags named that don't exist yet, and linking the
+// game to exactly those tags.
+function setTagsStatements(gameId, tagNames, now) {
+  const statements = [];
+  if (tagNames.length > 0) {
+    statements.push(
+      db
+        .insert(tags)
+        .values(tagNames.map((name) => ({ name })))
+        .onConflictDoNothing()
+    );
+  }
+  statements.push(
+    db
+      .delete(gameTags)
+      .where(
+        and(
+          eq(gameTags.gameId, gameId),
+          notInArray(
+            gameTags.tagId,
+            db
+              .select({ id: tags.id })
+              .from(tags)
+              .where(inArray(tags.name, tagNames))
+          )
+        )
+      )
   );
+  if (tagNames.length > 0) {
+    statements.push(
+      db
+        .insert(gameTags)
+        .select(
+          db
+            .select({
+              gameId: sql`${gameId}`.as('game_id'),
+              tagId: tags.id,
+              createdAt: sql`${now.getTime()}`.as('created_at'),
+            })
+            .from(tags)
+            .where(inArray(tags.name, tagNames))
+        )
+        .onConflictDoNothing()
+    );
+  }
+  return statements;
 }
 
 /**
@@ -133,20 +270,24 @@ export async function createGame({
   tagNames,
   authorId,
 }) {
-  const tags = await upsertTags(tagNames);
-  return db.game.create({
-    data: {
+  const id = crypto.randomUUID();
+  const now = new Date();
+  await db.batch([
+    db.insert(games).values({
+      id,
       name,
       about,
       site,
-      igdb_slug: igdbSlug,
+      igdbSlug: igdbSlug ?? null,
+      searchText: shape.searchTextOf({ name, about }),
       lastModifiedById: authorId,
-      game_tag: {
-        createMany: { data: tags.map((tag) => ({ tag_id: tag.id })) },
-      },
-    },
-    select: { id: true },
-  });
+      createdAt: now,
+      updatedAt: now,
+    }),
+    ...setTagsStatements(id, tagNames, now),
+    logChange('create', 'game', id, authorId),
+  ]);
+  return { id };
 }
 
 /**
@@ -157,95 +298,140 @@ export async function updateGame(
   id,
   { name, about, site, igdbSlug, tagNames, authorId }
 ) {
-  const tags = await upsertTags(tagNames);
-  return db.game.update({
-    where: { id },
-    data: {
-      name,
-      about,
-      site,
-      igdb_slug: igdbSlug,
-      lastModifiedById: authorId,
-      game_tag: {
-        createMany: {
-          data: tags.map((tag) => ({ tag_id: tag.id })),
-          skipDuplicates: true,
-        },
-        deleteMany: { tag_id: { notIn: tags.map((t) => t.id) } },
-      },
-    },
-    select: { id: true },
-  });
+  const now = new Date();
+  await db.batch([
+    db
+      .update(games)
+      .set({
+        name,
+        about,
+        site,
+        igdbSlug: igdbSlug ?? null,
+        searchText: shape.searchTextOf({ name, about }),
+        lastModifiedById: authorId,
+        updatedAt: now,
+      })
+      .where(eq(games.id, id)),
+    ...setTagsStatements(id, tagNames, now),
+    logChange('update', 'game', id, authorId),
+  ]);
+  return { id };
 }
 
-/** Deletes a game (soft: it's only hidden, see utils/db.server). */
-export async function deleteGame(id) {
-  await db.game.delete({ where: { id } });
+/** Deletes a game: it's only hidden, and its history stays (ADR 0003). */
+export async function deleteGame(id, { authorId = null } = {}) {
+  await db.batch([
+    db
+      .update(games)
+      .set({ deletedAt: new Date() })
+      .where(and(eq(games.id, id), notDeleted)),
+    logChange('delete', 'game', id, authorId),
+  ]);
 }
 
 /** Credits an organisation on a game; already credited is fine. */
 export async function addGameOrganization(gameId, organizationId) {
-  await db.game_entity.upsert({
-    where: {
-      game_id_entity_id: { game_id: gameId, entity_id: organizationId },
-    },
-    create: { game_id: gameId, entity_id: organizationId },
-    update: {},
-  });
+  await db
+    .insert(gameOrganizations)
+    .values({ gameId, organizationId })
+    .onConflictDoNothing();
 }
 
 /** Removes an organisation from a game's credits. */
 export async function removeGameOrganization(gameId, organizationId) {
-  await db.game_entity.delete({
-    where: {
-      game_id_entity_id: { game_id: gameId, entity_id: organizationId },
-    },
-  });
+  await db
+    .delete(gameOrganizations)
+    .where(
+      and(
+        eq(gameOrganizations.gameId, gameId),
+        eq(gameOrganizations.organizationId, organizationId)
+      )
+    );
 }
 
-/** Adds uploaded images (their IDs) to a game. */
+/** Adds uploaded images (their upload IDs) to a game, after its others. */
 export async function addGameImages(gameId, imageIds) {
-  await db.game_image.createMany({
-    data: imageIds.map((imageId) => ({ game_id: gameId, image_id: imageId })),
-  });
+  const uploads = await getUploads(imageIds);
+  if (uploads.length === 0) return;
+  const [{ last }] = await db
+    .select({ last: max(gameImages.position) })
+    .from(gameImages)
+    .where(eq(gameImages.gameId, gameId));
+  const start = last == null ? 0 : last + 1;
+  await db.insert(gameImages).values(
+    uploads.map(({ key, width, height }, i) => ({
+      gameId,
+      key,
+      width,
+      height,
+      position: start + i,
+    }))
+  );
 }
 
-/** Removes images (their IDs) from a game. */
+/** Removes images (their IDs, as `game_image[].image_id`) from a game. */
 export async function removeGameImages(gameId, imageIds) {
-  await db.game_image.deleteMany({
-    where: {
-      OR: imageIds.map((imageId) => ({ game_id: gameId, image_id: imageId })),
-    },
-  });
+  if (imageIds.length === 0) return;
+  await db
+    .delete(gameImages)
+    .where(
+      and(eq(gameImages.gameId, gameId), inArray(gameImages.id, imageIds))
+    );
 }
 
 /**
- * Games whose name matches `q`, for pickers: computed games with only `id`
- * and `name`, at most 10. Empty for an empty query.
+ * Games whose name or description matches `q`, for pickers: computed games
+ * with only `id` and `name`, at most 10. Empty for an empty query.
  */
 export async function searchGames(q, { excludeIds = [] } = {}) {
-  const search = getFullTextSearchQuery(q);
+  const search = matchesSearch(games.searchText, q);
   if (!search) return [];
-  const games = await db.game.findMany({
-    where: { name: { search }, id: { notIn: excludeIds } },
-    select: { id: true, name: true },
-    take: 10,
-  });
-  return Promise.all(games.map(computeGame));
+  const rows = await db
+    .select({ id: games.id, name: games.name })
+    .from(games)
+    .where(and(search, notDeleted, notInArray(games.id, excludeIds)))
+    .limit(10);
+  return Promise.all(rows.map(computeGame));
 }
 
 /** The newest games (the home page), computed; deleted ones left out. */
 export async function listNewGames({ limit }) {
-  const games = await db.game.findMany({
-    where: { deleted: false },
-    include: CARD_INCLUDE,
-    orderBy: { created_at: 'desc' },
-    take: limit,
+  const rows = await db.query.games.findMany({
+    where: notDeleted,
+    with: CARD_WITH,
+    orderBy: desc(games.createdAt),
+    limit,
   });
-  return Promise.all(games.map(computeGame));
+  return Promise.all(rows.map(gameWithRelations).map(computeGame));
 }
 
 /** How many games there are, deleted ones left out. */
-export function countGames() {
-  return db.game.count({ where: { deleted: false } });
+export async function countGames() {
+  const [{ value }] = await db
+    .select({ value: count() })
+    .from(games)
+    .where(notDeleted);
+  return value;
+}
+
+/** Games made by a country's organisations: how many, and the newest. */
+export async function listGamesMadeIn(countryCode, { limit }) {
+  const where = and(notDeleted, madeIn(countryCode));
+  const [[{ value }], rows] = await Promise.all([
+    db.select({ value: count() }).from(games).where(where),
+    db.query.games.findMany({
+      where,
+      orderBy: [desc(games.createdAt), asc(games.id)],
+      limit,
+      with: {
+        images: CARD_WITH.images,
+        tags: CARD_WITH.tags,
+        organizations: CARD_WITH.organizations,
+      },
+    }),
+  ]);
+  return {
+    count: value,
+    games: await Promise.all(rows.map(gameWithRelations).map(computeGame)),
+  };
 }

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const findUnique = vi.fn();
-vi.mock('./db.server', () => ({ db: { person: { findUnique: (...a) => findUnique(...a) } } }));
+const personExists = vi.fn();
+vi.mock('../data/people.server', () => ({ personExists: (...a) => personExists(...a) }));
 
 const { default: isAuthenticated } = await import('./isAuthenticated.server');
 const { commitSession, getSession } = await import('./session.server');
@@ -26,7 +26,7 @@ const redirectOf = async (promise) => {
 };
 
 describe('isAuthenticated', () => {
-  beforeEach(() => findUnique.mockReset().mockResolvedValue({ id: 'p1' }));
+  beforeEach(() => personExists.mockReset().mockResolvedValue(true));
 
   it('returns null for anonymous requests when not required', async () => {
     expect(await isAuthenticated(await requestAs(null))).toBeNull();
@@ -70,7 +70,7 @@ describe('isAuthenticated', () => {
   });
 
   it('signs out a session whose user was deleted', async () => {
-    findUnique.mockResolvedValue(null);
+    personExists.mockResolvedValue(false);
     const request = await requestAs({ id: 'gone', email: 'gone@indieco.test' });
     expect(await redirectOf(isAuthenticated(request))).toBe('/signin?prev=/profile');
   });

@@ -1,9 +1,28 @@
-import { PrismaClient } from '@prisma/client';
+import { and, eq, isNotNull } from 'drizzle-orm';
 
+import { db, eventParticipants, events, people, searchText } from './db.js';
 import { expect, test, MEMBER, signIn } from './helpers';
 
-const db = new PrismaClient();
-test.afterAll(() => db.$disconnect());
+// A new event tomorrow, in the same place as a seeded one.
+async function createEvent(name) {
+  const [placed] = await db.select().from(events).where(isNotNull(events.countryCode)).limit(1);
+  const [event] = await db
+    .insert(events)
+    .values({
+      name,
+      searchText: searchText(name),
+      startsAt: new Date(Date.now() + 86400000),
+      endsAt: new Date(Date.now() + 2 * 86400000),
+      countryCode: placed.countryCode,
+      city: placed.city,
+      latitude: placed.latitude,
+      longitude: placed.longitude,
+    })
+    .returning();
+  return event;
+}
+const deleteEvent = (id) => db.delete(events).where(eq(events.id, id));
+const findEvent = async (id) => (await db.select().from(events).where(eq(events.id, id)))[0];
 
 // #172: a dialog opened over the event page for signed-in users and blocked
 // every control, including joining.
@@ -29,15 +48,7 @@ test('a member can join and leave an upcoming event', async ({ page }) => {
 // #194: the event page rendered src={cover && cover.url}, an <img> with no
 // source, for events without a cover.
 test('an event without a cover shows the placeholder', async ({ page }) => {
-  const { location_id } = await db.event.findFirst({ where: { location_id: { not: null } } });
-  const event = await db.event.create({
-    data: {
-      name: `No Cover ${Date.now() % 100000}`,
-      starts_at: new Date(Date.now() + 86400000),
-      ends_at: new Date(Date.now() + 2 * 86400000),
-      location_id,
-    },
-  });
+  const event = await createEvent(`No Cover ${Date.now() % 100000}`);
 
   try {
     const response = await page.goto(`/event/${event.id}`);
@@ -46,31 +57,31 @@ test('an event without a cover shows the placeholder', async ({ page }) => {
     await expect(cover).toHaveAttribute('src', /placeholder/);
     expect(await cover.evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
   } finally {
-    await db.event.delete({ where: { id: event.id } });
+    await deleteEvent(event.id);
   }
 });
 
 // Attendee avatars were raw image rows without thumbnail_url, so every
 // attendee showed their initial instead of their picture.
 test('event attendees show their avatar', async ({ page }) => {
-  const member = await db.person.findUnique({ where: { email: MEMBER } });
-  const event = await db.event.findFirst({ where: { cover_id: { not: null }, location_id: { not: null } } });
+  const [member] = await db.select().from(people).where(eq(people.email, MEMBER));
+  const [event] = await db
+    .select()
+    .from(events)
+    .where(and(isNotNull(events.coverKey), isNotNull(events.countryCode)))
+    .limit(1);
   const url = 'https://cdn.example.test/avatar-check.png';
-  const image = await db.image.create({ data: { image_file: { name: url } } });
-  await db.person.update({ where: { id: member.id }, data: { avatar_id: image.id } });
-  await db.event_participant.upsert({
-    where: { event_id_person_id: { event_id: event.id, person_id: member.id } },
-    create: { event_id: event.id, person_id: member.id },
-    update: {},
-  });
+  await db.update(people).set({ avatarKey: url }).where(eq(people.id, member.id));
+  await db.insert(eventParticipants).values({ eventId: event.id, personId: member.id }).onConflictDoNothing();
 
   try {
     await page.goto(`/event/${event.id}`);
     await expect(page.locator(`[title="@${member.username}"] img`)).toHaveAttribute('src', url);
   } finally {
-    await db.event_participant.deleteMany({ where: { event_id: event.id, person_id: member.id } });
-    await db.person.update({ where: { id: member.id }, data: { avatar_id: member.avatar_id } });
-    await db.image.delete({ where: { id: image.id } });
+    await db
+      .delete(eventParticipants)
+      .where(and(eq(eventParticipants.eventId, event.id), eq(eventParticipants.personId, member.id)));
+    await db.update(people).set({ avatarKey: member.avatarKey }).where(eq(people.id, member.id));
   }
 });
 
@@ -99,7 +110,7 @@ test.describe('event times', () => {
   const rennes = { street: '4bis Cours des Alliés', city: 'Rennes', region: 'Ille-et-Vilaine', country_code: 'FR', latitude: '48.10506', longitude: '-1.676466' };
   const kyoto = { street: '', city: 'Kyoto', region: 'Kyoto', country_code: 'JP', latitude: '35.0116', longitude: '135.7681' };
 
-  async function createEvent(page, location, start, end) {
+  async function postEvent(page, location, start, end) {
     const response = await page.request.post('/events/create', {
       multipart: { name: `Time Zone ${Date.now() % 100000}`, start, end, about: '', site: '', ...location },
       maxRedirects: 0,
@@ -110,28 +121,28 @@ test.describe('event times', () => {
 
   test('a Rennes event keeps its local time through an unchanged edit', async ({ page }) => {
     await signIn(page, MEMBER);
-    const path = await createEvent(page, rennes, '2026-11-20T14:00', '2026-11-22T19:30');
+    const path = await postEvent(page, rennes, '2026-11-20T14:00', '2026-11-22T19:30');
     const id = path.split('/').pop();
     try {
-      expect((await db.event.findUnique({ where: { id } })).time_zone).toBe('Europe/Paris');
+      expect((await findEvent(id)).timeZone).toBe('Europe/Paris');
 
       await page.goto(`${path}/edit`);
       await expect(page.getByLabel(/start/i)).toHaveValue('2026-11-20T14:00');
       await page.getByRole('button', { name: /submit|save/i }).click();
       await expect(page).toHaveURL(path);
 
-      const event = await db.event.findUnique({ where: { id } });
-      expect(event.starts_at.toISOString()).toBe('2026-11-20T13:00:00.000Z');
-      expect(event.ends_at.toISOString()).toBe('2026-11-22T18:30:00.000Z');
+      const event = await findEvent(id);
+      expect(event.startsAt.toISOString()).toBe('2026-11-20T13:00:00.000Z');
+      expect(event.endsAt.toISOString()).toBe('2026-11-22T18:30:00.000Z');
       await expect(page.locator('main time').first()).toHaveText(/^NOV 20, 14:00 – NOV 22, 19:30$/i);
     } finally {
-      await db.event.delete({ where: { id } });
+      await deleteEvent(id);
     }
   });
 
   test('a Kyoto event shows Kyoto time, the same before and after hydration', async ({ page }) => {
     await signIn(page, MEMBER);
-    const path = await createEvent(page, kyoto, '2026-12-05T19:00', '2026-12-05T22:00');
+    const path = await postEvent(page, kyoto, '2026-12-05T19:00', '2026-12-05T22:00');
     const id = path.split('/').pop();
     const errors = [];
     page.on('console', (message) => {
@@ -145,7 +156,7 @@ test.describe('event times', () => {
       await expect(page.locator('main time').first()).toHaveText(/^DEC 5, 19:00 – 22:00$/i);
       expect(errors).toEqual([]);
     } finally {
-      await db.event.delete({ where: { id } });
+      await deleteEvent(id);
     }
   });
 });
@@ -168,16 +179,13 @@ test.describe('event lists in another time zone', () => {
 
 // #198: "Related events" only appears when there are some.
 test('an event with no related events has no empty "Related events" section', async ({ page }) => {
-  const { location_id } = await db.event.findFirst({ where: { location_id: { not: null } } });
-  const event = await db.event.create({
-    data: { name: `Zyxwvut ${Date.now() % 100000}`, starts_at: new Date(Date.now() + 86400000), ends_at: new Date(Date.now() + 2 * 86400000), location_id },
-  });
+  const event = await createEvent(`Zyxwvut ${Date.now() % 100000}`);
   try {
     await page.goto(`/event/${event.id}`);
     await expect(page.getByRole('heading', { name: event.name })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Related events' })).toHaveCount(0);
     await expect(page.getByText('No related events.')).toHaveCount(0);
   } finally {
-    await db.event.delete({ where: { id: event.id } });
+    await deleteEvent(event.id);
   }
 });

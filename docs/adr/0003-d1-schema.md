@@ -44,3 +44,14 @@ Indexes: every foreign key, `country_code` on organizations and events, `starts_
 ## Bluesky (#162)
 
 `people.did` links an account to its Bluesky identity; the six existing people get theirs at the cutover. The OAuth client's state and sessions go in `kv`, under prefixed keys. Discord sign-in, and `discord_id`, go at the cutover.
+
+## In the app (2026-10-10)
+
+How the data layer (`app/data`) uses the schema, decided while porting it:
+
+- **The change log** is written by `logChange` in the same `db.batch` as the change: an `INSERT … SELECT json_object(…)` that records the row as it then is, with the old field names, so revision pages diff old and new rows alike. Creations and deletions now record their author.
+- **Deletion** sets `deleted_at` on games, organisations and events; every read leaves deleted rows out, and their history stays.
+- **Uploads** are kept in `kv` for a day under a new ID (`upload:<id>`, holding the key and size). Forms send that ID as before; attaching it copies the key and size into the record's image columns.
+- **Search** matches every word of the query at the start of a word of `search_text` (name and description), as Postgres prefix matching did; the games list's filter matches anywhere in it.
+- **Shapes:** the data modules return what the routes read from Prisma (`location`, `logo`, `game_entity`, snake_case fields), built by `app/data/shapes.server.js`, so routes and models didn't change.
+- **Until the Workers switch,** the app runs on Node and reaches a local D1 through wrangler's platform proxy (`app/db/index.server.js`); development and the end-to-end tests run on local D1.

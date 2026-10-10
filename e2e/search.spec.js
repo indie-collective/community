@@ -13,12 +13,15 @@ for (const endpoint of ['/search-game', '/search-org', '/search-event']) {
 // The autocomplete endpoints find what they're asked for. /search-event
 // read `url`, which didn't exist, so every search failed with "Something
 // went wrong".
-for (const [endpoint, table] of [['/search-game', 'game'], ['/search-org', 'entity'], ['/search-event', 'event']]) {
+for (const [endpoint, table] of [['/search-game', 'games'], ['/search-org', 'organizations'], ['/search-event', 'events']]) {
   test(`${endpoint} finds a record by a word of its name`, async ({ request }) => {
-    const { PrismaClient } = await import('@prisma/client');
-    const db = new PrismaClient();
-    const record = await db[table].findFirst({ where: { name: { contains: ' ' } }, select: { name: true } });
-    await db.$disconnect();
+    const schema = await import('./db.js');
+    const { like } = await import('drizzle-orm');
+    const [record] = await schema.db
+      .select({ name: schema[table].name })
+      .from(schema[table])
+      .where(like(schema[table].name, '% %'))
+      .limit(1);
     const word = record.name.split(/\s+/).find((w) => /^[A-Za-z]{4,}$/.test(w)) ?? record.name.split(/\s+/)[0];
 
     const response = await request.get(`${endpoint}.data?q=${encodeURIComponent(word)}`);

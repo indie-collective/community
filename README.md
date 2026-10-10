@@ -2,24 +2,23 @@
 
 ## Requirements
 
-- PostgreSQL
-- Node.js
+- Node.js 22
 - NPM
+
+The database is Cloudflare D1 (ADR 0002, ADR 0003), with Drizzle; the schema is `app/db/schema.js`. Locally it's wrangler's local D1, in `.wrangler/`: no database server to install.
 
 ## Installation
 
 ```bash
-# Create a new database
-psql -c "create database indieco"
+npm install
 
-# Import schema
-psql --dbname=indieco -f server/schema.sql
-
-# Import data
-psql --dbname=indieco -f server/data.sql
+# A fresh local D1: migrated, and seeded with made-up data
+npm run db:reset
 
 npm run dev
 ```
+
+Environment variables go in `.env` (the dev and start scripts load it). In development, `/signin` takes any email without a password; the seed creates `harness-admin@indieco.test` and `harness-member@indieco.test`.
 
 ## Session secret
 
@@ -27,32 +26,29 @@ Session cookies are signed with `SESSION_SECRET`. It is required in production, 
 
 To rotate it, set `SESSION_SECRET=new,old`: new cookies are signed with the first secret, and cookies signed with the others are still accepted until they expire.
 
-## Migrating to Prisma
-
-If you own a dataset that was used before migrating to Prisma, just set up your database and use this command to mark the first migration in your database:
-
-```sh
-# Either prod or development, this marks the first migration as resolved
-npx prisma migrate resolve --applied "20220905205917_init"
-
-# Then run all the others migrations
-npx prisma migrate deploy
-
-# Verify all migrations have run well and sync with latest schema
-npx prisma migrate dev
-```
-
-## D1 (Cloudflare), in progress
-
-The app is moving to Cloudflare D1 with Drizzle (ADR 0002, ADR 0003, #151). The schema is `app/db/schema.js`; it doesn't serve the app yet.
+## Database
 
 ```sh
 # Generate a migration after changing app/db/schema.js
 npm run db:generate -- --name <what-changed>
 
-# Create or update the local D1 (in .wrangler/)
+# Apply migrations to the local D1
 npm run db:migrate
 
-# Copy a Postgres in main's shape into the empty local D1, checking row counts
-DATABASE_URL=postgres://… npm run db:copy -- --apply local
+# Seed it, or start over with a fresh one
+npm run db:seed
+npm run db:reset
 ```
+
+`D1_PERSIST_PATH` points the app and scripts at another local D1 (the end-to-end tests make their own in `.wrangler/e2e`).
+
+### Copying the production data (the cutover)
+
+The data comes from a Supabase export, restored into a local Postgres and brought to main's last Postgres shape with the Prisma migrations in `prisma/` (see `docs/adr/0002-cloudflare-single-cutover.md`). Run the Postgres backfills there if needed (`scripts/backfill-*.mjs`), then copy it into an empty D1, checking every table's row count:
+
+```sh
+npm run db:migrate
+DATABASE_URL=postgres://… npm run db:copy -- --apply local   # or remote
+```
+
+Prisma is only kept for this: the app itself doesn't use it.

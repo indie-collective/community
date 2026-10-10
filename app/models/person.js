@@ -1,9 +1,9 @@
 import getImageLinks from '../utils/imageLinks.server';
 
 /**
- * @typedef {import('@prisma/client').person} ExtendedPerson
+ * @typedef {object} ExtendedPerson
  *
- * @param {import("@prisma/client").person} person
+ * @param {object} person - in the shape data/shapes.server returns
  * @returns {ExtendedPerson} The extended person
  */
 export default async function computePerson(person) {

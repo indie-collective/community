@@ -33,9 +33,9 @@ async function computeGameEvent(gameEvent) {
 }
 
 /**
- * @typedef {import('@prisma/client').event} ExtendedEvent
+ * @typedef {object} ExtendedEvent
  *
- * @param {import("@prisma/client").event} event
+ * @param {object} event - in the shape data/shapes.server returns
  * @returns {ExtendedEvent} The extended event
  */
 export default async function computeEvent(event) {

@@ -1,95 +1,134 @@
 // People: every read and write sign-in, profiles and the admin users page
-// make (#151, part 2). The only place that knows how people are stored;
-// the D1 port reimplements these functions with the same results.
-import { db } from '../utils/db.server';
+// make (#151). The only place that knows how people are stored.
+import { count, desc, eq } from 'drizzle-orm';
+
+import { db } from '../db/index.server.js';
+import { people } from '../db/schema.js';
 import computePerson from '../models/person';
 import getImageLinks from '../utils/imageLinks.server';
 import { createPerson as createPersonWithUsername } from '../utils/username.server';
+import { imageColumns } from './images.server';
+import * as shape from './shapes.server';
+
+const byId = (id) =>
+  db.query.people.findFirst({ where: eq(people.id, id) }).then(shape.person);
 
 /** The person with this email, or null. */
-export function findPersonByEmail(email) {
-  return db.person.findUnique({ where: { email } });
+export async function findPersonByEmail(email) {
+  return (
+    shape.person(
+      await db.query.people.findFirst({ where: eq(people.email, email) })
+    ) ?? null
+  );
 }
 
 /** The person signed in with this Discord account, or null. */
-export function findPersonByDiscordId(discordId) {
-  return db.person.findUnique({ where: { discord_id: discordId } });
+export async function findPersonByDiscordId(discordId) {
+  return (
+    shape.person(
+      await db.query.people.findFirst({
+        where: eq(people.discordId, discordId),
+      })
+    ) ?? null
+  );
 }
 
 /**
- * Creates a person, choosing a free username from the one given or their
- * name (see utils/username.server).
+ * Creates a person (old field names: `first_name`, `isAdmin`, …), choosing
+ * a free username from the one given or their name (see
+ * utils/username.server).
  */
 export function createPerson(fields) {
-  return createPersonWithUsername(db, fields);
+  return createPersonWithUsername(
+    {
+      isUsernameTaken,
+      insert: async (username) => {
+        const [row] = await db
+          .insert(people)
+          .values({
+            username,
+            email: fields.email,
+            discordId: fields.discord_id,
+            firstName: fields.first_name,
+            lastName: fields.last_name,
+            about: fields.about,
+            avatarUrl: fields.avatar_oauth,
+            role: fields.isAdmin ? 'admin' : 'member',
+          })
+          .returning();
+        return shape.person(row);
+      },
+    },
+    fields
+  );
 }
 
 /** Whether a person with this ID still exists. */
 export async function personExists(id) {
-  return !!(await db.person.findUnique({
-    where: { id },
-    select: { id: true },
+  return !!(await db.query.people.findFirst({
+    where: eq(people.id, id),
+    columns: { id: true },
   }));
 }
 
 /** Whether this person is an admin. */
 export async function isAdmin(id) {
-  return !!(
-    await db.person.findUnique({ where: { id }, select: { isAdmin: true } })
-  )?.isAdmin;
+  const row = await db.query.people.findFirst({
+    where: eq(people.id, id),
+    columns: { role: true },
+  });
+  return row?.role === 'admin';
 }
 
-/** An uploaded avatar's thumbnail URL, or null. */
+/** An avatar's thumbnail URL (`avatar_id` on a person), or null. */
 export async function avatarThumbnail(avatarId) {
-  if (!avatarId) return null;
-  const image = await db.image.findFirst({ where: { id: avatarId } });
-  return image ? getImageLinks(image).thumbnail_url : null;
+  return avatarId ? getImageLinks(shape.image(avatarId)).thumbnail_url : null;
 }
 
 /** Remembers the picture from the sign-in provider. */
 export async function setProviderAvatar(id, url) {
-  await db.person.update({ where: { id }, data: { avatar_oauth: url } });
+  await db.update(people).set({ avatarUrl: url }).where(eq(people.id, id));
 }
 
 /** Grants or removes admin rights. */
 export async function setAdmin(id, admin) {
-  await db.person.update({ where: { id }, data: { isAdmin: admin } });
+  await db
+    .update(people)
+    .set({ role: admin ? 'admin' : 'member' })
+    .where(eq(people.id, id));
 }
 
 /** Sets a person's email. Throws when another person has it. */
 export async function setEmail(id, email) {
-  await db.person.update({ where: { id }, data: { email } });
+  await db.update(people).set({ email }).where(eq(people.id, id));
 }
 
 /** Whether another person has this username. */
 export async function isUsernameTaken(username) {
-  return !!(await db.person.findUnique({ where: { username } }));
+  return !!(await db.query.people.findFirst({
+    where: eq(people.username, username),
+    columns: { id: true },
+  }));
 }
 
 /** A person for their profile page, computed (see models/person). */
 export async function getProfile(id) {
-  const person = await db.person.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      avatar_id: true,
-      username: true,
-      first_name: true,
-      last_name: true,
-      about: true,
-      avatar: true,
-      discord_id: true,
-    },
+  const person = await byId(id);
+  return computePerson({
+    id: person.id,
+    avatar_id: person.avatar_id,
+    username: person.username,
+    first_name: person.first_name,
+    last_name: person.last_name,
+    about: person.about,
+    avatar: person.avatar,
+    discord_id: person.discord_id,
   });
-  return computePerson(person);
 }
 
 /** A person for their profile form, with their avatar's thumbnail URL. */
 export async function getProfileForEdit(id) {
-  const person = await db.person.findUnique({
-    where: { id },
-    include: { avatar: true },
-  });
+  const person = await byId(id);
   return {
     ...person,
     avatar: person.avatar
@@ -107,17 +146,18 @@ export async function updateProfile(
   id,
   { avatarId, firstName, lastName, username, about }
 ) {
-  const person = await db.person.update({
-    where: { id },
-    data: {
-      avatar_id: avatarId || undefined,
-      first_name: firstName,
-      last_name: lastName,
+  const [row] = await db
+    .update(people)
+    .set({
+      ...(await imageColumns('avatar', avatarId)),
+      firstName,
+      lastName,
       username,
       about,
-    },
-    include: { avatar: true },
-  });
+    })
+    .where(eq(people.id, id))
+    .returning();
+  const person = shape.person(row);
   return {
     ...person,
     avatar: person.avatar ? getImageLinks(person.avatar) : null,
@@ -126,24 +166,41 @@ export async function updateProfile(
 
 /** Everyone, newest first, computed, for the admin users page. */
 export async function listPeople() {
-  const people = await db.person.findMany({
-    select: {
-      id: true,
-      created_at: true,
-      username: true,
-      first_name: true,
-      last_name: true,
-      email: true,
-      discord_id: true,
-      isAdmin: true,
-      avatar: true,
-    },
-    orderBy: { created_at: 'desc' },
+  const rows = await db.query.people.findMany({
+    orderBy: desc(people.createdAt),
   });
-  return Promise.all(people.map(computePerson));
+  return Promise.all(
+    rows
+      .map(shape.person)
+      .map(
+        ({
+          id,
+          created_at,
+          username,
+          first_name,
+          last_name,
+          email,
+          discord_id,
+          isAdmin,
+          avatar,
+        }) =>
+          computePerson({
+            id,
+            created_at,
+            username,
+            first_name,
+            last_name,
+            email,
+            discord_id,
+            isAdmin,
+            avatar,
+          })
+      )
+  );
 }
 
 /** How many people there are. */
-export function countPeople() {
-  return db.person.count();
+export async function countPeople() {
+  const [{ value }] = await db.select({ value: count() }).from(people);
+  return value;
 }

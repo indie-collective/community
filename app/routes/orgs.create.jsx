@@ -39,6 +39,7 @@ export async function action(args) {
       about: data.get('about'),
       location,
       logoId: data.get('logo'),
+      authorId: currentUser.id,
     });
 
     const port = process.env.PORT ?? 3000;

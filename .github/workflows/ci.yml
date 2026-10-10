@@ -20,9 +20,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # Don't rely on @prisma/client's install hook: it sometimes leaves no
-      # generated client, and seeding then fails with "did not initialize yet".
-      - run: npx prisma generate
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:unit
@@ -32,24 +29,9 @@ jobs:
   e2e:
     name: End-to-end tests
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        # Docker Hub's official image, through Amazon ECR Public's mirror:
-        # anonymous pulls from Docker Hub hit its rate limit on GitHub's
-        # shared runners and failed whole CI runs.
-        image: public.ecr.aws/docker/library/postgres:16
-        env:
-          POSTGRES_USER: indieco
-          POSTGRES_PASSWORD: indieco
-          POSTGRES_DB: indieco
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U indieco"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
+    # The tests run on a fresh local D1 (wrangler's, in workerd), made when
+    # Playwright starts the server (see playwright.config.js).
     env:
-      DATABASE_URL: postgresql://indieco:indieco@localhost:5432/indieco
       # auth.server.js exits at startup without these; the tests sign in with
       # the development-only form strategy, so the values are never used.
       DISCORD_CLIENT_ID: ci
@@ -62,12 +44,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # Don't rely on @prisma/client's install hook: it sometimes leaves no
-      # generated client, and seeding then fails with "did not initialize yet".
-      - run: npx prisma generate
       - run: npx playwright install --with-deps chromium
-      - run: npx prisma migrate deploy
-      - run: node prisma/seed.js
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()

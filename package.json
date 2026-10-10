@@ -2,11 +2,10 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
-    "dev": "react-router dev -p 5000",
-    "start": "react-router-serve build/server/index.js",
+    "dev": "node --env-file-if-exists=.env node_modules/@react-router/dev/bin.js dev -p 5000",
+    "start": "node --env-file-if-exists=.env node_modules/@react-router/serve/bin.js build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "typegen": "react-router typegen",
-    "db:seed": "prisma db seed",
     "lint": "eslint .",
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
@@ -16,7 +15,9 @@
     "build-storybook": "storybook build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply DB --local",
-    "db:copy": "node scripts/copy-to-d1.mjs"
+    "db:copy": "node scripts/copy-to-d1.mjs",
+    "db:seed": "node scripts/seed.mjs",
+    "db:reset": "node scripts/reset-local-db.mjs"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.35.0",
@@ -29,7 +30,6 @@
     "@mapbox/geo-viewport": "~0.4.1",
     "@mui/material": "^5.14.18",
     "@photostructure/tz-lookup": "^11.7.0",
-    "@prisma/client": "^4.4.0",
     "@react-router/serve": "^7.18.4",
     "aws-sdk": "^2.780.0",
     "d3-composite-projections": "^2.0.0",
@@ -44,7 +44,6 @@
     "lodash.debounce": "^4.0.8",
     "memoize-one": "^6.0.0",
     "next-themes": "^0.4.6",
-    "pg-tsquery": "^8.4.0",
     "pigeon-maps": "^0.21.6",
     "pigeon-marker": "^0.3.4",
     "prop-types": "^15.8.1",
@@ -74,6 +73,7 @@
     "@eslint/js": "^9.29.0",
     "@faker-js/faker": "^10.1.0",
     "@playwright/test": "^1.63.0",
+    "@prisma/client": "^4.4.0",
     "@react-router/dev": "^7.18.4",
     "@storybook/addon-vitest": "^10.6.1",
     "@storybook/react-vite": "^10.6.1",
@@ -94,8 +94,5 @@
     "vite": "^8.0.16",
     "vitest": "^5.0.2",
     "wrangler": "^4.149.0"
-  },
-  "prisma": {
-    "seed": "node prisma/seed.js"
   }
 }

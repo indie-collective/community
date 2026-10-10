@@ -22,26 +22,35 @@ test('country pages render their cities, and unknown countries are a 404', async
 // the studio/association split, associations by city, games made there,
 // and its next events.
 test('a country page gives the overview of its scene', async ({ page }) => {
-  const { PrismaClient } = await import('@prisma/client');
-  const db = new PrismaClient();
+  const { db, events, gameOrganizations, games, organizations } = await import('./db.js');
+  const { eq, inArray } = await import('drizzle-orm');
   const tag = Date.now() % 100000;
   const day = 24 * 60 * 60 * 1000;
-  const place = await db.location.create({
-    // McMurdo Station.
-    data: { country_code: 'AQ', city: `Frostville ${tag}`, region: 'Ross Dependency', latitude: -77.85, longitude: 166.67 },
+  // McMurdo Station.
+  const place = { countryCode: 'AQ', city: `Frostville ${tag}`, region: 'Ross Dependency', latitude: -77.85, longitude: 166.67 };
+  const orgs = await db
+    .insert(organizations)
+    .values(
+      [['Ice Studio 1', 'studio'], ['Ice Studio 2', 'studio'], ['Penguin Club', 'association']].map(([name, type]) => ({
+        name: `${name} ${tag}`,
+        type,
+        ...place,
+      }))
+    )
+    .returning();
+  const [game] = await db.insert(games).values({ name: `Glacier Run ${tag}` }).returning();
+  await db.insert(gameOrganizations).values({ gameId: game.id, organizationId: orgs[0].id });
+  const event = (name, data) => ({
+    name: `${name} ${tag}`,
+    ...place,
+    startsAt: new Date('2000-01-01'),
+    endsAt: new Date(Date.now() + day),
+    ...data,
   });
-  const org = (name, type) => db.entity.create({ data: { name: `${name} ${tag}`, type, location_id: place.id } });
-  const orgs = await Promise.all([org('Ice Studio 1', 'studio'), org('Ice Studio 2', 'studio'), org('Penguin Club', 'association')]);
-  const game = await db.game.create({
-    data: { name: `Glacier Run ${tag}`, game_entity: { create: { entity_id: orgs[0].id } } },
-  });
-  const event = (name, data) =>
-    db.event.create({ data: { name: `${name} ${tag}`, location_id: place.id, starts_at: new Date('2000-01-01'), ends_at: new Date(Date.now() + day), ...data } });
-  const events = await Promise.all([
-    event('Polar Jam', {}),
-    event('Called-off Jam', { status: 'canceled' }),
-    event('Old Jam', { ends_at: new Date(Date.now() - day) }),
-  ]);
+  const created = await db
+    .insert(events)
+    .values([event('Polar Jam', {}), event('Called-off Jam', { status: 'canceled' }), event('Old Jam', { endsAt: new Date(Date.now() - day) })])
+    .returning();
   try {
     await page.goto('/country/aq');
     await expect(page.getByRole('heading', { name: "Antarctica's indie game scene" })).toBeVisible();
@@ -91,12 +100,9 @@ test('a country page gives the overview of its scene', async ({ page }) => {
     await expect(page).toHaveURL('/games');
     await expect(page.getByText('Made in Antarctica')).toHaveCount(0);
   } finally {
-    await db.event.deleteMany({ where: { id: { in: events.map((e) => e.id) } } });
-    await db.game_entity.deleteMany({ where: { game_id: game.id } });
-    await db.game.delete({ where: { id: game.id } });
-    await db.entity.deleteMany({ where: { id: { in: orgs.map((o) => o.id) } } });
-    await db.location.delete({ where: { id: place.id } });
-    await db.$disconnect();
+    await db.delete(events).where(inArray(events.id, created.map((e) => e.id)));
+    await db.delete(games).where(eq(games.id, game.id));
+    await db.delete(organizations).where(inArray(organizations.id, orgs.map((o) => o.id)));
   }
 });
 
@@ -131,29 +137,26 @@ test('clicking a place on the map highlights its card', async ({ page }) => {
 
 // #258: "Explore on the map" from a country page opens /places on it.
 test('places opens on a country when given one', async ({ page }) => {
-  const { PrismaClient } = await import('@prisma/client');
-  const db = new PrismaClient();
+  const { db, organizations } = await import('./db.js');
+  const { inArray } = await import('drizzle-orm');
   const tag = Date.now() % 100000;
   // XQ is a user-assigned ISO code, so no seeded place is in it: seeded
   // places sit at random coordinates, and one in the country would widen
   // the map to the world.
-  const [reykjavik, sydney] = await Promise.all([
-    db.location.create({ data: { country_code: 'XQ', city: `Reykjavík ${tag}`, region: 'Capital Region', latitude: 64.1466, longitude: -21.9426 } }),
-    db.location.create({ data: { country_code: 'AU', city: `Sydney ${tag}`, region: 'New South Wales', latitude: -33.8688, longitude: 151.2093 } }),
-  ]);
-  const [near, far] = await Promise.all([
-    db.entity.create({ data: { name: `Geyser Games ${tag}`, type: 'studio', location_id: reykjavik.id } }),
-    db.entity.create({ data: { name: `Harbour Games ${tag}`, type: 'studio', location_id: sydney.id } }),
-  ]);
+  const [near, far] = await db
+    .insert(organizations)
+    .values([
+      { name: `Geyser Games ${tag}`, type: 'studio', countryCode: 'XQ', city: `Reykjavík ${tag}`, region: 'Capital Region', latitude: 64.1466, longitude: -21.9426 },
+      { name: `Harbour Games ${tag}`, type: 'studio', countryCode: 'AU', city: `Sydney ${tag}`, region: 'New South Wales', latitude: -33.8688, longitude: 151.2093 },
+    ])
+    .returning();
   try {
     await page.goto('/places?country=XQ', { waitUntil: 'networkidle' });
     // The list beside the map shows what's in view: Reykjavík, not Sydney.
     await expect(page.locator(`[id="${near.id}"]`)).toBeAttached();
     await expect(page.locator(`[id="${far.id}"]`)).toHaveCount(0);
   } finally {
-    await db.entity.deleteMany({ where: { id: { in: [near.id, far.id] } } });
-    await db.location.deleteMany({ where: { id: { in: [reykjavik.id, sydney.id] } } });
-    await db.$disconnect();
+    await db.delete(organizations).where(inArray(organizations.id, [near.id, far.id]));
   }
 });
 

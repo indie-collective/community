@@ -1,8 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { eq } from 'drizzle-orm';
 
+import { changes, db, people } from './db.js';
 import { expect, test, MEMBER, signIn } from './helpers';
-
-const db = new PrismaClient();
 
 // Fields of a `person` row that must never reach a page's loader data.
 // Loader data is serialised into the HTML, so anything a loader returns is
@@ -35,20 +34,20 @@ test('event pages do not expose attendees’ private fields', async ({ request }
 });
 
 test('change history does not expose authors’ private fields', async ({ page, request }) => {
-  // Change rows are written by database triggers, which a database set up
-  // without migrations lacks, so insert one directly, authored by the member.
+  // A change authored by the member, on a seeded organisation.
   const studios = await (await request.get('/studios')).text();
   const orgPath = studios.match(/\/org\/[0-9a-f-]{36}/)[0];
-  const member = await db.person.findUnique({ where: { email: MEMBER }, select: { id: true } });
-  const change = await db.change.create({
-    data: {
+  const [member] = await db.select({ id: people.id }).from(people).where(eq(people.email, MEMBER));
+  const [change] = await db
+    .insert(changes)
+    .values({
       operation: 'update',
-      table_name: 'entity',
-      record_id: orgPath.split('/').pop(),
+      tableName: 'organizations',
+      recordId: orgPath.split('/').pop(),
       data: {},
-      author_id: member.id,
-    },
-  });
+      authorId: member.id,
+    })
+    .returning();
 
   try {
     await signIn(page, MEMBER);
@@ -67,11 +66,9 @@ test('change history does not expose authors’ private fields', async ({ page, 
     for (const authorKeys of keys) expect(authorKeys).toEqual(['username']);
     expect(authors.some((author) => author?.username === 'harness-member')).toBe(true);
   } finally {
-    await db.change.delete({ where: { id: change.id } });
+    await db.delete(changes).where(eq(changes.id, change.id));
   }
 });
-
-test.afterAll(() => db.$disconnect());
 
 // The session cookie is signed, not encrypted: anyone holding it can read it.
 // It must hold only the minimal session user (#180), whichever way it's written.
