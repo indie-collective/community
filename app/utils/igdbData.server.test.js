@@ -1,10 +1,9 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   REFRESH_GUARD_MS,
   STALE_AFTER_MS,
   afterResponse,
-  claimRefresh,
   isStale,
   refreshIGDBData,
   storedIGDBGame,
@@ -13,29 +12,29 @@ import {
 const NOW = new Date('2026-10-07T12:00:00Z');
 const ago = (ms) => new Date(NOW.getTime() - ms);
 
-// The game_igdb and kv_store tables, in memory.
-function fakeDb(igdbRows = {}) {
-  const rows = { ...igdbRows };
-  return {
-    rows,
-    game_igdb: {
-      updateMany: async ({ where, data }) => {
-        const row = rows[where.game_id];
-        const free = row && (!row.refresh_started_at || row.refresh_started_at < where.OR[1].refresh_started_at.lt);
-        if (free) Object.assign(row, data);
-        return { count: free ? 1 : 0 };
-      },
-      create: async ({ data }) => {
-        if (rows[data.game_id]) throw Object.assign(new Error('Unique constraint'), { code: 'P2002' });
-        rows[data.game_id] = { ...data };
-      },
-      update: async ({ where, data }) => Object.assign(rows[where.game_id], data),
-    },
-    kv_store: {
-      findUnique: async () => ({ value: 'token', expires_at: new Date(NOW.getTime() + 3600e3) }),
-    },
-  };
-}
+// The stored IGDB data and the token, in memory.
+const store = vi.hoisted(() => ({ rows: {} }));
+vi.mock('../data/igdb.server.js', () => ({
+  claimIGDBRefresh: async (gameId, slug, { now, guardMs }) => {
+    const row = store.rows[gameId];
+    if (!row) {
+      store.rows[gameId] = { game_id: gameId, slug, refresh_started_at: now };
+      return true;
+    }
+    if (row.refresh_started_at && row.refresh_started_at >= new Date(now.getTime() - guardMs)) return false;
+    row.refresh_started_at = now;
+    return true;
+  },
+  saveIGDBData: async (gameId, slug, data) =>
+    Object.assign(store.rows[gameId], { slug, data, fetched_at: new Date(), refresh_started_at: null }),
+}));
+vi.mock('../data/kv.server.js', () => ({
+  getValue: async () => ({ value: 'token', expires_at: new Date(NOW.getTime() + 3600e3) }),
+  setValue: async () => {},
+}));
+beforeEach(() => {
+  store.rows = {};
+});
 
 describe('storedIGDBGame', () => {
   it('returns the data fetched for the current slug only', () => {
@@ -60,39 +59,30 @@ describe('isStale', () => {
   });
 });
 
-describe('claimRefresh', () => {
-  it('creates the row for the first refresh, and refuses a second', async () => {
-    const db = fakeDb();
-    expect(await claimRefresh(db, 'g1', 'celeste', { now: NOW })).toBe(true);
-    expect(db.rows.g1).toMatchObject({ slug: 'celeste', refresh_started_at: NOW });
-    expect(await claimRefresh(db, 'g1', 'celeste', { now: NOW })).toBe(false);
-  });
-
-  it('refuses while a refresh started within the guard, and allows it after', async () => {
-    const db = fakeDb({ g1: { game_id: 'g1', slug: 'celeste', refresh_started_at: ago(REFRESH_GUARD_MS - 1000) } });
-    expect(await claimRefresh(db, 'g1', 'celeste', { now: NOW })).toBe(false);
-    db.rows.g1.refresh_started_at = ago(REFRESH_GUARD_MS + 1000);
-    expect(await claimRefresh(db, 'g1', 'celeste', { now: NOW })).toBe(true);
-  });
-});
-
 describe('refreshIGDBData', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('stores the data for the slug it fetched, and clears the claim', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => Response.json([{ id: 1, name: 'Celeste' }])));
-    const db = fakeDb({ g1: { game_id: 'g1', slug: 'old-slug', data: { name: 'Old' }, refresh_started_at: null } });
-    expect(await refreshIGDBData(db, { id: 'g1', igdb_slug: 'celeste' }, { now: NOW })).toBe(true);
-    expect(db.rows.g1).toMatchObject({ slug: 'celeste', data: { name: 'Celeste' }, refresh_started_at: null });
-    expect(db.rows.g1.fetched_at).toBeInstanceOf(Date);
+    store.rows.g1 = { game_id: 'g1', slug: 'old-slug', data: { name: 'Old' }, refresh_started_at: null };
+    expect(await refreshIGDBData({ id: 'g1', igdb_slug: 'celeste' }, { now: NOW })).toBe(true);
+    expect(store.rows.g1).toMatchObject({ slug: 'celeste', data: { name: 'Celeste' }, refresh_started_at: null });
+    expect(store.rows.g1.fetched_at).toBeInstanceOf(Date);
+  });
+
+  it('skips a game whose refresh started within the guard', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    store.rows.g1 = { game_id: 'g1', slug: 'celeste', refresh_started_at: ago(REFRESH_GUARD_MS - 1000) };
+    expect(await refreshIGDBData({ id: 'g1', igdb_slug: 'celeste' }, { now: NOW })).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('keeps the claim when the request fails, so retries wait', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 500 })));
-    const db = fakeDb();
-    await expect(refreshIGDBData(db, { id: 'g1', igdb_slug: 'celeste' }, { now: NOW })).rejects.toThrow();
-    expect(db.rows.g1.refresh_started_at).toEqual(NOW);
-    expect(await claimRefresh(db, 'g1', 'celeste', { now: NOW })).toBe(false);
+    await expect(refreshIGDBData({ id: 'g1', igdb_slug: 'celeste' }, { now: NOW })).rejects.toThrow();
+    expect(store.rows.g1.refresh_started_at).toEqual(NOW);
+    expect(await refreshIGDBData({ id: 'g1', igdb_slug: 'celeste' }, { now: NOW })).toBe(false);
   });
 });
 

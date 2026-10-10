@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk';
 import { Jimp } from 'jimp';
 
-import { db } from './db.server';
+import { createImage } from '../data/images.server';
 
 const { NODE_ENV, CDN_HOST, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } = process.env;
 
@@ -87,16 +87,7 @@ export default function createUploadHandler(fileInputs) {
         {extension: filename.split('.').pop(), contentType}
       );
   
-      const image = await db.image.create({
-        data: {
-          image_file: bucketEntry,
-        },
-        select: {
-          id: true,
-        },
-      });
-  
-      return image.id;
+      return await createImage(bucketEntry);
     } catch (err) {
       if (err.message === 'Empty') {
         // due to memoryhandler required to avoid the nullification of everything
