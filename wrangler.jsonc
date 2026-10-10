@@ -2,6 +2,8 @@
   // The Worker and its bindings (ADR 0002).
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "indieco-community",
+  // Contact@indieco.xyz's account.
+  "account_id": "87f543652bc8e66b5a5b854fed541ed4",
   "main": "./workers/app.js",
   "compatibility_date": "2026-09-01",
   // process.env holds the vars and secrets below, as the code reads them.
@@ -11,9 +13,7 @@
     {
       "binding": "DB",
       "database_name": "indieco-community",
-      // Replaced by the real ID once the database is created on Cloudflare
-      // (wrangler d1 create indieco-community); local use doesn't need it.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "c9db0161-c078-4b1d-8e56-f630dd667f84",
       "migrations_dir": "drizzle/migrations"
     }
   ],
