@@ -212,3 +212,37 @@ export async function searchOrganizations(q, { excludeIds = [] } = {}) {
     take: 10,
   });
 }
+
+/** The newest studios or associations (the home page), computed. */
+export async function listNewOrganizations({ type, limit }) {
+  const orgs = await db.entity.findMany({
+    where: { type },
+    include: { location: true, logo: true },
+    orderBy: { created_at: 'desc' },
+    take: limit,
+  });
+  return Promise.all(orgs.map(computeOrg));
+}
+
+/** Every organisation with a location, computed, for the map. */
+export async function listMappedOrganizations() {
+  const orgs = await db.entity.findMany({
+    where: { location: { isNot: null } },
+    include: { location: true, logo: true },
+  });
+  return Promise.all(orgs.map(computeOrg));
+}
+
+/** Where organisations are, as `[latitude, longitude]`, one per located org. */
+export async function listOrganizationPoints() {
+  const orgs = await db.entity.findMany({
+    where: { location: { isNot: null } },
+    select: { location: { select: { latitude: true, longitude: true } } },
+  });
+  return orgs.map(({ location }) => [location.latitude, location.longitude]);
+}
+
+/** How many organisations there are. */
+export function countOrganizations() {
+  return db.entity.count();
+}

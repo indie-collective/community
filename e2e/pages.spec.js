@@ -1,7 +1,7 @@
 import { expect, test, watchErrors } from './helpers';
 
 // Site-wide checks: every public page renders, the 404 page, phone width.
-const pages = ['/', '/games', '/events', '/studios', '/associations', '/about', '/countries', '/places', '/rewind', '/search?q=Conference', '/search', '/search?q=%20', '/signin'];
+const pages = ['/', '/games', '/events', '/studios', '/associations', '/about', '/countries', '/places', '/places2', '/rewind', '/search?q=Conference', '/search', '/search?q=%20', '/signin'];
 
 for (const path of pages) {
   test(`${path} renders and hydrates cleanly`, async ({ page }) => {

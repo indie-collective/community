@@ -13,193 +13,55 @@ import { LuChevronRight } from 'react-icons/lu';
 
 import { Link, useLoaderData } from 'react-router';
 
-import { db } from '../utils/db.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
-import computeEvent from '../models/event';
-import computeGame from '../models/game';
-import computeOrg from '../models/org';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 import PlacesWidget from '../components/PlacesWidget';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import { pageMeta } from '../utils/meta';
+import { listNewEvents, listUpcomingEvents } from '../data/events.server';
+import { listNewGames } from '../data/games.server';
+import {
+  listNewOrganizations,
+  listOrganizationPoints,
+} from '../data/organizations.server';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request);
 
-  const games = await db.game.findMany({
-    include: {
-      igdb: true,
-      game_image: {
-        include: {
-          image: true,
-        },
-      },
-      game_entity: {
-        include: {
-          entity: true,
-        },
-      },
-      game_tag: { include: { tag: true } },
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-    take: 6,
-  });
+  const [
+    games,
+    associations,
+    studios,
+    events,
+    eventsToCome,
+    joinedEventsToCome,
+    placesPoints,
+  ] = await Promise.all([
+    listNewGames({ limit: 6 }),
+    listNewOrganizations({ type: 'association', limit: 6 }),
+    listNewOrganizations({ type: 'studio', limit: 6 }),
+    listNewEvents({ limit: 6 }),
+    listUpcomingEvents({ limit: 3 }),
+    currentUser
+      ? listUpcomingEvents({ limit: 8, attendeeId: currentUser.id })
+      : undefined,
+    listOrganizationPoints(),
+  ]);
 
-  const associations = await db.entity.findMany({
-    where: {
-      type: 'association',
-    },
-    include: {
-      location: true,
-      logo: true,
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-    take: 6,
-  });
-
-  const studios = await db.entity.findMany({
-    where: {
-      type: 'studio',
-    },
-    include: {
-      location: true,
-      logo: true,
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-    take: 6,
-  });
-
-  const events = await db.event.findMany({
-    include: {
-      event_participant: true,
-      game_event: {
-        where: {
-          game: {
-            deleted: false,
-          },
-        },
-      },
-      location: true,
-      cover: true,
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-    take: 6,
-  });
-
-  const eventsToCome = await db.event.findMany({
-    where: {
-      status: {
-        not: 'canceled',
-      },
-      ends_at: {
-        gte: new Date(),
-      },
-    },
-    include: {
-      event_participant: true,
-      game_event: {
-        where: {
-          game: {
-            deleted: false,
-          },
-        },
-      },
-      location: true,
-      cover: true,
-    },
-    orderBy: {
-      starts_at: 'asc',
-    },
-    take: 3,
-  });
-
-  const joinedEventsToCome = currentUser
-    ? await db.event.findMany({
-        where: {
-          event_participant: {
-            some: {
-              person_id: currentUser.id,
-            },
-          },
-          status: {
-            not: 'canceled',
-          },
-          ends_at: {
-            gte: new Date(),
-          },
-        },
-        include: {
-          event_participant: true,
-          game_event: {
-            where: {
-              game: {
-                deleted: false,
-              },
-            },
-          },
-          location: true,
-          cover: true,
-        },
-        orderBy: {
-          starts_at: 'asc',
-        },
-        take: 8,
-      })
-    : undefined;
-
-  const placesCount = await db.entity.count({
-    where: {
-      location: {
-        isNot: null,
-      },
-    },
-  });
-
-  const placesPoints = await db.entity.findMany({
-    where: {
-      location: {
-        isNot: null,
-      },
-    },
-    select: {
-      location: {
-        select: {
-          latitude: true,
-          longitude: true,
-        },
-      },
-    },
-  });
-
-  const data = {
-    games: await Promise.all(games.map(computeGame)),
-    associations: await Promise.all(associations.map(computeOrg)),
-    studios: await Promise.all(studios.map(computeOrg)),
-    events: await Promise.all(events.map(computeEvent)),
-    eventsToCome: await Promise.all(eventsToCome.map(computeEvent)),
-    placesCount,
-    placesPoints: placesPoints.map((p) => [
-      p.location.latitude,
-      p.location.longitude,
-    ]),
+  return {
+    games,
+    associations,
+    studios,
+    events,
+    eventsToCome,
+    placesCount: placesPoints.length,
+    placesPoints,
     currentUser: currentUser
-      ? {
-          ...currentUser,
-          eventsToCome: await Promise.all(joinedEventsToCome.map(computeEvent)),
-        }
+      ? { ...currentUser, eventsToCome: joinedEventsToCome }
       : null,
   };
-  return data;
 };
 
 export const meta = ({ matches, location }) =>

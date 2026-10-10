@@ -82,6 +82,50 @@ export async function listEvents({ country = null, period = 'upcoming' }) {
   return { events, pastEvents, countries, years };
 }
 
+// What event cards show: attendance, games (deleted ones left out),
+// location and cover.
+const CARD_INCLUDE = {
+  event_participant: true,
+  game_event: { where: { game: { deleted: false } } },
+  location: true,
+  cover: true,
+};
+
+/** The most recently added events (the home page), computed. */
+export async function listNewEvents({ limit }) {
+  const events = await db.event.findMany({
+    include: CARD_INCLUDE,
+    orderBy: { created_at: 'desc' },
+    take: limit,
+  });
+  return Promise.all(events.map(computeEvent));
+}
+
+/**
+ * Events not over yet and not canceled, soonest first, computed: all of
+ * them, or those `attendeeId` attends.
+ */
+export async function listUpcomingEvents({ limit, attendeeId }) {
+  const events = await db.event.findMany({
+    where: {
+      ...(attendeeId
+        ? { event_participant: { some: { person_id: attendeeId } } }
+        : {}),
+      status: { not: 'canceled' },
+      ends_at: { gte: new Date() },
+    },
+    include: CARD_INCLUDE,
+    orderBy: { starts_at: 'asc' },
+    take: limit,
+  });
+  return Promise.all(events.map(computeEvent));
+}
+
+/** How many events there are. */
+export function countEvents() {
+  return db.event.count();
+}
+
 /**
  * An event for its page, computed (see models/event): its hosts (with
  * logos), games (deleted ones left out), attendees (only id, username and

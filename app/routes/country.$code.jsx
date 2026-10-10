@@ -11,12 +11,10 @@ import {
 } from '@chakra-ui/react';
 import { Link, redirect, useLoaderData } from 'react-router';
 
-import { db } from '../utils/db.server';
+import { countPlaces, getCountryOverview } from '../data/countries.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
-import getImageLinks from '../utils/imageLinks.server';
 import countryNames from '../assets/countries.json';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
-import computeGame from '../models/game';
 import EventCard from '../components/EventCard';
 import GameCard from '../components/GameCard';
 import EmptyHint from '../components/EmptyHint';
@@ -37,65 +35,17 @@ export const loader = async ({ request, params }) => {
 
   // A country exists here once something is placed in it.
   const places = countryNames[countryCode]
-    ? await db.location.count({ where: { country_code: countryCode } })
+    ? await countPlaces(countryCode)
     : 0;
   if (places === 0) {
     throw new Response('Not Found', { status: 404 });
   }
 
-  const inCountry = { location: { country_code: countryCode } };
-  const gamesMadeHere = {
-    deleted: false,
-    game_entity: { some: { entity: inCountry } },
-  };
-  const upcoming = {
-    ...inCountry,
-    status: { not: 'canceled' },
-    ends_at: { gte: new Date() },
-  };
-
   const [
-    orgs,
-    gameCount,
-    recentGames,
-    eventCount,
-    upcomingEvents,
+    { orgs, gameCount, recentGames, eventCount, upcomingEvents },
     currentUser,
   ] = await Promise.all([
-    db.entity.findMany({
-      where: inCountry,
-      select: {
-        id: true,
-        name: true,
-        type: true,
-        location: {
-          select: { city: true, region: true, latitude: true, longitude: true },
-        },
-      },
-    }),
-    db.game.count({ where: gamesMadeHere }),
-    db.game.findMany({
-      where: gamesMadeHere,
-      orderBy: [{ created_at: 'desc' }, { id: 'asc' }],
-      take: 8,
-      include: {
-        game_image: { include: { image: true } },
-        game_tag: { include: { tag: true } },
-        game_entity: { include: { entity: true } },
-      },
-    }),
-    db.event.count({ where: upcoming }),
-    db.event.findMany({
-      where: upcoming,
-      include: {
-        event_participant: true,
-        game_event: { where: { game: { deleted: false } } },
-        location: true,
-        cover: true,
-      },
-      orderBy: { starts_at: 'asc' },
-      take: 3,
-    }),
+    getCountryOverview(countryCode),
     isAuthenticated(request),
   ]);
 
@@ -121,11 +71,8 @@ export const loader = async ({ request, params }) => {
           associations: list.map(({ id, name }) => ({ id, name })),
         })
       ),
-      recentGames: await Promise.all(recentGames.map(computeGame)),
-      upcomingEvents: upcomingEvents.map((event) => ({
-        ...event,
-        cover: event.cover ? getImageLinks(event.cover) : null,
-      })),
+      recentGames,
+      upcomingEvents,
     },
     currentUser,
   };

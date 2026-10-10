@@ -233,3 +233,19 @@ export async function searchGames(q, { excludeIds = [] } = {}) {
   });
   return Promise.all(games.map(computeGame));
 }
+
+/** The newest games (the home page), computed; deleted ones left out. */
+export async function listNewGames({ limit }) {
+  const games = await db.game.findMany({
+    where: { deleted: false },
+    include: CARD_INCLUDE,
+    orderBy: { created_at: 'desc' },
+    take: limit,
+  });
+  return Promise.all(games.map(computeGame));
+}
+
+/** How many games there are, deleted ones left out. */
+export function countGames() {
+  return db.game.count({ where: { deleted: false } });
+}
