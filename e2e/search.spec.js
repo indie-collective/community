@@ -16,13 +16,23 @@ for (const endpoint of ['/search-game', '/search-org', '/search-event']) {
 for (const [endpoint, table] of [['/search-game', 'games'], ['/search-org', 'organizations'], ['/search-event', 'events']]) {
   test(`${endpoint} finds a record by a word of its name`, async ({ request }) => {
     const schema = await import('./db.js');
-    const { like } = await import('drizzle-orm');
-    const [record] = await schema.db
-      .select({ name: schema[table].name })
-      .from(schema[table])
-      .where(like(schema[table].name, '% %'))
-      .limit(1);
-    const word = record.name.split(/\s+/).find((w) => /^[A-Za-z]{4,}$/.test(w)) ?? record.name.split(/\s+/)[0];
+    const { searchWords } = await import('../app/db/search.js');
+    // Seeded names are random and share words ("Group", "Inc"), and pickers
+    // show ten matches: take a word of a name that at most five records have.
+    const rows = await schema.db
+      .select({ name: schema[table].name, searchText: schema[table].searchText })
+      .from(schema[table]);
+    // Records with a word starting with this one, as search matches them.
+    const sharing = (word) => rows.filter(({ searchText }) => searchWords(searchText).some((w) => w.startsWith(word))).length;
+    let record;
+    let word;
+    for (const row of rows) {
+      word = searchWords(row.name).find((w) => w.length >= 4 && sharing(w) <= 5);
+      if (word) {
+        record = row;
+        break;
+      }
+    }
 
     const response = await request.get(`${endpoint}.data?q=${encodeURIComponent(word)}`);
     expect(response.status()).toBe(200);
