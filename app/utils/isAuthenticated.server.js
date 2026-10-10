@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 
-import { personExists } from '../data/people.server';
+import { getRole } from '../data/people.server';
 import { sessionStorage } from './session.server';
 import toSessionUser from './sessionUser.server';
 
@@ -44,11 +44,17 @@ export default async function isAuthenticated(request, required) {
     return currentUser;
   }
 
-  // check if user still exists in the database
-  if (!(await personExists(currentUser.id))) await redirectToSignin(request, session);
+  // The person must still exist, and their rights come from the database
+  // on every request, so a change on /admin/users applies at once (#156).
+  const role = await getRole(currentUser.id);
+  if (!role) await redirectToSignin(request, session);
 
   // this might get useless if authorized is used everywhere
   await hasEmail({ user: currentUser, request });
 
-  return currentUser;
+  return {
+    ...currentUser,
+    isAdmin: role === 'admin',
+    canEdit: role === 'admin' || role === 'member',
+  };
 }

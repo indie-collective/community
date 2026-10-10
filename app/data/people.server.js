@@ -63,21 +63,21 @@ export function createPerson(fields) {
   );
 }
 
-/** Whether a person with this ID still exists. */
-export async function personExists(id) {
-  return !!(await db.query.people.findFirst({
-    where: eq(people.id, id),
-    columns: { id: true },
-  }));
-}
-
-/** Whether this person is an admin. */
-export async function isAdmin(id) {
+/**
+ * A person's role (#156: "admin", "member" or "restricted"), read on every
+ * request so a change applies at once; null when they no longer exist.
+ */
+export async function getRole(id) {
   const row = await db.query.people.findFirst({
     where: eq(people.id, id),
     columns: { role: true },
   });
-  return row?.role === 'admin';
+  return row?.role ?? null;
+}
+
+/** Whether this person is an admin. */
+export async function isAdmin(id) {
+  return (await getRole(id)) === 'admin';
 }
 
 /** An avatar's thumbnail URL (`avatar_id` on a person), or null. */
@@ -90,12 +90,9 @@ export async function setProviderAvatar(id, url) {
   await db.update(people).set({ avatarUrl: url }).where(eq(people.id, id));
 }
 
-/** Grants or removes admin rights. */
-export async function setAdmin(id, admin) {
-  await db
-    .update(people)
-    .set({ role: admin ? 'admin' : 'member' })
-    .where(eq(people.id, id));
+/** Sets a person's role: "admin", "member" or "restricted" (#156). */
+export async function setRole(id, role) {
+  await db.update(people).set({ role }).where(eq(people.id, id));
 }
 
 /** Sets a person's email. Throws when another person has it. */
@@ -164,7 +161,7 @@ export async function updateProfile(
   };
 }
 
-/** Everyone, newest first, computed, for the admin users page. */
+/** Everyone, newest first, computed, with their role, for the admin users page. */
 export async function listPeople() {
   const rows = await db.query.people.findMany({
     orderBy: desc(people.createdAt),
@@ -182,6 +179,7 @@ export async function listPeople() {
           email,
           discord_id,
           isAdmin,
+          role,
           avatar,
         }) =>
           computePerson({
@@ -193,6 +191,7 @@ export async function listPeople() {
             email,
             discord_id,
             isAdmin,
+            role,
             avatar,
           })
       )

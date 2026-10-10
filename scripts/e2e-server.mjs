@@ -20,7 +20,6 @@ const vars = {
   // Never used: the tests sign in by email.
   DISCORD_CLIENT_ID: 'e2e',
   DISCORD_CLIENT_SECRET: 'e2e',
-  DISCORD_BOT_TOKEN: 'e2e',
   // A local catcher (see auth.spec.js) stands in for Discord's webhook.
   DISCORD_NOTIFICATION_WEBHOOK: 'http://127.0.0.1:3199/discord-webhook',
   // A local stand-in for Bluesky's public API (see orgs.spec.js).

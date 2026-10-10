@@ -12,9 +12,10 @@
  * @property {string} username
  * @property {string} first_name
  * @property {string | null} email - checked by `isAuthenticated()`, shown on /welcome
- * @property {boolean} isAdmin
+ * @property {boolean} isAdmin - refreshed from the database on every request
  * @property {string | null} avatar - the avatar's thumbnail URL
- * @property {boolean} [isGuildMember] - set by Discord sign-in, shown on /welcome
+ *
+ * `isAuthenticated()` adds `canEdit`, also from the database (#156).
  */
 
 /**
@@ -26,7 +27,7 @@
 export default function toSessionUser(user) {
   if (!user) return user;
 
-  const { id, username, first_name, email, isAdmin, avatar, isGuildMember } = user;
+  const { id, username, first_name, email, isAdmin, avatar } = user;
 
   return {
     id,
@@ -35,6 +36,5 @@ export default function toSessionUser(user) {
     email,
     isAdmin: Boolean(isAdmin),
     avatar: (typeof avatar === 'string' ? avatar : avatar?.thumbnail_url) ?? null,
-    ...(isGuildMember !== undefined && { isGuildMember }),
   };
 }

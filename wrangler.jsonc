@@ -22,7 +22,7 @@
   // The stalest IGDB data, every hour (#254).
   "triggers": { "crons": ["17 * * * *"] }
   // Secrets (wrangler secret put): SESSION_SECRET, DISCORD_CLIENT_ID,
-  // DISCORD_CLIENT_SECRET, DISCORD_BOT_TOKEN, DISCORD_NOTIFICATION_WEBHOOK,
+  // DISCORD_CLIENT_SECRET, DISCORD_NOTIFICATION_WEBHOOK,
   // IGDB_CLIENT_ID, IGDB_CLIENT_SECRET. Vars: BASE_URL, CDN_HOST. Locally,
   // they go in .dev.vars.
 }

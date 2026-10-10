@@ -9,14 +9,11 @@ import {
   createPerson,
   findPersonByDiscordId,
   findPersonByEmail,
-  isAdmin,
-  setAdmin,
   setProviderAvatar,
 } from '../data/people.server';
 import { sessionStorage } from './session.server';
 import { Authorizer } from './authorizer.server';
 import { devSignIn } from './devSignIn.server';
-import { getGuildMember } from './discordGuild.server';
 import { notifyNewMember } from './discordNotification.server';
 
 export let authenticator = new Authenticator();
@@ -26,9 +23,9 @@ const port = process.env.PORT ?? 3000;
 const CALLBACK_BASE_URL =
   (process.env.BASE_URL ?? `http://localhost:${port}`) + '/auth';
 
-if (!process.env.DISCORD_BOT_TOKEN) {
+if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET) {
   console.error(
-    'DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_BOT_TOKEN environment variables are needed to auth the users.'
+    'DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET environment variables are needed for Discord sign-in.'
   );
 }
 
@@ -45,7 +42,6 @@ if (devSignIn()) {
             email,
             username,
             first_name: username,
-            isAdmin: true,
           });
           await notifyNewMember(user);
         }
@@ -84,23 +80,6 @@ authenticator.use(
 
         const discordAvatar = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}`;
 
-        const guildMember = await getGuildMember(profile.id);
-
-        let isAdmin = false;
-
-        if (guildMember) {
-          isAdmin = guildMember.roles.some((r) =>
-            [
-              '179728307691061248', // Admin
-              '448936953585598465', // Staff
-              '608759609246875687', // CA
-              '695006197425635460', // Bureau
-            ].includes(r)
-          );
-
-          // 694986277556060271 -> adhérent -> special status?
-        }
-
         let user = await findPersonByDiscordId(profile.id);
 
         // user is new
@@ -126,7 +105,6 @@ authenticator.use(
             last_name: '',
             username: profile.username,
             avatar_oauth: discordAvatar, // needed to be seen by other users
-            isAdmin,
           });
           await notifyNewMember(user);
         }
@@ -141,16 +119,7 @@ authenticator.use(
           await setProviderAvatar(user.id, discordAvatar);
         }
 
-        // is now admin
-        if (!user.isAdmin && isAdmin) {
-          await setAdmin(user.id, isAdmin);
-        }
-
-        return {
-          ...user,
-          isGuildMember: !!guildMember,
-          avatar,
-        };
+        return { ...user, avatar };
       } catch (err) {
         console.log(err);
         throw new Error('Error connecting to Discord');
@@ -172,19 +141,12 @@ async function hasEmail({ user, request }) {
 
 export let authorizer = new Authorizer(authenticator, [hasEmail]);
 
-/* Per route authorization rules */
+/* Per route authorization rules: rights are stored in the database (#156),
+ * read by isAuthenticated() on every request. */
 export async function canWrite({ user }) {
-  if (!user.discord_id) return devSignIn();
-  const guildMember = await getGuildMember(user.discord_id);
-
-  // TODO: maybe need to check another property, have to ban someone to try
-
-  // TODO: check if user.guildMember has changed and invalidate if different
-  // throw redirect? + set cookies
-
-  return !!guildMember;
+  return Boolean(user.canEdit);
 }
 
 export async function canDelete({ user }) {
-  return isAdmin(user.id);
+  return Boolean(user.isAdmin);
 }
