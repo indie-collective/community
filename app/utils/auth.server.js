@@ -15,13 +15,14 @@ import { sessionStorage } from './session.server';
 import { Authorizer } from './authorizer.server';
 import { devSignIn } from './devSignIn.server';
 import { notifyNewMember } from './discordNotification.server';
+import { toOrigin } from './origin.server';
 
 export let authenticator = new Authenticator();
 
 const port = process.env.PORT ?? 3000;
 
 const CALLBACK_BASE_URL =
-  (process.env.BASE_URL ?? `http://localhost:${port}`) + '/auth';
+  (toOrigin(process.env.BASE_URL) || `http://localhost:${port}`) + '/auth';
 
 if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET) {
   console.error(

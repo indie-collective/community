@@ -1,3 +1,5 @@
+import { toOrigin } from './origin.server';
+
 export async function notifyDiscord(content) {
   const webhookUrl = process.env.DISCORD_NOTIFICATION_WEBHOOK;
   if (!webhookUrl) {
@@ -25,6 +27,7 @@ export async function notifyDiscord(content) {
  * created, whichever way they signed in. No email or other private field.
  */
 export function notifyNewMember({ username, first_name }) {
-  const membersPage = process.env.BASE_URL ? ` ${process.env.BASE_URL}/admin/users` : '';
+  const base = toOrigin(process.env.BASE_URL);
+  const membersPage = base ? ` ${base}/admin/users` : '';
   return notifyDiscord(`👋 New member: **@${username}** (${first_name}) joined Community.${membersPage}`);
 }

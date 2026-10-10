@@ -1,25 +1,28 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import getImageLinks from './imageLinks.server';
 
-describe('getImageLinks', () => {
-  afterEach(() => vi.unstubAllEnvs());
+const image = { id: 'i1', image_file: { name: 'a.png' } };
 
-  it('serves uploaded images and their thumbnails from the CDN', () => {
-    vi.stubEnv('CDN_HOST', 'cdn.indieco.test');
-    expect(getImageLinks({ id: 'i1', image_file: { name: '2026.png' } })).toEqual({
-      id: 'i1',
-      url: 'https://cdn.indieco.test/2026.png',
-      thumbnail_url: 'https://cdn.indieco.test/thumb_2026.png',
-    });
+describe('getImageLinks', () => {
+  afterEach(() => {
+    delete process.env.CDN_HOST;
   });
 
-  it('uses absolute URLs as they are, for both sizes', () => {
-    const name = 'https://images.example.com/cover.jpg';
-    expect(getImageLinks({ id: 'i2', image_file: { name } })).toEqual({
-      id: 'i2',
-      url: name,
-      thumbnail_url: name,
-    });
+  it('serves from /images without a CDN_HOST', () => {
+    expect(getImageLinks(image)).toEqual({ id: 'i1', url: '/images/a.png', thumbnail_url: '/images/thumb_a.png' });
+  });
+
+  it.each(['cdn.indieco.xyz', 'https://cdn.indieco.xyz', 'https://cdn.indieco.xyz/'])(
+    'serves from CDN_HOST %s',
+    (host) => {
+      process.env.CDN_HOST = host;
+      expect(getImageLinks(image).thumbnail_url).toBe('https://cdn.indieco.xyz/thumb_a.png');
+    }
+  );
+
+  it('keeps images hosted elsewhere', () => {
+    const url = 'https://picsum.photos/1.jpg';
+    expect(getImageLinks({ id: 'i2', image_file: { name: url } })).toMatchObject({ url, thumbnail_url: url });
   });
 });
