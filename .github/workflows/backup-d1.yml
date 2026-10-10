@@ -1,0 +1,41 @@
+name: D1 backup
+
+# Every day, the D1 database to the Scaleway bucket, as a SQL file that's
+# proven to restore (scripts/backup-d1.mjs; ADR 0002). D1 Time Travel also
+# covers point-in-time restores for 30 days; this is the copy off Cloudflare.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 3 * * *' # Every day at 03:30 UTC
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      # An API token with D1 edit rights (export needs them) on the account
+      # in wrangler.jsonc.
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Export the database, and check it restores
+        id: backup
+        run: |
+          file="community-d1-$(date -u +'%Y-%m-%d').sql"
+          node scripts/backup-d1.mjs --remote "$file"
+          gzip "$file"
+          echo "file=$file.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to Scaleway
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          AWS_DEFAULT_REGION: fr-par
+        run: |
+          aws --endpoint-url https://s3.fr-par.scw.cloud \
+            s3 cp "${{ steps.backup.outputs.file }}" "s3://${{ secrets.S3_BUCKET_NAME }}/d1/"
