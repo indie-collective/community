@@ -9,14 +9,18 @@ import {
   VisuallyHidden,
   Separator,
   Icon,
+  Field,
+  Input,
 } from '@chakra-ui/react';
 
 import { Form, redirect, useActionData, useLoaderData, useNavigation, useSearchParams } from 'react-router';
 import { SocialsProvider } from 'remix-auth-socials';
-import { FaDiscord } from 'react-icons/fa6';
+import { FaBluesky, FaDiscord } from 'react-icons/fa6';
 
 import { authenticator } from '../utils/auth.server';
 import { devSignIn } from '../utils/devSignIn.server';
+import { createBlueskyClient } from '../utils/bluesky/oauth.server';
+import getOrigin from '../utils/origin.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { commitSession, getSession } from '../utils/session.server';
 import toSessionUser from '../utils/sessionUser.server';
@@ -34,7 +38,32 @@ export let loader = async ({ request }) => {
   return { devSignIn: devSignIn() };
 };
 
+// Starts a Bluesky sign-in (#157): to the account's authorization server,
+// found from the handle, or to bsky.social's when none is given.
+async function startBlueskySignIn(request, form) {
+  const handle = String(form.get('handle') ?? '')
+    .trim()
+    .replace(/^@/, '');
+  try {
+    const url = await createBlueskyClient(getOrigin(request)).authorize(
+      handle || 'https://bsky.social',
+      { state: prevOf(request) }
+    );
+    return redirect(url.href);
+  } catch (error) {
+    console.error('Bluesky sign-in failed to start:', error);
+    return {
+      blueskyError: handle
+        ? `We couldn't find the Bluesky account “${handle}”. Check the handle and try again.`
+        : 'Bluesky is unreachable right now. Please try again.',
+    };
+  }
+}
+
 export let action = async ({ request }) => {
+  const form = await request.clone().formData();
+  if (form.get('intent') === 'bluesky') return startBlueskySignIn(request, form);
+
   try {
     const user = await authenticator.authenticate('user-pass', request);
 
@@ -74,6 +103,44 @@ const SignIn = () => {
       <Heading textAlign="center" size="xl" fontWeight="extrabold">
         Sign in
       </Heading>
+      {(actionData?.blueskyError || searchParams.get('error')) && (
+        <Alert.Root status="error" mt={5}>
+          <Alert.Indicator />
+          {actionData?.blueskyError ?? searchParams.get('error')}
+        </Alert.Root>
+      )}
+      <Form method="post" replace>
+        <input type="hidden" name="intent" value="bluesky" />
+        <Stack gap={2} mt={5} mb={3}>
+          <Field.Root>
+            <Field.Label>Your Bluesky handle</Field.Label>
+            <Input
+              name="handle"
+              placeholder="yourname.bsky.social"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+            />
+            <Field.HelperText>
+              Leave it empty to choose your account on bsky.social.
+            </Field.HelperText>
+          </Field.Root>
+          <Button
+            type="submit"
+            colorPalette="blue"
+            w="100%"
+            loading={
+              navigation.state === 'submitting' &&
+              navigation.formData?.get('intent') === 'bluesky'
+            }
+          >
+            Sign in with Bluesky
+            <Icon boxSize="5">
+              <FaBluesky />
+            </Icon>
+          </Button>
+        </Stack>
+      </Form>
       <Form action={`/auth/${SocialsProvider.DISCORD}`} method="post">
         {prev && <input type="hidden" name="prev" value={prev} />}
         <Button

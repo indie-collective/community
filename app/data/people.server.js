@@ -33,6 +33,15 @@ export async function findPersonByDiscordId(discordId) {
   );
 }
 
+/** The person signed in with this Bluesky identity (#157), or null. */
+export async function findPersonByDid(did) {
+  return (
+    shape.person(
+      await db.query.people.findFirst({ where: eq(people.did, did) })
+    ) ?? null
+  );
+}
+
 /**
  * Creates a person (old field names: `first_name`, `isAdmin`, …), choosing
  * a free username from the one given or their name (see
@@ -49,6 +58,7 @@ export function createPerson(fields) {
             username,
             email: fields.email,
             discordId: fields.discord_id,
+            did: fields.did,
             firstName: fields.first_name,
             lastName: fields.last_name,
             about: fields.about,
