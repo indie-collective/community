@@ -41,9 +41,9 @@ describe('toSessionUser', () => {
     }
   });
 
-  it('keeps the Discord guild membership the welcome page shows', () => {
-    expect(toSessionUser({ ...person, isGuildMember: true }).isGuildMember).toBe(true);
-    expect(toSessionUser(person)).not.toHaveProperty('isGuildMember');
+  // #156: rights come from the database, not from Discord.
+  it('drops the Discord guild membership older sessions held', () => {
+    expect(toSessionUser({ ...person, isGuildMember: true })).not.toHaveProperty('isGuildMember');
   });
 
   it('stores the avatar as its thumbnail URL', () => {

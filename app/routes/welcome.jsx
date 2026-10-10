@@ -178,7 +178,7 @@ export default function Welcome() {
           </Button>
         </Box>
 
-        {currentUser.isGuildMember ? (
+        {currentUser.canEdit ? (
           <Box>
             <Icon boxSize={10} mb={5}>
               <LuPencil />
@@ -200,28 +200,12 @@ export default function Welcome() {
               <LuPencil />
             </Icon>
             <Heading as="h3" size="md" mb={5}>
-              Join the Discord to contribute
+              Editing is paused for your account
             </Heading>
             <Text mb={2}>
-              Oh no! You're not part of Indie Collective's Discord.
-              <br />
-              Join now if you want to contribute!
+              An admin has restricted your account. Ask on Indie Collective's
+              Discord if you think it's a mistake.
             </Text>
-            <Button
-              style={{ textDecoration: 'none' }}
-              textDecoration="none"
-              asChild
-            >
-              {/* Was href="" on main too; the invite used above. */}
-              <ChakraLink
-                href="https://discord.gg/KxZVu2ZZYs"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Join IC's Discord
-                <FaDiscord />
-              </ChakraLink>
-            </Button>
           </Box>
         )}
       </SimpleGrid>

@@ -3,7 +3,7 @@ import {
     Heading,
   Table,
   Icon,
-  Switch,
+  NativeSelect,
   IconButton,
   Link as ChakraLink,
   Avatar,
@@ -15,7 +15,8 @@ import { FaDiscord } from 'react-icons/fa6';
 import { LuCircleHelp } from 'react-icons/lu';
 
 import isAuthenticated from '../../utils/isAuthenticated.server';
-import { countPeople, listPeople, setAdmin } from '../../data/people.server';
+import { countPeople, listPeople, setRole } from '../../data/people.server';
+import { PERSON_ROLES } from '../../db/schema.js';
 import { listRecentChanges } from '../../data/changes.server';
 import { Tooltip } from '../../components/ui/tooltip';
 
@@ -29,8 +30,18 @@ export const action = async ({ request }) => {
   }
 
   const data = await request.formData();
+  const userId = data.get('userId');
+  const role = data.get('role');
 
-  await setAdmin(data.get('userId'), data.get('isAdmin') === 'on');
+  if (!PERSON_ROLES.includes(role)) {
+    throw new Response('Bad Request', { status: 400 });
+  }
+  // An admin can't change their own role, so there's always one left.
+  if (userId === currentUser.id) {
+    throw new Response('Forbidden', { status: 403 });
+  }
+
+  await setRole(userId, role);
 
   return redirect('/admin/users');
 };
@@ -60,6 +71,12 @@ export const meta = () => [
   },
 ];
 
+const ROLE_LABELS = [
+  ['admin', 'Admin'],
+  ['member', 'Member'],
+  ['restricted', 'Restricted'],
+];
+
 const Profile = () => {
   const submit = useSubmit();
   const { currentUser, people, nbOfPeople, lastChanges } = useLoaderData();
@@ -78,9 +95,9 @@ const Profile = () => {
               <Table.ColumnHeader>Email</Table.ColumnHeader>
               <Table.ColumnHeader>Socials</Table.ColumnHeader>
               <Table.ColumnHeader>
-                <Tooltip content="Managed on Discord">
+                <Tooltip content="Admins can do everything; members can edit; restricted people can't edit.">
                   <Text as="span">
-                    Admin{' '}
+                    Role{' '}
                     <Icon>
                       <LuCircleHelp />
                     </Icon>
@@ -102,6 +119,7 @@ const Profile = () => {
                 email,
                 discord_url,
                 isAdmin,
+                role,
               }) => (
                 <Table.Row key={id}>
                   <Table.Cell>
@@ -136,16 +154,25 @@ const Profile = () => {
                     )}
                   </Table.Cell>
                   <Table.Cell>
-                    <Switch.Root
-                      colorPalette="blue"
-                      name="isAdmin"
-                      checked={isAdmin}
-                      value="on"
-                      disabled
-                    >
-                      <Switch.HiddenInput />
-                      <Switch.Control />
-                    </Switch.Root>
+                    <NativeSelect.Root size="sm" width="9rem" disabled={id === currentUser.id}>
+                      <NativeSelect.Field
+                        aria-label={`Role of ${username}`}
+                        value={role}
+                        onChange={(event) =>
+                          submit(
+                            { userId: id, role: event.target.value },
+                            { method: 'post' }
+                          )
+                        }
+                      >
+                        {ROLE_LABELS.map(([value, label]) => (
+                          <option key={value} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                      </NativeSelect.Field>
+                      <NativeSelect.Indicator />
+                    </NativeSelect.Root>
                   </Table.Cell>
                   <Table.Cell>
                     <time dateTime={created_at && new Date(created_at).toISOString()} title={created_at && new Date(created_at).toISOString()}>
@@ -164,9 +191,9 @@ const Profile = () => {
               <Table.ColumnHeader>Email</Table.ColumnHeader>
               <Table.ColumnHeader>Socials</Table.ColumnHeader>
               <Table.ColumnHeader>
-                <Tooltip content="Managed on Discord">
+                <Tooltip content="Admins can do everything; members can edit; restricted people can't edit.">
                   <Text as="span">
-                    Admin{' '}
+                    Role{' '}
                     <Icon>
                       <LuCircleHelp />
                     </Icon>

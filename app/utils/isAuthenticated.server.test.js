@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const personExists = vi.fn();
-vi.mock('../data/people.server', () => ({ personExists: (...a) => personExists(...a) }));
+const getRole = vi.fn();
+vi.mock('../data/people.server', () => ({ getRole: (...a) => getRole(...a) }));
 
 const { default: isAuthenticated } = await import('./isAuthenticated.server');
 const { commitSession, getSession } = await import('./session.server');
@@ -26,7 +26,7 @@ const redirectOf = async (promise) => {
 };
 
 describe('isAuthenticated', () => {
-  beforeEach(() => personExists.mockReset().mockResolvedValue(true));
+  beforeEach(() => getRole.mockReset().mockResolvedValue('member'));
 
   it('returns null for anonymous requests when not required', async () => {
     expect(await isAuthenticated(await requestAs(null))).toBeNull();
@@ -64,13 +64,27 @@ describe('isAuthenticated', () => {
       username: 'member',
       first_name: 'Member',
       email: 'p1@indieco.test',
-      isAdmin: true,
+      // From the database's role, not the cookie (#156).
+      isAdmin: false,
+      canEdit: true,
       avatar: 'https://cdn.test/thumb_a.png',
     });
   });
 
+  // #156: rights come from the database on every request, so a change on
+  // /admin/users applies without signing out.
+  it.each([
+    ['admin', true, true],
+    ['member', false, true],
+    ['restricted', false, false],
+  ])('a %s gets isAdmin %s and canEdit %s, whatever the cookie says', async (role, isAdmin, canEdit) => {
+    getRole.mockResolvedValue(role);
+    const user = { id: 'p1', email: 'p1@indieco.test', isAdmin: !isAdmin };
+    expect(await isAuthenticated(await requestAs(user))).toMatchObject({ isAdmin, canEdit });
+  });
+
   it('signs out a session whose user was deleted', async () => {
-    personExists.mockResolvedValue(false);
+    getRole.mockResolvedValue(null);
     const request = await requestAs({ id: 'gone', email: 'gone@indieco.test' });
     expect(await redirectOf(isAuthenticated(request))).toBe('/signin?prev=/profile');
   });

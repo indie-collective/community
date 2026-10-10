@@ -1,27 +1,10 @@
-import { redirect, useLoaderData, Form, Link, useSubmit  } from 'react-router';
+import { useLoaderData, Link } from 'react-router';
 import { Heading, Link as ChakraLink, Text, List, Box } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
 import isAuthenticated from '../../utils/isAuthenticated.server'
 import { listRecentChanges } from '../../data/changes.server';
-import { setAdmin } from '../../data/people.server';
 import { LuPlus, LuTrash2, LuPencil } from 'react-icons/lu';
-
-export const action = async ({ request }) => {
-  const currentUser = await isAuthenticated(request, true);
-
-  if (!currentUser.isAdmin) {
-    throw new Response('Forbidden', {
-      status: 403,
-    });
-  }
-
-  const data = await request.formData();
-
-  await setAdmin(data.get('userId'), data.get('isAdmin') === 'on');
-
-  return redirect('/admin');
-};
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
