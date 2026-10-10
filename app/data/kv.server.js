@@ -19,3 +19,8 @@ export async function setValue(key, value, { expiresAt = null } = {}) {
     .values({ key, value, expiresAt })
     .onConflictDoUpdate({ target: kv.key, set: { value, expiresAt } });
 }
+
+/** Removes a stored value; a missing one is fine. */
+export async function deleteValue(key) {
+  await db.delete(kv).where(eq(kv.key, key));
+}

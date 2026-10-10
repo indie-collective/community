@@ -34,6 +34,10 @@ npm run deploy
 
 The first time: create the database and bucket (`npx wrangler d1 create indieco-community`, then put its ID in wrangler.jsonc; `npx wrangler r2 bucket create indieco-community-images`), apply the migrations (`npx wrangler d1 migrations apply DB --remote`), set the secrets listed in wrangler.jsonc (`npx wrangler secret put SESSION_SECRET`, …) and the `BASE_URL` and `CDN_HOST` vars. A Cron Trigger refreshes stale IGDB data every hour.
 
+## Signing in with Bluesky
+
+People sign in with their Bluesky account (AT Protocol OAuth, #157). Locally the app is a loopback client, which needs no setup, but Bluesky only sends people back to `127.0.0.1`: open the dev server at `http://127.0.0.1:5000`, not `localhost`. In production the client ID is `<BASE_URL>/oauth/client-metadata.json`, which the app publishes.
+
 ## Session secret
 
 Session cookies are signed with `SESSION_SECRET`. It is required in production: without it, every request fails. Generate one with `openssl rand -hex 32`.
