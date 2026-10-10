@@ -12,7 +12,7 @@ import {
 import { LuChevronDown } from 'react-icons/lu';
 
 import isAuthenticated from '../../utils/isAuthenticated.server';
-import { db } from '../../utils/db.server';
+import { listMissingData } from '../../data/curation.server';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
@@ -23,88 +23,7 @@ export const loader = async ({ request }) => {
     });
   }
 
-  const games_missing_images = await db.game.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    where: {
-      game_image: {
-        none: {},
-      },
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  });
-
-  const games_missing_source = await db.game.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    where: {
-      game_entity: {
-        none: {},
-      },
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  });
-
-  const games_missing_tags = await db.game.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    where: {
-      game_tag: {
-        none: {},
-      },
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  });
-
-  const entities_missing_games = await db.entity.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    where: {
-      game_entity: {
-        none: {},
-      },
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  });
-
-  const entities_missing_location = await db.entity.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    where: {
-      location: {
-        is: null,
-      },
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  });
-
-  return {
-    games_missing_images,
-    games_missing_source,
-    games_missing_tags,
-    entities_missing_games,
-    entities_missing_location,
-  };
+  return listMissingData();
 };
 
 export const meta = () => [
@@ -134,14 +53,16 @@ const Missing = () => {
           <HStack gap={3}>
             <Menu.Root>
               <Menu.Trigger asChild>
-                <IconButton icon={<LuChevronDown />} size="lg"></IconButton>
+                <IconButton aria-label="List: missing images" size="lg">
+                  <LuChevronDown />
+                </IconButton>
               </Menu.Trigger>
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content>
                     {games_missing_images.slice(0, 10).map(({ id, name }) => (
-                      <Menu.Item value="item-0" asChild>
-                        <ChakraLink key={id} href={`/game/${id}`}>
+                      <Menu.Item key={id} value={id} asChild>
+                        <ChakraLink href={`/game/${id}`}>
                           {name}
                         </ChakraLink>
                       </Menu.Item>
@@ -159,14 +80,16 @@ const Missing = () => {
           <HStack gap={3}>
             <Menu.Root>
               <Menu.Trigger asChild>
-                <IconButton icon={<LuChevronDown />} size="lg"></IconButton>
+                <IconButton aria-label="List: made by nobody" size="lg">
+                  <LuChevronDown />
+                </IconButton>
               </Menu.Trigger>
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content>
                     {games_missing_source.slice(0, 10).map(({ id, name }) => (
-                      <Menu.Item value="item-1" asChild>
-                        <ChakraLink key={id} href={`/game/${id}`}>
+                      <Menu.Item key={id} value={id} asChild>
+                        <ChakraLink href={`/game/${id}`}>
                           {name}
                         </ChakraLink>
                       </Menu.Item>
@@ -184,14 +107,16 @@ const Missing = () => {
           <HStack gap={3}>
             <Menu.Root>
               <Menu.Trigger asChild>
-                <IconButton icon={<LuChevronDown />} size="lg"></IconButton>
+                <IconButton aria-label="List: without tags" size="lg">
+                  <LuChevronDown />
+                </IconButton>
               </Menu.Trigger>
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content>
                     {games_missing_tags.slice(0, 10).map(({ id, name }) => (
-                      <Menu.Item value="item-2" asChild>
-                        <ChakraLink key={id} href={`/game/${id}`}>
+                      <Menu.Item key={id} value={id} asChild>
+                        <ChakraLink href={`/game/${id}`}>
                           {name}
                         </ChakraLink>
                       </Menu.Item>
@@ -214,14 +139,16 @@ const Missing = () => {
           <HStack gap={3}>
             <Menu.Root>
               <Menu.Trigger asChild>
-                <IconButton icon={<LuChevronDown />} size="lg"></IconButton>
+                <IconButton aria-label="List: making nothing" size="lg">
+                  <LuChevronDown />
+                </IconButton>
               </Menu.Trigger>
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content>
                     {entities_missing_games.slice(0, 10).map(({ id, name }) => (
-                      <Menu.Item value="item-3" asChild>
-                        <ChakraLink key={id} href={`/org/${id}`}>
+                      <Menu.Item key={id} value={id} asChild>
+                        <ChakraLink href={`/org/${id}`}>
                           {name}
                         </ChakraLink>
                       </Menu.Item>
@@ -239,7 +166,9 @@ const Missing = () => {
           <HStack gap={3}>
             <Menu.Root>
               <Menu.Trigger asChild>
-                <IconButton icon={<LuChevronDown />} size="lg"></IconButton>
+                <IconButton aria-label="List: based nowhere" size="lg">
+                  <LuChevronDown />
+                </IconButton>
               </Menu.Trigger>
               <Portal>
                 <Menu.Positioner>
@@ -247,8 +176,8 @@ const Missing = () => {
                     {entities_missing_location
                       .slice(0, 10)
                       .map(({ id, name }) => (
-                        <Menu.Item value="item-4" asChild>
-                          <ChakraLink key={id} href={`/org/${id}`}>
+                        <Menu.Item key={id} value={id} asChild>
+                          <ChakraLink href={`/org/${id}`}>
                             {name}
                           </ChakraLink>
                         </Menu.Item>

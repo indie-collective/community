@@ -10,7 +10,12 @@ import {
 } from '@chakra-ui/react';
 
 import isAuthenticated from '../../utils/isAuthenticated.server'
-import { db } from '../../utils/db.server';
+import {
+  addTag,
+  deleteTag,
+  listTags,
+  mergeTags,
+} from '../../data/tags.server';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
@@ -19,10 +24,7 @@ export const loader = async ({ request }) => {
     throw new Response('Not Found', { status: 404 });
   }
 
-  const tags = await db.tag.findMany({
-    orderBy: { name: 'asc' },
-    include: { _count: { select: { game_tag: true } } },
-  });
+  const tags = await listTags();
 
   return { tags };
 };
@@ -40,28 +42,18 @@ export const action = async ({ request }) => {
   if (intent === 'add') {
     const name = data.get('name');
     if (name) {
-      await db.tag.upsert({
-        where: { name: name.trim().toLowerCase() },
-        update: {},
-        create: { name: name.trim().toLowerCase() },
-      });
+      await addTag(name);
     }
   } else if (intent === 'delete') {
     const id = data.get('tagId');
     if (id) {
-      await db.tag.delete({ where: { id } });
+      await deleteTag(id);
     }
   } else if (intent === 'merge') {
     const fromId = data.get('fromId');
     const toId = data.get('toId');
     if (fromId && toId && fromId !== toId) {
-      await db.$transaction([
-        db.game_tag.updateMany({
-          where: { tag_id: fromId },
-          data: { tag_id: toId },
-        }),
-        db.tag.delete({ where: { id: fromId } }),
-      ]);
+      await mergeTags(fromId, toId);
     }
   }
 

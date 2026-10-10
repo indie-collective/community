@@ -10,9 +10,8 @@ import {
 
 import { isRouteErrorResponse, useLoaderData, useRouteError } from 'react-router';
 
-import { db } from '../../utils/db.server';
+import { getHistorySubject, getRevision } from '../../data/changes.server';
 import isAuthenticated from '../../utils/isAuthenticated.server'
-import computeEvent from '../../models/event';
 import { pageMeta } from '../../utils/meta';
 
 const uuidRegex =
@@ -28,58 +27,20 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const revision = await db.change.findUnique({
-    where: {
-      id: revisionId,
-    },
-    select: {
-      operation: true,
-      id: true,
-      data: true,
-      record_id: true,
-      created_at: true,
-      author: {
-        select: {
-          id: true,
-          username: true,
-        },
-      },
-    },
-  });
+  const found = await getRevision('event', revisionId);
 
-  if (!revision)
+  if (!found)
     throw new Response('Not Found', {
       status: 404,
     });
 
-  const event = await db.event.findUnique({
-    where: {
-      id: revision.record_id,
-    },
-  });
+  const { revision, previous } = found;
+  const event = await getHistorySubject('event', revision.record_id);
 
   if (!event)
      throw new Response('Event Not Found', {
        status: 404, 
      });
-
-  const previous = await db.change.findFirst({
-    where: {
-      record_id: revision.record_id,
-      table_name: 'event',
-      created_at: {
-        lt: revision.created_at,
-      },
-    },
-    select: {
-      id: true,
-      data: true,
-      created_at: true,
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  });
 
   const diff = await import('diff');
 
@@ -87,7 +48,7 @@ export const loader = async ({ request, params }) => {
   const previousData = previous?.data || {};
 
   const data = {
-    event: await computeEvent(event),
+    event,
     diff: {
       name: diff.diffWords(
         previousData.name || '',

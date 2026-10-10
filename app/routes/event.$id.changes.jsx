@@ -18,9 +18,8 @@ import { LuPlus, LuPencil, LuArrowLeft } from 'react-icons/lu';
 
 import { Link, NavLink, Outlet, isRouteErrorResponse, useLoaderData, useMatches, useParams, useRouteError } from 'react-router';
 
-import { db } from '../utils/db.server';
+import { getHistorySubject, listChanges } from '../data/changes.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
-import computeEvent from '../models/event';
 import { formatDistanceToNow } from 'date-fns';
 import { pageMeta } from '../utils/meta';
 
@@ -37,11 +36,7 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
-  const event = await db.event.findUnique({
-    where: {
-      id,
-    },
-  });
+  const event = await getHistorySubject('event', id);
 
   if (!event)
     throw new Response('Not Found', {
@@ -49,22 +44,8 @@ export const loader = async ({ request, params }) => {
     });
 
   const data = {
-    event: await computeEvent(event),
-    changes: await db.change.findMany({
-      where: {
-        record_id: event.id,
-        table_name: 'event',
-      },
-      select: {
-        id: true,
-        operation: true,
-        author: { select: { username: true } },
-        created_at: true,
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    }),
+    event,
+    changes: await listChanges('event', id),
     currentUser,
   };
 
@@ -125,9 +106,10 @@ const EventChangeLayout = () => {
                 Changelog
               </Heading>
 
-              <Stack w="250px" asChild><List>
+              <Stack w="250px" asChild><List.Root listStyleType="none">
                   {changes.map(({ id, operation, author, created_at }) => (
                     <LinkBox
+                      as="li"
                       key={id}
                       transition="background-color 200ms ease-out"
                       cursor="pointer"
@@ -169,7 +151,7 @@ const EventChangeLayout = () => {
                       </Stack>
                     </LinkBox>
                   ))}
-                </List></Stack>
+                </List.Root></Stack>
             </Box>
 
             <Box flex="1">
