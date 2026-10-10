@@ -69,4 +69,10 @@ npm run db:migrate
 DATABASE_URL=postgres://… npm run db:copy -- --apply local   # or remote
 ```
 
+Then copy the images and their thumbnails from the old bucket (served publicly at `https://cdn.indieco.xyz`) into R2. It takes about 20 minutes, and can be run again to resume or retry:
+
+```sh
+node scripts/copy-images-to-r2.mjs --to remote   # or local
+```
+
 Prisma is only kept for this: the app itself doesn't use it.
