@@ -179,3 +179,45 @@ test.describe('on a high-density screen', () => {
     }
   });
 });
+
+// ADR 0002: the phone drawer of /places, without MUI. Its header always
+// shows; tapping or swiping it opens it to half the screen, and tapping
+// outside or swiping down closes it; its list stays mounted meanwhile.
+test.describe('the places drawer on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+
+  test('opens and closes by tap and swipe, keeping its list', async ({ page }) => {
+    await page.goto('/places', { waitUntil: 'networkidle' });
+    const drawer = page.getByRole('dialog', { name: 'Locations' });
+    const header = drawer.locator('header').first();
+    const top = async () => (await drawer.boundingBox()).y;
+
+    // Closed: only the header shows, at the bottom; the list is there.
+    await expect(header).toBeInViewport();
+    expect(await top()).toBeGreaterThan(844 - 120);
+    await expect(drawer.locator('a[href^="/org/"]').first()).toBeAttached();
+
+    // A tap opens it to half the screen.
+    await header.click();
+    await expect.poll(top).toBeLessThan(844 / 2);
+    await expect(drawer.locator('a[href^="/org/"]').first()).toBeVisible();
+
+    // A tap outside closes it.
+    await page.getByTestId('drawer-backdrop').click({ position: { x: 10, y: 10 } });
+    await expect.poll(top).toBeGreaterThan(844 - 120);
+
+    // Swipe up opens, swipe down closes.
+    const swipe = async (from, to) => {
+      const box = await header.boundingBox();
+      const x = box.x + box.width / 2;
+      await page.mouse.move(x, box.y + from);
+      await page.mouse.down();
+      await page.mouse.move(x, box.y + to, { steps: 8 });
+      await page.mouse.up();
+    };
+    await swipe(20, -200);
+    await expect.poll(top).toBeLessThan(844 / 2);
+    await swipe(20, 300);
+    await expect.poll(top).toBeGreaterThan(844 - 120);
+  });
+});
