@@ -73,8 +73,16 @@ test('the games list can be searched and sorted', async ({ page }) => {
   await expect(page).toHaveURL(/[?&]sort=name/);
   // Seeded names are random: another game can share or contain the name.
   await expect(page.locator('main h3 a[href^="/game/"]', { hasText: target }).first()).toBeVisible();
+  // Every result has the word in its name or description (the list
+  // filters on both).
+  const { db, games, searchText } = await import('./db.js');
+  const matching = new Set(
+    (await db.select({ name: games.name, searchText: games.searchText }).from(games))
+      .filter((game) => game.searchText.includes(searchText(word)))
+      .map((game) => game.name)
+  );
   for (const name of await page.locator('main h3 a[href^="/game/"]').allInnerTexts()) {
-    expect(name.toLowerCase()).toContain(word.toLowerCase());
+    expect(matching).toContain(name);
   }
 
   // Tag filters keep the search and the sort.
