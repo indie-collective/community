@@ -23,6 +23,7 @@ import { associationsByCity, citiesOf } from '../utils/countryOverview';
 import countryMaps from '../assets/countryMaps.json';
 import CountryMap from '../components/CountryMap';
 import CityList from '../components/CityList';
+import { orgPath } from '../utils/slug';
 
 // A country page is the overview of its indie scene, for newcomers and
 // peers, and for search (#258). /places is for exploring on a map.
@@ -130,7 +131,7 @@ const AssociationGroups = ({ groups }) => (
           {list.map((association) => (
             <li key={association.id}>
               <ChakraLink asChild>
-                <Link to={`/org/${association.id}`}>{association.name}</Link>
+                <Link to={orgPath(association)}>{association.name}</Link>
               </ChakraLink>
             </li>
           ))}

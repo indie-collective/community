@@ -103,6 +103,8 @@ export const organizations = sqliteTable(
       .notNull()
       .default('active'),
     name: text('name').notNull(),
+    // #209: its URL (/org/<slug>); null until backfilled.
+    slug: text('slug'),
     about: text('about'),
     site: text('site'),
     // #161: e.g. studio.bsky.social.
@@ -122,6 +124,7 @@ export const organizations = sqliteTable(
     index('organizations_country_code').on(t.countryCode),
     index('organizations_type_index').on(t.type),
     index('organizations_deleted_at').on(t.deletedAt),
+    uniqueIndex('organizations_slug').on(t.slug),
   ]
 );
 
@@ -130,6 +133,8 @@ export const games = sqliteTable(
   {
     id: id(),
     name: text('name').notNull(),
+    // #209: its URL (/game/<slug>); null until backfilled.
+    slug: text('slug'),
     about: text('about'),
     site: text('site'),
     igdbSlug: text('igdb_slug').unique(),
@@ -143,6 +148,7 @@ export const games = sqliteTable(
   (t) => [
     index('games_deleted_at').on(t.deletedAt),
     index('games_updated_at').on(t.updatedAt),
+    uniqueIndex('games_slug').on(t.slug),
   ]
 );
 
@@ -151,6 +157,8 @@ export const events = sqliteTable(
   {
     id: id(),
     name: text('name').notNull(),
+    // #209: its URL (/event/<slug>); null until backfilled.
+    slug: text('slug'),
     about: text('about'),
     site: text('site'),
     startsAt: time('starts_at').notNull(),
@@ -180,6 +188,7 @@ export const events = sqliteTable(
   (t) => [
     check('events_status', oneOf(t.status, EVENT_STATUSES)),
     index('events_previous_edition_id').on(t.previousEditionId),
+    uniqueIndex('events_slug').on(t.slug),
     index('events_country_code').on(t.countryCode),
     index('events_starts_at').on(t.startsAt),
     index('events_ends_at').on(t.endsAt),
@@ -368,6 +377,21 @@ export const gameIgdb = sqliteTable(
     refreshStartedAt: time('refresh_started_at'),
   },
   (t) => [index('game_igdb_fetched_at').on(t.fetchedAt)]
+);
+
+// #209: slugs from before a rename, so old URLs redirect to the new one.
+export const slugAliases = sqliteTable(
+  'slug_aliases',
+  {
+    // "game", "organization" or "event".
+    kind: text('kind').notNull(),
+    slug: text('slug').notNull(),
+    recordId: text('record_id').notNull(),
+    createdAt: time('created_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [primaryKey({ columns: [t.kind, t.slug] })]
 );
 
 // Small values kept between requests: the IGDB token, Bluesky OAuth state

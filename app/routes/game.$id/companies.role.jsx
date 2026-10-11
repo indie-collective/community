@@ -3,11 +3,12 @@ import { redirect } from 'react-router';
 import { setGameOrganizationRole } from '../../data/games.server';
 import { GAME_ORGANIZATION_ROLES } from '../../db/schema.js';
 import { authorizer, canWrite } from '../../utils/auth.server';
+import { routeRecordId } from '../../utils/pageRecord.server';
 
 // Sets how a credited organisation took part in the game (#40).
 export async function action(args) {
   const { params, request } = args;
-  const { id } = params;
+  const id = await routeRecordId('game', params.id);
 
   await authorizer.authorize(args, {
     rules: [canWrite],

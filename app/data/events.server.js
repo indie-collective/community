@@ -31,6 +31,8 @@ import { logChange } from './changes.server';
 import { gameWithRelations } from './games.server';
 import { imageColumns } from './images.server';
 import * as shape from './shapes.server';
+import { freeSlug, renameSlugStatements } from './slugs.server';
+import { eventSlug } from '../utils/slug';
 
 const notDeleted = isNull(events.deletedAt);
 
@@ -236,6 +238,7 @@ export async function getEventEditions(eventId) {
     .select({
       id: events.id,
       name: events.name,
+      slug: events.slug,
       startsAt: events.startsAt,
       endsAt: events.endsAt,
       timeZone: events.timeZone,
@@ -269,6 +272,7 @@ export async function getEventEditions(eventId) {
       return {
         id: row.id,
         name: row.name,
+        slug: row.slug,
         starts_at: row.startsAt,
         ends_at: row.endsAt,
         time_zone: row.timeZone,
@@ -306,10 +310,12 @@ export async function createEvent({
   authorId = null,
 }) {
   const id = crypto.randomUUID();
+  const slug = await freeSlug('event', eventSlug(name, startsAt));
   await db.batch([
     db.insert(events).values({
       id,
       name,
+      slug,
       status,
       timeZone,
       startsAt,
@@ -325,7 +331,7 @@ export async function createEvent({
     }),
     logChange('create', 'event', id, authorId),
   ]);
-  return { id };
+  return { id, slug };
 }
 
 /**
@@ -351,9 +357,19 @@ export async function updateEvent(
   }
 ) {
   const [current] = await db
-    .select({ name: events.name, about: events.about })
+    .select({
+      name: events.name,
+      about: events.about,
+      slug: events.slug,
+      startsAt: events.startsAt,
+    })
     .from(events)
     .where(eq(events.id, id));
+  const slug = await freeSlug(
+    'event',
+    eventSlug(name ?? current?.name, startsAt ?? current?.startsAt),
+    { recordId: id }
+  );
   await db.batch([
     db
       .update(events)
@@ -377,9 +393,10 @@ export async function updateEvent(
         }),
       })
       .where(eq(events.id, id)),
+    ...renameSlugStatements('event', id, current?.slug, slug),
     logChange('update', 'event', id, authorId),
   ]);
-  return { id };
+  return { id, slug };
 }
 
 /** Deletes an event: it's only hidden, and its history stays. */
@@ -453,7 +470,7 @@ export async function searchEvents(q, { excludeIds = [], limit = 10 } = {}) {
   const search = matchesSearch(events.searchText, q);
   if (!search) return [];
   return db
-    .select({ id: events.id, name: events.name })
+    .select({ id: events.id, name: events.name, slug: events.slug })
     .from(events)
     .where(and(search, notDeleted, notInArray(events.id, excludeIds)))
     .limit(limit);

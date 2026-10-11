@@ -52,7 +52,7 @@ export async function searchSite(q) {
 export async function listSitemapRecords() {
   const list = (table) =>
     db
-      .select({ id: table.id, updated_at: table.updatedAt })
+      .select({ id: table.id, slug: table.slug, updated_at: table.updatedAt })
       .from(table)
       .where(isNull(table.deletedAt));
   const [gameRows, orgs, eventRows] = await Promise.all([

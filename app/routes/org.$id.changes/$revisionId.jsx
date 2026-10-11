@@ -13,6 +13,7 @@ import { isRouteErrorResponse, useLoaderData, useRouteError } from 'react-router
 import { getHistorySubject, getRevision } from '../../data/changes.server';
 import isAuthenticated from '../../utils/isAuthenticated.server'
 import { pageMeta } from '../../utils/meta';
+import { routeRecordId } from '../../utils/pageRecord.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -20,7 +21,8 @@ const uuidRegex =
 export const loader = async ({ request, params }) => {
   const currentUser = await isAuthenticated(request, true);
 
-  const { id, revisionId } = params;
+  const { revisionId } = params;
+  const id = await routeRecordId('organization', params.id);
 
   if (!uuidRegex.test(id))
     throw new Response('Not Found', {

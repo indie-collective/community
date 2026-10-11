@@ -168,7 +168,7 @@ test.describe('on a high-density screen', () => {
   test('maps load tiles from tile.openstreetmap.org only', async ({ page }) => {
     await signIn(page, MEMBER);
     const events = await (await page.request.get('/events')).text();
-    const event = events.match(/\/event\/[0-9a-f-]{36}/)[0];
+    const event = events.match(/\/event\/[a-z0-9-]+/)[0];
 
     for (const path of ['/places', event, `${event}/edit`]) {
       await page.goto(path, { waitUntil: 'networkidle' });
@@ -261,7 +261,7 @@ test('the org form sets the status', async ({ page }) => {
     await page.goto(`/org/${org.id}/edit`);
     await page.getByRole('combobox', { name: 'Status' }).selectOption('hiatus');
     await page.getByRole('button', { name: /submit|save/i }).click();
-    await expect(page).toHaveURL(`/org/${org.id}`);
+    await expect(page).toHaveURL(/\/org\/pausing-studio-\d+$/);
     await expect(page.getByText('On hiatus', { exact: true })).toBeVisible();
   } finally {
     await db.delete(organizations).where(eq(organizations.id, org.id));

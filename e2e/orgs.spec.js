@@ -92,7 +92,7 @@ test.describe('Bluesky handles on organizations', () => {
 
     await page.getByLabel('Bluesky handle').fill('@Sky-Studio.bsky.social');
     await page.getByRole('button', { name: /submit/i }).click();
-    await expect(page).toHaveURL(/\/org\/[0-9a-f-]{36}$/);
+    await expect(page).toHaveURL(/\/org\/[a-z0-9-]+$/);
     const link = page.getByRole('link', { name: 'Bluesky: @sky-studio.bsky.social' });
     await expect(link).toHaveAttribute('href', 'https://bsky.app/profile/sky-studio.bsky.social');
   });

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Fragment, useEffect } from 'react';
 
 import useDebounce from '../hooks/useDebounce';
+import { gamePath } from '../utils/slug';
 
 // Defaults as parameters: React 19 ignores defaultProps on function components.
 const PossibleGameDuplicates = ({ value = '', ignoredId }) => {
@@ -31,7 +32,7 @@ const PossibleGameDuplicates = ({ value = '', ignoredId }) => {
           {games.data.map((game, i) => (
             <Fragment key={game.id}>
               {i > 0 && ', '}
-              <ChakraLink color="green.500" asChild><Link to={`/game/${game.id}`}>
+              <ChakraLink color="green.500" asChild><Link to={gamePath(game)}>
                   {game.name}
                 </Link></ChakraLink>
             </Fragment>

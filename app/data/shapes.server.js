@@ -89,6 +89,7 @@ export function organization(row) {
     type: row.type,
     status: row.status,
     name: row.name,
+    slug: row.slug,
     about: row.about,
     site: row.site,
     bsky_handle: row.bskyHandle,
@@ -105,6 +106,7 @@ export function game(row) {
   return {
     id: row.id,
     name: row.name,
+    slug: row.slug,
     about: row.about,
     site: row.site,
     igdb_slug: row.igdbSlug,
@@ -120,6 +122,7 @@ export function event(row) {
   return {
     id: row.id,
     name: row.name,
+    slug: row.slug,
     about: row.about,
     site: row.site,
     starts_at: row.startsAt,

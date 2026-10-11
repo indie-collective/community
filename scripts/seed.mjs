@@ -23,6 +23,7 @@ import {
   tags,
 } from '../app/db/schema.js';
 import { searchText } from '../app/db/searchText.js';
+import { assignSlugs } from '../app/utils/slug.js';
 
 const in2025 = () =>
   faker.date.between({
@@ -108,6 +109,9 @@ const gameRows = Array.from({ length: 100 }, (_, i) => {
     updatedAt: createdAt,
   };
 });
+// Readable URLs (#209).
+const gameSlugs = assignSlugs(gameRows);
+for (const game of gameRows) game.slug = gameSlugs.get(game.id);
 await insertAll(games, gameRows);
 await insertAll(
   gameTags,
@@ -156,6 +160,8 @@ const eventRows = Array.from({ length: 50 }, (_, i) => {
     createdAt: recent ? startsAt : faker.date.past(),
   };
 });
+const eventSlugs = assignSlugs(eventRows, { event: true });
+for (const event of eventRows) event.slug = eventSlugs.get(event.id);
 await insertAll(events, eventRows);
 
 const organizationRows = Array.from({ length: 40 }, (_, i) => {
@@ -178,6 +184,8 @@ const organizationRows = Array.from({ length: 40 }, (_, i) => {
     updatedAt: createdAt,
   };
 });
+const organizationSlugs = assignSlugs(organizationRows);
+for (const org of organizationRows) org.slug = organizationSlugs.get(org.id);
 await insertAll(organizations, organizationRows);
 
 await insertAll(

@@ -162,7 +162,7 @@ test('the game form links to an IGDB search for the name', async ({ page }) => {
 
 // #40: how an organisation took part in a game (developer, publisher…).
 test('a member sets how a studio took part in a game', async ({ page }) => {
-  const { db, gameOrganizations, games, organizations } = await import('./db.js');
+  const { db, gameOrganizations, games, organizations, retryBusy } = await import('./db.js');
   const { eq } = await import('drizzle-orm');
   const [game] = await db.insert(games).values({ name: `Published ${Date.now() % 100000}` }).returning();
   const [org] = await db.insert(organizations).values({ name: `Publisher Co ${Date.now() % 100000}`, type: 'studio' }).returning();
@@ -176,8 +176,13 @@ test('a member sets how a studio took part in a game', async ({ page }) => {
     await page.goto(`/game/${game.id}`);
     const role = page.getByRole('combobox', { name: `Role of ${org.name}` });
     await expect(role).toHaveValue('developer');
+    // Wait for the save before reading the database: polling it meanwhile
+    // can lock out the server's write (two workerd processes, one file).
+    const saved = page.waitForResponse((response) => response.url().includes('/companies/role'));
     await role.selectOption('publisher');
-    await expect.poll(async () => (await db.select().from(gameOrganizations).where(eq(gameOrganizations.gameId, game.id)))[0].role).toBe('publisher');
+    await saved;
+    const [link] = await retryBusy(() => db.select().from(gameOrganizations).where(eq(gameOrganizations.gameId, game.id)));
+    expect(link.role).toBe('publisher');
     await page.reload();
     await expect(role).toHaveValue('publisher');
 
@@ -201,7 +206,8 @@ test('a game without a website can be edited', async ({ page }) => {
     await page.goto(`/game/${game.id}/edit`);
     await page.getByLabel(/^name/i).fill(`${game.name} renamed`);
     await page.getByRole('button', { name: /submit|save/i }).click();
-    await expect(page).toHaveURL(`/game/${game.id}`);
+    // Renamed, it has a new address (#209).
+    await expect(page).toHaveURL(/\/game\/siteless-\d+-renamed$/);
     await expect(page.getByRole('heading', { name: `${game.name} renamed` })).toBeVisible();
   } finally {
     await db.delete(games).where(eq(games.id, game.id));

@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 
-import { changes, db, people } from './db.js';
+import { changes, db, idFromPath, people } from './db.js';
 import { expect, test, MEMBER, signIn } from './helpers';
 
 // Fields of a `person` row that must never reach a page's loader data.
@@ -20,7 +20,7 @@ function expectNoPrivateFields(html, path) {
 
 test('event pages do not expose attendees’ private fields', async ({ request }) => {
   const events = await (await request.get('/events')).text();
-  const paths = [...new Set(events.match(/\/event\/[0-9a-f-]{36}/g))].slice(0, 5);
+  const paths = [...new Set(events.match(/\/event\/[a-z0-9-]+/g))].slice(0, 5);
   expect(paths.length).toBeGreaterThan(0);
 
   let attendees = 0;
@@ -36,14 +36,14 @@ test('event pages do not expose attendees’ private fields', async ({ request }
 test('change history does not expose authors’ private fields', async ({ page, request }) => {
   // A change authored by the member, on a seeded organisation.
   const studios = await (await request.get('/studios')).text();
-  const orgPath = studios.match(/\/org\/[0-9a-f-]{36}/)[0];
+  const orgPath = studios.match(/\/org\/[a-z0-9-]+/)[0];
   const [member] = await db.select({ id: people.id }).from(people).where(eq(people.email, MEMBER));
   const [change] = await db
     .insert(changes)
     .values({
       operation: 'update',
       tableName: 'organizations',
-      recordId: orgPath.split('/').pop(),
+      recordId: await idFromPath(orgPath),
       data: {},
       authorId: member.id,
     })

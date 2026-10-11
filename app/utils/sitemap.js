@@ -1,3 +1,5 @@
+import { eventPath, gamePath, orgPath } from './slug.js';
+
 // sitemap.xml and robots.txt, so search engines find every page (#258).
 
 const PAGES = [
@@ -42,15 +44,10 @@ export function buildSitemap(
   const urls = [
     ...PAGES.map((path) => entry(origin, path)),
     ...countries.map((code) => entry(origin, `/country/${code.toLowerCase()}`)),
-    ...games.map(({ id, updated_at }) =>
-      entry(origin, `/game/${id}`, updated_at)
-    ),
-    ...orgs.map(({ id, updated_at }) =>
-      entry(origin, `/org/${id}`, updated_at)
-    ),
-    ...events.map(({ id, updated_at }) =>
-      entry(origin, `/event/${id}`, updated_at)
-    ),
+    // By slug (#209), or ID until there's one.
+    ...games.map((game) => entry(origin, gamePath(game), game.updated_at)),
+    ...orgs.map((org) => entry(origin, orgPath(org), org.updated_at)),
+    ...events.map((event) => entry(origin, eventPath(event), event.updated_at)),
   ];
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',

@@ -27,6 +27,8 @@ import getImageLinks from '../utils/imageLinks.server';
 import { logChange } from './changes.server';
 import { imageColumns } from './images.server';
 import * as shape from './shapes.server';
+import { freeSlug, renameSlugStatements } from './slugs.server';
+import { slugify } from '../utils/slug';
 
 const notDeleted = isNull(organizations.deletedAt);
 // Located: the old location rows always had a country.
@@ -218,10 +220,12 @@ export async function createOrganization({
   authorId = null,
 }) {
   const id = crypto.randomUUID();
+  const slug = await freeSlug('organization', slugify(name));
   await db.batch([
     db.insert(organizations).values({
       id,
       name,
+      slug,
       type,
       status,
       site,
@@ -234,7 +238,7 @@ export async function createOrganization({
     }),
     logChange('create', 'organization', id, authorId),
   ]);
-  return { id };
+  return { id, slug };
 }
 
 /**
@@ -246,6 +250,11 @@ export async function updateOrganization(
   id,
   { name, type, status, site, bskyHandle, about, location, logoId, authorId }
 ) {
+  const [current] = await db
+    .select({ slug: organizations.slug })
+    .from(organizations)
+    .where(eq(organizations.id, id));
+  const slug = await freeSlug('organization', slugify(name), { recordId: id });
   await db.batch([
     db
       .update(organizations)
@@ -262,9 +271,10 @@ export async function updateOrganization(
         searchText: shape.searchTextOf({ name, about }),
       })
       .where(eq(organizations.id, id)),
+    ...renameSlugStatements('organization', id, current?.slug, slug),
     logChange('update', 'organization', id, authorId),
   ]);
-  return { id };
+  return { id, slug };
 }
 
 /** Deletes an organisation: it's only hidden, and its history stays. */
@@ -286,7 +296,7 @@ export async function searchOrganizations(q, { excludeIds = [] } = {}) {
   const search = matchesSearch(organizations.searchText, q);
   if (!search) return [];
   return db
-    .select({ id: organizations.id, name: organizations.name })
+    .select({ id: organizations.id, name: organizations.name, slug: organizations.slug })
     .from(organizations)
     .where(and(search, notDeleted, notInArray(organizations.id, excludeIds)))
     .limit(10);
@@ -341,6 +351,7 @@ export async function listOrganizationsIn(countryCode) {
     .select({
       id: organizations.id,
       name: organizations.name,
+      slug: organizations.slug,
       type: organizations.type,
       city: organizations.city,
       region: organizations.region,

@@ -2,10 +2,11 @@ import { redirect } from "react-router";
 
 import { removeEventOrganization } from '../../data/events.server';
 import { authorizer, canWrite } from "../../utils/auth.server";
+import { routeRecordId } from '../../utils/pageRecord.server';
 
 export async function action(args) {
   const { params, request } = args;
-  const { id } = params;
+  const id = await routeRecordId('event', params.id);
 
   await authorizer.authorize(args, {
     rules: [canWrite],

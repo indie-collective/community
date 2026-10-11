@@ -30,6 +30,8 @@ import { logChange } from './changes.server';
 import { getUploads } from './images.server';
 import * as shape from './shapes.server';
 import { resolveTagNames } from './tags.server';
+import { freeSlug, renameSlugStatements } from './slugs.server';
+import { slugify } from '../utils/slug';
 
 // The games list's orders, by the keys the page offers (routes/games).
 const ORDERS = {
@@ -272,10 +274,12 @@ export async function createGame({
 }) {
   const id = crypto.randomUUID();
   const now = new Date();
+  const slug = await freeSlug('game', slugify(name));
   await db.batch([
     db.insert(games).values({
       id,
       name,
+      slug,
       about,
       site,
       igdbSlug: igdbSlug ?? null,
@@ -287,7 +291,7 @@ export async function createGame({
     ...setTagsStatements(id, tagNames, now),
     logChange('create', 'game', id, authorId),
   ]);
-  return { id };
+  return { id, slug };
 }
 
 /**
@@ -299,6 +303,11 @@ export async function updateGame(
   { name, about, site, igdbSlug, tagNames, authorId }
 ) {
   const now = new Date();
+  const [current] = await db
+    .select({ slug: games.slug })
+    .from(games)
+    .where(eq(games.id, id));
+  const slug = await freeSlug('game', slugify(name), { recordId: id });
   await db.batch([
     db
       .update(games)
@@ -313,9 +322,10 @@ export async function updateGame(
       })
       .where(eq(games.id, id)),
     ...setTagsStatements(id, tagNames, now),
+    ...renameSlugStatements('game', id, current?.slug, slug),
     logChange('update', 'game', id, authorId),
   ]);
-  return { id };
+  return { id, slug };
 }
 
 /** Deletes a game: it's only hidden, and its history stays (ADR 0003). */
@@ -400,7 +410,7 @@ export async function searchGames(q, { excludeIds = [] } = {}) {
   const search = matchesSearch(games.searchText, q);
   if (!search) return [];
   const rows = await db
-    .select({ id: games.id, name: games.name })
+    .select({ id: games.id, name: games.name, slug: games.slug })
     .from(games)
     .where(and(search, notDeleted, notInArray(games.id, excludeIds)))
     .limit(10);

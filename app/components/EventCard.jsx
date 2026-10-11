@@ -16,10 +16,12 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Card from './Card';
 import CardLink from './CardLink';
 import { formatEventDate } from '../utils/eventTime';
+import { eventPath } from '../utils/slug';
 
 function EventCard({
   ref,
   id,
+  slug,
   name,
   status,
   cover,
@@ -40,7 +42,7 @@ function EventCard({
       isClickable
       padding={2}
       rounded={10}
-      href={`/event/${id}`}
+      href={eventPath({ id, slug })}
       ref={ref}
       transition="background-color 200ms ease-out"
       cursor="pointer"
@@ -65,7 +67,7 @@ function EventCard({
           textDecoration={status === 'canceled' && 'line-through'}
           color={status === 'canceled' && 'gray.500'}
         >
-          <CardLink to={`/event/${id}`}>{name}</CardLink>
+          <CardLink to={eventPath({ id, slug })}>{name}</CardLink>
         </Heading>
 
         <Flex

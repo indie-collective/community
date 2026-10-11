@@ -29,7 +29,7 @@ test('an uploaded logo is stored with its browser-made thumbnail', async ({ page
   // The thumbnail is ready once its size fields are.
   await expect(page.locator('input[name="logo_width"]')).toHaveValue('1200');
   await page.getByRole('button', { name: /submit/i }).click();
-  await expect(page).toHaveURL(/\/org\/[0-9a-f-]{36}$/);
+  await expect(page).toHaveURL(/\/org\/[a-z0-9-]+$/);
 
   const src = await page.getByRole('heading', { name }).locator('xpath=ancestor::main').locator('img[src^="/images/thumb_"]').first().getAttribute('src');
   const thumbnail = await page.request.get(src);
