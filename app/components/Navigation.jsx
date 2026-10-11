@@ -17,9 +17,13 @@ import {
   Menu,
   Portal,
 } from '@chakra-ui/react';
-import { useColorModeValue } from './ui/color-mode';
 import { LuMenu, LuChevronDown } from 'react-icons/lu';
-import { Link, useLocation, useNavigation, useRouteLoaderData } from 'react-router';
+import {
+  Link,
+  useLocation,
+  useNavigation,
+  useRouteLoaderData,
+} from 'react-router';
 
 import Logo from '../components/Logo';
 import AvatarButton from './AvatarButton';
@@ -106,7 +110,7 @@ const Navigation = ({ search }) => {
 
   if (variant === 'mobile') {
     return (
-      <Box shadow="sm" bg={{ base: 'white', _dark: 'gray.800' }} width="100vw">
+      <Box as="header" shadow="sm" bg="surface" width="100%">
         <HStack
           gap={3}
           px={4}
@@ -136,7 +140,7 @@ const Navigation = ({ search }) => {
               borderTop="1px solid"
               borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
             >
-              <VStack as="nav" gap={2} px={4} align="stretch">
+              <VStack as="nav" aria-label="Main" gap={2} px={4} align="stretch">
                 <NavLink href="/games">Games</NavLink>
                 <NavLink href="/studios">Studios</NavLink>
                 <NavLink href="/associations">Associations</NavLink>
@@ -158,17 +162,9 @@ const Navigation = ({ search }) => {
   }
 
   return (
-    <VStack
-      gap={0}
-      width="100%"
-      maxWidth={960}
-    >
+    <VStack as="header" gap={0} width="100%" maxWidth={960}>
       {/* Top Level */}
-      <Box
-        w="100%"
-        bg={{base: "white", _dark: 'gray.800' }}
-        borderBottomRadius="30px"
-      >
+      <Box w="100%" bg="surface" borderBottomRadius="30px">
         <Flex justifyContent="center">
           <HStack
             gap={2}
@@ -194,15 +190,8 @@ const Navigation = ({ search }) => {
         </Flex>
       </Box>
       {/* Second Level */}
-      <Box
-        w="100%"
-        mt={2}
-        py={2}
-        px={2}
-        bg={{ base: 'white', _dark: 'gray.800' }}
-        borderRadius="full"
-      >
-        <HStack as="nav" gap={4} width="100%">
+      <Box w="100%" mt={2} py={2} px={2} bg="surface" borderRadius="full">
+        <HStack as="nav" aria-label="Main" gap={4} width="100%">
           <NavLink href="/games">Games</NavLink>
           <NavLink href="/studios">Studios</NavLink>
           <NavLink href="/associations">Associations</NavLink>

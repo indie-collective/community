@@ -39,7 +39,7 @@ const CountriesPage = () => {
       <Heading as="h2" size="2xl" mt={5} mb={2}>
         Countries
       </Heading>
-      <Text color="fg.muted" mb={5}>
+      <Text color="muted" mb={5}>
         Every country with indie game studios, associations or events, by
         continent. The number is its rank by studios and associations.
       </Text>

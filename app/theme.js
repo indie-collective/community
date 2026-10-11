@@ -9,12 +9,12 @@ const config = defineConfig({
     html: {
       colorPalette: 'green',
     },
+    // One page background (the canvas), with panels (surface) on it.
     body: {
       color: 'gray.800',
-      bg: '#F7FAFC',
+      bg: 'canvas',
       _dark: {
         color: 'whiteAlpha.900',
-        bg: 'gray.800',
       },
     },
   },
@@ -31,7 +31,32 @@ const config = defineConfig({
         },
       },
     },
+    // The design system (design pass): Poppins for titles, Inter for text,
+    // loaded in root.jsx.
+    semanticTokens: {
+      colors: {
+        // The page background, and the panels and cards on it.
+        canvas: {
+          value: { base: '{colors.gray.100}', _dark: '{colors.gray.950}' },
+        },
+        surface: {
+          value: { base: '{colors.white}', _dark: '{colors.gray.900}' },
+        },
+        // Secondary text: dates, places, counts, hints. Readable on both
+        // (WCAG AA on canvas and surface).
+        muted: {
+          value: { base: '{colors.gray.600}', _dark: '{colors.gray.400}' },
+        },
+      },
+    },
     tokens: {
+      fonts: {
+        heading: { value: "'Poppins', ui-sans-serif, system-ui, sans-serif" },
+        body: {
+          value:
+            "'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
+        },
+      },
       // v3 requires token values wrapped in `{ value }` objects, not raw hex.
       colors: {
         discord: {
@@ -74,29 +99,22 @@ const config = defineConfig({
       link: {
         variants: { variant: { plain: { color: 'inherit' } } },
       },
-      // v2's Heading scale: bold, and each size a step or two larger than
-      // v3's same-named text style (v2 `xl`, the default, was 30px / 36px).
+      // The type scale (design pass), in Poppins. Each level has one use:
+      // 3xl the homepage's introduction, 2xl a page's title (h1), xl a
+      // section of a page (h2), lg a block inside a section, md a card's
+      // title, sm and xs small labels.
       heading: {
-        base: { fontWeight: 'bold' },
+        base: { fontWeight: 'semibold', letterSpacing: '-0.01em' },
         variants: {
           size: {
-            xs: { fontSize: 'sm', lineHeight: '1.2' },
-            sm: { fontSize: 'md', lineHeight: '1.2' },
-            md: { fontSize: 'xl', lineHeight: '1.2' },
-            lg: {
-              fontSize: { base: '2xl', md: '3xl' },
-              lineHeight: { base: '1.33', md: '1.2' },
-            },
-            xl: {
-              fontSize: { base: '3xl', md: '4xl' },
-              lineHeight: { base: '1.33', md: '1.2' },
-            },
-            '2xl': {
-              fontSize: { base: '4xl', md: '5xl' },
-              lineHeight: { base: '1.2', md: '1' },
-            },
-            '3xl': { fontSize: { base: '5xl', md: '6xl' }, lineHeight: '1' },
-            '4xl': { fontSize: { base: '6xl', md: '7xl' }, lineHeight: '1' },
+            xs: { fontSize: 'sm', lineHeight: '1.3' },
+            sm: { fontSize: 'md', lineHeight: '1.3' },
+            md: { fontSize: 'lg', lineHeight: '1.3' },
+            lg: { fontSize: { base: 'xl', md: '2xl' }, lineHeight: '1.25' },
+            xl: { fontSize: { base: '2xl', md: '3xl' }, lineHeight: '1.2' },
+            '2xl': { fontSize: { base: '3xl', md: '4xl' }, lineHeight: '1.15' },
+            '3xl': { fontSize: { base: '4xl', md: '5xl' }, lineHeight: '1.1' },
+            '4xl': { fontSize: { base: '5xl', md: '6xl' }, lineHeight: '1.05' },
           },
         },
       },

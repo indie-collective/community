@@ -46,16 +46,18 @@ export function links() {
       href: 'https://fonts.gstatic.com',
       crossOrigin: 'anonymous',
     },
+    // Poppins for titles (two weights), Inter for text (variable).
     {
       rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Poppins:wght@600;700&display=swap',
     },
     { rel: 'stylesheet', href: slickStyles },
   ];
 }
 
 // The charset and viewport tags are in Layout; routes return the full set.
-export const meta = ({ matches, location }) => pageMeta(matches, { title: 'Community', path: location.pathname });
+export const meta = ({ matches, location }) =>
+  pageMeta(matches, { title: 'Community', path: location.pathname });
 
 export const Layout = withEmotionCache((props, cache) => {
   const { children } = props;
@@ -93,17 +95,31 @@ export const Layout = withEmotionCache((props, cache) => {
 
 // Navigation, page column and footer, shared by the app and its error pages so
 // an error keeps the site around it.
+// The header and footer sit outside <main>, so landmarks say what they are,
+// and a skip link jumps past the header to the page.
 function AppShell({ children }) {
   return (
-    <Flex
-      as="main"
-      flex="1"
-      direction="column"
-      alignItems="center"
-      bg={{ base: 'gray.100', _dark: 'gray.900' }}
-    >
+    <Flex direction="column" alignItems="center" minHeight="100vh" bg="canvas">
+      <Box
+        as="a"
+        href="#content"
+        position="absolute"
+        top={2}
+        left={2}
+        zIndex="skipLink"
+        px={4}
+        py={2}
+        borderRadius="md"
+        bg="surface"
+        shadow="md"
+        fontWeight="semibold"
+        transform="translateY(-200%)"
+        _focusVisible={{ transform: 'none' }}
+      >
+        Skip to content
+      </Box>
       <Navigation />
-      <Box minHeight="100vh" maxWidth={960} width="100%">
+      <Box as="main" id="content" flex="1" maxWidth={960} width="100%">
         {children}
       </Box>
       <Footer />

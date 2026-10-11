@@ -152,3 +152,20 @@ test('robots.txt points to a sitemap listing every kind of page', async ({ reque
     expect(xml).toMatch(pattern);
   }
 });
+
+// Design pass: the header and footer are landmarks of their own, outside
+// <main>, and the first Tab offers a link past the header to the page.
+test('pages have header, main and footer landmarks, and a skip link', async ({ page }) => {
+  await page.goto('/games');
+  await expect(page.getByRole('banner')).toHaveCount(1);
+  await expect(page.getByRole('main')).toHaveCount(1);
+  await expect(page.getByRole('contentinfo')).toHaveCount(1);
+  await expect(page.getByRole('main').getByRole('banner')).toHaveCount(0);
+
+  await page.keyboard.press('Tab');
+  const skip = page.getByRole('link', { name: 'Skip to content' });
+  await expect(skip).toBeFocused();
+  await expect(skip).toBeInViewport();
+  await skip.press('Enter');
+  await expect(page).toHaveURL(/#content$/);
+});

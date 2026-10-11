@@ -1,5 +1,4 @@
 import { Link } from 'react-router';
-import { useColorModeValue } from './ui/color-mode';
 import {
   Box,
   Image,

@@ -13,13 +13,12 @@ import * as React from 'react';
 import { FaBluesky, FaGithub, FaInstagram, FaDiscord } from 'react-icons/fa6';
 import { Link } from 'react-router';
 
-import { useColorModeValue } from './ui/color-mode';
 import Logo from './Logo';
 
 const Footer = () => {
   return (
     <Box
-      bg={{ base: 'white', _dark: 'gray.800' }}
+      bg="surface"
       maxW="100%"
       mx={{ base: 4, md: 10 }}
       mt={3}

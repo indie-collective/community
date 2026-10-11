@@ -1,5 +1,4 @@
 import React from 'react';
-import { useColorModeValue as mode } from "./ui/color-mode";
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';

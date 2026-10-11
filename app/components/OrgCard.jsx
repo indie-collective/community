@@ -150,7 +150,7 @@ const OrgCard = ({
                   ? `${location.city}, ${location.country_code}`
                   : countryNames[location.country_code.toUpperCase()]
               }
-              color="gray.500"
+              color="muted"
               fontWeight="semibold"
               letterSpacing="wide"
               fontSize="xs"
