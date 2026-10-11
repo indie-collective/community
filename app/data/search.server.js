@@ -19,7 +19,7 @@ const escapeLike = (text) => text.replace(/[\\%_]/g, (c) => '\\' + c);
 
 // Why a record matched, when it isn't its name: the first column, in this
 // order, that holds a matched word, as a snippet with the words marked.
-const MATCH_FIELDS = ['tags', 'related', 'place', 'about'];
+const MATCH_FIELDS = ['related', 'about', 'tags', 'place'];
 function matchOf(row) {
   if (row.name_matched) return null;
   const field = MATCH_FIELDS.find((name) => row[name]?.includes(MATCH_START));
@@ -115,6 +115,19 @@ export async function searchIndex(
       .sort((a, b) => a.position - b.position)
       .map((row) => ({ kind: row.kind, id: row.id, match: matchOf(row) })),
     counts,
+  };
+}
+
+/**
+ * How many records of each kind match `q`: `{ game, studio, association,
+ * event }`. Null for an empty query.
+ */
+export async function countSearch(q) {
+  const match = matchQuery(q);
+  if (!match) return null;
+  return {
+    ...Object.fromEntries(SEARCH_KINDS.map((kind) => [kind, 0])),
+    ...(await countMatches(match, SEARCH_KINDS, true)),
   };
 }
 
