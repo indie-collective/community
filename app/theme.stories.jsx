@@ -31,7 +31,7 @@ export const HeadingsAndLinks = {
     const wide = window.innerWidth >= 768;
     const title = canvas.getByText('Page title');
     await expect(px(title)).toBe(wide ? 36 : 30);
-    await expect(px(canvas.getByText('Section title'))).toBe(wide ? 30 : 24);
+    await expect(px(canvas.getByText('Section title'))).toBe(wide ? 24 : 20);
     await expect(px(canvas.getByText('Card title'))).toBe(18);
     await expect(getComputedStyle(title).fontWeight).toBe('600');
     await expect(getComputedStyle(title).fontFamily).toMatch(/^"?Poppins/);
