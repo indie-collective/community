@@ -15,6 +15,13 @@
       "when": 1791709299177,
       "tag": "0001_people_bsky_handle",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791730583068,
+      "tag": "0002_event_editions_and_tickets",
+      "breakpoints": true
     }
   ]
 }

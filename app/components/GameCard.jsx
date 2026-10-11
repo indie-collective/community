@@ -62,6 +62,9 @@ function GameCard({
           transition="background-color 200ms ease-out"
           ref={ref}
           position="relative"
+          // Its own stacking context: the cover (zIndex -1) sits behind the
+          // name, not behind the page (#203: covers didn't show).
+          isolation="isolate"
           overflow="hidden"
           border="1px solid"
           borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
@@ -86,9 +89,9 @@ function GameCard({
             paddingY={2}
             paddingX={5}
             zIndex={2}
-            backgroundColor={images.length > 0 ? {
-              base: '#ffffffbb',
-              _dark: '#00000088',
+            backgroundColor={image ? {
+              base: '#ffffff99',
+              _dark: '#00000077',
             } : ''}
             fontWeight="bold"
           >

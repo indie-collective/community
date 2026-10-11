@@ -44,7 +44,7 @@ const validationSchema = yup.object().shape({
       })
       .nullable(),
   }),
-  about: yup.string(),
+  about: yup.string().nullable(),
 });
 
 const propTypes = {

@@ -12,9 +12,13 @@ const requestHandler = createRequestHandler(
 export default {
   fetch(request, env, ctx) {
     const handle = (req) => requestHandler(req, { cloudflare: { env, ctx } });
-    // Signed-out pages, cached for a minute (edgeCache.js); EDGE_CACHE=off
-    // turns it off (the end-to-end tests).
-    const cache = env.EDGE_CACHE === 'off' ? undefined : globalThis.caches?.default;
+    // Signed-out pages, cached for a minute (edgeCache.js). Not under
+    // `vite dev`, where an edit must show at once; EDGE_CACHE=off turns it
+    // off in a build (the end-to-end tests).
+    const cache =
+      import.meta.env.DEV || env.EDGE_CACHE === 'off'
+        ? undefined
+        : globalThis.caches?.default;
     return withEdgeCache(request, ctx, handle, cache);
   },
 

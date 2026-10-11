@@ -189,3 +189,21 @@ test('a member sets how a studio took part in a game', async ({ page }) => {
     await db.delete(organizations).where(eq(organizations.id, org.id));
   }
 });
+
+// Games without a website (9 in production) couldn't be edited: the form's
+// validation refused the empty (null) website.
+test('a game without a website can be edited', async ({ page }) => {
+  const { db, games } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const [game] = await db.insert(games).values({ name: `Siteless ${Date.now() % 100000}`, site: null }).returning();
+  try {
+    await signIn(page, MEMBER);
+    await page.goto(`/game/${game.id}/edit`);
+    await page.getByLabel(/^name/i).fill(`${game.name} renamed`);
+    await page.getByRole('button', { name: /submit|save/i }).click();
+    await expect(page).toHaveURL(`/game/${game.id}`);
+    await expect(page.getByRole('heading', { name: `${game.name} renamed` })).toBeVisible();
+  } finally {
+    await db.delete(games).where(eq(games.id, game.id));
+  }
+});

@@ -25,11 +25,12 @@ import useMergeRefs from '../hooks/useMergeRefs';
 import { Form, useSubmit } from 'react-router';
 import { dateToZonedInput } from '../utils/eventTime';
 import ThumbnailFields from './ThumbnailFields';
+import PreviousEditionPicker from './PreviousEditionPicker';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
   canceled: yup.bool().default(false),
-  about: yup.string(),
+  about: yup.string().nullable(),
   location: yup.object({
     label: yup.string(),
     value: yup
@@ -92,6 +93,10 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
     time_zone: timeZone,
     location: l,
     about,
+    id: eventId,
+    site,
+    ticket_url: ticketUrl,
+    previous_edition: previousEdition,
   } = defaultData;
   const coverRef = useRef();
   const [cover, setCover] = useState(defaultData.cover);
@@ -292,6 +297,22 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
             accept="image/*"
           />
           <ThumbnailFields name="cover" file={coverFile} />
+        </Field.Root>
+        <Field.Root>
+          <Field.Label htmlFor="site">Website</Field.Label>
+          <Input id="site" name="site" defaultValue={site ?? ''} placeholder="https://…" inputMode="url" />
+        </Field.Root>
+        <Field.Root>
+          <Field.Label htmlFor="ticket_url">Tickets</Field.Label>
+          <Input id="ticket_url" name="ticket_url" defaultValue={ticketUrl ?? ''} placeholder="https://…" inputMode="url" />
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3">
+          <Field.Label>Previous edition</Field.Label>
+          <PreviousEditionPicker eventId={eventId} defaultValue={previousEdition} />
+          <Field.HelperText>
+            Links this event to the edition before it, so the series shows on
+            both pages.
+          </Field.HelperText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.about}>
           <Field.Label htmlFor="about">About</Field.Label>

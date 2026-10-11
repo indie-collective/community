@@ -189,3 +189,38 @@ test('an event with no related events has no empty "Related events" section', as
     await deleteEvent(event.id);
   }
 });
+
+// #203: editions of an event are linked explicitly, and the event links its
+// website and tickets.
+test('an event lists its editions, and links its website and tickets', async ({ page }) => {
+  const tag = Date.now() % 100000;
+  const past = await createEvent(`Fjordfest ${tag} 2025`);
+  const now = await createEvent(`Fjordfest ${tag} 2026`);
+  await db.update(events).set({ startsAt: new Date('2025-06-01'), endsAt: new Date('2025-06-03') }).where(eq(events.id, past.id));
+  try {
+    // A member links this year's edition to last year's, and adds the links.
+    await signIn(page, MEMBER);
+    await page.goto(`/event/${now.id}/edit`);
+    await page.getByLabel('Website').fill('fjordfest.example');
+    await page.getByLabel('Tickets').fill('https://tickets.example/fjordfest');
+    await page.getByRole('textbox', { name: 'Search for the previous edition' }).fill(`Fjordfest ${tag}`);
+    await page.getByRole('button', { name: `Fjordfest ${tag} 2025` }).click();
+    await page.getByRole('button', { name: /submit|save/i }).click();
+    await expect(page).toHaveURL(`/event/${now.id}`);
+
+    await expect(page.getByRole('link', { name: 'Website' })).toHaveAttribute('href', 'https://fjordfest.example/');
+    await expect(page.getByRole('link', { name: 'Tickets' })).toHaveAttribute('href', 'https://tickets.example/fjordfest');
+    await expect(page.getByRole('heading', { name: 'Editions' })).toBeVisible();
+    await expect(page.getByText('(this one)')).toBeVisible();
+    await expect(page.getByRole('link', { name: `Fjordfest ${tag} 2025` })).toHaveAttribute('href', `/event/${past.id}`);
+    // An edition isn't also a "related event".
+    await expect(page.getByRole('heading', { name: 'Related events' })).toHaveCount(0);
+
+    // And the other way round.
+    await page.goto(`/event/${past.id}`);
+    await expect(page.getByRole('link', { name: `Fjordfest ${tag} 2026` })).toHaveAttribute('href', `/event/${now.id}`);
+  } finally {
+    await deleteEvent(now.id);
+    await deleteEvent(past.id);
+  }
+});

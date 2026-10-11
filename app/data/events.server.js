@@ -180,12 +180,20 @@ export async function getEvent(id) {
   return computeEvent(event);
 }
 
-/** Up to five other events whose names match this one's, computed. */
-export async function getRelatedEvents(event) {
+/**
+ * Up to five other events whose names match this one's, computed; those in
+ * `excludeIds` (its editions, shown on their own) left out.
+ */
+export async function getRelatedEvents(event, { excludeIds = [] } = {}) {
   const search = matchesSearch(events.searchText, event.name);
   if (!search) return [];
   const rows = await db.query.events.findMany({
-    where: and(search, notDeleted, ne(events.id, event.id)),
+    where: and(
+      search,
+      notDeleted,
+      ne(events.id, event.id),
+      notInArray(events.id, excludeIds)
+    ),
     with: CARD_WITH,
     limit: 5,
   });
@@ -203,7 +211,70 @@ export async function getEventForEdit(id) {
     .where(and(eq(events.id, id), notDeleted));
   if (!row) return null;
   const event = shape.event(row);
-  return { ...event, cover: event.cover ? getImageLinks(event.cover) : null };
+  const [previous] = row.previousEditionId
+    ? await db
+        .select({ id: events.id, name: events.name })
+        .from(events)
+        .where(eq(events.id, row.previousEditionId))
+    : [];
+  return {
+    ...event,
+    cover: event.cover ? getImageLinks(event.cover) : null,
+    previous_edition: previous ?? null,
+  };
+}
+
+/**
+ * The series an event belongs to (#203): every edition linked to it through
+ * `previous_edition_id`, in either direction, itself included, newest
+ * first; `{ id, name, starts_at, ends_at, time_zone, cover }`. Just itself
+ * when it has no other editions.
+ */
+export async function getEventEditions(eventId) {
+  // Every event is small: follow the links in memory.
+  const rows = await db
+    .select({
+      id: events.id,
+      name: events.name,
+      startsAt: events.startsAt,
+      endsAt: events.endsAt,
+      timeZone: events.timeZone,
+      coverKey: events.coverKey,
+      previousEditionId: events.previousEditionId,
+    })
+    .from(events)
+    .where(notDeleted);
+  const neighbours = new Map(rows.map((row) => [row.id, []]));
+  for (const row of rows) {
+    if (row.previousEditionId && neighbours.has(row.previousEditionId)) {
+      neighbours.get(row.id).push(row.previousEditionId);
+      neighbours.get(row.previousEditionId).push(row.id);
+    }
+  }
+  const series = new Set([eventId]);
+  const queue = [eventId];
+  while (queue.length) {
+    for (const next of neighbours.get(queue.shift()) ?? []) {
+      if (!series.has(next)) {
+        series.add(next);
+        queue.push(next);
+      }
+    }
+  }
+  return rows
+    .filter((row) => series.has(row.id))
+    .sort((a, b) => b.startsAt - a.startsAt)
+    .map((row) => {
+      const cover = shape.image(row.coverKey);
+      return {
+        id: row.id,
+        name: row.name,
+        starts_at: row.startsAt,
+        ends_at: row.endsAt,
+        time_zone: row.timeZone,
+        cover: cover ? getImageLinks(cover) : null,
+      };
+    });
 }
 
 /** An event's time zone (#204), or undefined. */
@@ -230,6 +301,8 @@ export async function createEvent({
   site,
   coverId,
   location,
+  ticketUrl = null,
+  previousEditionId = null,
   authorId = null,
 }) {
   const id = crypto.randomUUID();
@@ -243,6 +316,8 @@ export async function createEvent({
       endsAt,
       about,
       site,
+      ticketUrl,
+      previousEditionId,
       ...shape.locationColumns(location),
       ...(await imageColumns('cover', coverId)),
       searchText: shape.searchTextOf({ name, about }),
@@ -270,6 +345,8 @@ export async function updateEvent(
     site,
     coverId,
     location,
+    ticketUrl,
+    previousEditionId,
     authorId,
   }
 ) {
@@ -289,6 +366,9 @@ export async function updateEvent(
         endsAt,
         about,
         site,
+        ticketUrl,
+        // Never itself.
+        previousEditionId: previousEditionId === id ? null : previousEditionId,
         ...shape.locationColumns(location),
         ...(await imageColumns('cover', coverId)),
         searchText: shape.searchTextOf({

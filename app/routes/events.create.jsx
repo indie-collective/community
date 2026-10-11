@@ -12,6 +12,7 @@ import EventForm from '../components/EventForm';
 import { zonedInputToDate } from '../utils/eventTime';
 import { timeZoneAt } from '../utils/timeZone.server';
 import getOrigin from '../utils/origin.server';
+import { webUrl } from '../utils/url';
 
 export async function action(args) {
   const { request } = args;
@@ -41,7 +42,9 @@ export async function action(args) {
       startsAt: zonedInputToDate(data.get('start'), timeZone),
       endsAt: zonedInputToDate(data.get('end'), timeZone),
       about: data.get('about'),
-      site: data.get('site'),
+      site: webUrl(data.get('site')),
+      ticketUrl: webUrl(data.get('ticket_url')),
+      previousEditionId: data.get('previous_edition_id') || null,
       coverId: data.get('cover'),
       location,
       authorId: currentUser.id,
