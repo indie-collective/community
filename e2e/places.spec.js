@@ -1,4 +1,5 @@
 import { expect, test, watchErrors, MEMBER, signIn } from './helpers';
+import { retryBusy } from './db.js';
 
 // #175: the loader discarded its query result, so every country page was a 500.
 test('country pages render their cities, and unknown countries are a 404', async ({ page }) => {
@@ -17,6 +18,9 @@ test('country pages render their cities, and unknown countries are a 404', async
   expect(unknown.status()).toBe(404);
   await expect(page.getByText('Not Found')).toBeVisible();
 });
+
+// Cleanups retry while the server holds the write lock (retryBusy): a
+// failed one left records that broke the test's retry.
 
 // #258: a country page is the overview of its scene: numbers, cities with
 // the studio/association split, associations by city, games made there,
@@ -100,9 +104,9 @@ test('a country page gives the overview of its scene', async ({ page }) => {
     await expect(page).toHaveURL('/games');
     await expect(page.getByText('Made in Antarctica')).toHaveCount(0);
   } finally {
-    await db.delete(events).where(inArray(events.id, created.map((e) => e.id)));
-    await db.delete(games).where(eq(games.id, game.id));
-    await db.delete(organizations).where(inArray(organizations.id, orgs.map((o) => o.id)));
+    await retryBusy(() => db.delete(events).where(inArray(events.id, created.map((e) => e.id))));
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+    await retryBusy(() => db.delete(organizations).where(inArray(organizations.id, orgs.map((o) => o.id))));
   }
 });
 
@@ -156,7 +160,7 @@ test('places opens on a country when given one', async ({ page }) => {
     await expect(page.locator(`[id="${near.id}"]`)).toBeAttached();
     await expect(page.locator(`[id="${far.id}"]`)).toHaveCount(0);
   } finally {
-    await db.delete(organizations).where(inArray(organizations.id, [near.id, far.id]));
+    await retryBusy(() => db.delete(organizations).where(inArray(organizations.id, [near.id, far.id])));
   }
 });
 
@@ -248,7 +252,7 @@ test('closed organisations show on the map only when asked for', async ({ page }
     await page.goto(`/org/${closed.id}`);
     await expect(page.getByText('Closed', { exact: true })).toBeVisible();
   } finally {
-    await db.delete(organizations).where(inArray(organizations.id, [open.id, closed.id]));
+    await retryBusy(() => db.delete(organizations).where(inArray(organizations.id, [open.id, closed.id])));
   }
 });
 
@@ -264,7 +268,7 @@ test('the org form sets the status', async ({ page }) => {
     await expect(page).toHaveURL(/\/org\/pausing-studio-\d+$/);
     await expect(page.getByText('On hiatus', { exact: true })).toBeVisible();
   } finally {
-    await db.delete(organizations).where(eq(organizations.id, org.id));
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.id, org.id)));
   }
 });
 
@@ -297,7 +301,7 @@ test('the map shows upcoming events, and filters by kind', async ({ page }) => {
     await page.getByRole('checkbox', { name: 'Upcoming events' }).click({ force: true });
     await expect(page.locator(`[id="${soon.id}"]`)).toHaveCount(0);
   } finally {
-    await db.delete(events).where(inArray(events.id, [soon.id, past.id]));
-    await db.delete(organizations).where(inArray(organizations.id, [studio.id]));
+    await retryBusy(() => db.delete(events).where(inArray(events.id, [soon.id, past.id])));
+    await retryBusy(() => db.delete(organizations).where(inArray(organizations.id, [studio.id])));
   }
 });
