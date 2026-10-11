@@ -121,6 +121,7 @@ const Profile = () => {
                 isAdmin,
                 role,
                 bluesky_linked,
+                bsky_handle,
               }) => (
                 <Table.Row key={id}>
                   <Table.Cell>
@@ -139,9 +140,16 @@ const Profile = () => {
                   <Table.Cell>{email}</Table.Cell>
                   <Table.Cell>
                     {bluesky_linked && (
-                      <Icon color="blue.500" mr={2} aria-label="Bluesky linked">
+                      <ChakraLink
+                        href={bsky_handle ? `https://bsky.app/profile/${bsky_handle}` : undefined}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={bsky_handle ? `@${bsky_handle} on Bluesky` : 'Bluesky linked'}
+                        color="blue.500"
+                        mr={2}
+                      >
                         <FaBluesky />
-                      </Icon>
+                      </ChakraLink>
                     )}
                     {discord_url && (
                       <IconButton

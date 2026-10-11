@@ -74,6 +74,7 @@ const Profile = () => {
     avatar,
     discord_url,
     bluesky_linked,
+    bsky_handle,
     can_unlink_bluesky,
   } = currentUser;
   const error = searchParams.get('error');
@@ -130,7 +131,21 @@ const Profile = () => {
                   <Icon color="blue.500">
                     <FaBluesky />
                   </Icon>
-                  <Text>Bluesky is linked</Text>
+                  <Text>
+                    Bluesky is linked
+                    {bsky_handle && (
+                      <>
+                        {' as '}
+                        <ChakraLink
+                          href={`https://bsky.app/profile/${bsky_handle}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          @{bsky_handle}
+                        </ChakraLink>
+                      </>
+                    )}
+                  </Text>
                 </HStack>
                 <Button
                   type="submit"

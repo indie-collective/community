@@ -80,8 +80,10 @@ export const people = sqliteTable(
     // A picture from the sign-in provider, when there's no uploaded avatar.
     avatarUrl: text('avatar_url'),
     role: text('role', { enum: PERSON_ROLES }).notNull().default('member'),
-    // The Bluesky identity (#162).
+    // The Bluesky identity (#162), and its handle, refreshed at each
+    // Bluesky sign-in (#161): handles can change, the DID doesn't.
     did: text('did').unique(),
+    bskyHandle: text('bsky_handle'),
     // Until the cutover to Bluesky sign-in (ADR 0002).
     discordId: text('discord_id').unique(),
     ...timestamps(),

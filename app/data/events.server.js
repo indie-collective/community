@@ -145,7 +145,9 @@ export async function getEvent(id) {
       },
       participants: {
         with: {
-          person: { columns: { id: true, username: true, avatarKey: true } },
+          person: {
+            columns: { id: true, username: true, avatarKey: true, bskyHandle: true },
+          },
         },
       },
     },
@@ -171,6 +173,7 @@ export async function getEvent(id) {
     person: {
       id: person.id,
       username: person.username,
+      bsky_handle: person.bskyHandle,
       avatar: shape.image(person.avatarKey),
     },
   }));

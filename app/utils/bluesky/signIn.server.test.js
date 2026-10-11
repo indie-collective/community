@@ -5,6 +5,7 @@ const people = vi.hoisted(() => ({
   findPersonByEmail: vi.fn(),
   createPerson: vi.fn(async (fields) => ({ id: 'new', ...fields })),
   setProviderAvatar: vi.fn(),
+  setBlueskyHandle: vi.fn(),
   avatarThumbnail: vi.fn(async (key) => `thumb:${key}`),
 }));
 vi.mock('../../data/people.server', () => people);
@@ -47,6 +48,7 @@ describe('personForBlueskyIdentity', () => {
       username: 'alice',
       first_name: 'Alice',
       avatar_oauth: 'https://cdn.bsky.app/alice.jpg',
+      bsky_handle: 'alice.bsky.social',
     });
     expect(person).toMatchObject({ id: 'new', avatar: 'https://cdn.bsky.app/alice.jpg' });
   });
@@ -57,6 +59,13 @@ describe('personForBlueskyIdentity', () => {
     expect(people.createPerson).not.toHaveBeenCalled();
     expect(people.setProviderAvatar).toHaveBeenCalledWith('p1', identity.avatar);
     expect(person.id).toBe('p1');
+  });
+
+  // #161: handles can change; the DID doesn't.
+  it('refreshes the Bluesky handle', async () => {
+    people.findPersonByDid.mockResolvedValue({ id: 'p1', bsky_handle: 'old.bsky.social', avatar_id: null });
+    await personForBlueskyIdentity(identity);
+    expect(people.setBlueskyHandle).toHaveBeenCalledWith('p1', 'alice.bsky.social');
   });
 
   it('prefers an uploaded avatar', async () => {

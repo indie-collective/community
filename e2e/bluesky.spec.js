@@ -37,7 +37,7 @@ test.describe('linking Bluesky', () => {
     await db.update(people).set(fields).where(eq(people.email, email));
   };
   const did = `did:plc:e2e${Date.now() % 100000}`;
-  test.afterEach(() => setPerson(MEMBER, { did: null, discordId: null }));
+  test.afterEach(() => setPerson(MEMBER, { did: null, discordId: null, bskyHandle: null }));
 
   test('the profile offers to link Bluesky', async ({ page }) => {
     await signIn(page, MEMBER);
@@ -66,4 +66,32 @@ test.describe('linking Bluesky', () => {
     await page.getByRole('button', { name: 'Unlink' }).click();
     await expect(page.getByLabel('Link your Bluesky account')).toBeVisible();
   });
+});
+
+// #161: a linked person's Bluesky handle shows on their profile, and their
+// avatar among an event's attendees links to their Bluesky profile.
+test('a Bluesky handle shows on the profile and among attendees', async ({ page }) => {
+  const { db, events, eventParticipants, people } = await import('./db.js');
+  const { and, eq, isNotNull } = await import('drizzle-orm');
+  const handle = `member${Date.now() % 100000}.bsky.social`;
+  await db.update(people).set({ did: `did:plc:${Date.now()}`, bskyHandle: handle }).where(eq(people.email, MEMBER));
+  const [member] = await db.select().from(people).where(eq(people.email, MEMBER));
+  const [event] = await db.select().from(events).where(isNotNull(events.countryCode)).limit(1);
+  await db.insert(eventParticipants).values({ eventId: event.id, personId: member.id }).onConflictDoNothing();
+  try {
+    await signIn(page, MEMBER);
+    await page.goto('/profile');
+    await expect(page.getByRole('link', { name: `@${handle}` })).toHaveAttribute('href', `https://bsky.app/profile/${handle}`);
+
+    await page.goto(`/event/${event.id}`);
+    await expect(page.getByRole('link', { name: `@${member.username} on Bluesky` })).toHaveAttribute(
+      'href',
+      `https://bsky.app/profile/${handle}`
+    );
+  } finally {
+    await db
+      .delete(eventParticipants)
+      .where(and(eq(eventParticipants.eventId, event.id), eq(eventParticipants.personId, member.id)));
+    await db.update(people).set({ did: null, bskyHandle: null }).where(eq(people.email, MEMBER));
+  }
 });

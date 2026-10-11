@@ -1,0 +1,1 @@
+ALTER TABLE `people` ADD `bsky_handle` text;

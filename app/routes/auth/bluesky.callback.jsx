@@ -16,11 +16,11 @@ import toSessionUser from '../../utils/sessionUser.server';
 // Back from Bluesky, after linking an account to the signed-in person's
 // profile (#158).
 async function link(request, session) {
-  const { did } = await identityOf(session);
+  const { did, handle } = await identityOf(session);
   const currentUser = await isAuthenticated(request);
   if (!currentUser) return redirect('/signin');
   try {
-    await linkBluesky(currentUser.id, did);
+    await linkBluesky(currentUser.id, did, handle);
     return redirect('/profile');
   } catch (error) {
     if (error.message !== DID_TAKEN) throw error;
