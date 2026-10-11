@@ -19,7 +19,7 @@ test('a member creates an organisation and an admin deletes it', async ({ browse
   await signIn(admin, ADMIN);
   await admin.goto(orgUrl);
   await waitForHydration(admin);
-  await admin.getByRole('button', { name: 'Options' }).click();
+  await admin.getByRole('button', { name: 'More actions' }).click();
   await admin.getByRole('menuitem', { name: /delete/i }).click();
   await admin.getByRole('dialog').getByRole('button', { name: /delete/i }).click();
   await expect(admin).toHaveURL(/\/orgs$/);

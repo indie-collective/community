@@ -7,6 +7,7 @@ import { listRecentOrganizations } from '../data/organizations.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
 import { pageMeta } from '../utils/meta';
+import { Page, PageHeader } from '../components/Page';
 
 const PAGE_SIZE = 50;
 
@@ -54,10 +55,24 @@ const OrgsList = () => {
 };
 
 const Orgs = () => {
-  const { orgs, currentUser } = useLoaderData();
+  const { currentUser } = useLoaderData();
 
   return (
-    <Box p={5}>
+    <Page>
+      <PageHeader
+        title="Recently added"
+        description="The latest studios and associations on Community."
+        actions={
+          currentUser && (
+            <Button asChild size="sm">
+              <Link to="/orgs/create">
+                <LuPlus />
+                Add a studio or association
+              </Link>
+            </Button>
+          )
+        }
+      />
       <Grid
         gap={5}
         templateColumns={[
@@ -79,7 +94,7 @@ const Orgs = () => {
           {/* </Await> */}
         </Suspense>
       </Grid>
-    </Box>
+    </Page>
   );
 };
 

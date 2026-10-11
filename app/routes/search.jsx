@@ -7,6 +7,7 @@ import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 import SearchMatch from '../components/SearchMatch';
+import { Page, PageHeader } from '../components/Page';
 
 // The kinds of results, in the order the page shows them (#306).
 const KINDS = [
@@ -187,15 +188,12 @@ const SearchPage = () => {
 
   if (!counts) {
     return (
-      <Box p={5} mb={5}>
-        <Heading as="h1" size="2xl" mb={3}>
-          Search
-        </Heading>
-        <Text color="muted" fontSize="lg">
-          Find games, studios, associations and events by name, place, tag or
-          studio, from the search box above.
-        </Text>
-      </Box>
+      <Page>
+        <PageHeader
+          title="Search"
+          description="Find games, studios, associations and events by name, place, tag or studio, from the search box above."
+        />
+      </Page>
     );
   }
 
@@ -203,10 +201,8 @@ const SearchPage = () => {
   const current = KINDS.find((k) => k.kind === kind);
 
   return (
-    <Box p={5} mb={5}>
-      <Heading as="h1" size="2xl" mb={4}>
-        Results for “{q}”
-      </Heading>
+    <Page>
+      <PageHeader title={`Results for “${q}”`} mb={4} />
       <Tabs q={q} kind={kind} counts={counts} />
 
       {total === 0 ? (
@@ -228,7 +224,7 @@ const SearchPage = () => {
             as="section"
             key={k.kind}
             aria-labelledby={`results-${k.kind}`}
-            mb={10}
+            mb={{ base: 8, md: 10 }}
           >
             <HStack justify="space-between" align="baseline" mb={4} wrap="wrap">
               <Heading as="h2" size="xl" id={`results-${k.kind}`}>
@@ -250,7 +246,7 @@ const SearchPage = () => {
           </Box>
         ))
       )}
-    </Box>
+    </Page>
   );
 };
 

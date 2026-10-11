@@ -3,11 +3,8 @@ import {
   Grid,
   Flex,
   Button,
-  Heading,
   Tag,
-  TagLabel,
   Badge,
-  Spacer,
   Wrap,
   WrapItem,
   Center,
@@ -18,10 +15,17 @@ import {
   NativeSelect,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useFetcher, useLoaderData, useSearchParams } from 'react-router';
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useRouteLoaderData,
+  useSearchParams,
+} from 'react-router';
 import { LuPlus, LuSearch } from 'react-icons/lu';
 
-import { listGames } from '../data/games.server';
+import { countGames, listGames } from '../data/games.server';
+import { FilterBar, Page, PageHeader } from '../components/Page';
 import GameCard from '../components/GameCard';
 import useDebounce from '../hooks/useDebounce';
 import { pageMeta } from '../utils/meta';
@@ -48,15 +52,13 @@ export const loader = async ({ request }) => {
   const countryCode = searchParams.get('country')?.toUpperCase();
   const country = countryNames[countryCode] ? countryCode : null;
 
-  const { tags, games } = await listGames({
-    page,
-    tags: selectedTags,
-    q,
-    sort,
-    country,
-  });
+  const [{ tags, games }, total] = await Promise.all([
+    listGames({ page, tags: selectedTags, q, sort, country }),
+    countGames(),
+  ]);
 
   const data = {
+    total,
     tags,
     games,
     q: q ?? '',
@@ -76,7 +78,15 @@ export const meta = ({ matches, location }) =>
   });
 
 const Games = () => {
-  const { games: initialGames, tags, q, sort, country } = useLoaderData();
+  const {
+    games: initialGames,
+    tags,
+    q,
+    sort,
+    country,
+    total,
+  } = useLoaderData();
+  const { currentUser } = useRouteLoaderData('root') ?? {};
   const [searchParams, setSearchParams] = useSearchParams();
 
   const selectedTags = searchParams.getAll('tags');
@@ -157,93 +167,104 @@ const Games = () => {
   }, [atEnd, hasMore, fetcher.state, page, searchParams]);
 
   return (
-    <Box p={5}>
-      <Flex gap={3} mb={5} wrap="wrap" align="center">
-        <InputGroup startElement={<LuSearch />} maxW="320px" flex="1 1 220px">
-          <Input
-            type="search"
-            aria-label="Search games"
-            placeholder="Search games"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </InputGroup>
-        <NativeSelect.Root size="md" width="auto">
-          <NativeSelect.Field
-            aria-label="Sort by"
-            value={sort}
-            onChange={(event) =>
-              updateParams({
-                sort:
-                  event.target.value === 'updated' ? '' : event.target.value,
-              })
-            }
+    <Page>
+      <PageHeader
+        title="Games"
+        description={`Indie games from the community, with who made them and where they were shown: ${total.toLocaleString('en')} so far.`}
+        actions={
+          currentUser && (
+            <Button asChild size="sm">
+              <Link to="/games/create">
+                <LuPlus />
+                Add a game
+              </Link>
+            </Button>
+          )
+        }
+      />
+      <FilterBar direction="column" align="stretch">
+        <Flex gap={3} wrap="wrap" align="center">
+          <InputGroup
+            startElement={<LuSearch />}
+            maxW="320px"
+            flex="1 1 220px"
+            size="sm"
           >
-            {Object.entries(SORTS).map(([value, { label }]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
-        {country && (
-          <Tag.Root size="lg" variant="subtle" colorPalette="green">
-            <Tag.Label>Made in {country.name}</Tag.Label>
-            <Tag.EndElement>
-              <Tag.CloseTrigger
-                aria-label={`Show games from every country`}
-                onClick={() => updateParams({ country: '' })}
-              />
-            </Tag.EndElement>
-          </Tag.Root>
-        )}
-      </Flex>
-      <Wrap
-        gap={2}
-        mb={10}
-        align="flex-end"
-        role="group"
-        aria-label="Filter by tag"
-      >
-        {tags.slice(0, 30).map((tag) => {
-          const selected = selectedTags.includes(tag.name);
-          return (
-            <WrapItem key={tag.id}>
-              {/* A real toggle button, so the filter works with the keyboard (#224). */}
-              <Tag.Root
-                asChild
-                size="lg"
-                variant="solid"
-                colorPalette={selected ? 'green' : 'gray'}
-                // v3's solid gray is near-black; v2's unselected chips were gray.500.
-                {...(!selected && {
-                  bg: 'gray.500',
-                  color: 'white',
-                })}
-                cursor="pointer"
-              >
-                <button
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() =>
-                    updateParams({
-                      tags: selected
-                        ? selectedTags.filter((t) => t !== tag.name)
-                        : [...selectedTags, tag.name],
-                    })
-                  }
+            <Input
+              type="search"
+              aria-label="Search games"
+              placeholder="Search games"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </InputGroup>
+          <NativeSelect.Root size="sm" width="auto">
+            <NativeSelect.Field
+              aria-label="Sort by"
+              value={sort}
+              onChange={(event) =>
+                updateParams({
+                  sort:
+                    event.target.value === 'updated' ? '' : event.target.value,
+                })
+              }
+            >
+              {Object.entries(SORTS).map(([value, { label }]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          {country && (
+            <Tag.Root size="lg" variant="subtle" colorPalette="green">
+              <Tag.Label>Made in {country.name}</Tag.Label>
+              <Tag.EndElement>
+                <Tag.CloseTrigger
+                  aria-label={`Show games from every country`}
+                  onClick={() => updateParams({ country: '' })}
+                />
+              </Tag.EndElement>
+            </Tag.Root>
+          )}
+        </Flex>
+        <Wrap gap={2} role="group" aria-label="Filter by tag">
+          {tags.slice(0, 30).map((tag) => {
+            const selected = selectedTags.includes(tag.name);
+            return (
+              <WrapItem key={tag.id}>
+                {/* A real toggle button, so the filter works with the keyboard (#224). */}
+                <Tag.Root
+                  asChild
+                  size="lg"
+                  // Neutral until picked, then green (design pass).
+                  variant={selected ? 'solid' : 'subtle'}
+                  colorPalette={selected ? 'green' : 'gray'}
+                  cursor="pointer"
                 >
-                  <Tag.Label>{tag.name}</Tag.Label>
-                  <Badge variant="subtle" ml={1}>
-                    {tag.game_tag.length}
-                  </Badge>
-                </button>
-              </Tag.Root>
-            </WrapItem>
-          );
-        })}
-      </Wrap>
+                  <button
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() =>
+                      updateParams({
+                        tags: selected
+                          ? selectedTags.filter((t) => t !== tag.name)
+                          : [...selectedTags, tag.name],
+                      })
+                    }
+                  >
+                    <Tag.Label>{tag.name}</Tag.Label>
+                    <Badge variant="subtle" ml={1}>
+                      {tag.game_tag.length}
+                    </Badge>
+                  </button>
+                </Tag.Root>
+              </WrapItem>
+            );
+          })}
+        </Wrap>
+      </FilterBar>
       <Grid
         gap={5}
         templateColumns={[
@@ -274,7 +295,7 @@ const Games = () => {
           <Spinner size="xl" color="green.500" borderWidth="4px" />
         </Center>
       )}
-    </Box>
+    </Page>
   );
 };
 

@@ -1,4 +1,7 @@
-import { listOrganizations } from '../data/organizations.server';
+import {
+  countOrganizations,
+  listOrganizations,
+} from '../data/organizations.server';
 
 export const PAGE_SIZE = 50;
 
@@ -18,17 +21,21 @@ export async function loadOrgList(request, type) {
   const has_games = searchParams.get('has_games');
   const has_events = searchParams.get('has_events');
 
-  const { orgs, hasMore, countries } = await listOrganizations({
-    type,
-    page,
-    pageSize: PAGE_SIZE,
-    country,
-    city,
-    hasGames: has_games === 'on',
-    hasEvents: has_events === 'on',
-  });
+  const [{ orgs, hasMore, countries }, total] = await Promise.all([
+    listOrganizations({
+      type,
+      page,
+      pageSize: PAGE_SIZE,
+      country,
+      city,
+      hasGames: has_games === 'on',
+      hasEvents: has_events === 'on',
+    }),
+    countOrganizations({ type }),
+  ]);
 
   return {
+    total,
     orgs,
     hasMore,
     page,

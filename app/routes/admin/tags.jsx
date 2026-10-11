@@ -1,7 +1,6 @@
 import { redirect, useLoaderData, Form  } from 'react-router';
 import {
     Box,
-  Heading,
   Table,
   TableCaption,
   Input,
@@ -16,6 +15,7 @@ import {
   listTags,
   mergeTags,
 } from '../../data/tags.server';
+import { PageHeader } from '../../components/Page';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
@@ -68,10 +68,8 @@ const TagsAdmin = () => {
   const { tags } = useLoaderData();
 
   return (
-    <Box mb={5} pl={5} pr={5} mt={5}>
-      <Heading as="h2" mb={5} size="2xl">
-        Tags
-      </Heading>
+    <Box px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
+      <PageHeader eyebrow="Admin" title="Tags" />
       <Box method="post" mb={5} display="flex" gap={2} asChild><Form>
           <Input name="name" placeholder="New tag name" />
           <input type="hidden" name="intent" value="add" />

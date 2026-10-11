@@ -1,4 +1,4 @@
-import { Box, Heading } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { redirect, useActionData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
@@ -17,6 +17,7 @@ import { eventPath } from '../utils/slug';
 import { announceOnBluesky } from '../utils/blueskyPost.server';
 import { afterResponse } from '../utils/igdbData.server';
 import { summarize } from '../utils/meta';
+import { PageHeader } from '../components/Page';
 
 export async function action(args) {
   const { request } = args;
@@ -110,8 +111,8 @@ const CreateEvent = () => {
   }, [actionData?.error, navigation.state === 'submitting']);
 
   return (
-    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-      <Heading mb={5}>Add Event</Heading>
+    <Box maxW="560px" mx="auto" px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
+      <PageHeader title="Add an event" />
 
       <EventForm
         method="POST"

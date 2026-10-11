@@ -1,8 +1,7 @@
 import {
-    Box,
+  Box,
   Text,
   Heading,
-  Spinner,
   Badge,
   Grid,
   Image,
@@ -13,15 +12,14 @@ import {
   Stack,
   Dialog,
   Portal,
-  Icon,
+  HStack,
 } from '@chakra-ui/react';
-import { DarkMode } from '../components/ui/color-mode';
-import { LuPlus, LuPencil, LuExternalLink, LuMapPin } from 'react-icons/lu';
+
+import { LuPlus, LuExternalLink, LuMapPin } from 'react-icons/lu';
 
 import {
   Link,
   useLoaderData,
-  useNavigate,
   Form,
   isRouteErrorResponse,
   useRouteError,
@@ -36,30 +34,14 @@ import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
+import { Page, PageHeader } from '../components/Page';
 import { pageMeta, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
-import { ORG_STATUSES, orgStatusLabel, orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
+import { ORG_STATUSES, orgStatusLabel, orgTypeLabel } from '../utils/orgTypes';
 import EmptyHint from '../components/EmptyHint';
 import { FaBluesky } from 'react-icons/fa6';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { orgPath } from '../utils/slug';
-
-
-const variants = {
-  initial: { scale: 0.96, y: 30, opacity: 0 },
-  enter: {
-    scale: 1,
-    y: 0,
-    opacity: 1,
-    transition: { duration: 0.5, ease: [0.48, 0.15, 0.25, 0.96] },
-  },
-  exit: {
-    scale: 0.6,
-    y: 100,
-    opacity: 0,
-    transition: { duration: 0.2, ease: [0.48, 0.15, 0.25, 0.96] },
-  },
-};
 
 export const loader = async ({ request, params }) => {
   // By slug, an old slug or UUID; those redirect to the slug (#209).
@@ -85,18 +67,21 @@ export const meta = ({ data, matches }) => {
   if (!data?.org) return [{ title: 'Organization not found!' }];
   const { org } = data;
   // Without an "about", describe it from what we know (#196).
-  const kind = org.type === 'association' ? 'Video game association' : 'Video game studio';
-  const place = [org.location?.city, org.location?.country_code].filter(Boolean).join(', ');
+  const kind =
+    org.type === 'association' ? 'Video game association' : 'Video game studio';
+  const place = [org.location?.city, org.location?.country_code]
+    .filter(Boolean)
+    .join(', ');
   return pageMeta(matches, {
     title: org.name,
-    description: summarize(org.about) || `${kind}${place ? ` in ${place}` : ''}.`,
+    description:
+      summarize(org.about) || `${kind}${place ? ` in ${place}` : ''}.`,
     image: org.logo?.thumbnail_url,
     path: orgPath(org),
   });
 };
 
 const Org = () => {
-  const navigate = useNavigate();
   const placeholder = usePlaceholder('square');
   const { org, currentUser } = useLoaderData();
 
@@ -120,40 +105,73 @@ const Org = () => {
   const events = entity_event.map(({ event }) => event);
 
   return (
-    <>
-      <Box mt={[5, 2, 5]} padding={[0, 5]} px={5}>
-        <Flex alignItems="center">
-          <Image
-            w="100px"
-            h="100px"
-            objectFit="cover"
-            src={logo?.thumbnail_url ?? placeholder}
-            alt="Organization cover"
-            rounded={3}
-          />
-
-          <Box flex="1" ml={2}>
-            <Heading lineClamp={1} title={name}>
-              {name}
-            </Heading>
-            <DarkMode>
-              <Badge
-                rounded={3}
-                variant="solid"
-                colorPalette={orgTypeColor(type)}
-              >
-                {orgTypeLabel(type)}
-              </Badge>
-            </DarkMode>
+    <Page>
+      <Flex gap={{ base: 4, md: 5 }} align="flex-start" mb={{ base: 6, md: 8 }}>
+        <Image
+          boxSize={{ base: '72px', md: '96px' }}
+          flexShrink={0}
+          objectFit="cover"
+          src={logo?.thumbnail_url ?? placeholder}
+          alt=""
+          borderRadius="lg"
+          bg="surface"
+        />
+        <PageHeader
+          flex="1"
+          minW={0}
+          mb={0}
+          // What kind of page this is, and where (design pass).
+          eyebrow={[
+            orgTypeLabel(type),
+            location &&
+              [location.city, countryNames[location.country_code]]
+                .filter(Boolean)
+                .join(', '),
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+          title={name}
+          actions={
+            currentUser && (
+              <ActionMenu
+                editLink={`/org/${id}/edit`}
+                changesLink={`/org/${id}/changes`}
+                onDelete={deleteModal.onOpen}
+              />
+            )
+          }
+        >
+          <HStack gap={4} wrap="wrap" fontSize="sm" color="muted">
             {status && status !== 'active' && (
-              <Badge rounded={3} ml={2} colorPalette={ORG_STATUSES[status]?.color}>
+              <Badge colorPalette={ORG_STATUSES[status]?.color}>
                 {orgStatusLabel(status)}
               </Badge>
+            )}
+            {location && (
+              <HStack gap={1}>
+                <LuMapPin />
+                <Text>
+                  {[location.city, location.region].filter(Boolean).join(', ')}
+                  {(location.city || location.region) && ', '}
+                  <ChakraLink asChild>
+                    <Link
+                      to={`/country/${location.country_code.toLowerCase()}`}
+                    >
+                      {countryNames[location.country_code]}
+                    </Link>
+                  </ChakraLink>
+                </Text>
+              </HStack>
+            )}
+            {site && (
+              <ChakraLink href={site} target="_blank" rel="noopener noreferrer">
+                {site.replace(/https?:\/\//, '').replace(/\/$/, '')}
+                <LuExternalLink />
+              </ChakraLink>
             )}
             {bsky_handle && (
               <ChakraLink
                 href={`https://bsky.app/profile/${bsky_handle}`}
-                ml={2}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Bluesky: @${bsky_handle}`}
@@ -161,153 +179,90 @@ const Org = () => {
                 <FaBluesky />@{bsky_handle}
               </ChakraLink>
             )}
-            {site && (
-              <ChakraLink
-                href={site}
-                ml={2}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {site.replace(/https?:\/\//, '')}
-                <LuExternalLink mx="2px" />
-              </ChakraLink>
-            )}
-            {location && (
-              <Text>
-                <Icon mr={1}>
-                  <LuMapPin />
-                </Icon>
-                {location.region && (
-                  <>
-                    {location.city && <>{location.city}, </>}
-                    {location.region},{' '}
-                  </>
-                )}
-                <ChakraLink asChild>
-                  <Link to={`/country/${location.country_code.toLowerCase()}`}>
-                    {countryNames[location.country_code]}
-                  </Link>
-                </ChakraLink>
-              </Text>
-            )}
-          </Box>
+          </HStack>
+        </PageHeader>
+      </Flex>
 
-          {currentUser && (
-            <ActionMenu
-              ml="auto"
-              editLink={`/org/${id}/edit`}
-              changesLink={`/org/${id}/changes`}
-              onDelete={deleteModal.onOpen}
-            />
-          )}
-        </Flex>
-
-        {currentUser && (
-          <Link to={`/org/${id}/edit`}>
-            <Button colorPalette="green" mt={3}>
-              <LuPencil />
-              Edit
-            </Button>
-          </Link>
-        )}
-
-        {about && (
-          <Box mt={3}>
-            <Markdown value={about} />
-          </Box>
-        )}
-      </Box>
+      {about && (
+        <Box mb={{ base: 8, md: 10 }} maxW="2xl">
+          <Markdown value={about} />
+        </Box>
+      )}
       {games.length > 0 && (
-        <Box pl={5} pr={5} mb={5}>
-          <SectionHeading mb={2} count={games.length} countLabel="games">
+        <Box as="section" mb={{ base: 8, md: 10 }}>
+          <SectionHeading mb={4} count={games.length} countLabel="games">
             Games
           </SectionHeading>
-
-          <Box
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+          <Grid
+            gap={3}
+            templateColumns={[
+              'repeat(2, 1fr)',
+              'repeat(2, 1fr)',
+              'repeat(3, 1fr)',
+              'repeat(4, 1fr)',
+            ]}
           >
-            <Grid
-              gap={3}
-              templateColumns={[
-                'repeat(2, 1fr)',
-                'repeat(2, 1fr)',
-                'repeat(3, 1fr)',
-                'repeat(4, 1fr)',
-              ]}
-            >
-              {game_entity.map(({ game, role }) => (
-                <Box minW={0} key={game.id}>
-                  <Box variants={variants}>
-                    <GameCard {...game} />
-                  </Box>
-                  {/* #40: how this organisation took part, when not as the developer. */}
-                  {role && role !== 'developer' && (
-                    <Text fontSize="sm" color="muted" mt={1}>
-                      {gameRoleLabel(role)}
-                    </Text>
-                  )}
-                </Box>
-              ))}
-            </Grid>
-          </Box>
+            {game_entity.map(({ game, role }) => (
+              <Box minW={0} key={game.id}>
+                <GameCard {...game} />
+                {/* #40: how this organisation took part, when not as the developer. */}
+                {role && role !== 'developer' && (
+                  <Text fontSize="sm" color="muted" mt={1}>
+                    {gameRoleLabel(role)}
+                  </Text>
+                )}
+              </Box>
+            ))}
+          </Grid>
         </Box>
       )}
       {events.length > 0 && (
-        <Box pl={5} pr={5} mb={5}>
-          <SectionHeading mb={2} count={events.length} countLabel="events">
+        <Box as="section" mb={{ base: 8, md: 10 }}>
+          <SectionHeading mb={4} count={events.length} countLabel="events">
             Hosted events
           </SectionHeading>
-
-          <Box
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            variants={{ enter: { transition: { staggerChildren: 0.1 } } }}
+          <Grid
+            gap={3}
+            templateColumns={[
+              'repeat(2, 1fr)',
+              'repeat(2, 1fr)',
+              'repeat(3, 1fr)',
+              'repeat(4, 1fr)',
+            ]}
           >
-            <Grid
-              gap={3}
-              templateColumns={[
-                'repeat(2, 1fr)',
-                'repeat(2, 1fr)',
-                'repeat(3, 1fr)',
-                'repeat(4, 1fr)',
-              ]}
-            >
-              {events.map((event) => (
-                <Box minW={0} key={event.id}>
-                  <Box variants={variants}>
-                    <EventCard {...event} />
-                  </Box>
-                </Box>
-              ))}
-            </Grid>
-          </Box>
+            {events.map((event) => (
+              <Box minW={0} key={event.id}>
+                <EventCard {...event} />
+              </Box>
+            ))}
+          </Grid>
         </Box>
       )}
       {/* Empty sections stay hidden from visitors; members get a way in (#198). */}
       {currentUser && (games.length === 0 || events.length === 0) && (
-        <Box pl={5} pr={5} mb={5}>
+        <Box mb={{ base: 8, md: 10 }}>
           {games.length === 0 && (
             <EmptyHint mb={1}>
-              No games yet. <ChakraLink asChild textDecoration="underline">
+              No games yet.{' '}
+              <ChakraLink asChild textDecoration="underline">
                 <Link to="/games/create">Add a game</Link>
-              </ChakraLink>, then link this organization from its page.
+              </ChakraLink>
+              , then link this organization from its page.
             </EmptyHint>
           )}
           {events.length === 0 && (
             <EmptyHint>
-              No hosted events yet. <ChakraLink asChild textDecoration="underline">
+              No hosted events yet.{' '}
+              <ChakraLink asChild textDecoration="underline">
                 <Link to="/events/create">Add an event</Link>
-              </ChakraLink>, then add this organization as an organizer.
+              </ChakraLink>
+              , then add this organization as an organizer.
             </EmptyHint>
           )}
         </Box>
       )}
       {currentUser && (
-        <Box mb={5} pl={5} pr={5}>
+        <Box>
           <Dialog.Root
             open={deleteModal.open}
             onOpenChange={(e) => {
@@ -347,7 +302,7 @@ const Org = () => {
           </Dialog.Root>
         </Box>
       )}
-    </>
+    </Page>
   );
 };
 

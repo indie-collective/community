@@ -2,7 +2,6 @@ import {
   Alert,
   Box,
   Button,
-  Heading,
   HStack,
   Stack,
   Text,
@@ -25,6 +24,7 @@ import toSessionUser from '../utils/sessionUser.server';
 import SigninForm from '../components/SigninForm';
 import { safeRedirectPath } from '../utils/safeRedirect';
 import { pageMeta } from '../utils/meta';
+import { PageHeader } from '../components/Page';
 
 // Where to go after signing in: the page that required it (#178).
 const prevOf = (request) => safeRedirectPath(new URL(request.url).searchParams.get('prev'));
@@ -96,10 +96,12 @@ const SignIn = () => {
   const [searchParams] = useSearchParams();
 
   return (
-    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-      <Heading textAlign="center" size="xl" fontWeight="extrabold">
-        Sign in
-      </Heading>
+    <Box maxW="480px" mx="auto" px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
+      <PageHeader
+        title="Sign in"
+        description="With your Bluesky account. Signing in lets you add and edit games, studios, associations and events."
+        mb={0}
+      />
       {(actionData?.blueskyError || searchParams.get('error')) && (
         <Alert.Root status="error" mt={5}>
           <Alert.Indicator />

@@ -1,4 +1,5 @@
-import { Button, Stack, Text } from '@chakra-ui/react';
+import { Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+import { LuHouse, LuSearch } from 'react-icons/lu';
 import { Link } from 'react-router';
 
 const statusCodes = {
@@ -9,21 +10,53 @@ const statusCodes = {
   500: 'Internal Server Error',
 };
 
+const explanations = {
+  404: "This page doesn't exist, or it was moved or deleted.",
+};
+
+// An error page in the site's type (design pass), with ways onward.
 function Error({ statusCode }) {
   return (
-    <Stack textAlign="center" mt={20}>
+    <Stack
+      align="center"
+      textAlign="center"
+      gap={4}
+      px={4}
+      py={{ base: 12, md: 20 }}
+    >
       {statusCode && (
-        <Text fontSize="150px" m={0} p={0} fontWeight="bold" lineHeight={1}>
+        <Text
+          fontFamily="heading"
+          fontWeight="bold"
+          fontSize={{ base: '7xl', md: '8xl' }}
+          lineHeight={1}
+          color="muted"
+          aria-hidden
+        >
           {statusCode}
         </Text>
       )}
-      <Text fontSize="34px">
-        {(statusCode && statusCodes[statusCode]) || 'An error occured!'}
+      <Heading as="h1" size="2xl">
+        {(statusCode && statusCodes[statusCode]) || 'Something went wrong'}
+      </Heading>
+      <Text color="muted" fontSize="lg" maxW="md">
+        {explanations[statusCode] ??
+          'Try again, or start over from the homepage.'}
       </Text>
-      <Text fontSize="18px" mt={10}>
-        <Button size="lg" asChild><Link to="/">Let's go home !
-                  </Link></Button>
-      </Text>
+      <HStack gap={3} mt={4} wrap="wrap" justify="center">
+        <Button asChild>
+          <Link to="/">
+            <LuHouse />
+            Go home
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/search">
+            <LuSearch />
+            Search
+          </Link>
+        </Button>
+      </HStack>
     </Stack>
   );
 }

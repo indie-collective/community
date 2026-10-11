@@ -1,8 +1,15 @@
-import { Box, Heading, Text, Stat, StatGroup } from '@chakra-ui/react';
+import {
+  Box,
+  Link as ChakraLink,
+  SimpleGrid,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 
 import { useLoaderData } from 'react-router';
 
 import { pageMeta } from '../utils/meta';
+import { Page, PageHeader, PageSection } from '../components/Page';
 import { countEvents } from '../data/events.server';
 import { countGames } from '../data/games.server';
 import { countOrganizations } from '../data/organizations.server';
@@ -19,97 +26,107 @@ export const loader = async () => {
 export const meta = ({ matches, location }) =>
   pageMeta(matches, {
     title: 'About',
-    description: 'An open-source, crowd-sourced database of indie games, studios, associations and events from all around the world.',
+    description:
+      'An open-source, crowd-sourced database of indie games, studios, associations and events from all around the world.',
     path: location.pathname,
   });
 
+// A section of prose: its h2 and paragraphs, at a readable width.
+const Prose = ({ title, children }) => (
+  <PageSection title={title} maxW="2xl">
+    <Stack gap={4}>{children}</Stack>
+  </PageSection>
+);
+
 const AboutPage = () => {
   const { gamesCount, entitiesCount, eventsCount } = useLoaderData();
+  const stats = [
+    [gamesCount, 'games'],
+    [entitiesCount, 'studios and associations'],
+    [eventsCount, 'events'],
+  ];
 
   return (
-    <Box p={5} mb={5}>
-      <Box py={5} mb={10}>
-        <Box>
-          <Heading mb={5} size="2xl">
-            About this Project
-          </Heading>
+    <Page>
+      <PageHeader
+        title="About"
+        description="An open-source, crowd-sourced map of the indie game world: who makes games, where, and what's coming up near you."
+      />
 
-          <Text mb={5}>
-            Welcome to community.indieco.xyz, an open-source and crowd-sourced
-            platform designed to bring together indie game-focused data from all
-            around the world. Our goal is to make it easier for anyone—whether
-            you're a creator, player, researcher, or enthusiast—to discover who
-            is making games, where they are being created, and what projects are
-            emerging near you.
-          </Text>
+      <SimpleGrid
+        as="ul"
+        listStyleType="none"
+        columns={{ base: 1, sm: 3 }}
+        gap={3}
+        mb={{ base: 8, md: 10 }}
+        maxW="2xl"
+      >
+        {stats.map(([value, label]) => (
+          <Box
+            as="li"
+            key={label}
+            p={4}
+            bg="surface"
+            borderRadius="xl"
+            shadow="xs"
+          >
+            <Text
+              fontFamily="heading"
+              fontWeight="semibold"
+              fontSize="3xl"
+              lineHeight="1.1"
+            >
+              {value.toLocaleString('en')}
+            </Text>
+            <Text color="muted">{label}</Text>
+          </Box>
+        ))}
+      </SimpleGrid>
 
-          <Heading mb={5} size="lg">
-            Why This Matters
-          </Heading>
+      <Prose title="Why it matters">
+        <Text>
+          Welcome to community.indieco.xyz, an open-source and crowd-sourced
+          platform that brings together indie game data from all around the
+          world. Our goal is to make it easier for anyone, whether you're a
+          creator, player, researcher or enthusiast, to discover who is making
+          games, where they're made, and what's emerging near you.
+        </Text>
+        <Text>
+          By curating and mapping this information, we celebrate the diversity
+          of indie game development, showcase hidden gems, and connect people
+          with local and global creative communities.
+        </Text>
+      </Prose>
 
-          <Text mb={5}>
-            By curating and visualizing this information, we aim to celebrate
-            the diversity of indie game development, showcase hidden gems, and
-            connect people with local and global creative communities. Whether
-            you're looking to find other developers nearby, explore new studios,
-            or learn more about the indie game scene in a particular region,
-            this platform is built to help you.
-          </Text>
+      <Prose title="Open source and collaborative">
+        <Text>
+          This project is built in the open, and anyone can contribute: adding
+          studios, games and events, or improving features and design. We
+          believe in shared ownership and collective knowledge, so the data and
+          tools stay accessible and useful to everyone.
+        </Text>
+      </Prose>
 
-          <Heading mb={5} size="lg">
-            Open Source & Collaborative
-          </Heading>
-
-          <Text mb={5}>
-            This project is built in the open, and anyone can contribute. From
-            adding new studios, games, or creators to improving features and
-            design, the community drives this platform forward. We believe in
-            shared ownership and collective knowledge, ensuring that the data
-            and tools remain accessible and useful to everyone.
-          </Text>
-
-          <StatGroup my={2}>
-            <Stat.Root>
-              <Stat.ValueText>{gamesCount}</Stat.ValueText>
-              <Stat.Label>games</Stat.Label>
-            </Stat.Root>
-
-            <Stat.Root>
-              <Stat.ValueText>{entitiesCount}</Stat.ValueText>
-              <Stat.Label>orgs</Stat.Label>
-            </Stat.Root>
-
-            <Stat.Root>
-              <Stat.ValueText>{eventsCount}</Stat.ValueText>
-              <Stat.Label>events</Stat.Label>
-            </Stat.Root>
-          </StatGroup>
-
-          <Heading mb={5} size="lg">
-            Origins
-          </Heading>
-
-          <Text mb={5}>
-            Community.indieco.xyz is forked from the work of the Indie
-            Collective, a French non-profit dedicated to supporting indie game
-            creators and helping them grow. Their mission has always been to
-            provide visibility, resources, and connections to empower
-            independent developers. Our platform builds on that foundation,
-            extending it into a global, crowd-sourced initiative.
-          </Text>
-
-          <Text mb={5}>
-            To learn more about the Indie Collective and their ongoing efforts,
-            visit their website.
-          </Text>
-
-          <Heading mb={5} size="md">
-            Together, let's map the indie game world and make it easier to
-            discover, connect, and celebrate creativity.
-          </Heading>
-        </Box>
-      </Box>
-    </Box>
+      <Prose title="Origins">
+        <Text>
+          Community grew out of the work of the Indie Collective, a French
+          non-profit that supports indie game creators with visibility,
+          resources and connections. This platform builds on that foundation and
+          extends it into a global, crowd-sourced initiative.
+        </Text>
+        <Text>
+          To learn more about the Indie Collective and their work,{' '}
+          <ChakraLink href="https://indieco.xyz/" textDecoration="underline">
+            visit their website
+          </ChakraLink>
+          .
+        </Text>
+        <Text fontWeight="semibold">
+          Together, let's map the indie game world, and make it easier to
+          discover, connect and celebrate creativity.
+        </Text>
+      </Prose>
+    </Page>
   );
 };
 

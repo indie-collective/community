@@ -1,6 +1,5 @@
 import { Form, redirect, useActionData, useLoaderData, useSubmit } from 'react-router';
 import {
-    Heading,
   Table,
   Icon,
   NativeSelect,
@@ -29,6 +28,7 @@ import { handleResolver } from '../../utils/bluesky/resolvers.server';
 import { PERSON_ROLES } from '../../db/schema.js';
 import { listRecentChanges } from '../../data/changes.server';
 import { Tooltip } from '../../components/ui/tooltip';
+import { PageHeader } from '../../components/Page';
 
 export const action = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
@@ -115,10 +115,8 @@ const Profile = () => {
   const actionData = useActionData();
 
   return (
-    <Box mb={5} pl={5} pr={5} mt={5}>
-      <Heading as="h2" mb={5} size="2xl">
-        Users
-      </Heading>
+    <Box px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
+      <PageHeader eyebrow="Admin" title="Users" />
       {actionData?.error && (
         <Alert.Root status="error" mb={5}>
           <Alert.Indicator />

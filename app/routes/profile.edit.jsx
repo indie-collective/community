@@ -1,4 +1,4 @@
-import { Box, Heading } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import {
   redirect,
   useActionData,
@@ -14,6 +14,7 @@ import { toaster } from '../components/ui/toaster';
 import ProfileForm from '../components/ProfileForm';
 import { commitSession, getSession } from '../utils/session.server';
 import toSessionUser from '../utils/sessionUser.server';
+import { PageHeader } from '../components/Page';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
@@ -80,8 +81,8 @@ const Profile = () => {
   }, [actionData?.error, navigation.state === 'submitting']);
 
   return (
-    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-      <Heading mb={5}>Profile</Heading>
+    <Box maxW="560px" mx="auto" px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
+      <PageHeader title="Edit your profile" />
 
       <ProfileForm
         method="post"

@@ -28,7 +28,6 @@ import { useInjectStyles } from './emotion-client';
 import { ClientStyleContext, ServerStyleContext } from './context';
 // Vite resolves the file URL via the ?url suffix; passed to <Links />
 // via the route's `links` export below.
-import slickStyles from 'slick-carousel/slick/slick.css?url';
 import isAuthenticated from './utils/isAuthenticated.server';
 import getOrigin from './utils/origin.server';
 import { Provider as ChakraProvider } from './components/ui/provider';
@@ -51,7 +50,6 @@ export function links() {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Poppins:wght@600;700&display=swap',
     },
-    { rel: 'stylesheet', href: slickStyles },
   ];
 }
 
