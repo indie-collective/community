@@ -302,17 +302,6 @@ export async function searchOrganizations(q, { excludeIds = [] } = {}) {
     .limit(10);
 }
 
-/** The newest studios or associations (the home page), computed. */
-export async function listNewOrganizations({ type, limit }) {
-  return computeAll(
-    await db
-      .select()
-      .from(organizations)
-      .where(and(notDeleted, eq(organizations.type, type)))
-      .orderBy(desc(organizations.createdAt))
-      .limit(limit)
-  );
-}
 
 /** Every organisation with a location, computed, for the map. */
 export async function listMappedOrganizations() {
@@ -364,4 +353,27 @@ export async function listOrganizationsIn(countryCode) {
     ...org,
     location: { city, region, latitude, longitude },
   }));
+}
+
+/**
+ * Studios or associations worth featuring (#199): complete ones, with a
+ * logo, a description and a place, most recently updated first, computed.
+ */
+export async function listFeaturedOrganizations({ type, limit }) {
+  return computeAll(
+    await db
+      .select()
+      .from(organizations)
+      .where(
+        and(
+          notDeleted,
+          eq(organizations.type, type),
+          isNotNull(organizations.logoKey),
+          sql`trim(coalesce(${organizations.about}, '')) <> ''`,
+          located
+        )
+      )
+      .orderBy(desc(organizations.updatedAt), asc(organizations.id))
+      .limit(limit)
+  );
 }
