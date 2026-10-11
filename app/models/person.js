@@ -10,8 +10,5 @@ export default async function computePerson(person) {
   return {
     ...person,
     avatar: person.avatar ? getImageLinks(person.avatar) : undefined,
-    discord_url: person.discord_id
-      ? `https://discord.com/users/${person.discord_id}`
-      : null,
   };
 }

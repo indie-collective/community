@@ -1,4 +1,4 @@
-import { expect, test, MEMBER, signIn } from './helpers';
+import { expect, test, ADMIN, MEMBER, signIn } from './helpers';
 
 // #157: Bluesky sign-in. A real sign-in needs a Bluesky account; these check
 // what doesn't: the form, the published client metadata, and that a forged
@@ -37,7 +37,7 @@ test.describe('linking Bluesky', () => {
     await db.update(people).set(fields).where(eq(people.email, email));
   };
   const did = `did:plc:e2e${Date.now() % 100000}`;
-  test.afterEach(() => setPerson(MEMBER, { did: null, discordId: null, bskyHandle: null }));
+  test.afterEach(() => setPerson(MEMBER, { did: null, bskyHandle: null }));
 
   test('the profile offers to link Bluesky', async ({ page }) => {
     await signIn(page, MEMBER);
@@ -46,25 +46,13 @@ test.describe('linking Bluesky', () => {
     await expect(page.getByRole('button', { name: 'Link' })).toBeVisible();
   });
 
-  test('Bluesky as the only sign-in method cannot be unlinked', async ({ page }) => {
+  // #159: Bluesky is the only way to sign in, so there's no unlinking.
+  test('a linked profile has no unlink', async ({ page }) => {
     await setPerson(MEMBER, { did });
     await signIn(page, MEMBER);
     await page.goto('/profile');
     await expect(page.getByText('Bluesky is linked')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Unlink' })).toBeDisabled();
-
-    // Even asked directly.
-    await page.request.post('/profile/bluesky', { form: { intent: 'unlink' } });
-    await page.goto('/profile');
-    await expect(page.getByText('Bluesky is linked')).toBeVisible();
-  });
-
-  test('Bluesky can be unlinked while Discord remains', async ({ page }) => {
-    await setPerson(MEMBER, { did, discordId: `e2e-${Date.now()}` });
-    await signIn(page, MEMBER);
-    await page.goto('/profile');
-    await page.getByRole('button', { name: 'Unlink' }).click();
-    await expect(page.getByLabel('Link your Bluesky account')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Unlink' })).toHaveCount(0);
   });
 });
 
@@ -94,4 +82,24 @@ test('a Bluesky handle shows on the profile and among attendees', async ({ page 
       .where(and(eq(eventParticipants.eventId, event.id), eq(eventParticipants.personId, member.id)));
     await db.update(people).set({ did: null, bskyHandle: null }).where(eq(people.email, MEMBER));
   }
+});
+
+// #159: Discord sign-in is gone. People who signed up with it get their
+// Bluesky account linked by an admin, from its handle.
+test('sign-in offers Bluesky only, and the header leads there', async ({ page }) => {
+  await page.goto('/games');
+  await page.getByRole('link', { name: 'Sign in' }).click();
+  await expect(page).toHaveURL('/signin?prev=%2Fgames');
+  await expect(page.getByRole('button', { name: 'Sign in with Bluesky' })).toBeVisible();
+  await expect(page.getByText(/Discord/)).toHaveCount(0);
+  expect((await page.request.get('/auth/discord')).status()).toBe(404);
+});
+
+test("an admin links someone's Bluesky account, and an unknown handle is refused", async ({ page }) => {
+  await signIn(page, ADMIN);
+  await page.goto('/admin/users');
+  const handle = page.getByRole('textbox', { name: 'Bluesky handle of harness-member', exact: true });
+  await handle.fill('nobody-here.invalid');
+  await handle.press('Enter');
+  await expect(page.getByText("“nobody-here.invalid” isn't a Bluesky handle we can find.")).toBeVisible();
 });

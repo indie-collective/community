@@ -20,8 +20,6 @@ export default [
   route('check-username-availability', 'routes/check-username-availability.jsx'),
   route('auth/bluesky/callback', 'routes/auth/bluesky.callback.jsx'),
   route('oauth/client-metadata.json', 'routes/oauth.client-metadata.json.js'),
-  route('auth/:provider', 'routes/auth/$provider.jsx'),
-  route('auth/:provider/callback', 'routes/auth/$provider.callback.jsx'),
   route('profile', 'routes/profile.jsx'),
   route('profile/edit', 'routes/profile.edit.jsx'),
   route('profile/bluesky', 'routes/profile.bluesky.jsx'),

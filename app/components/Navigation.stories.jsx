@@ -11,7 +11,8 @@ export default {
 export const SignedOut = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByRole('button', { name: /sign in/i })).toBeVisible();
+    // A link to the sign-in page (Bluesky, #159).
+    await expect(await canvas.findByRole('link', { name: /sign in/i })).toHaveAttribute('href', expect.stringMatching(/^\/signin/));
     await expect(canvas.getByPlaceholderText('Search')).toBeVisible();
   },
 };

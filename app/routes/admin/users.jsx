@@ -1,21 +1,31 @@
-import { redirect, useLoaderData, useSubmit  } from 'react-router';
+import { Form, redirect, useActionData, useLoaderData, useSubmit } from 'react-router';
 import {
     Heading,
   Table,
   Icon,
   NativeSelect,
-  IconButton,
   Link as ChakraLink,
+  Alert,
+  Button,
+  HStack,
+  Input,
   Avatar,
   Box,
   Text,
 } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
-import { FaBluesky, FaDiscord } from 'react-icons/fa6';
+import { FaBluesky } from 'react-icons/fa6';
 import { LuCircleHelp } from 'react-icons/lu';
 
 import isAuthenticated from '../../utils/isAuthenticated.server';
-import { countPeople, listPeople, setRole } from '../../data/people.server';
+import {
+  countPeople,
+  DID_TAKEN,
+  linkBluesky,
+  listPeople,
+  setRole,
+} from '../../data/people.server';
+import { handleResolver } from '../../utils/bluesky/resolvers.server';
 import { PERSON_ROLES } from '../../db/schema.js';
 import { listRecentChanges } from '../../data/changes.server';
 import { Tooltip } from '../../components/ui/tooltip';
@@ -31,6 +41,28 @@ export const action = async ({ request }) => {
 
   const data = await request.formData();
   const userId = data.get('userId');
+
+  // #159: people who signed up with Discord get their Bluesky account linked
+  // by an admin, from its handle. (Not by email: a self-hosted Bluesky server
+  // can claim any email is confirmed.)
+  if (data.get('intent') === 'link-bluesky') {
+    const handle = String(data.get('handle') ?? '')
+      .trim()
+      .replace(/^@/, '')
+      .toLowerCase();
+    const did = handle ? await handleResolver.resolve(handle).catch(() => null) : null;
+    if (!did) {
+      return { error: `“${handle}” isn't a Bluesky handle we can find.` };
+    }
+    try {
+      await linkBluesky(userId, did, handle);
+    } catch (error) {
+      if (error.message === DID_TAKEN) return { error: DID_TAKEN };
+      throw error;
+    }
+    return redirect('/admin/users');
+  }
+
   const role = data.get('role');
 
   if (!PERSON_ROLES.includes(role)) {
@@ -80,12 +112,19 @@ const ROLE_LABELS = [
 const Profile = () => {
   const submit = useSubmit();
   const { currentUser, people, nbOfPeople, lastChanges } = useLoaderData();
+  const actionData = useActionData();
 
   return (
     <Box mb={5} pl={5} pr={5} mt={5}>
       <Heading as="h2" mb={5} size="2xl">
         Users
       </Heading>
+      {actionData?.error && (
+        <Alert.Root status="error" mb={5}>
+          <Alert.Indicator />
+          {actionData.error}
+        </Alert.Root>
+      )}
       <Table.ScrollArea>
         <Table.Root variant="simple">
           <Table.Caption>Current users ({nbOfPeople})</Table.Caption>
@@ -117,7 +156,6 @@ const Profile = () => {
                 first_name,
                 last_name,
                 email,
-                discord_url,
                 isAdmin,
                 role,
                 bluesky_linked,
@@ -139,6 +177,26 @@ const Profile = () => {
                   </Table.Cell>
                   <Table.Cell>{email}</Table.Cell>
                   <Table.Cell>
+                    {!bluesky_linked && (
+                      <Form method="post">
+                        <input type="hidden" name="intent" value="link-bluesky" />
+                        <input type="hidden" name="userId" value={id} />
+                        <HStack gap={1}>
+                          <Input
+                            name="handle"
+                            size="xs"
+                            width="12rem"
+                            placeholder="handle.bsky.social"
+                            aria-label={`Bluesky handle of ${username}`}
+                            autoCapitalize="none"
+                            spellCheck={false}
+                          />
+                          <Button type="submit" size="xs" colorPalette="blue">
+                            Link
+                          </Button>
+                        </HStack>
+                      </Form>
+                    )}
                     {bluesky_linked && (
                       <ChakraLink
                         href={bsky_handle ? `https://bsky.app/profile/${bsky_handle}` : undefined}
@@ -150,21 +208,6 @@ const Profile = () => {
                       >
                         <FaBluesky />
                       </ChakraLink>
-                    )}
-                    {discord_url && (
-                      <IconButton
-                        colorPalette="discord"
-                        size="xs"
-                        asChild
-                      >
-                        <ChakraLink
-                          href={discord_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <FaDiscord />
-                        </ChakraLink>
-                      </IconButton>
                     )}
                   </Table.Cell>
                   <Table.Cell>

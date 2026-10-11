@@ -36,7 +36,7 @@ The first time: create the database and bucket (`npx wrangler d1 create indieco-
 
 ## Signing in with Bluesky
 
-People sign in with their Bluesky account (AT Protocol OAuth, #157). Locally the app is a loopback client, which needs no setup, but Bluesky only sends people back to `127.0.0.1`: open the dev server at `http://127.0.0.1:5000`, not `localhost`. In production the client ID is `<BASE_URL>/oauth/client-metadata.json`, which the app publishes.
+People sign in with their Bluesky account (AT Protocol OAuth, #157). Locally the app is a loopback client, which needs no setup, but Bluesky only sends people back to `127.0.0.1`: open the dev server at `http://127.0.0.1:5000`, not `localhost`. In production the client ID is `<BASE_URL>/oauth/client-metadata.json`, which the app publishes. It's the only way to sign in (#159): people who signed up with Discord have their Bluesky account linked by an admin, from `/admin/users`.
 
 ## Session secret
 

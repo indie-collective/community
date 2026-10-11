@@ -1,25 +1,14 @@
 import { redirect } from 'react-router';
 
-import { unlinkBluesky } from '../data/people.server';
 import { createBlueskyClient, LINK_STATE } from '../utils/bluesky/oauth.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import getOrigin from '../utils/origin.server';
 
-// Links or unlinks the signed-in person's Bluesky account (#158).
+// Links the signed-in person's Bluesky account (#158). There's no unlinking:
+// Bluesky is the only way to sign in (#159).
 export async function action({ request }) {
-  const currentUser = await isAuthenticated(request, true);
+  await isAuthenticated(request, true);
   const form = await request.formData();
-
-  if (form.get('intent') === 'unlink') {
-    const unlinked = await unlinkBluesky(currentUser.id);
-    return redirect(
-      unlinked
-        ? '/profile'
-        : `/profile?error=${encodeURIComponent(
-            "Bluesky is your only way to sign in, so it can't be unlinked."
-          )}`
-    );
-  }
 
   const handle = String(form.get('handle') ?? '')
     .trim()

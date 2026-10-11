@@ -22,7 +22,7 @@ export function usernameFromHandle(handle) {
 
 /** Shown when a new Bluesky account's email belongs to someone else. */
 export const EMAIL_TAKEN =
-  'An account already uses the email of this Bluesky account. Sign in the way you usually do; linking Bluesky to it is coming.';
+  'An account already uses the email of this Bluesky account. Ask an admin to link your Bluesky account to it.';
 
 /**
  * The person for a Bluesky identity (see bluesky/oauth.server identityOf),
