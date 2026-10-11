@@ -265,12 +265,31 @@ const Event = () => {
               flexDirection={['row-reverse', '']}
             >
               <AvatarGroup size="md" justifyContent="end">
-                {participants.map(({ id, username, avatar }) => (
-                  <Avatar.Root key={id} title={`@${username}`}>
-                    <Avatar.Fallback name={username} />
-                    <Avatar.Image src={avatar && avatar.thumbnail_url} />
-                  </Avatar.Root>
-                ))}
+                {participants.map(({ id, username, avatar, bsky_handle }) => {
+                  const picture = (
+                    <>
+                      <Avatar.Fallback name={username} />
+                      <Avatar.Image src={avatar && avatar.thumbnail_url} />
+                    </>
+                  );
+                  // #161: to their Bluesky profile, when they have one.
+                  return bsky_handle ? (
+                    <Avatar.Root key={id} title={`@${username}`} asChild>
+                      <a
+                        href={`https://bsky.app/profile/${bsky_handle}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`@${username} on Bluesky`}
+                      >
+                        {picture}
+                      </a>
+                    </Avatar.Root>
+                  ) : (
+                    <Avatar.Root key={id} title={`@${username}`}>
+                      {picture}
+                    </Avatar.Root>
+                  );
+                })}
               </AvatarGroup>
               <Text>
                 {status !== 'canceled' &&

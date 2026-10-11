@@ -59,6 +59,7 @@ export function createPerson(fields) {
             email: fields.email,
             discordId: fields.discord_id,
             did: fields.did,
+            bskyHandle: fields.bsky_handle,
             firstName: fields.first_name,
             lastName: fields.last_name,
             about: fields.about,
@@ -103,11 +104,14 @@ export const DID_TAKEN =
  * Links a Bluesky identity to a person (#158); linking it again is fine.
  * Throws DID_TAKEN when another person has it.
  */
-export async function linkBluesky(id, did) {
+export async function linkBluesky(id, did, handle = null) {
   const owner = await findPersonByDid(did);
   if (owner && owner.id !== id) throw new Error(DID_TAKEN);
   try {
-    await db.update(people).set({ did }).where(eq(people.id, id));
+    await db
+      .update(people)
+      .set({ did, bskyHandle: handle })
+      .where(eq(people.id, id));
   } catch (error) {
     // Linked elsewhere in the meantime: the unique index says so.
     for (let e = error; e; e = e.cause) {
@@ -126,10 +130,15 @@ export async function linkBluesky(id, did) {
 export async function unlinkBluesky(id) {
   const unlinked = await db
     .update(people)
-    .set({ did: null })
+    .set({ did: null, bskyHandle: null })
     .where(and(eq(people.id, id), isNotNull(people.discordId)))
     .returning({ id: people.id });
   return unlinked.length === 1;
+}
+
+/** Refreshes a person's Bluesky handle (#161): handles can change. */
+export async function setBlueskyHandle(id, handle) {
+  await db.update(people).set({ bskyHandle: handle }).where(eq(people.id, id));
 }
 
 /** Remembers the picture from the sign-in provider. */
@@ -170,6 +179,7 @@ export async function getProfile(id) {
     // #158: whether Bluesky is linked, and whether it can be unlinked (only
     // while another sign-in method remains).
     bluesky_linked: Boolean(person.did),
+    bsky_handle: person.bsky_handle,
     can_unlink_bluesky: Boolean(person.did && person.discord_id),
   });
 }
@@ -232,6 +242,7 @@ export async function listPeople() {
           isAdmin,
           role,
           did,
+          bsky_handle,
           avatar,
         }) =>
           computePerson({
@@ -245,6 +256,7 @@ export async function listPeople() {
             isAdmin,
             role,
             bluesky_linked: Boolean(did),
+            bsky_handle,
             avatar,
           })
       )

@@ -72,6 +72,7 @@ export function person(row) {
     email: row.email,
     discord_id: row.discordId,
     did: row.did,
+    bsky_handle: row.bskyHandle,
     isAdmin: row.role === 'admin',
     role: row.role,
     avatar_oauth: row.avatarUrl,

@@ -4,6 +4,7 @@ import {
   createPerson,
   findPersonByDid,
   findPersonByEmail,
+  setBlueskyHandle,
   setProviderAvatar,
 } from '../../data/people.server';
 import { notifyNewMember } from '../discordNotification.server';
@@ -42,10 +43,16 @@ export async function personForBlueskyIdentity(identity) {
       username: usernameFromHandle(identity.handle),
       first_name: identity.displayName || identity.handle || 'Bluesky user',
       avatar_oauth: identity.avatar,
+      bsky_handle: identity.handle,
     });
     await notifyNewMember(person);
-  } else if (identity.avatar && person.avatar_oauth !== identity.avatar) {
-    await setProviderAvatar(person.id, identity.avatar);
+  } else {
+    if (identity.avatar && person.avatar_oauth !== identity.avatar) {
+      await setProviderAvatar(person.id, identity.avatar);
+    }
+    if (identity.handle && person.bsky_handle !== identity.handle) {
+      await setBlueskyHandle(person.id, identity.handle);
+    }
   }
 
   return {
