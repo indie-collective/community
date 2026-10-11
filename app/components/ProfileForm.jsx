@@ -26,8 +26,8 @@ import ThumbnailFields from './ThumbnailFields';
 const validationSchema = yup.object().shape({
   username: yup.string().required('Username is required'),
   firstName: yup.string().required('First name is required'),
-  lastName: yup.string(),
-  about: yup.string(),
+  lastName: yup.string().nullable(),
+  about: yup.string().nullable(),
 });
 
 const propTypes = {

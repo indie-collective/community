@@ -10,8 +10,8 @@ import PossibleGameDuplicates from '../components/PossibleGameDuplicates';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
-  about: yup.string(),
-  site: yup.string().url(),
+  about: yup.string().nullable(),
+  site: yup.string().url().nullable(),
 });
 
 const propTypes = {

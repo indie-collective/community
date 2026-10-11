@@ -14,6 +14,7 @@ import { toaster } from '../components/ui/toaster';
 import EventForm from '../components/EventForm';
 import { zonedInputToDate } from '../utils/eventTime';
 import { timeZoneAt } from '../utils/timeZone.server';
+import { webUrl } from '../utils/url';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -79,7 +80,12 @@ export async function action(args) {
       startsAt: zonedInputToDate(data.get('start'), timeZone) ?? undefined,
       endsAt: zonedInputToDate(data.get('end'), timeZone) ?? undefined,
       about: data.get('about') || undefined,
-      site: data.get('site') || undefined,
+      // Fields the form sends: empty clears them (#203).
+      site: data.has('site') ? webUrl(data.get('site')) : undefined,
+      ticketUrl: data.has('ticket_url') ? webUrl(data.get('ticket_url')) : undefined,
+      previousEditionId: data.has('previous_edition_id')
+        ? data.get('previous_edition_id') || null
+        : undefined,
       coverId: data.get('cover'),
       location,
       authorId: currentUser.id,

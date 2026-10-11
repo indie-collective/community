@@ -16,12 +16,16 @@ import {
   Dialog,
   Portal,
   Icon,
+  HStack,
+  List,
 } from '@chakra-ui/react';
 import {
   LuPlus,
   LuPencil,
   LuTriangleAlert,
   LuMapPin,
+  LuExternalLink,
+  LuTicket,
 } from 'react-icons/lu';
 import {
   Form,
@@ -34,7 +38,7 @@ import {
 
 import TileMap from '../components/TileMap';
 
-import { getEvent, getRelatedEvents } from '../data/events.server';
+import { getEvent, getEventEditions, getRelatedEvents } from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import usePlaceholder from '../hooks/usePlaceholder';
 import GameCard from '../components/GameCard';
@@ -72,9 +76,14 @@ export const loader = async ({ request, params }) => {
       status: 404,
     });
 
+  // #203: the series it belongs to; other events named alike come after.
+  const editions = await getEventEditions(id);
   const data = {
     event,
-    relatedEvents: await getRelatedEvents(event),
+    editions,
+    relatedEvents: await getRelatedEvents(event, {
+      excludeIds: editions.map((edition) => edition.id),
+    }),
     currentUser,
   };
 
@@ -106,7 +115,7 @@ export const meta = ({ data, matches }) => {
 };
 
 const Event = () => {
-  const { event, relatedEvents, currentUser } = useLoaderData();
+  const { event, editions, relatedEvents, currentUser } = useLoaderData();
   const fetcher = useFetcher();
   const placeholder = usePlaceholder();
   const {
@@ -128,6 +137,7 @@ const Event = () => {
     status,
     about,
     site,
+    ticket_url: ticketUrl,
     starts_at: startsAt,
     time_zone: timeZone,
     ends_at: endsAt,
@@ -232,6 +242,27 @@ const Event = () => {
                   </Link>
                 </ChakraLink>
               </Text>
+            )}
+
+            {(site || ticketUrl) && (
+              <HStack gridColumn="1" gap={2} wrap="wrap">
+                {site && (
+                  <Button size="sm" variant="outline" asChild>
+                    <a href={site} target="_blank" rel="noopener noreferrer">
+                      <LuExternalLink />
+                      Website
+                    </a>
+                  </Button>
+                )}
+                {ticketUrl && status !== 'canceled' && (
+                  <Button size="sm" colorPalette="purple" asChild>
+                    <a href={ticketUrl} target="_blank" rel="noopener noreferrer">
+                      <LuTicket />
+                      Tickets
+                    </a>
+                  </Button>
+                )}
+              </HStack>
             )}
 
             {location && location.longitude && location.latitude && (
@@ -528,6 +559,29 @@ const Event = () => {
           </Box>
         )}
       </Box>
+      {editions.length > 1 && (
+        <Box m={[2, 0]}>
+          <Heading mb={2}>Editions</Heading>
+          <List.Root variant="plain" gap={1}>
+            {editions.map((edition) => (
+              <List.Item key={edition.id}>
+                {edition.id === id ? (
+                  <Text fontWeight="bold">
+                    {edition.name} <Text as="span" color="muted" fontWeight="normal">(this one)</Text>
+                  </Text>
+                ) : (
+                  <ChakraLink asChild>
+                    <Link to={`/event/${edition.id}`}>{edition.name}</Link>
+                  </ChakraLink>
+                )}
+                <Text as="span" color="muted" ml={2} fontSize="sm">
+                  {formatEventRange(edition.starts_at, edition.ends_at, edition.time_zone, { time: false })}
+                </Text>
+              </List.Item>
+            ))}
+          </List.Root>
+        </Box>
+      )}
       {relatedEvents.length > 0 && (
         <Box m={[2, 0]}>
           <Heading>Related events</Heading>

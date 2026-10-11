@@ -126,6 +126,8 @@ export function event(row) {
     ends_at: row.endsAt,
     time_zone: row.timeZone,
     status: row.status,
+    ticket_url: row.ticketUrl,
+    previous_edition_id: row.previousEditionId,
     lastModifiedById: row.lastModifiedById,
     location: location(row),
     cover: image(row.coverKey),

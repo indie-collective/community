@@ -162,6 +162,14 @@ export const events = sqliteTable(
       .default('ongoing'),
     ...location(),
     ...image('cover'),
+    // #203: where to buy tickets, beside `site`.
+    ticketUrl: text('ticket_url'),
+    // #203: the edition before this one, linking a series (Stunfest 2025 →
+    // Stunfest 2026).
+    previousEditionId: text('previous_edition_id').references(
+      () => events.id,
+      { onDelete: 'set null' }
+    ),
     searchText: text('search_text').notNull().default(''),
     deletedAt: time('deleted_at'),
     lastModifiedById: text('last_modified_by_id').references(() => people.id, {
@@ -171,6 +179,7 @@ export const events = sqliteTable(
   },
   (t) => [
     check('events_status', oneOf(t.status, EVENT_STATUSES)),
+    index('events_previous_edition_id').on(t.previousEditionId),
     index('events_country_code').on(t.countryCode),
     index('events_starts_at').on(t.startsAt),
     index('events_ends_at').on(t.endsAt),
