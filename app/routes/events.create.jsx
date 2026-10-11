@@ -14,6 +14,9 @@ import { timeZoneAt } from '../utils/timeZone.server';
 import getOrigin from '../utils/origin.server';
 import { webUrl } from '../utils/url';
 import { eventPath } from '../utils/slug';
+import { announceOnBluesky } from '../utils/blueskyPost.server';
+import { afterResponse } from '../utils/igdbData.server';
+import { summarize } from '../utils/meta';
 
 export async function action(args) {
   const { request } = args;
@@ -53,6 +56,19 @@ export async function action(args) {
 
     const BASE_URL = getOrigin(request);
 
+    // #160: and on Bluesky, from the IC account, after the response.
+    const name = data.get('name');
+    afterResponse(args.context, () =>
+      announceOnBluesky({
+        text: `New event on Community: ${name}${location.city ? `, in ${location.city}` : ''}`,
+        url: `${BASE_URL}${eventPath(event)}`,
+        title: name,
+        description:
+          summarize(data.get('about')) ||
+          "An event on Indie Collective's community database.",
+      })
+    );
+
     await notifyDiscord(
       `${currentUser.username} added event "${data.get(
         'name'
@@ -70,9 +86,11 @@ export const loader = async ({ request }) => {
   return await isAuthenticated(request, true);
 };
 
-export const meta = () => [{
-  title: 'Create a new event'
-}];
+export const meta = () => [
+  {
+    title: 'Create a new event',
+  },
+];
 
 const CreateEvent = () => {
   const navigation = useNavigation();

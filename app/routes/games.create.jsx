@@ -1,5 +1,10 @@
 import { Box, Heading } from '@chakra-ui/react';
-import { redirect, useActionData, useLoaderData, useNavigation  } from 'react-router';
+import {
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from 'react-router';
 import { useEffect } from 'react';
 
 import isAuthenticated from '../utils/isAuthenticated.server';
@@ -10,6 +15,9 @@ import GameForm from '../components/GameForm';
 import { createGame, resolveGameTags } from '../data/games.server';
 import getOrigin from '../utils/origin.server';
 import { gamePath } from '../utils/slug';
+import { announceOnBluesky } from '../utils/blueskyPost.server';
+import { afterResponse } from '../utils/igdbData.server';
+import { summarize } from '../utils/meta';
 
 export async function action(args) {
   const { request } = args;
@@ -35,6 +43,19 @@ export async function action(args) {
     });
 
     const BASE_URL = getOrigin(request);
+
+    // #160: and on Bluesky, from the IC account, after the response.
+    const name = data.get('name');
+    afterResponse(args.context, () =>
+      announceOnBluesky({
+        text: `New game on Community: ${name}`,
+        url: `${BASE_URL}${gamePath(game)}`,
+        title: name,
+        description:
+          summarize(data.get('about')) ||
+          "An indie game on Indie Collective's community database.",
+      })
+    );
 
     await notifyDiscord(
       `${currentUser.username} added game "${data.get(
@@ -63,12 +84,14 @@ export const loader = async ({ request }) => {
   };
 };
 
-export const meta = () => [{
-  title: 'Add a game'
-}];
+export const meta = () => [
+  {
+    title: 'Add a game',
+  },
+];
 
 const CreateGame = () => {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
   const loaderData = useLoaderData();
   const actionData = useActionData();
 
