@@ -14,6 +14,16 @@ test('the homepage searches, and invites contributions', async ({ page }) => {
   await expect(page).toHaveURL('/search?q=Conference');
 });
 
+// Members don't need the introduction: it's for people who aren't signed in.
+test('signed-in members don\'t see the introduction', async ({ page }) => {
+  await signIn(page, MEMBER);
+  await page.goto('/');
+  await expect(page.getByText('The indie game scene, mapped by its community')).toHaveCount(0);
+  await expect(page.getByText('Know one we\'re missing?')).toHaveCount(0);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Indie Collective Community');
+  await expect(page.getByRole('region', { name: 'Upcoming events' })).toBeVisible();
+});
+
 // #199: it features complete entries, recently updated, not just the newest.
 test('the homepage features complete games only', async ({ page }) => {
   const { db, games, gameImages, gameOrganizations, gameTags, organizations, tags } = await import('./db.js');

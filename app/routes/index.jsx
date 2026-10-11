@@ -10,6 +10,7 @@ import {
   Input,
   Presence,
   Stack,
+  VisuallyHidden,
 } from '@chakra-ui/react';
 import { useColorModeValue } from '../components/ui/color-mode';
 import { LuChevronRight, LuPlus, LuSearch } from 'react-icons/lu';
@@ -55,9 +56,10 @@ export const loader = async ({ request }) => {
       ? listUpcomingEvents({ limit: 3, attendeeId: currentUser.id })
       : [],
     listOrganizationPoints(),
-    countGames(),
-    countOrganizations(),
-    countEvents(),
+    // Only the signed-out introduction shows the counts.
+    currentUser ? null : countGames(),
+    currentUser ? null : countOrganizations(),
+    currentUser ? null : countEvents(),
   ]);
 
   return {
@@ -83,8 +85,9 @@ export const meta = ({ matches, location }) =>
 
 const number = (n) => n.toLocaleString('en');
 
-// #200: what the site is, search, and an invitation to add to it.
-const Hero = ({ counts, signedIn }) => (
+// #200: what the site is, search, and an invitation to add to it. Only for
+// people who aren't signed in: members know.
+const Hero = ({ counts }) => (
   <Box
     mb={5}
     px={[5, 8]}
@@ -96,8 +99,8 @@ const Hero = ({ counts, signedIn }) => (
       The indie game scene, mapped by its community
     </Heading>
     <Text fontSize={['md', 'lg']} mb={2} maxW="2xl">
-      Studios, associations, games and events from around the world, in an
-      open database anyone can add to.
+      Studios, associations, games and events from around the world, in an open
+      database anyone can add to.
     </Text>
     <Text color="muted" mb={5}>
       {number(counts.games)} games · {number(counts.orgs)} studios and
@@ -137,11 +140,9 @@ const Hero = ({ counts, signedIn }) => (
         </Button>
       ))}
     </Stack>
-    {!signedIn && (
-      <Text fontSize="sm" color="muted" mt={3}>
-        Adding needs a free account: sign in with Bluesky.
-      </Text>
-    )}
+    <Text fontSize="sm" color="muted" mt={3}>
+      Adding needs a free account: sign in with Bluesky.
+    </Text>
   </Box>
 );
 
@@ -215,7 +216,13 @@ const HomePage = () => {
 
   return (
     <Box mb={5} pt={2} px={5}>
-      <Hero counts={counts} signedIn={!!currentUser} />
+      {currentUser ? (
+        <VisuallyHidden asChild>
+          <h1>Indie Collective Community</h1>
+        </VisuallyHidden>
+      ) : (
+        <Hero counts={counts} />
+      )}
 
       {joinedEventsToCome.length > 0 && (
         <Section title="Your next events" to="/events" linkLabel="All events">
@@ -239,10 +246,7 @@ const HomePage = () => {
       </Section>
 
       <Section title="Games" to="/games" linkLabel="Explore games">
-        <Grid
-          {...cards(['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)'])}
-          gap={2}
-        >
+        <Grid {...cards(['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)'])} gap={2}>
           {games.map((game) => (
             <Box key={game.id} minW={0}>
               <GameCard {...game} />
