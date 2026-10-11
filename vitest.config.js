@@ -15,7 +15,7 @@ export default defineConfig({
       {
         test: {
           name: 'unit',
-          include: ['app/**/*.test.{js,jsx}'],
+          include: ['app/**/*.test.{js,jsx}', 'workers/**/*.test.js'],
           environment: 'node',
         },
       },

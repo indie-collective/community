@@ -2,6 +2,8 @@
 // refreshes the stalest stored IGDB data, for games nobody visits (#254).
 import { createRequestHandler } from 'react-router';
 
+import { withEdgeCache } from './edgeCache.js';
+
 const requestHandler = createRequestHandler(
   () => import('virtual:react-router/server-build'),
   import.meta.env.MODE
@@ -9,7 +11,11 @@ const requestHandler = createRequestHandler(
 
 export default {
   fetch(request, env, ctx) {
-    return requestHandler(request, { cloudflare: { env, ctx } });
+    const handle = (req) => requestHandler(req, { cloudflare: { env, ctx } });
+    // Signed-out pages, cached for a minute (edgeCache.js); EDGE_CACHE=off
+    // turns it off (the end-to-end tests).
+    const cache = env.EDGE_CACHE === 'off' ? undefined : globalThis.caches?.default;
+    return withEdgeCache(request, ctx, handle, cache);
   },
 
   async scheduled(controller, env, ctx) {
