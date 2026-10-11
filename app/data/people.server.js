@@ -1,6 +1,6 @@
 // People: every read and write sign-in, profiles and the admin users page
 // make (#151). The only place that knows how people are stored.
-import { and, count, desc, eq, isNotNull } from 'drizzle-orm';
+import { count, desc, eq } from 'drizzle-orm';
 
 import { db } from '../db/index.server.js';
 import { people } from '../db/schema.js';
@@ -18,17 +18,6 @@ export async function findPersonByEmail(email) {
   return (
     shape.person(
       await db.query.people.findFirst({ where: eq(people.email, email) })
-    ) ?? null
-  );
-}
-
-/** The person signed in with this Discord account, or null. */
-export async function findPersonByDiscordId(discordId) {
-  return (
-    shape.person(
-      await db.query.people.findFirst({
-        where: eq(people.discordId, discordId),
-      })
     ) ?? null
   );
 }
@@ -57,7 +46,6 @@ export function createPerson(fields) {
           .values({
             username,
             email: fields.email,
-            discordId: fields.discord_id,
             did: fields.did,
             bskyHandle: fields.bsky_handle,
             firstName: fields.first_name,
@@ -123,19 +111,6 @@ export async function linkBluesky(id, did, handle = null) {
   }
 }
 
-/**
- * Unlinks a person's Bluesky identity, only while they can still sign in
- * another way (Discord, until #159). True when it was unlinked.
- */
-export async function unlinkBluesky(id) {
-  const unlinked = await db
-    .update(people)
-    .set({ did: null, bskyHandle: null })
-    .where(and(eq(people.id, id), isNotNull(people.discordId)))
-    .returning({ id: people.id });
-  return unlinked.length === 1;
-}
-
 /** Refreshes a person's Bluesky handle (#161): handles can change. */
 export async function setBlueskyHandle(id, handle) {
   await db.update(people).set({ bskyHandle: handle }).where(eq(people.id, id));
@@ -175,12 +150,9 @@ export async function getProfile(id) {
     last_name: person.last_name,
     about: person.about,
     avatar: person.avatar,
-    discord_id: person.discord_id,
-    // #158: whether Bluesky is linked, and whether it can be unlinked (only
-    // while another sign-in method remains).
+    // #158: whether Bluesky is linked, and as which handle.
     bluesky_linked: Boolean(person.did),
     bsky_handle: person.bsky_handle,
-    can_unlink_bluesky: Boolean(person.did && person.discord_id),
   });
 }
 
@@ -238,7 +210,6 @@ export async function listPeople() {
           first_name,
           last_name,
           email,
-          discord_id,
           isAdmin,
           role,
           did,
@@ -252,7 +223,6 @@ export async function listPeople() {
             first_name,
             last_name,
             email,
-            discord_id,
             isAdmin,
             role,
             bluesky_linked: Boolean(did),

@@ -70,7 +70,6 @@ export function person(row) {
     last_name: row.lastName,
     about: row.about,
     email: row.email,
-    discord_id: row.discordId,
     did: row.did,
     bsky_handle: row.bskyHandle,
     isAdmin: row.role === 'admin',

@@ -4,13 +4,12 @@ import {
   Text,
   Button,
   Avatar,
-  VisuallyHidden,
 } from '@chakra-ui/react';
-import { Form, Link, useRouteLoaderData } from 'react-router';
-import { SocialsProvider } from 'remix-auth-socials';
+import { Link, useLocation, useRouteLoaderData } from 'react-router';
 
 const AvatarButton = () => {
   const data = useRouteLoaderData('root');
+  const { pathname, search } = useLocation();
 
   if (data?.currentUser) {
     const { first_name, username, avatar } = data.currentUser;
@@ -33,18 +32,12 @@ const AvatarButton = () => {
     );
   }
 
+  // To the sign-in page, then back here.
+  const prev = pathname === '/signin' ? '' : `?prev=${encodeURIComponent(pathname + search)}`;
   return (
-    <Form action={`/auth/${SocialsProvider.DISCORD}`} method="post">
-      <Button
-        type="submit"
-        colorPalette={SocialsProvider.DISCORD}
-        w="100%"
-        size="lg"
-        borderRadius="full"
-      >
-        Sign in
-      </Button>
-    </Form>
+    <Button asChild w="100%" size="lg" borderRadius="full">
+      <Link to={`/signin${prev}`}>Sign in</Link>
+    </Button>
   );
 };
 

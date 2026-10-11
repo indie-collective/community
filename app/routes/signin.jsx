@@ -6,7 +6,6 @@ import {
   HStack,
   Stack,
   Text,
-  VisuallyHidden,
   Separator,
   Icon,
   Field,
@@ -14,8 +13,7 @@ import {
 } from '@chakra-ui/react';
 
 import { Form, redirect, useActionData, useLoaderData, useNavigation, useSearchParams } from 'react-router';
-import { SocialsProvider } from 'remix-auth-socials';
-import { FaBluesky, FaDiscord } from 'react-icons/fa6';
+import { FaBluesky } from 'react-icons/fa6';
 
 import { authenticator } from '../utils/auth.server';
 import { devSignIn } from '../utils/devSignIn.server';
@@ -96,7 +94,6 @@ const SignIn = () => {
   const actionData = useActionData();
   const loaderData = useLoaderData();
   const [searchParams] = useSearchParams();
-  const prev = searchParams.get('prev');
 
   return (
     <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
@@ -140,20 +137,6 @@ const SignIn = () => {
             </Icon>
           </Button>
         </Stack>
-      </Form>
-      <Form action={`/auth/${SocialsProvider.DISCORD}`} method="post">
-        {prev && <input type="hidden" name="prev" value={prev} />}
-        <Button
-          type="submit"
-          colorPalette={SocialsProvider.DISCORD}
-          aria-label="Signin"
-          w="100%"
-        >
-          Sign in with<VisuallyHidden> Discord</VisuallyHidden>
-          <Icon boxSize="5">
-            <FaDiscord />
-          </Icon>
-        </Button>
       </Form>
       {loaderData?.devSignIn && (
         <Stack gap={5}>

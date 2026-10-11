@@ -6,8 +6,6 @@ import {
   Button,
   Stack,
   Switch,
-  ButtonGroup,
-  IconButton,
   Link as ChakraLink,
   Field,
   Icon,
@@ -15,9 +13,8 @@ import {
   HStack,
   Input,
 } from '@chakra-ui/react';
-import { useState } from 'react';
-import { FaBluesky, FaDiscord, FaMoon, FaSun } from 'react-icons/fa6';
-import { LuPencil, LuLink } from 'react-icons/lu';
+import { FaBluesky, FaMoon, FaSun } from 'react-icons/fa6';
+import { LuPencil } from 'react-icons/lu';
 import { Form, Link, useLoaderData, useSearchParams } from 'react-router';
 
 import { getProfile } from '../data/people.server';
@@ -38,29 +35,6 @@ export const meta = ({ data }) => [
   },
 ];
 
-const LinkSocialButton = ({ provider, icon, name }) => {
-  const [hover, setHover] = useState(false);
-
-  return (
-    <IconButton
-      aria-label={`Link ${name}`}
-      opacity={hover ? 1 : 0.5}
-      colorPalette={hover ? 'green' : 'gray'}
-      asChild
-    >
-      <Link
-        to={`/auth/${provider}`}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        onFocus={() => setHover(true)}
-        onBlur={() => setHover(false)}
-      >
-        {hover ? <LuLink /> : icon}
-      </Link>
-    </IconButton>
-  );
-};
-
 const Profile = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   const [searchParams] = useSearchParams();
@@ -72,10 +46,8 @@ const Profile = () => {
     last_name,
     about,
     avatar,
-    discord_url,
     bluesky_linked,
     bsky_handle,
-    can_unlink_bluesky,
   } = currentUser;
   const error = searchParams.get('error');
 
@@ -114,7 +86,12 @@ const Profile = () => {
           </Heading>
         </Box>
 
-        <Stack as="section" alignSelf="stretch" gap={3} aria-labelledby="sign-in-methods">
+        <Stack
+          as="section"
+          alignSelf="stretch"
+          gap={3}
+          aria-labelledby="sign-in-methods"
+        >
           <Heading as="h4" size="sm" id="sign-in-methods">
             Sign-in methods
           </Heading>
@@ -125,45 +102,26 @@ const Profile = () => {
             </Alert.Root>
           )}
           {bluesky_linked ? (
-            <Form method="post" action="/profile/bluesky">
-              <HStack justify="space-between">
-                <HStack>
-                  <Icon color="blue.500">
-                    <FaBluesky />
-                  </Icon>
-                  <Text>
-                    Bluesky is linked
-                    {bsky_handle && (
-                      <>
-                        {' as '}
-                        <ChakraLink
-                          href={`https://bsky.app/profile/${bsky_handle}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          @{bsky_handle}
-                        </ChakraLink>
-                      </>
-                    )}
-                  </Text>
-                </HStack>
-                <Button
-                  type="submit"
-                  name="intent"
-                  value="unlink"
-                  size="sm"
-                  variant="outline"
-                  disabled={!can_unlink_bluesky}
-                  title={
-                    can_unlink_bluesky
-                      ? undefined
-                      : "It's your only way to sign in."
-                  }
-                >
-                  Unlink
-                </Button>
-              </HStack>
-            </Form>
+            <HStack>
+              <Icon color="blue.500">
+                <FaBluesky />
+              </Icon>
+              <Text>
+                Bluesky is linked
+                {bsky_handle && (
+                  <>
+                    {' as '}
+                    <ChakraLink
+                      href={`https://bsky.app/profile/${bsky_handle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      @{bsky_handle}
+                    </ChakraLink>
+                  </>
+                )}
+              </Text>
+            </HStack>
           ) : (
             <Form method="post" action="/profile/bluesky">
               <Field.Root>
@@ -175,7 +133,12 @@ const Profile = () => {
                     autoCapitalize="none"
                     spellCheck={false}
                   />
-                  <Button type="submit" name="intent" value="link" colorPalette="blue">
+                  <Button
+                    type="submit"
+                    name="intent"
+                    value="link"
+                    colorPalette="blue"
+                  >
                     <FaBluesky />
                     Link
                   </Button>
@@ -188,32 +151,6 @@ const Profile = () => {
             </Form>
           )}
         </Stack>
-
-        {searchParams.has('beta') && (
-          <ButtonGroup>
-            {discord_url ? (
-              <IconButton
-                aria-label="Discord"
-                colorPalette="discord"
-                asChild
-              >
-                <ChakraLink
-                  href={discord_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaDiscord />
-                </ChakraLink>
-              </IconButton>
-            ) : (
-              <LinkSocialButton
-                provider="discord"
-                icon={<FaDiscord />}
-                name="Discord"
-              />
-            )}
-          </ButtonGroup>
-        )}
 
         {about && (
           <Box
