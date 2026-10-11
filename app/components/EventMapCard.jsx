@@ -45,7 +45,7 @@ const EventMapCard = ({ id, slug, name, cover, starts_at, ends_at, time_zone, lo
             {formatEventRange(starts_at, ends_at, time_zone, { time: false })}
           </Text>
           {location?.city && (
-            <Text fontSize="xs" color="gray.500" textTransform="uppercase" lineClamp={1}>
+            <Text fontSize="xs" color="muted" textTransform="uppercase" lineClamp={1}>
               {location.city}, {location.country_code}
             </Text>
           )}

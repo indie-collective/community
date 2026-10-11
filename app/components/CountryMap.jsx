@@ -335,7 +335,7 @@ const AreaDetails = ({ area, code, onClose }) => {
       <Flex justify="space-between" align="baseline" gap={3}>
         <Heading as="h4" size="md">
           {areaName(area)}
-          <Text as="span" fontWeight="normal" color="fg.muted" fontSize="md">
+          <Text as="span" fontWeight="normal" color="muted" fontSize="md">
             {' '}
             · {splitText(area)}
           </Text>
@@ -343,7 +343,7 @@ const AreaDetails = ({ area, code, onClose }) => {
         <ChakraLink
           as="button"
           fontSize="sm"
-          color="fg.muted"
+          color="muted"
           onClick={onClose}
         >
           Close
@@ -427,7 +427,7 @@ const CountryMap = ({ code, name, cities }) => {
                 <Text fontWeight="semibold">
                   {i + 1}. {areaName(area)}
                 </Text>
-                <Text fontSize="sm" color="fg.muted">
+                <Text fontSize="sm" color="muted">
                   {splitText(area)}
                 </Text>
               </Box>
@@ -436,7 +436,7 @@ const CountryMap = ({ code, name, cities }) => {
         </Stack>
       )}
       <Flex justify="space-between" gap={3} wrap="wrap" mt={2} fontSize="sm">
-        <Text color="fg.muted">
+        <Text color="muted">
           The {plural(areas.length, 'biggest area', 'biggest areas')} of{' '}
           {plural(cities.length, 'city', 'cities')}. Choose one for its cities.
         </Text>

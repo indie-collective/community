@@ -5,7 +5,7 @@ import { Text } from '@chakra-ui/react';
  * (#198). Visitors don't see empty sections at all.
  */
 const EmptyHint = ({ children, ...rest }) => (
-  <Text color="fg.muted" fontSize="sm" alignSelf="center" {...rest}>
+  <Text color="muted" fontSize="sm" alignSelf="center" {...rest}>
     {children}
   </Text>
 );

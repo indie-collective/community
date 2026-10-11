@@ -6,7 +6,7 @@ import { Overlay } from 'pigeon-maps';
 import TileMap from './TileMap';
 
 const PlacesWidget = ({ placesCount, placesPoints }) => {
-  const bg = useColorModeValue('white', 'gray.900');
+  const bg = 'surface';
   const overlayBg = useColorModeValue('whiteAlpha.600', 'blackAlpha.600');
 
   return (

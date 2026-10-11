@@ -1,5 +1,4 @@
 import React from 'react';
-import { useColorModeValue } from './ui/color-mode';
 import {
   Box,
   Text,
@@ -65,7 +64,7 @@ function EventCard({
           size="lg"
           title={name}
           textDecoration={status === 'canceled' && 'line-through'}
-          color={status === 'canceled' && 'gray.500'}
+          color={status === 'canceled' ? 'muted' : undefined}
         >
           <CardLink to={eventPath({ id, slug })}>{name}</CardLink>
         </Heading>
@@ -74,7 +73,7 @@ function EventCard({
           as={Text}
           title={startsAtText}
           marginTop={1}
-          color="gray.500"
+          color="muted"
           fontWeight="semibold"
           letterSpacing="wide"
           fontSize="xs"
@@ -97,7 +96,7 @@ function EventCard({
                 ? `${location.city}, ${location.country_code}`
                 : countryNames[location.country_code.toUpperCase()]
             }
-            color="gray.500"
+            color="muted"
             fontWeight="semibold"
             letterSpacing="wide"
             fontSize="xs"

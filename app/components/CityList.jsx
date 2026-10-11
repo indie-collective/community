@@ -13,7 +13,7 @@ const CityList = ({ cities, limit = 10 }) => {
   const listed = cities.slice(0, limit);
   const most = listed[0]?.count ?? 0;
   if (listed.length === 0) {
-    return <Text color="fg.muted">No studios or associations here yet.</Text>;
+    return <Text color="muted">No studios or associations here yet.</Text>;
   }
   return (
     <List.Root listStyle="none" gap={3} maxW="44rem">
@@ -23,12 +23,12 @@ const CityList = ({ cities, limit = 10 }) => {
             <Text fontWeight="semibold" lineClamp={1}>
               {city.name}
               {city.region && city.region !== city.name && (
-                <Text as="span" fontWeight="normal" color="fg.muted">
+                <Text as="span" fontWeight="normal" color="muted">
                   , {city.region}
                 </Text>
               )}
             </Text>
-            <Text whiteSpace="nowrap" fontSize="sm" color="fg.muted">
+            <Text whiteSpace="nowrap" fontSize="sm" color="muted">
               {[
                 city.studios && plural(city.studios, 'studio'),
                 city.associations && plural(city.associations, 'association'),

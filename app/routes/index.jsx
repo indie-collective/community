@@ -12,7 +12,6 @@ import {
   Stack,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { useColorModeValue } from '../components/ui/color-mode';
 import { LuChevronRight, LuPlus, LuSearch } from 'react-icons/lu';
 
 import { useId } from 'react';
@@ -148,7 +147,7 @@ const Hero = ({ counts }) => (
 
 // A homepage section: a heading, a link to the full list, and its cards.
 const Section = ({ title, to, linkLabel, children, ...rest }) => {
-  const bg = useColorModeValue('white', 'gray.900');
+  const bg = 'surface';
   // Labelled by its heading: a region screen readers can jump to.
   const headingId = useId();
   return (

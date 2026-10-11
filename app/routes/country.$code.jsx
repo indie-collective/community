@@ -203,7 +203,7 @@ const CountryPage = () => {
                 <Text fontSize="3xl" fontWeight="bold" lineHeight="1">
                   {value.toLocaleString('en')}
                 </Text>
-                <Text color="fg.muted" mt={1}>
+                <Text color="muted" mt={1}>
                   {value === 1 ? one : many}
                 </Text>
               </Link>
@@ -256,7 +256,7 @@ const CountryPage = () => {
           </>
         ) : (
           <Stack gap={2}>
-            <Text color="fg.muted">No associations in {name} yet.</Text>
+            <Text color="muted">No associations in {name} yet.</Text>
             {currentUser && (
               <EmptyHint alignSelf="flex-start">
                 Know one?{' '}

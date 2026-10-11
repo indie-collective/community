@@ -81,7 +81,7 @@ const Profile = () => {
           <Heading as="h3">
             {first_name} {last_name}
           </Heading>
-          <Heading as="span" size="sm" color="gray.500">
+          <Heading as="span" size="sm" color="muted">
             @{username}
           </Heading>
         </Box>
@@ -172,7 +172,7 @@ const Profile = () => {
           <Switch.HiddenInput />
           <Switch.Control>
             <Switch.Thumb />
-            <Switch.Indicator fallback={<Icon as={FaMoon} color="gray.400" />}>
+            <Switch.Indicator fallback={<Icon as={FaMoon} color="muted" />}>
               <Icon as={FaSun} color="yellow.400" />
             </Switch.Indicator>
           </Switch.Control>

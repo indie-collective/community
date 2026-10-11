@@ -184,7 +184,7 @@ const Event = () => {
             gridTemplateColumns={['1fr', '1fr auto auto']}
             columnGap={2}
             padding={2}
-            color={status === 'canceled' && 'gray.500'}
+            color={status === 'canceled' ? 'muted' : undefined}
           >
             {currentUser && (
               <Link to={`/event/${id}/edit`}>

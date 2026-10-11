@@ -97,7 +97,7 @@ function SwipeableEdgeDrawer({ header, children, isOpen, onClose }) {
         zIndex="modal"
         display="flex"
         flexDirection="column"
-        bg={{ base: 'white', _dark: 'gray.800' }}
+        bg="surface"
         borderTopRadius="8px"
         boxShadow={open ? 'lg' : 'md'}
         transform={transform}

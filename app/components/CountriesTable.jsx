@@ -68,7 +68,7 @@ const Tile = ({ country }) => {
       <Flex
         justify="space-between"
         fontSize="2xs"
-        color="fg.muted"
+        color="muted"
         lineHeight="1"
         aria-hidden
       >
@@ -101,7 +101,7 @@ const Tile = ({ country }) => {
         mt="auto"
         columnGap={1}
         fontSize="2xs"
-        color="fg.muted"
+        color="muted"
         aria-hidden
       >
         {STATS.map(([key, icon]) => (
@@ -126,7 +126,7 @@ const CountriesTable = ({ countries }) => (
       gap={4}
       wrap="wrap"
       fontSize="sm"
-      color="fg.muted"
+      color="muted"
       mb={4}
       align="center"
       aria-hidden

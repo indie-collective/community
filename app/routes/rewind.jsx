@@ -24,8 +24,8 @@ const MotionFlex = Flex;
 export const loader = () => getYearInReview(2025);
 
 const StatCard = ({ icon, label, value, color, delay, href }) => {
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const textColor = useColorModeValue('gray.600', 'gray.400');
+  const bgColor = 'surface';
+  const textColor = 'muted';
 
   const content = (
     <VStack gap={4} align="start">
@@ -77,7 +77,7 @@ const RewindPage = () => {
 
   const titleColor = useColorModeValue('teal.600', 'teal.300');
   const sectionBg = useColorModeValue('gray.50', 'gray.900');
-  const cardBg = useColorModeValue('white', 'gray.800');
+  const cardBg = 'surface';
 
   const hasData = eventsCount > 0 || gamesCount > 0 || studiosCount > 0 || associationsCount > 0;
 
@@ -86,7 +86,7 @@ const RewindPage = () => {
       <Box bg={sectionBg} minH="100vh" display="flex" alignItems="center" justifyContent="center">
         <VStack gap={6} textAlign="center">
           <Heading size="2xl">Rewind 2025</Heading>
-          <Text fontSize="xl" color="gray.500">It looks like the year hasn't been mapped yet!</Text>
+          <Text fontSize="xl" color="muted">It looks like the year hasn't been mapped yet!</Text>
           <Text>Be the first to add an event or a studio for 2025.</Text>
         </VStack>
       </Box>
@@ -107,7 +107,7 @@ const RewindPage = () => {
             <Heading size="4xl" mb={4} bgGradient="to-r" gradientFrom="green.400" gradientVia="blue.500" gradientTo="purple.600" bgClip="text" fontWeight="extrabold">
               Rewind 2025
             </Heading>
-            <Text fontSize="2xl" color="gray.500" fontWeight="medium">
+            <Text fontSize="2xl" color="muted" fontWeight="medium">
               A year of indie games, community, and growth.
             </Text>
           </MotionBox>
@@ -140,7 +140,7 @@ const RewindPage = () => {
                   <Icon color="green.400" w={6} h={6} asChild><FaHashtag /></Icon>
                   <Heading size="lg">Hottest Trends</Heading>
                 </HStack>
-                <Text color="gray.500">The most popular tags used by our community this year.</Text>
+                <Text color="muted">The most popular tags used by our community this year.</Text>
 
                 {topTags.length > 0 ? (
                   <VStack align="stretch" w="100%" gap={6}>
@@ -165,7 +165,7 @@ const RewindPage = () => {
                     ))}
                   </VStack>
                 ) : (
-                  <Text fontStyle="italic" color="gray.400">No tags recorded this year.</Text>
+                  <Text fontStyle="italic" color="muted">No tags recorded this year.</Text>
                 )}
               </VStack>
             </MotionBox>
@@ -186,7 +186,7 @@ const RewindPage = () => {
                   <Icon color="blue.400" w={6} h={6} asChild><FaMapMarkerAlt /></Icon>
                   <Heading size="lg">Expanding Horizons</Heading>
                 </HStack>
-                <Text color="gray.500">Cities where the indie scene was most vibrant in 2025.</Text>
+                <Text color="muted">Cities where the indie scene was most vibrant in 2025.</Text>
 
                 {topLocations.length > 0 ? (
                   <VStack align="stretch" w="100%" gap={6}>
@@ -204,18 +204,18 @@ const RewindPage = () => {
                             </Circle>
                             <VStack align="start" gap={0}>
                               <Text fontWeight="bold" fontSize="md">{loc.city}</Text>
-                              <Text fontSize="xs" color="gray.400" textTransform="uppercase" letterSpacing="wider">{loc.country}</Text>
+                              <Text fontSize="xs" color="muted" textTransform="uppercase" letterSpacing="wider">{loc.country}</Text>
                             </VStack>
                           </HStack>
                           <Box textAlign="right">
                             <Text fontWeight="bold" color="blue.500" fontSize="lg">{loc.total}</Text>
-                            <Text fontSize="xs" color="gray.400">Activities</Text>
+                            <Text fontSize="xs" color="muted">Activities</Text>
                           </Box>
                         </Link></HStack>
                     ))}
                   </VStack>
                 ) : (
-                  <Text fontStyle="italic" color="gray.400">No geographical data recorded this year.</Text>
+                  <Text fontStyle="italic" color="muted">No geographical data recorded this year.</Text>
                 )}
               </VStack>
             </MotionBox>
@@ -234,7 +234,7 @@ const RewindPage = () => {
             <Heading size="xl" mb={4} bgGradient="to-r" gradientFrom="teal.400" gradientTo="blue.500" bgClip="text" fontWeight="bold">
               Thank you for being part of 2025!
             </Heading>
-            <Text color="gray.500" fontSize="lg" maxW="2xl" mx="auto">
+            <Text color="muted" fontSize="lg" maxW="2xl" mx="auto">
               This community exists because of your passion and contributions.
               Let's make 2026 even more incredible for indie game developers everywhere.
             </Text>
