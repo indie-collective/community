@@ -159,3 +159,33 @@ test('the game form links to an IGDB search for the name', async ({ page }) => {
   await expect(search).toHaveAttribute('href', 'https://www.igdb.com/search?q=H%C3%A9ros%20%26%20Co');
   await expect(search).toHaveAttribute('target', '_blank');
 });
+
+// #40: how an organisation took part in a game (developer, publisher…).
+test('a member sets how a studio took part in a game', async ({ page }) => {
+  const { db, gameOrganizations, games, organizations } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const [game] = await db.insert(games).values({ name: `Published ${Date.now() % 100000}` }).returning();
+  const [org] = await db.insert(organizations).values({ name: `Publisher Co ${Date.now() % 100000}`, type: 'studio' }).returning();
+  await db.insert(gameOrganizations).values({ gameId: game.id, organizationId: org.id });
+  try {
+    // Visitors see the role.
+    await page.goto(`/game/${game.id}`);
+    await expect(page.getByText('Developer', { exact: true })).toBeVisible();
+
+    await signIn(page, MEMBER);
+    await page.goto(`/game/${game.id}`);
+    const role = page.getByRole('combobox', { name: `Role of ${org.name}` });
+    await expect(role).toHaveValue('developer');
+    await role.selectOption('publisher');
+    await expect.poll(async () => (await db.select().from(gameOrganizations).where(eq(gameOrganizations.gameId, game.id)))[0].role).toBe('publisher');
+    await page.reload();
+    await expect(role).toHaveValue('publisher');
+
+    // The org page says so under the game.
+    await page.goto(`/org/${org.id}`);
+    await expect(page.getByText('Publisher', { exact: true })).toBeVisible();
+  } finally {
+    await db.delete(games).where(eq(games.id, game.id));
+    await db.delete(organizations).where(eq(organizations.id, org.id));
+  }
+});

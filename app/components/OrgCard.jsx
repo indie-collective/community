@@ -11,6 +11,7 @@ import {
   SkeletonText,
   Text,
   Icon,
+  NativeSelect,
 } from '@chakra-ui/react';
 import { LuMapPin, LuTrash2 } from 'react-icons/lu';
 
@@ -19,6 +20,7 @@ import countryNames from '../assets/countries.json';
 import Card from './Card';
 import CardLink from './CardLink';
 import { orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
+import { GAME_ROLES, gameRoleLabel } from '../utils/gameRoles';
 
 export const OrgCardSkeleton = () => (
   <Flex position="relative" alignItems="center">
@@ -50,6 +52,10 @@ const OrgCard = ({
   games,
   events,
   onRemove,
+  // #40: how the organisation took part in a game, shown under its name;
+  // with onInvolvementChange, a select to change it.
+  involvement,
+  onInvolvementChange,
   ...rest
 }) => {
   const placeholder = usePlaceholder('square');
@@ -103,6 +109,29 @@ const OrgCard = ({
           <Heading as="h3" size="md" title={name}>
             <CardLink to={`/org/${id}`}>{name}</CardLink>
           </Heading>
+
+          {involvement &&
+            (onInvolvementChange ? (
+              // Above the card's link overlay, so it can be used.
+              <NativeSelect.Root size="xs" width="9rem" my={1} position="relative" zIndex={1}>
+                <NativeSelect.Field
+                  aria-label={`Role of ${name}`}
+                  value={involvement}
+                  onChange={(event) => onInvolvementChange(event.target.value)}
+                >
+                  {GAME_ROLES.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </NativeSelect.Field>
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
+            ) : (
+              <Text fontSize="sm" color="muted">
+                {gameRoleLabel(involvement)}
+              </Text>
+            ))}
 
           {location && (
             <Flex

@@ -337,6 +337,19 @@ export async function addGameOrganization(gameId, organizationId) {
     .onConflictDoNothing();
 }
 
+/** How an organisation took part in a game (#40): one of GAME_ORGANIZATION_ROLES. */
+export async function setGameOrganizationRole(gameId, organizationId, role) {
+  await db
+    .update(gameOrganizations)
+    .set({ role })
+    .where(
+      and(
+        eq(gameOrganizations.gameId, gameId),
+        eq(gameOrganizations.organizationId, organizationId)
+      )
+    );
+}
+
 /** Removes an organisation from a game's credits. */
 export async function removeGameOrganization(gameId, organizationId) {
   await db
