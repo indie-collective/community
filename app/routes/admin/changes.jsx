@@ -1,4 +1,5 @@
-import { useLoaderData, Link } from 'react-router';
+import { useLoaderData } from 'react-router';
+import Link from '../../components/Link';
 import { Link as ChakraLink, Text, List, Box } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 

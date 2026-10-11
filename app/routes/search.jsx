@@ -1,6 +1,7 @@
 import { Box, Button, Grid, Heading, HStack, Text } from '@chakra-ui/react';
 import { LuChevronLeft, LuChevronRight, LuPlus } from 'react-icons/lu';
-import { Link, useLoaderData } from 'react-router';
+import { useLoaderData } from 'react-router';
+import Link from '../components/Link';
 
 import { searchSite } from '../data/site.server';
 import GameCard from '../components/GameCard';

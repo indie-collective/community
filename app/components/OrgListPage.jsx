@@ -1,6 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import { LuPlus } from 'react-icons/lu';
-import { Link, useLocation, useRouteLoaderData } from 'react-router';
+import { useLocation, useRouteLoaderData } from 'react-router';
+import Link from './Link';
 
 import Filters from './Filters';
 import OrgList from './OrgList';

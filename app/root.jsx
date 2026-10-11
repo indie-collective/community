@@ -197,6 +197,8 @@ export default function App() {
           right={0}
           zIndex={9999}
           colorPalette="green"
+          // Only when loading takes a moment: a fast page shows no flash.
+          animation="fade-in 200ms ease-out 250ms both"
         >
           <Progress.Track>
             <Progress.Range />

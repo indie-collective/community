@@ -5,7 +5,8 @@ import {
   Button,
   Avatar,
 } from '@chakra-ui/react';
-import { Link, useLocation, useRouteLoaderData } from 'react-router';
+import { useLocation, useRouteLoaderData } from 'react-router';
+import Link from './Link';
 
 const AvatarButton = () => {
   const data = useRouteLoaderData('root');

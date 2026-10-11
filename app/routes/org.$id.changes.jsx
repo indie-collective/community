@@ -17,7 +17,6 @@ import { useColorModeValue } from '../components/ui/color-mode';
 import { LuPlus, LuPencil, LuArrowLeft } from 'react-icons/lu';
 
 import {
-  Link,
   NavLink,
   Outlet,
   isRouteErrorResponse,
@@ -26,6 +25,7 @@ import {
   useParams,
   useRouteError,
 } from 'react-router';
+import Link from '../components/Link';
 
 import { getHistorySubject, listChanges } from '../data/changes.server';
 import isAuthenticated from '../utils/isAuthenticated.server';

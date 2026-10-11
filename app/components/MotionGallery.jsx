@@ -1,4 +1,11 @@
-import { Box, Image, Grid, AspectRatio, IconButton, Spinner } from '@chakra-ui/react';
+import {
+  Box,
+  Image,
+  Grid,
+  AspectRatio,
+  IconButton,
+  Spinner,
+} from '@chakra-ui/react';
 import { LuTrash2 } from 'react-icons/lu';
 import { useState } from 'react';
 
@@ -9,13 +16,13 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
 
   const uploadingImages =
-    fetcher.state === 'submitting' &&
-      fetcher.formAction?.includes('images/add') ?
-      fetcher.formData.getAll('images').map((file) => ({
-        name: file.name,
-        url: URL.createObjectURL(file),
-        uploading: true,
-      })) : [];
+    fetcher.state === 'submitting' && fetcher.formAction?.includes('images/add')
+      ? fetcher.formData.getAll('images').map((file) => ({
+          name: file.name,
+          url: URL.createObjectURL(file),
+          uploading: true,
+        }))
+      : [];
 
   const allImages = [...images, ...uploadingImages];
 
@@ -39,6 +46,12 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                 size="100%"
                 cursor="pointer"
                 alt=""
+                // The first image is where a card's image moves to
+                // (view transitions, CardLink).
+                {...(index === 0 && {
+                  'data-vt-hero': '',
+                  css: { viewTransitionName: 'record-image' },
+                })}
                 opacity={image.uploading ? 0.5 : 1}
                 onClick={() => {
                   setSelectedIndex(index);
@@ -81,7 +94,10 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                       action: `/game/${gameId}/images/delete`,
                     }
                   );
-                }}><LuTrash2 /></IconButton>
+                }}
+              >
+                <LuTrash2 />
+              </IconButton>
             )}
           </Box>
         ))}

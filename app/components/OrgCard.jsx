@@ -19,7 +19,12 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import countryNames from '../assets/countries.json';
 import Card from './Card';
 import CardLink from './CardLink';
-import { ORG_STATUSES, orgStatusLabel, orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
+import {
+  ORG_STATUSES,
+  orgStatusLabel,
+  orgTypeColor,
+  orgTypeLabel,
+} from '../utils/orgTypes';
 import { GAME_ROLES, gameRoleLabel } from '../utils/gameRoles';
 import { orgPath } from '../utils/slug';
 
@@ -64,18 +69,7 @@ const OrgCard = ({
   const placeholder = usePlaceholder('square');
 
   return (
-    <Card
-      id={id}
-      isClickable
-      padding={2}
-      rounded={10}
-      transition="background-color 200ms ease-out"
-      cursor="pointer"
-      _hover={{
-        bg: { base: 'gray.200', _dark: 'gray.700' },
-      }}
-      {...rest}
-    >
+    <Card id={id} isClickable padding={2} rounded={10} {...rest}>
       <Flex position="relative" alignItems="center">
         <Flex
           direction="column"
@@ -89,8 +83,9 @@ const OrgCard = ({
             h="75px"
             objectFit="contain"
             src={logo?.thumbnail_url ?? placeholder}
-            alt="Organization cover"
+            alt=""
             rounded={3}
+            data-card-image
           />
 
           <DarkMode>
@@ -122,7 +117,13 @@ const OrgCard = ({
           {involvement &&
             (onInvolvementChange ? (
               // Above the card's link overlay, so it can be used.
-              <NativeSelect.Root size="xs" width="9rem" my={1} position="relative" zIndex={1}>
+              <NativeSelect.Root
+                size="xs"
+                width="9rem"
+                my={1}
+                position="relative"
+                zIndex={1}
+              >
                 <NativeSelect.Field
                   aria-label={`Role of ${name}`}
                   value={involvement}

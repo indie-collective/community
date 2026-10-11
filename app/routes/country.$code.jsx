@@ -8,7 +8,8 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { Link, redirect, useLoaderData } from 'react-router';
+import { redirect, useLoaderData } from 'react-router';
+import Link from '../components/Link';
 
 import { countPlaces, getCountryOverview } from '../data/countries.server';
 import isAuthenticated from '../utils/isAuthenticated.server';

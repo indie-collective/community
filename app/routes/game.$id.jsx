@@ -17,12 +17,12 @@ import { LuPlus, LuExternalLink } from 'react-icons/lu';
 
 import {
   Form,
-  Link,
   isRouteErrorResponse,
   useFetcher,
   useLoaderData,
   useRouteError,
 } from 'react-router';
+import Link from '../components/Link';
 
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { getGame } from '../data/games.server';

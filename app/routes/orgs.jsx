@@ -1,13 +1,15 @@
-import { Box, Grid, Button, Presence } from '@chakra-ui/react';
+import { Box, Grid, Button } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { LuPlus } from 'react-icons/lu';
-import { Link, useLoaderData } from 'react-router';
+import { useLoaderData } from 'react-router';
+import Link from '../components/Link';
 
 import { listRecentOrganizations } from '../data/organizations.server';
-import isAuthenticated from '../utils/isAuthenticated.server'
+import isAuthenticated from '../utils/isAuthenticated.server';
 import OrgCard, { OrgCardSkeleton } from '../components/OrgCard';
 import { pageMeta } from '../utils/meta';
 import { Page, PageHeader } from '../components/Page';
+import Reveal from '../components/Reveal';
 
 const PAGE_SIZE = 50;
 
@@ -31,7 +33,8 @@ export const loader = async ({ request }) => {
 export const meta = ({ matches, location }) =>
   pageMeta(matches, {
     title: 'Organizations',
-    description: 'Video game related organizations around you and all over the world.',
+    description:
+      'Video game related organizations around you and all over the world.',
     path: location.pathname,
   });
 
@@ -39,17 +42,11 @@ const OrgsList = () => {
   // const orgs = useAsyncValue();
   const { orgs = [] } = useLoaderData();
 
-  return orgs.map((org) => (
+  return orgs.map((org, index) => (
     <Box key={org.id} minW={0}>
-      <Presence
-        present
-        animationName={{
-          _open: 'fade-in',
-          _closed: 'fade-out'
-        }}
-        animationDuration='moderate'>
+      <Reveal index={index}>
         <OrgCard {...org} />
-      </Presence>
+      </Reveal>
     </Box>
   ));
 };
@@ -90,7 +87,7 @@ const Orgs = () => {
           ))}
         >
           {/* <Await resolve={orgs}> */}
-            <OrgsList />
+          <OrgsList />
           {/* </Await> */}
         </Suspense>
       </Grid>

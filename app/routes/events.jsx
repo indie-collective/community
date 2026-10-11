@@ -1,6 +1,7 @@
 import { Button, Box, Text, Grid, Image, Stack } from '@chakra-ui/react';
 import { LuPlus } from 'react-icons/lu';
-import { Link, useLoaderData } from 'react-router';
+import { useLoaderData } from 'react-router';
+import Link from '../components/Link';
 
 import { listEvents } from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server';

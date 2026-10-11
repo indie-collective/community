@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import * as React from 'react';
 import { FaBluesky, FaGithub, FaInstagram, FaDiscord } from 'react-icons/fa6';
-import { Link } from 'react-router';
+import Link from './Link';
 
 import Logo from './Logo';
 
@@ -23,6 +23,8 @@ const Footer = () => {
       mx={{ base: 4, md: 10 }}
       mt={3}
       borderRadius="7px 7px 0 0"
+      // Stays put while the page changes (view transitions).
+      css={{ viewTransitionName: 'site-footer' }}
     >
       <Container
         as="footer"

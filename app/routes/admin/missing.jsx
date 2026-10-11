@@ -1,4 +1,5 @@
-import { redirect, useLoaderData, Form, Link, useSubmit  } from 'react-router';
+import { redirect, useLoaderData, Form, useSubmit } from 'react-router';
+import Link from '../../components/Link';
 import {
     Heading,
   Link as ChakraLink,

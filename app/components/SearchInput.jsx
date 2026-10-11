@@ -97,7 +97,7 @@ const SearchInput = () => {
             setHighlighted(highlightedValue)
           }
           onValueChange={({ items: [item] }) => {
-            if (item) navigate(item.href);
+            if (item) navigate(item.href, { viewTransition: true });
           }}
           // A chosen suggestion leaves the box as it was typed.
           selectionBehavior="preserve"
@@ -132,7 +132,7 @@ const SearchInput = () => {
                 if (event.key === 'Enter' && !highlighted) {
                   event.preventDefault();
                   setOpen(false);
-                  if (q) navigate(allResults(q).href);
+                  if (q) navigate(allResults(q).href, { viewTransition: true });
                 }
               }}
             />

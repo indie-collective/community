@@ -13,7 +13,7 @@ import {
   LuGamepad2,
   LuUsers,
 } from 'react-icons/lu';
-import { Link } from 'react-router';
+import Link from './Link';
 
 import { CONTINENTS } from '../utils/countryTable';
 

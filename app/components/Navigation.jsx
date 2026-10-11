@@ -18,12 +18,8 @@ import {
   Portal,
 } from '@chakra-ui/react';
 import { LuMenu, LuChevronDown } from 'react-icons/lu';
-import {
-  Link,
-  useLocation,
-  useNavigation,
-  useRouteLoaderData,
-} from 'react-router';
+import { useLocation, useNavigation, useRouteLoaderData } from 'react-router';
+import Link from './Link';
 
 import Logo from '../components/Logo';
 import AvatarButton from './AvatarButton';
@@ -110,7 +106,14 @@ const Navigation = ({ search }) => {
 
   if (variant === 'mobile') {
     return (
-      <Box as="header" shadow="sm" bg="surface" width="100%">
+      <Box
+        as="header"
+        shadow="sm"
+        bg="surface"
+        width="100%"
+        // Stays put while the page changes (view transitions).
+        css={{ viewTransitionName: 'site-header' }}
+      >
         <HStack
           gap={3}
           px={4}
@@ -162,7 +165,14 @@ const Navigation = ({ search }) => {
   }
 
   return (
-    <VStack as="header" gap={0} width="100%" maxWidth={960}>
+    <VStack
+      as="header"
+      gap={0}
+      width="100%"
+      maxWidth={960}
+      // Stays put while the page changes (view transitions).
+      css={{ viewTransitionName: 'site-header' }}
+    >
       {/* Top Level */}
       <Box w="100%" bg="surface" borderBottomRadius="30px">
         <Flex justifyContent="center">
