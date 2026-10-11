@@ -1,6 +1,6 @@
 import { Box, Heading, Text } from '@chakra-ui/react';
 
-import { useColorModeValue } from "../components/ui/color-mode";
+import { useColorModeValue } from '../components/ui/color-mode';
 
 import { useLoaderData } from 'react-router';
 
@@ -33,9 +33,16 @@ export const loader = async ({ request }) => {
   const q = searchParams.get('q');
   const found = await searchSite(q);
 
-  if (!found) return { search: q?.trim() ?? '', games: [], orgs: [], events: [] };
+  if (!found)
+    return { search: q?.trim() ?? '', games: [], orgs: [], events: [] };
 
-  return { search: q, ...found };
+  const { game, studio, association, event } = found.results;
+  return {
+    search: q,
+    games: game,
+    orgs: [...studio, ...association],
+    events: event,
+  };
 };
 
 export const meta = ({ data }) => [

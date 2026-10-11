@@ -12,12 +12,42 @@ export function searchWords(q) {
     .filter(Boolean);
 }
 
+/**
+ * The full-text query for `q` (#306, data/search): every word starts a word
+ * of the record ("cel" finds "Celeste"), in any column. Null when `q` has
+ * no words.
+ */
+export function matchQuery(q) {
+  const words = searchWords(q);
+  if (words.length === 0) return null;
+  // Quoted, so words like "and" or "near" aren't operators.
+  return words.map((word) => `"${word.replace(/"/g, '""')}"*`).join(' ');
+}
+
 // LIKE's wildcards, escaped with a backslash.
 const escapeLike = (text) => text.replace(/[\\%_]/g, (c) => '\\' + c);
 
 // Punctuation inside stored text that also separates words: "o'conner",
 // "co-op", "studio.io". The column is read with each as a space.
-const SEPARATORS = ["'", '-', '.', ',', ':', ';', '!', '?', '(', ')', '/', '&', '+', '"', '_', '#', '@'];
+const SEPARATORS = [
+  "'",
+  '-',
+  '.',
+  ',',
+  ':',
+  ';',
+  '!',
+  '?',
+  '(',
+  ')',
+  '/',
+  '&',
+  '+',
+  '"',
+  '_',
+  '#',
+  '@',
+];
 // As SQL literals, not parameters: D1 allows 100 parameters per query.
 const spaced = (column) =>
   SEPARATORS.reduce(

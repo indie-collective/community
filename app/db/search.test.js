@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SQLiteSyncDialect } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
-import { matchesSearch, searchWords } from './search';
+import { matchQuery, matchesSearch, searchWords } from './search';
 
 const dialect = new SQLiteSyncDialect();
 const render = (condition) => dialect.sqlToQuery(condition);
@@ -24,8 +24,13 @@ describe('matchesSearch', () => {
 
   it('matches every word at the start of a word, as parameters', () => {
     // Only the words are parameters (D1 allows 100 per query).
-    expect(render(matchesSearch(column, 'Cél 50%')).params).toEqual(['% cel%', '% 50%']);
-    expect(render(matchesSearch(column, 'x', { anywhere: true })).params).toEqual(['%x%']);
+    expect(render(matchesSearch(column, 'Cél 50%')).params).toEqual([
+      '% cel%',
+      '% 50%',
+    ]);
+    expect(
+      render(matchesSearch(column, 'x', { anywhere: true })).params
+    ).toEqual(['%x%']);
   });
 });
 
@@ -36,13 +41,24 @@ describe('matchesSearch in SQLite', async () => {
   const { searchText } = await import('./searchText.js');
   const db = new DatabaseSync(':memory:');
   db.exec('create table t (name text, search_text text)');
-  const names = ["O'Conner - MacGyver Conference", 'Co-op Quest', 'studio.io', 'Celeste', 'Mancelestial'];
+  const names = [
+    "O'Conner - MacGyver Conference",
+    'Co-op Quest',
+    'studio.io',
+    'Celeste',
+    'Mancelestial',
+  ];
   for (const name of names) {
     db.prepare('insert into t values (?, ?)').run(name, searchText(name));
   }
   const find = (q, options) => {
-    const { sql: where, params } = dialect.sqlToQuery(matchesSearch(sql.raw('search_text'), q, options));
-    return db.prepare(`select name from t where ${where} order by name`).all(...params).map((row) => row.name);
+    const { sql: where, params } = dialect.sqlToQuery(
+      matchesSearch(sql.raw('search_text'), q, options)
+    );
+    return db
+      .prepare(`select name from t where ${where} order by name`)
+      .all(...params)
+      .map((row) => row.name);
   };
 
   it.each([
@@ -56,6 +72,26 @@ describe('matchesSearch in SQLite', async () => {
   });
 
   it('matches anywhere when asked', () => {
-    expect(find('celest', { anywhere: true })).toEqual(['Celeste', 'Mancelestial']);
+    expect(find('celest', { anywhere: true })).toEqual([
+      'Celeste',
+      'Mancelestial',
+    ]);
+  });
+});
+
+describe('matchQuery', () => {
+  it('makes every word a quoted prefix, so words are never operators', () => {
+    expect(matchQuery('Celes and NEAR')).toBe('"celes"* "and"* "near"*');
+  });
+
+  it('drops punctuation and accents, as the index does', () => {
+    expect(matchQuery('O\'Conner: Jéu-vidéo "*')).toBe(
+      '"o"* "conner"* "jeu"* "video"*'
+    );
+  });
+
+  it('is null when there are no words', () => {
+    expect(matchQuery(' "*(): ')).toBeNull();
+    expect(matchQuery(undefined)).toBeNull();
   });
 });

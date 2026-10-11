@@ -28,6 +28,7 @@ import computeGame from '../models/game';
 import { refreshIfStale } from '../utils/igdbData.server';
 import { logChange } from './changes.server';
 import { getUploads } from './images.server';
+import { searchIndex } from './search.server';
 import * as shape from './shapes.server';
 import { resolveTagNames } from './tags.server';
 import { freeSlug, renameSlugStatements } from './slugs.server';
@@ -41,6 +42,12 @@ const ORDERS = {
 };
 
 const notDeleted = isNull(games.deletedAt);
+
+// Rows in the order of `ids` (as search ranked them), missing ones left out.
+const inOrder = (ids, rows) => {
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  return ids.map((id) => byId.get(id)).filter(Boolean);
+};
 
 // What game cards show: stored IGDB data, images, tags and organisations.
 const CARD_WITH = {
@@ -403,20 +410,31 @@ export async function removeGameImages(gameId, imageIds) {
 }
 
 /**
- * Games whose name or description matches `q`, for pickers: computed games
- * with only `id` and `name`, at most 10. Empty for an empty query.
+ * Games matching `q` (see data/search), best first, for pickers: computed
+ * games with only `id` and `name`, at most 10. Empty for an empty query.
  */
 export async function searchGames(q, { excludeIds = [] } = {}) {
-  const search = matchesSearch(games.searchText, q);
-  if (!search) return [];
+  const found = await searchIndex(q, { kinds: ['game'], excludeIds });
+  if (!found || found.hits.length === 0) return [];
+  const ids = found.hits.map((hit) => hit.id);
   const rows = await db
     .select({ id: games.id, name: games.name, slug: games.slug })
     .from(games)
-    .where(and(search, notDeleted, notInArray(games.id, excludeIds)))
-    .limit(10);
-  return Promise.all(rows.map(computeGame));
+    .where(and(notDeleted, inArray(games.id, ids)));
+  return Promise.all(inOrder(ids, rows).map(computeGame));
 }
 
+/** Games as cards, computed, in the order of `ids` (search results). */
+export async function listGameCards(ids) {
+  if (ids.length === 0) return [];
+  const rows = await db.query.games.findMany({
+    where: and(notDeleted, inArray(games.id, ids)),
+    with: CARD_WITH,
+  });
+  return Promise.all(
+    inOrder(ids, rows).map(gameWithRelations).map(computeGame)
+  );
+}
 
 /** How many games there are, deleted ones left out. */
 export async function countGames() {
@@ -456,7 +474,12 @@ export async function listGamesMadeIn(countryCode, { limit }) {
  */
 export async function listFeaturedGames({ limit }) {
   const has = (table, column) =>
-    exists(db.select({ one: sql`1` }).from(table).where(eq(column, games.id)));
+    exists(
+      db
+        .select({ one: sql`1` })
+        .from(table)
+        .where(eq(column, games.id))
+    );
   const rows = await db.query.games.findMany({
     where: and(
       notDeleted,

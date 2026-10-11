@@ -11,7 +11,7 @@ The schema cleanup (#150) was planned as a series of Prisma migrations on Postgr
 - **IDs stay UUIDs** (text), so every existing URL keeps working.
 - **Times are Unix milliseconds** (integers): they sort and compare as numbers in SQLite. Event times keep their own `time_zone` (#204).
 - **Enums are text with a CHECK constraint**, mirrored as TypeScript unions in Drizzle.
-- **Search is a normalised `search_text` column** (lowercase, accents removed), written by the app and matched with `LIKE`, instead of Postgres full-text search. With ~2,000 rows per table a scan is cheap, and it needs no FTS5 triggers. "jeu" finds "Jéu".
+- **Search is a normalised `search_text` column** (superseded for site search and pickers by ADR 0004) (lowercase, accents removed), written by the app and matched with `LIKE`, instead of Postgres full-text search. With ~2,000 rows per table a scan is cheap, and it needs no FTS5 triggers. "jeu" finds "Jéu".
 - **Join tables stay explicit.** Drizzle has no implicit many-to-many, and two of them carry data (`role`, `position`).
 
 ## Tables
