@@ -64,17 +64,16 @@ for (const [endpoint, table] of [
 // these also check that the triggers keep the index current.
 const unique = () =>
   `${Date.now() % 1000000}${Math.floor(Math.random() * 1000)}`;
-// What /search found: the names of each kind of result, best first.
+// What /search found for `q`: each kind's results, best first.
 const searchData = async (request, q) => {
   const response = await request.get(`/search.data?q=${encodeURIComponent(q)}`);
   expect(response.status()).toBe(200);
-  return decodeRouteData(await response.text(), 'routes/search');
+  return decodeRouteData(await response.text(), 'routes/search').results;
 };
 const names = (records) => records.map((record) => record.name);
 // The names of everything /search found for `q`.
 const found = async (request, q) => {
-  const { games, orgs, events } = await searchData(request, q);
-  return names([...games, ...orgs, ...events]);
+  return names(Object.values(await searchData(request, q)).flat());
 };
 
 test('names rank above descriptions, which say why they matched', async ({
@@ -94,7 +93,7 @@ test('names rank above descriptions, which say why they matched', async ({
     ])
     .returning();
   try {
-    const { games } = await searchData(request, word.slice(0, -2));
+    const { game: games } = await searchData(request, word.slice(0, -2));
     expect(names(games)).toEqual([named.name, described.name]);
     expect(games[0].search_match).toBeNull();
     // The description's snippet, the word marked.
@@ -203,9 +202,96 @@ test('upcoming events come before past ones', async ({ request }) => {
     ])
     .returning();
   try {
-    const { events } = await searchData(request, word);
+    const { event: events } = await searchData(request, word);
     expect(names(events)).toEqual([upcoming.name, past.name]);
   } finally {
     await db.delete(events).where(inArray(events.id, [past.id, upcoming.id]));
+  }
+});
+
+// #306: the results page, and the header's suggestions.
+test('the results page counts each kind, says why a result matched, and shows one kind', async ({
+  page,
+}) => {
+  const { db, games, gameOrganizations, organizations } =
+    await import('./db.js');
+  const { eq, inArray } = await import('drizzle-orm');
+  const word = `glimmerfen${unique()}`;
+  const [studio] = await db
+    .insert(organizations)
+    .values({ name: `${word} Works`, type: 'studio' })
+    .returning();
+  const [named, made] = await db
+    .insert(games)
+    .values([{ name: `${word} Saga` }, { name: `Mirelight ${word.slice(-5)}` }])
+    .returning();
+  await db
+    .insert(gameOrganizations)
+    .values({ gameId: made.id, organizationId: studio.id });
+  try {
+    await page.goto(`/search?q=${word}`);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      `Results for “${word}”`
+    );
+    const tabs = page.getByRole('navigation', { name: 'Kinds of results' });
+    await expect(tabs.getByRole('link', { name: 'All 3' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    );
+    await expect(tabs.getByRole('link', { name: 'Games 2' })).toBeVisible();
+    await expect(tabs.getByRole('link', { name: 'Events 0' })).toBeVisible();
+
+    // The game found by its studio says so; the one found by name doesn't.
+    const results = page
+      .getByRole('region', { name: /Games/ })
+      .getByRole('listitem');
+    await expect(results).toHaveCount(2);
+    await expect(results.filter({ hasText: made.name })).toContainText(
+      `By: ${studio.name}`
+    );
+    await expect(results.filter({ hasText: named.name })).not.toContainText(
+      'By:'
+    );
+
+    await tabs.getByRole('link', { name: 'Studios 1' }).click();
+    await expect(page).toHaveURL(`/search?q=${word}&kind=studio`);
+    await expect(page.getByRole('listitem')).toHaveCount(1);
+    await expect(page.getByRole('listitem')).toContainText(studio.name);
+  } finally {
+    await db.delete(games).where(inArray(games.id, [named.id, made.id]));
+    await db.delete(organizations).where(eq(organizations.id, studio.id));
+  }
+});
+
+test('the header box suggests matches, and Enter shows every result', async ({
+  page,
+}) => {
+  const { db, games } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const word = `quillmoor${unique()}`;
+  const [game] = await db
+    .insert(games)
+    .values({ name: `${word} Tales` })
+    .returning();
+  try {
+    await page.goto('/about');
+    const box = page
+      .getByRole('combobox', { name: 'Search' })
+      .locator('visible=true');
+    await box.pressSequentially(word.slice(0, 12));
+    await page.getByRole('option', { name: new RegExp(game.name) }).click();
+    await expect(page).toHaveURL(new RegExp(`/game/`));
+    await expect(page).toHaveTitle(new RegExp(game.name));
+
+    await box.fill('');
+    await box.pressSequentially(word);
+    await expect(
+      page.getByRole('option', { name: `See all results for “${word}”` })
+    ).toBeVisible();
+    await box.press('Enter');
+    await expect(page).toHaveURL(`/search?q=${word}`);
+    await expect(page.getByRole('option')).toHaveCount(0);
+  } finally {
+    await db.delete(games).where(eq(games.id, game.id));
   }
 });

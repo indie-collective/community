@@ -29,6 +29,7 @@ export default [
   route('search-event', 'routes/search-event.jsx'),
   route('search-game', 'routes/search-game.jsx'),
   route('search-org', 'routes/search-org.jsx'),
+  route('search-suggest', 'routes/search-suggest.js'),
 
   // Places
   route('places', 'routes/places.jsx'),

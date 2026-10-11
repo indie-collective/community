@@ -7,7 +7,8 @@ import { events, games, organizations } from '../db/schema.js';
 import { listEventCards } from './events.server';
 import { listGameCards } from './games.server';
 import { listOrganizationCards } from './organizations.server';
-import { SEARCH_KINDS, searchIndex } from './search.server';
+import { SEARCH_KINDS, countSearch, searchIndex } from './search.server';
+import { eventPath, gamePath, orgPath } from '../utils/slug';
 
 /**
  * Site search (#306): games, studios, associations and events matching `q`,
@@ -16,7 +17,8 @@ import { SEARCH_KINDS, searchIndex } from './search.server';
  * `offset`. Null for an empty query.
  *
  * @returns {Promise<{ counts: object, results: object } | null>} counts
- *   and results by kind (`game`, `studio`, `association`, `event`)
+ *   of every kind, and results by kind (`game`, `studio`, `association`,
+ *   `event`)
  */
 export async function searchSite(
   q,
@@ -42,7 +44,62 @@ export async function searchSite(
     const card = cards.get(hit.id);
     if (card) results[hit.kind].push({ ...card, search_match: hit.match });
   }
-  return { counts: found.counts, results };
+  // Only one kind was searched: count the others too, for the tabs.
+  const counts = kind ? await countSearch(q) : found.counts;
+  return { counts, results };
+}
+
+/**
+ * What the search box suggests as people type (#306): the best `limit`
+ * matches of any kind, as `{ kind, id, name, href, image }`, `image` a
+ * thumbnail URL or null. Empty for an empty query.
+ */
+export async function suggestSearch(q, { limit = 6 } = {}) {
+  const found = await searchIndex(q, { limit });
+  if (!found) return [];
+  const ids = (...of) =>
+    found.hits.filter((hit) => of.includes(hit.kind)).map((hit) => hit.id);
+  const [games, orgs, events] = await Promise.all([
+    listGameCards(ids('game')),
+    listOrganizationCards(ids('studio', 'association')),
+    listEventCards(ids('event')),
+  ]);
+  const suggestion = {
+    game: (game) => ({
+      href: gamePath(game),
+      image:
+        game.images?.[0]?.thumbnail_url ??
+        game.igdb_game?.cover?.url ??
+        game.igdb_game?.screenshots?.[0]?.url ??
+        null,
+    }),
+    studio: (org) => ({
+      href: orgPath(org),
+      image: org.logo?.thumbnail_url ?? null,
+    }),
+    association: (org) => ({
+      href: orgPath(org),
+      image: org.logo?.thumbnail_url ?? null,
+    }),
+    event: (event) => ({
+      href: eventPath(event),
+      image: event.cover?.thumbnail_url ?? null,
+    }),
+  };
+  const cards = new Map(
+    [...games, ...orgs, ...events].map((card) => [card.id, card])
+  );
+  return found.hits
+    .filter((hit) => cards.has(hit.id))
+    .map((hit) => {
+      const card = cards.get(hit.id);
+      return {
+        kind: hit.kind,
+        id: hit.id,
+        name: card.name,
+        ...suggestion[hit.kind](card),
+      };
+    });
 }
 
 /**
