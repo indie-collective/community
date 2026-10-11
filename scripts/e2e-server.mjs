@@ -15,6 +15,8 @@ const state = '.wrangler/e2e';
 
 const vars = {
   SESSION_SECRET: 'e2e-only-session-secret',
+  // Tests change data and read it back signed out: no edge cache.
+  EDGE_CACHE: 'off',
   // Sign in by email alone, with the accounts scripts/seed.mjs creates.
   DEV_SIGNIN: 'true',
   // Never used: the tests sign in by email.
