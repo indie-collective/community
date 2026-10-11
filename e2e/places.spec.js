@@ -267,3 +267,37 @@ test('the org form sets the status', async ({ page }) => {
     await db.delete(organizations).where(eq(organizations.id, org.id));
   }
 });
+
+// #211: upcoming events are on the map too (past ones aren't), and each
+// kind can be hidden.
+test('the map shows upcoming events, and filters by kind', async ({ page }) => {
+  const { db, events, organizations, searchText } = await import('./db.js');
+  const { inArray } = await import('drizzle-orm');
+  const tag = Date.now() % 100000;
+  const day = 24 * 60 * 60 * 1000;
+  const place = { countryCode: 'XQ', city: `Reykjavík ${tag}`, latitude: 64.1466, longitude: -21.9426 };
+  const event = (name, offset) => ({
+    name: `${name} ${tag}`,
+    searchText: searchText(`${name} ${tag}`),
+    startsAt: new Date(Date.now() + offset),
+    endsAt: new Date(Date.now() + offset + day),
+    ...place,
+  });
+  const [soon, past] = await db.insert(events).values([event('Geyser Jam', 30 * day), event('Old Jam', -30 * day)]).returning();
+  const [studio] = await db.insert(organizations).values({ name: `Geyser Games ${tag}`, type: 'studio', ...place }).returning();
+  try {
+    await page.goto('/places?country=XQ', { waitUntil: 'networkidle' });
+    await expect(page.locator(`[id="${soon.id}"]`)).toBeAttached();
+    await expect(page.locator(`[id="${soon.id}"]`)).toContainText(`Geyser Jam ${tag}`);
+    await expect(page.locator(`[id="${past.id}"]`)).toHaveCount(0);
+    await expect(page.locator(`[id="${studio.id}"]`)).toBeAttached();
+
+    await page.getByRole('checkbox', { name: 'Studios' }).click({ force: true });
+    await expect(page.locator(`[id="${studio.id}"]`)).toHaveCount(0);
+    await page.getByRole('checkbox', { name: 'Upcoming events' }).click({ force: true });
+    await expect(page.locator(`[id="${soon.id}"]`)).toHaveCount(0);
+  } finally {
+    await db.delete(events).where(inArray(events.id, [soon.id, past.id]));
+    await db.delete(organizations).where(inArray(organizations.id, [studio.id]));
+  }
+});

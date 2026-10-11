@@ -6,6 +6,9 @@ import {
   useBreakpointValue,
   Icon,
   Switch,
+  Checkbox,
+  CheckboxGroup,
+  HStack,
 } from '@chakra-ui/react';
 import { Overlay, ZoomControl } from 'pigeon-maps';
 import { usePrevious } from 'react-use';
@@ -22,6 +25,8 @@ import SectionHeading from '../components/SectionHeading';
 import { orgTypeColor } from '../utils/orgTypes';
 import { pageMeta } from '../utils/meta';
 import { listMappedOrganizations } from '../data/organizations.server';
+import { listMappedUpcomingEvents } from '../data/events.server';
+import EventMapCard from '../components/EventMapCard';
 
 const OrgMarker = React.memo(
   ({ id, logo, name, type, highlighted, onClick }) => (
@@ -46,7 +51,7 @@ const OrgMarker = React.memo(
             width="48px"
             height="48px"
             viewBox="0 0 480 480"
-            color={orgTypeColor(type) + '.500'}
+            color={type === 'event' ? 'purple.500' : orgTypeColor(type) + '.500'}
           >
             <defs>
               <mask id="mask">
@@ -81,8 +86,24 @@ const OrgMarker = React.memo(
   )
 );
 
+// What the map shows (#211), each with a label and pin colour.
+const KINDS = [
+  ['studio', 'Studios'],
+  ['association', 'Associations'],
+  ['event', 'Upcoming events'],
+];
+
 const Row = ({ index, data, style }) => (
   <div key={data.orgs[index].id} style={style}>
+    {data.orgs[index].type === 'event' ? (
+      <EventMapCard
+        css={{ '&:target': { animation: 'highlight' } }}
+        {...data.orgs[index]}
+        onMouseEnter={() => data.onMouseEnter(data.orgs[index])}
+        onMouseOut={() => data.onMouseOut(data.orgs[index])}
+        animation={data.selectedId === data.orgs[index].id ? 'highlight' : undefined}
+      />
+    ) : (
     <OrgCard
       id={data.orgs[index].id}
       // `highlight` is the animation token (and keyframes) in theme.js.
@@ -98,6 +119,7 @@ const Row = ({ index, data, style }) => (
         data.selectedId === data.orgs[index].id ? 'highlight' : undefined
       }
     />
+    )}
   </div>
 );
 
@@ -160,9 +182,14 @@ export const loader = async ({ request }) => {
     .get('country')
     ?.toUpperCase();
 
-  const orgs = await listMappedOrganizations();
+  const [orgs, events] = await Promise.all([
+    listMappedOrganizations(),
+    listMappedUpcomingEvents(),
+  ]);
   return {
     orgs,
+    // Upcoming events go on the map too (#211); past ones don't.
+    events: events.map((event) => ({ ...event, type: 'event', logo: event.cover })),
     focus: countryCode
       ? focusOn(
           orgs
@@ -176,7 +203,7 @@ export const loader = async ({ request }) => {
 export const meta = ({ matches, location }) =>
   pageMeta(matches, {
     title: 'Places',
-    description: 'Video game studios and associations on a map of the world.',
+    description: 'Video game studios, associations and upcoming events on a map of the world.',
     path: location.pathname,
   });
 
@@ -184,7 +211,7 @@ const Places = () => {
   const containerRef = useRef();
   const listRef = useRef();
   const [isPending, startTransition] = useTransition();
-  const { orgs, focus } = useLoaderData();
+  const { orgs, events, focus } = useLoaderData();
   const [center, setCenter] = useState(focus?.center ?? [0, 0]);
   const [zoom, setZoom] = useState(() =>
     focus ? zoomToFit(focus, { width: 1240, height: 835 }) : 2
@@ -192,11 +219,18 @@ const Places = () => {
   const [currentBounds, setCurrentBounds] = useState();
   const [highlightedOrg, setHighlightedOrg] = useState();
   const [isMovingBandOpen, setMovingBandOpen] = useState(false);
-  // #39: closed organisations are hidden unless asked for.
+  // #39: closed organisations are hidden unless asked for. #211: studios,
+  // associations and upcoming events can each be hidden.
   const [showClosed, setShowClosed] = useState(false);
+  const [shownKinds, setShownKinds] = useState(() => KINDS.map(([kind]) => kind));
   const shownOrgs = useMemo(
-    () => (showClosed ? orgs : orgs.filter((org) => org.status !== 'closed')),
-    [orgs, showClosed]
+    () =>
+      [...orgs, ...events].filter(
+        (item) =>
+          shownKinds.includes(item.type) &&
+          (showClosed || item.status !== 'closed')
+      ),
+    [orgs, events, shownKinds, showClosed]
   );
   const location = useLocation();
   const navigate = useNavigate();
@@ -275,7 +309,22 @@ const Places = () => {
       direction="column"
       overflow="hidden"
     >
-      <Flex justify="flex-end" px={5} mt={3}>
+      <Flex justify="space-between" align="center" wrap="wrap" gap={3} px={5} mt={3}>
+        <CheckboxGroup
+          value={shownKinds}
+          onValueChange={setShownKinds}
+          aria-label="Show on the map"
+        >
+          <HStack gap={4} wrap="wrap">
+            {KINDS.map(([kind, label]) => (
+              <Checkbox.Root key={kind} value={kind} size="sm">
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label>{label}</Checkbox.Label>
+              </Checkbox.Root>
+            ))}
+          </HStack>
+        </CheckboxGroup>
         <Switch.Root
           size="sm"
           checked={showClosed}
