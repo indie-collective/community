@@ -1,4 +1,4 @@
-import { Box, Heading } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
@@ -17,6 +17,7 @@ import { timeZoneAt } from '../utils/timeZone.server';
 import { webUrl } from '../utils/url';
 import { eventPath } from '../utils/slug';
 import { routeRecordId } from '../utils/pageRecord.server';
+import { PageHeader } from '../components/Page';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -52,8 +53,10 @@ export async function action(args) {
     rules: [canWrite],
   });
 
+  // Outside the try: the catch sends the submitted values back.
+  let data;
   try {
-    const data = await parseFormWithUploads(request, ['cover']);
+    data = await parseFormWithUploads(request, ['cover']);
 
     const location = {
       street: data.get('street'),
@@ -97,7 +100,7 @@ export async function action(args) {
   } catch (err) {
     console.log(err);
 
-    const values = Object.fromEntries(data);
+    const values = data ? Object.fromEntries(data) : {};
     return { error: 'Updating the event failed', values };
   }
 }
@@ -128,8 +131,8 @@ const EditEvent = () => {
   }, [actionData?.error, navigation.state === 'submitting']);
 
   return (
-    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-      <Heading mb={5}>Update event</Heading>
+    <Box maxW="560px" mx="auto" px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
+      <PageHeader title="Edit event" />
 
       <EventForm
         method="post"

@@ -1,4 +1,4 @@
-import { Box, Heading } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
@@ -15,6 +15,7 @@ import { checkBlueskyHandle } from '../utils/bluesky.server';
 import { ORGANIZATION_STATUSES } from '../db/schema.js';
 import { orgPath } from '../utils/slug';
 import { routeRecordId } from '../utils/pageRecord.server';
+import { PageHeader } from '../components/Page';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -121,8 +122,8 @@ const EditOrg = () => {
   }, [actionData?.error, navigation.state === 'submitting']);
 
   return (
-    <Box width={{ base: 'auto', sm: 500 }} margin="40px auto" p={5} mb={5}>
-      <Heading mb={5}>Update organization</Heading>
+    <Box maxW="560px" mx="auto" px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
+      <PageHeader title="Edit studio or association" />
 
       <OrgForm
         method="post"

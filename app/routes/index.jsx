@@ -22,6 +22,7 @@ import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 import PlacesWidget from '../components/PlacesWidget';
+import { Page } from '../components/Page';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import { pageMeta } from '../utils/meta';
 import { countEvents, listUpcomingEvents } from '../data/events.server';
@@ -88,10 +89,10 @@ const number = (n) => n.toLocaleString('en');
 // people who aren't signed in: members know.
 const Hero = ({ counts }) => (
   <Box
-    mb={5}
+    mb={{ base: 8, md: 10 }}
     px={[5, 8]}
     py={[6, 8]}
-    borderRadius={7}
+    borderRadius="2xl"
     bg={{ base: 'green.50', _dark: 'green.950' }}
   >
     <Heading as="h1" size={['2xl', '3xl']} mb={3}>
@@ -146,8 +147,8 @@ const Hero = ({ counts }) => (
 );
 
 // A homepage section: a heading, a link to the full list, and its cards.
+// As every page's sections (design pass): on the page, not in a panel.
 const Section = ({ title, to, linkLabel, children, ...rest }) => {
-  const bg = 'surface';
   // Labelled by its heading: a region screen readers can jump to.
   const headingId = useId();
   return (
@@ -155,19 +156,14 @@ const Section = ({ title, to, linkLabel, children, ...rest }) => {
       as="section"
       aria-labelledby={headingId}
       minW={0}
-      mb={5}
-      px={2}
-      pb={2}
-      background={bg}
-      shadow="sm"
-      borderRadius={7}
+      mb={{ base: 8, md: 10 }}
       {...rest}
     >
-      <Flex justify="space-between" align="center" wrap="wrap">
-        <Heading as="h2" id={headingId} size="lg" py={3} pl={2}>
+      <Flex justify="space-between" align="baseline" gap={3} mb={4} wrap="wrap">
+        <Heading as="h2" id={headingId} size="xl">
           {title}
         </Heading>
-        <Button colorPalette="gray" variant="ghost" asChild>
+        <Button colorPalette="gray" variant="ghost" size="sm" asChild>
           <Link to={to}>
             {linkLabel}
             <LuChevronRight />
@@ -214,7 +210,7 @@ const HomePage = () => {
   } = useLoaderData();
 
   return (
-    <Box mb={5} pt={2} px={5}>
+    <Page>
       {currentUser ? (
         <VisuallyHidden asChild>
           <h1>Indie Collective Community</h1>
@@ -260,7 +256,7 @@ const HomePage = () => {
           which pushed the page past a 375px screen. */}
       <Grid gap={5} templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}>
         <Section title="Studios" to="/studios" linkLabel="Explore studios">
-          <Grid {...cards(['1fr', 'repeat(2, 1fr)'])} mb={5}>
+          <Grid {...cards(['1fr', 'repeat(2, 1fr)'])}>
             {studios.map((studio) => (
               <Box key={studio.id} minW={0}>
                 <OrgCard {...studio} />
@@ -273,7 +269,7 @@ const HomePage = () => {
           to="/associations"
           linkLabel="Explore associations"
         >
-          <Grid {...cards(['1fr', 'repeat(2, 1fr)'])} mb={5}>
+          <Grid {...cards(['1fr', 'repeat(2, 1fr)'])}>
             {associations.map((association) => (
               <Box key={association.id} minW={0}>
                 <OrgCard {...association} />
@@ -282,7 +278,7 @@ const HomePage = () => {
           </Grid>
         </Section>
       </Grid>
-    </Box>
+    </Page>
   );
 };
 

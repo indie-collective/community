@@ -9,13 +9,15 @@ const SectionHeading = ({
   children,
   count,
   countLabel = 'items',
-  size = 'md',
+  size = 'xl',
   badgeProps,
   ...rest
 }) => (
   <HStack gap={2} align="baseline" {...rest}>
-    <Heading size={size}>{children}</Heading>
-    <Badge variant="subtle" colorPalette="green" fontSize="md" {...badgeProps}>
+    <Heading as="h2" size={size}>
+      {children}
+    </Heading>
+    <Badge variant="subtle" colorPalette="gray" fontSize="sm" {...badgeProps}>
       {count}
       <VisuallyHidden> {countLabel}</VisuallyHidden>
     </Badge>

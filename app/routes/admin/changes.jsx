@@ -1,10 +1,11 @@
 import { useLoaderData, Link } from 'react-router';
-import { Heading, Link as ChakraLink, Text, List, Box } from '@chakra-ui/react';
+import { Link as ChakraLink, Text, List, Box } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 
 import isAuthenticated from '../../utils/isAuthenticated.server'
 import { listRecentChanges } from '../../data/changes.server';
 import { LuPlus, LuTrash2, LuPencil } from 'react-icons/lu';
+import { PageHeader } from '../../components/Page';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
@@ -45,10 +46,8 @@ const Profile = () => {
   const { lastChanges } = useLoaderData();
 
   return (
-    <Box mb={5} pl={5} pr={5} mt={5}>
-      <Heading as="h2" mb={5} size="2xl">
-        Last changes
-      </Heading>
+    <Box px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
+      <PageHeader eyebrow="Admin" title="Last changes" />
       <List.Root gap={2} pl={5}>
         {lastChanges.map(
           ({

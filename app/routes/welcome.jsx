@@ -79,12 +79,12 @@ export default function Welcome() {
 
   if ((!actionData && !currentUser.email) || actionData?.errors) {
     return (
-      <Box p={5} mb={5}>
-        <Box p={20} textAlign="center">
-          <Heading as="h2" size="2xl" mb={5}>
+      <Box px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
+        <Box py={{ base: 8, md: 12 }} textAlign="center">
+          <Heading as="h1" size="2xl" mb={3}>
             You're almost there!
           </Heading>
-          <Text fontSize="xl">
+          <Text fontSize="lg" color="muted">
             We just need a little more information to get you started.
           </Text>
         </Box>
@@ -127,12 +127,12 @@ export default function Welcome() {
   }
 
   return (
-    <Box p={5} mb={5} textAlign="center">
-      <Box p={20}>
-        <Heading as="h2" size="2xl" mb={5}>
+    <Box px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12} textAlign="center">
+      <Box py={{ base: 8, md: 12 }}>
+        <Heading as="h1" size="2xl" mb={3}>
           Welcome to Community!
         </Heading>
-        <Text fontSize="xl">Here's what you can do now</Text>
+        <Text fontSize="lg" color="muted">Here's what you can do now</Text>
       </Box>
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} columnGap={8} rowGap={16}>
         <Box>

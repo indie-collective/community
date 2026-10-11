@@ -15,17 +15,16 @@ import {
   Link as ChakraLink,
   Dialog,
   Portal,
-  Icon,
   HStack,
   List,
 } from '@chakra-ui/react';
 import {
   LuPlus,
-  LuPencil,
   LuTriangleAlert,
   LuMapPin,
   LuExternalLink,
   LuTicket,
+  LuCalendar,
 } from 'react-icons/lu';
 import {
   Form,
@@ -38,7 +37,11 @@ import {
 
 import TileMap from '../components/TileMap';
 
-import { getEvent, getEventEditions, getRelatedEvents } from '../data/events.server';
+import {
+  getEvent,
+  getEventEditions,
+  getRelatedEvents,
+} from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import usePlaceholder from '../hooks/usePlaceholder';
 import GameCard from '../components/GameCard';
@@ -52,12 +55,14 @@ import { SearchGameModal } from './search-game';
 // drops the props passed to it here.
 import { SearchOrgModal } from './search-org';
 import SectionHeading from '../components/SectionHeading';
+import ActionMenu from '../components/ActionMenu';
+import { Page, PageHeader } from '../components/Page';
+import countryNames from '../assets/countries.json';
 import { formatEventDate, formatEventRange } from '../utils/eventTime';
 import { pageMeta, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { eventPath } from '../utils/slug';
-
 
 export const loader = async ({ request, params }) => {
   // By slug, an old slug or UUID; those redirect to the slug (#209).
@@ -151,419 +156,359 @@ const Event = () => {
   const isGoing =
     currentUser && participants.some(({ id }) => id === currentUser.id);
 
+  const isPast = new Date(endsAt) < new Date();
+  const place = location
+    ? [
+        location.city,
+        countryNames[location.country_code] ?? location.country_code,
+      ]
+        .filter(Boolean)
+        .join(', ')
+    : null;
+
   return (
-    <Grid
-      templateColumns={['1fr', '1fr', '1fr']}
-      gap={[5, 5, 10]}
-      mt={[5, 2, 5]}
-      mx={5}
-    >
-      <Box>
-        <Box position="relative">
-          <AspectRatio ratio={3}>
-            <Image
-              size="100%"
-              objectFit="cover"
-              src={cover?.url ?? placeholder}
-              alt="Event cover"
-              rounded={5}
-            />
-          </AspectRatio>
-
-          <DateLabel
-            position="absolute"
-            right={2}
-            bottom={3}
-            value={new Date(startsAt)}
-            timeZone={timeZone}
+    <Page>
+      <Box position="relative" mb={{ base: 5, md: 6 }}>
+        <AspectRatio ratio={3}>
+          <Image
+            objectFit="cover"
+            src={cover?.url ?? placeholder}
+            alt=""
+            borderRadius="xl"
           />
-        </Box>
+        </AspectRatio>
+        <DateLabel
+          position="absolute"
+          right={3}
+          bottom={3}
+          value={new Date(startsAt)}
+          timeZone={timeZone}
+        />
+      </Box>
 
-        <Box mb={5} roundedBottom={5} minHeight={!location && '100px'}>
-          <Grid
-            gridTemplateColumns={['1fr', '1fr auto auto']}
-            columnGap={2}
-            padding={2}
-            color={status === 'canceled' ? 'muted' : undefined}
+      <PageHeader
+        // What kind of page this is, and where (design pass).
+        eyebrow={[
+          'Event',
+          status === 'canceled' ? 'Canceled' : isPast ? 'Past' : 'Upcoming',
+          place,
+        ]
+          .filter(Boolean)
+          .join(' · ')}
+        title={
+          <Text
+            as="span"
+            textDecoration={status === 'canceled' ? 'line-through' : undefined}
           >
-            {currentUser && (
-              <Link to={`/event/${id}/edit`}>
-                <Button
-                  gridRow={['', '1']}
-                  gridColumn={[
-                    '',
-                    status === 'canceled' ? '2 / span 2' : '2 / span 1',
-                  ]}
-                  mb={[2, '0']}
+            {name}
+          </Text>
+        }
+        actions={
+          currentUser && (
+            <>
+              {status !== 'canceled' && (
+                <JoinEventButton
                   size="sm"
-                  colorPalette="green"
+                  minWidth={100}
+                  eventId={id}
+                  isGoing={isGoing}
                 >
-                  <LuPencil />
-                  Edit
-                </Button>
-              </Link>
-            )}
-
-            <Heading
-              size="2xl"
-              gridColumn="1"
-              gridRow={['', !location && '3']}
-              textDecoration={status === 'canceled' && 'line-through'}
-            >
-              {name}
-            </Heading>
-
-            <Text
-              gridColumn="1"
-              textTransform="uppercase"
-              whiteSpace="nowrap"
-              asChild
-            >
-              <time dateTime={`${new Date(startsAt).toISOString()}/${new Date(endsAt).toISOString()}`}>
+                  {isPast
+                    ? isGoing
+                      ? 'Went'
+                      : 'I went!'
+                    : isGoing
+                      ? 'Going'
+                      : "Let's go!"}
+                </JoinEventButton>
+              )}
+              <ActionMenu
+                editLink={`/event/${id}/edit`}
+                changesLink={`/event/${id}/changes`}
+                onDelete={deleteModal.onOpen}
+              />
+            </>
+          )
+        }
+      >
+        <Stack gap={1} color="muted">
+          <HStack gap={2}>
+            <LuCalendar />
+            <Text asChild>
+              <time
+                dateTime={`${new Date(startsAt).toISOString()}/${new Date(endsAt).toISOString()}`}
+              >
                 {/* In the event's own time zone, identical on server and browser (#204). */}
                 {formatEventRange(startsAt, endsAt, timeZone)}
               </time>
             </Text>
-
-            {location && (
-              <Text gridColumn="1">
-                <Icon mr={1}>
-                  <LuMapPin />
-                </Icon>
-                {location.street && `${location.street}, `}
-                {location.city}, {location.region},{' '}
+          </HStack>
+          {location && (
+            <HStack gap={2} align="flex-start">
+              <Box as="span" mt="3px">
+                <LuMapPin />
+              </Box>
+              <Text>
+                {[location.street, location.city, location.region]
+                  .filter(Boolean)
+                  .join(', ')}
+                {(location.street || location.city || location.region) && ', '}
                 <ChakraLink asChild>
                   <Link to={`/country/${location.country_code.toLowerCase()}`}>
-                    {location.country_code}
+                    {countryNames[location.country_code] ??
+                      location.country_code}
                   </Link>
                 </ChakraLink>
               </Text>
+            </HStack>
+          )}
+        </Stack>
+        {(site || ticketUrl) && (
+          <HStack gap={2} wrap="wrap" mt={2}>
+            {site && (
+              <Button size="sm" variant="outline" asChild>
+                <a href={site} target="_blank" rel="noopener noreferrer">
+                  <LuExternalLink />
+                  Website
+                </a>
+              </Button>
             )}
-
-            {(site || ticketUrl) && (
-              <HStack gridColumn="1" gap={2} wrap="wrap">
-                {site && (
-                  <Button size="sm" variant="outline" asChild>
-                    <a href={site} target="_blank" rel="noopener noreferrer">
-                      <LuExternalLink />
-                      Website
-                    </a>
-                  </Button>
-                )}
-                {ticketUrl && status !== 'canceled' && (
-                  <Button size="sm" colorPalette="purple" asChild>
-                    <a href={ticketUrl} target="_blank" rel="noopener noreferrer">
-                      <LuTicket />
-                      Tickets
-                    </a>
-                  </Button>
-                )}
-              </HStack>
+            {ticketUrl && status !== 'canceled' && (
+              <Button size="sm" asChild>
+                <a href={ticketUrl} target="_blank" rel="noopener noreferrer">
+                  <LuTicket />
+                  Tickets
+                </a>
+              </Button>
             )}
-
-            {location && location.longitude && location.latitude && (
-              <Box
-                gridColumn={[1, '1 / span 3']}
-                height={['80px', '150px']}
-                overflow="hidden"
-                rounded={5}
-                marginX={-2}
-                mb={[2, -2]}
-                mt={[2]}
-              >
-                <TileMap
-                  defaultWidth={1200}
-                  defaultHeight={150}
-                  center={[location.latitude, location.longitude]}
-                  zoom={location.street ? 16 : 11}
-                  mouseEvents={false}
-                  touchEvents={false}
-                ></TileMap>
-              </Box>
-            )}
-
-            <Box
-              textAlign="right"
-              pt={2}
-              gridColumn={['', '2 / 4']}
-              gridRow={['', '2 / span 2']}
-              alignSelf={['', 'flex-end']}
-              display={['flex', 'block']}
-              flexDirection={['row-reverse', '']}
-            >
-              <AvatarGroup size="md" justifyContent="end">
-                {participants.map(({ id, username, avatar, bsky_handle }) => {
-                  const picture = (
-                    <>
-                      <Avatar.Fallback name={username} />
-                      <Avatar.Image src={avatar && avatar.thumbnail_url} />
-                    </>
-                  );
-                  // #161: to their Bluesky profile, when they have one.
-                  return bsky_handle ? (
-                    <Avatar.Root key={id} title={`@${username}`} asChild>
-                      <a
-                        href={`https://bsky.app/profile/${bsky_handle}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`@${username} on Bluesky`}
-                      >
-                        {picture}
-                      </a>
-                    </Avatar.Root>
-                  ) : (
-                    <Avatar.Root key={id} title={`@${username}`}>
+          </HStack>
+        )}
+        {participants.length > 0 && (
+          <HStack gap={3} mt={2}>
+            <AvatarGroup size="sm">
+              {participants.map(({ id, username, avatar, bsky_handle }) => {
+                const picture = (
+                  <>
+                    <Avatar.Fallback name={username} />
+                    <Avatar.Image src={avatar && avatar.thumbnail_url} />
+                  </>
+                );
+                // #161: to their Bluesky profile, when they have one.
+                return bsky_handle ? (
+                  <Avatar.Root key={id} title={`@${username}`} asChild>
+                    <a
+                      href={`https://bsky.app/profile/${bsky_handle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`@${username} on Bluesky`}
+                    >
                       {picture}
-                    </Avatar.Root>
-                  );
-                })}
-              </AvatarGroup>
-              <Text>
-                {status !== 'canceled' &&
-                  (new Date(endsAt) < new Date() ? 'went' : 'attending')}
-                {status === 'canceled' && 'was attending'}
-              </Text>
-            </Box>
-
-            {currentUser && status !== 'canceled' && (
-              <JoinEventButton
-                mt={[2, '0']}
-                gridRow={['', '1']}
-                gridColumn={['', '3']}
-                size="sm"
-                minWidth={100}
-                eventId={id}
-                isGoing={isGoing}
-              >
-                {new Date(endsAt) < new Date()
-                  ? isGoing
-                    ? 'Went'
-                    : 'I went!'
-                  : isGoing
-                  ? 'Going'
-                  : "Let's go!"}
-              </JoinEventButton>
-            )}
-          </Grid>
-        </Box>
-
-        {status === 'canceled' && (
-          <Stack
-            isInline
-            p={5}
-            m={[2, 0]}
-            mb={[5, 5]}
-            backgroundColor="red.300"
-            borderRadius={5}
-          >
-            <Icon as={LuTriangleAlert} size="24px" color="white" />
-            <Text color="white" asChild>
-              <b>This event was canceled.</b>
+                    </a>
+                  </Avatar.Root>
+                ) : (
+                  <Avatar.Root key={id} title={`@${username}`}>
+                    {picture}
+                  </Avatar.Root>
+                );
+              })}
+            </AvatarGroup>
+            <Text fontSize="sm" color="muted">
+              {participants.length}{' '}
+              {status === 'canceled'
+                ? 'were attending'
+                : isPast
+                  ? 'went'
+                  : 'attending'}
             </Text>
-          </Stack>
+          </HStack>
         )}
+      </PageHeader>
 
-        {about && (
-          <Box
-            m={[2, 0]}
-            mb={[5, 5]}
-            borderWidth="1px"
-            borderRadius={5}
-            padding={2}
-          >
-            <Heading as="h3" fontSize="2xl">
-              Description
-            </Heading>
-            <Markdown value={about} />
-          </Box>
-        )}
+      {status === 'canceled' && (
+        <HStack
+          gap={3}
+          p={4}
+          mb={{ base: 8, md: 10 }}
+          bg="red.subtle"
+          color="red.fg"
+          borderRadius="lg"
+          role="status"
+        >
+          <LuTriangleAlert />
+          <Text fontWeight="semibold">This event was canceled.</Text>
+        </HStack>
+      )}
 
-        {(currentUser || games.length > 0) && (
-          <Box m={[2, 0]} mb={[5, 5]}>
-            <SectionHeading mb={2} count={games.length} countLabel="games">
-              Games
-            </SectionHeading>
-            <Wrap gap={2}>
-              {games.map((game) => (
-                <Box key={game.id} position="relative">
-                  <GameCard
-                    id={game.id}
-                    {...game}
-                    onRemove={
-                      currentUser
-                        ? () =>
-                            fetcher.submit(
-                              { id: game.id },
-                              {
-                                method: 'post',
-                                action: `/event/${id}/games/delete`,
-                              }
-                              // { method: 'post', action: './games/delete' }
-                            )
-                        : null
-                    }
-                    isCompact
-                  />
-                </Box>
-              ))}
-              {currentUser && games.length === 0 && (
-                <EmptyHint>Which games were shown here? Add them.</EmptyHint>
-              )}
-              {currentUser && (
-                <>
-                  <IconButton
-                    colorPalette="green"
-                    aria-label="Add a game to the event"
-                    onClick={onOpenLinkGame}
-                  >
-                    <LuPlus />
-                  </IconButton>
-                  <SearchGameModal
-                    isOpen={linkGameIsOpen}
-                    onClose={onCloseLinkGame}
-                    excludedIds={games.map(({ id }) => id)}
-                    onSelect={(game) => {
-                      fetcher.submit(
-                        { id: game.id },
-                        {
-                          method: 'post',
-                          action: `/event/${id}/games/add`,
-                        }
-                        // { method: 'post', action: './games/add' }
-                      );
-                    }}
-                  />
-                </>
-              )}
-            </Wrap>
-          </Box>
-        )}
+      {location && location.longitude && location.latitude && (
+        <Box
+          height={['120px', '180px']}
+          overflow="hidden"
+          borderRadius="xl"
+          mb={{ base: 8, md: 10 }}
+        >
+          <TileMap
+            defaultWidth={1200}
+            defaultHeight={180}
+            center={[location.latitude, location.longitude]}
+            zoom={location.street ? 16 : 11}
+            mouseEvents={false}
+            touchEvents={false}
+          />
+        </Box>
+      )}
 
-        {(currentUser || entities.length > 0) && (
-          <Box m={[2, 0]} mb={[5, 5]}>
-            <Heading size="md" mb={2}>
-              Organizers
-            </Heading>
+      {about && (
+        <Box as="section" mb={{ base: 8, md: 10 }} maxW="2xl">
+          <Heading as="h2" size="xl" mb={4}>
+            About
+          </Heading>
+          <Markdown value={about} />
+        </Box>
+      )}
 
-            <Grid
-              gap={5}
-              templateColumns={[
-                '1fr',
-                'repeat(2, 1fr)',
-                'repeat(2, 1fr)',
-                'repeat(3, 1fr)',
-              ]}
-            >
-              {entities.map((host) => (
-                <OrgCard
-                  key={host.id}
-                  {...host}
+      {(currentUser || games.length > 0) && (
+        <Box as="section" mb={{ base: 8, md: 10 }}>
+          <SectionHeading mb={4} count={games.length} countLabel="games">
+            Games
+          </SectionHeading>
+          <Wrap gap={2}>
+            {games.map((game) => (
+              <Box key={game.id} position="relative">
+                <GameCard
+                  id={game.id}
+                  {...game}
                   onRemove={
                     currentUser
                       ? () =>
                           fetcher.submit(
-                            { id: host.id },
+                            { id: game.id },
                             {
                               method: 'post',
-                              action: `/event/${id}/hosts/delete`,
+                              action: `/event/${id}/games/delete`,
                             }
-                            // { method: 'post', action: './hosts/delete' }
+                            // { method: 'post', action: './games/delete' }
                           )
                       : null
                   }
+                  isCompact
                 />
-              ))}
-              {currentUser && entities.length === 0 && (
-                <EmptyHint>Who organises it? Add a studio or association.</EmptyHint>
-              )}
-              {currentUser && (
-                <>
-                  <IconButton
-                    alignSelf="center"
-                    justifySelf="flex-start"
-                    colorPalette="green"
-                    aria-label="Add a host to the event"
-                    onClick={onOpenLinkHost}
-                  >
-                    <LuPlus />
-                  </IconButton>
-                  <SearchOrgModal
-                    isOpen={linkHostIsOpen}
-                    onClose={onCloseLinkHost}
-                    excludedIds={entities.map(({ id }) => id)}
-                    onSelect={(host) => {
-                      fetcher.submit(
-                        { id: host.id },
-                        { method: 'post', action: `/event/${id}/hosts/add` }
-                        // { method: 'post', action: './hosts/add' }
-                      );
-                    }}
-                  />
-                </>
-              )}
-            </Grid>
-          </Box>
-        )}
+              </Box>
+            ))}
+            {currentUser && games.length === 0 && (
+              <EmptyHint>Which games were shown here? Add them.</EmptyHint>
+            )}
+            {currentUser && (
+              <>
+                <IconButton
+                  colorPalette="green"
+                  aria-label="Add a game to the event"
+                  onClick={onOpenLinkGame}
+                >
+                  <LuPlus />
+                </IconButton>
+                <SearchGameModal
+                  isOpen={linkGameIsOpen}
+                  onClose={onCloseLinkGame}
+                  excludedIds={games.map(({ id }) => id)}
+                  onSelect={(game) => {
+                    fetcher.submit(
+                      { id: game.id },
+                      {
+                        method: 'post',
+                        action: `/event/${id}/games/add`,
+                      }
+                      // { method: 'post', action: './games/add' }
+                    );
+                  }}
+                />
+              </>
+            )}
+          </Wrap>
+        </Box>
+      )}
 
-        {currentUser && (
-          <Box mb={5}>
-            <Button
-              variant="plain"
-              colorPalette="red"
-              onClick={deleteModal.onOpen}
-            >
-              Delete event
-            </Button>
+      {(currentUser || entities.length > 0) && (
+        <Box as="section" mb={{ base: 8, md: 10 }}>
+          <Heading as="h2" size="xl" mb={4}>
+            Organizers
+          </Heading>
 
-            <Dialog.Root
-              open={deleteModal.open}
-              onOpenChange={(e) => {
-                if (!e.open) {
-                  deleteModal.onClose();
+          <Grid
+            gap={5}
+            templateColumns={[
+              '1fr',
+              'repeat(2, 1fr)',
+              'repeat(2, 1fr)',
+              'repeat(3, 1fr)',
+            ]}
+          >
+            {entities.map((host) => (
+              <OrgCard
+                key={host.id}
+                {...host}
+                onRemove={
+                  currentUser
+                    ? () =>
+                        fetcher.submit(
+                          { id: host.id },
+                          {
+                            method: 'post',
+                            action: `/event/${id}/hosts/delete`,
+                          }
+                          // { method: 'post', action: './hosts/delete' }
+                        )
+                    : null
                 }
-              }}
-            >
-              <Portal>
-                <Dialog.Backdrop />
-                <Dialog.Positioner>
-                  <Dialog.Content action={`./delete`} method="post" asChild>
-                    <Form>
-                      <Dialog.Header>Delete Event</Dialog.Header>
-                      <Dialog.CloseTrigger />
-                      <Dialog.Body>
-                        <Text>Do you really want to delete {name}?</Text>
-                      </Dialog.Body>
-                      <Dialog.Footer>
-                        <Button
-                          type="submit"
-                          loading={false}
-                          loadingText="Deleting"
-                          colorPalette="red"
-                          mr={3}
-                        >
-                          Delete
-                        </Button>
-                        <Button variant="ghost" onClick={deleteModal.onClose}>
-                          Cancel
-                        </Button>
-                      </Dialog.Footer>
-                    </Form>
-                  </Dialog.Content>
-                </Dialog.Positioner>
-              </Portal>
-            </Dialog.Root>
-          </Box>
-        )}
-      </Box>
+              />
+            ))}
+            {currentUser && entities.length === 0 && (
+              <EmptyHint>
+                Who organises it? Add a studio or association.
+              </EmptyHint>
+            )}
+            {currentUser && (
+              <>
+                <IconButton
+                  alignSelf="center"
+                  justifySelf="flex-start"
+                  colorPalette="green"
+                  aria-label="Add a host to the event"
+                  onClick={onOpenLinkHost}
+                >
+                  <LuPlus />
+                </IconButton>
+                <SearchOrgModal
+                  isOpen={linkHostIsOpen}
+                  onClose={onCloseLinkHost}
+                  excludedIds={entities.map(({ id }) => id)}
+                  onSelect={(host) => {
+                    fetcher.submit(
+                      { id: host.id },
+                      { method: 'post', action: `/event/${id}/hosts/add` }
+                      // { method: 'post', action: './hosts/add' }
+                    );
+                  }}
+                />
+              </>
+            )}
+          </Grid>
+        </Box>
+      )}
+
       {editions.length > 1 && (
-        <Box m={[2, 0]}>
-          <Heading mb={2}>Editions</Heading>
+        <Box as="section" mb={{ base: 8, md: 10 }}>
+          <Heading as="h2" size="xl" mb={4}>
+            Editions
+          </Heading>
           <List.Root variant="plain" gap={1}>
             {editions.map((edition) => (
               <List.Item key={edition.id}>
                 {edition.id === id ? (
                   <Text fontWeight="bold">
-                    {edition.name} <Text as="span" color="muted" fontWeight="normal">(this one)</Text>
+                    {edition.name}{' '}
+                    <Text as="span" color="muted" fontWeight="normal">
+                      (this one)
+                    </Text>
                   </Text>
                 ) : (
                   <ChakraLink asChild>
@@ -571,7 +516,12 @@ const Event = () => {
                   </ChakraLink>
                 )}
                 <Text as="span" color="muted" ml={2} fontSize="sm">
-                  {formatEventRange(edition.starts_at, edition.ends_at, edition.time_zone, { time: false })}
+                  {formatEventRange(
+                    edition.starts_at,
+                    edition.ends_at,
+                    edition.time_zone,
+                    { time: false }
+                  )}
                 </Text>
               </List.Item>
             ))}
@@ -579,13 +529,56 @@ const Event = () => {
         </Box>
       )}
       {relatedEvents.length > 0 && (
-        <Box m={[2, 0]}>
-          <Heading>Related events</Heading>
+        <Box as="section" mb={{ base: 8, md: 10 }}>
+          <Heading as="h2" size="xl" mb={4}>
+            Related events
+          </Heading>
 
           <RelatedEvents events={relatedEvents} />
         </Box>
       )}
-    </Grid>
+      {currentUser && (
+        <Box>
+          <Dialog.Root
+            open={deleteModal.open}
+            onOpenChange={(e) => {
+              if (!e.open) {
+                deleteModal.onClose();
+              }
+            }}
+          >
+            <Portal>
+              <Dialog.Backdrop />
+              <Dialog.Positioner>
+                <Dialog.Content action={`./delete`} method="post" asChild>
+                  <Form>
+                    <Dialog.Header>Delete Event</Dialog.Header>
+                    <Dialog.CloseTrigger />
+                    <Dialog.Body>
+                      <Text>Do you really want to delete {name}?</Text>
+                    </Dialog.Body>
+                    <Dialog.Footer>
+                      <Button
+                        type="submit"
+                        loading={false}
+                        loadingText="Deleting"
+                        colorPalette="red"
+                        mr={3}
+                      >
+                        Delete
+                      </Button>
+                      <Button variant="ghost" onClick={deleteModal.onClose}>
+                        Cancel
+                      </Button>
+                    </Dialog.Footer>
+                  </Form>
+                </Dialog.Content>
+              </Dialog.Positioner>
+            </Portal>
+          </Dialog.Root>
+        </Box>
+      )}
+    </Page>
   );
 };
 

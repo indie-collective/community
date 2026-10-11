@@ -14,6 +14,7 @@ import { LuChevronDown } from 'react-icons/lu';
 import isAuthenticated from '../../utils/isAuthenticated.server';
 import { listMissingData } from '../../data/curation.server';
 import { gamePath, orgPath } from '../../utils/slug';
+import { PageHeader } from '../../components/Page';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
@@ -43,10 +44,8 @@ const Missing = () => {
   } = useLoaderData();
 
   return (
-    <Box mb={5} pl={5} pr={5} mt={5}>
-      <Heading as="h2" mb={5} size="2xl">
-        Missing data
-      </Heading>
+    <Box px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
+      <PageHeader eyebrow="Admin" title="Missing data" />
       <Box mt={15}>
         <Heading>Games</Heading>
 

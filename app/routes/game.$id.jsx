@@ -9,12 +9,11 @@ import {
   useDisclosure,
   IconButton,
   List,
-  Flex,
   Dialog,
   Portal,
   Link as ChakraLink,
 } from '@chakra-ui/react';
-import { LuPlus, LuPencil, LuExternalLink } from 'react-icons/lu';
+import { LuPlus, LuExternalLink } from 'react-icons/lu';
 
 import {
   Form,
@@ -34,13 +33,13 @@ import { SearchOrgModal } from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
+import { Page, PageHeader, PageSection } from '../components/Page';
 import TagList from '../components/TagList';
 import { formatEventRange } from '../utils/eventTime';
 import { pageMeta, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { eventPath, gamePath } from '../utils/slug';
-
 
 export const loader = async ({ request, params, context }) => {
   // By slug, an old slug or UUID; those redirect to the slug (#209).
@@ -71,9 +70,14 @@ export const meta = ({ data, matches }) => {
     ];
   const { game } = data;
   // Without an "about", describe it from what we know (#196).
-  const studios = (game.entities ?? []).map((entity) => entity?.name).filter(Boolean);
+  const studios = (game.entities ?? [])
+    .map((entity) => entity?.name)
+    .filter(Boolean);
   const tags = (game.tags ?? []).map((tag) => tag?.name).filter(Boolean);
-  const generated = [`Indie game${studios.length ? ` by ${studios.join(', ')}` : ''}`, tags.length ? `tagged ${tags.join(', ')}` : '']
+  const generated = [
+    `Indie game${studios.length ? ` by ${studios.join(', ')}` : ''}`,
+    tags.length ? `tagged ${tags.join(', ')}` : '',
+  ]
     .filter(Boolean)
     .join(', ');
   return pageMeta(matches, {
@@ -121,24 +125,32 @@ const Game = () => {
       }))
     : [];
 
-  return (
-    <>
-      <Box mb={5} pl={5} pr={5} mt={5}>
-        <Flex direction="row" align="center" mb={5}>
-          <Heading as="h2" lineClamp={1} title={name} size="2xl" pb={1}>
-            {name}
-          </Heading>
+  // What kind of page this is, and who made it (design pass).
+  const makers = entities.slice(0, 2).map((entity) => entity.name);
+  const eyebrow = [
+    'Game',
+    makers.length > 0 &&
+      `by ${makers.join(' and ')}${entities.length > 2 ? ' and others' : ''}`,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
-          {currentUser && (
+  return (
+    <Page>
+      <PageHeader
+        eyebrow={eyebrow}
+        title={name}
+        actions={
+          currentUser && (
             <ActionMenu
-              ml="auto"
               editLink={`/game/${id}/edit`}
               changesLink={`/game/${id}/changes`}
               onDelete={deleteModal.onOpen}
             />
-          )}
-        </Flex>
-
+          )
+        }
+      />
+      <Box mb={{ base: 8, md: 10 }}>
         <Box mb={5}>
           <MotionGallery
             gameId={id}
@@ -149,7 +161,14 @@ const Game = () => {
         </Box>
 
         {tags?.length > 0 && (
-          <TagList tags={tags} size="md" fontSize="0.8rem" linked ml="3px" mt="5px" />
+          <TagList
+            tags={tags}
+            size="md"
+            fontSize="0.8rem"
+            linked
+            ml="3px"
+            mt="5px"
+          />
         )}
 
         {about && (
@@ -173,92 +192,97 @@ const Game = () => {
         )}
       </Box>
       {(currentUser || entities.length > 0) && (
-      <Box mb={5} pl={5} pr={5}>
-        <Heading size="md" mb={2}>
-          Made by
-        </Heading>
-
-        <Grid
-          gap={5}
-          templateColumns={[
-            '1fr',
-            'repeat(2, 1fr)',
-            'repeat(2, 1fr)',
-            'repeat(3, 1fr)',
-          ]}
-        >
-          {game_entity.map(({ entity: author, role }) => (
-            <OrgCard
-              key={author.id}
-              {...author}
-              involvement={role ?? 'developer'}
-              onInvolvementChange={
-                currentUser
-                  ? (newRole) =>
-                      fetcher.submit(
-                        { id: author.id, role: newRole },
-                        { method: 'post', action: `/game/${id}/companies/role` }
-                      )
-                  : undefined
-              }
-              onRemove={
-                currentUser
-                  ? () =>
-                      fetcher.submit(
-                        { id: author.id },
-                        {
-                          method: 'post',
-                          action: `/game/${id}/companies/delete`,
-                        }
-                        // { method: 'post', action: './companies/delete' }
-                      )
-                  : null
-              }
-            />
-          ))}
-          {currentUser && entities.length === 0 && (
-            <EmptyHint>Who made this game? Add a studio or association.</EmptyHint>
-          )}
-          {currentUser && (
-            <>
-              <IconButton
-                alignSelf="center"
-                justifySelf="flex-start"
-                colorPalette="green"
-                aria-label="Add an author to the game"
-                onClick={onOpenLinkAuthor}
-              >
-                <LuPlus />
-              </IconButton>
-              <SearchOrgModal
-                isOpen={linkAuthorIsOpen}
-                onClose={onCloseLinkAuthor}
-                excludedIds={entities.map(({ id }) => id)}
-                onSelect={(author) => {
-                  fetcher.submit(
-                    { id: author.id },
-                    { method: 'post', action: `/game/${id}/companies/add` }
-                    // { method: 'post', action: './companies/add' }
-                  );
-                }}
+        <PageSection title="Made by">
+          <Grid
+            gap={5}
+            templateColumns={[
+              '1fr',
+              'repeat(2, 1fr)',
+              'repeat(2, 1fr)',
+              'repeat(3, 1fr)',
+            ]}
+          >
+            {game_entity.map(({ entity: author, role }) => (
+              <OrgCard
+                key={author.id}
+                {...author}
+                involvement={role ?? 'developer'}
+                onInvolvementChange={
+                  currentUser
+                    ? (newRole) =>
+                        fetcher.submit(
+                          { id: author.id, role: newRole },
+                          {
+                            method: 'post',
+                            action: `/game/${id}/companies/role`,
+                          }
+                        )
+                    : undefined
+                }
+                onRemove={
+                  currentUser
+                    ? () =>
+                        fetcher.submit(
+                          { id: author.id },
+                          {
+                            method: 'post',
+                            action: `/game/${id}/companies/delete`,
+                          }
+                          // { method: 'post', action: './companies/delete' }
+                        )
+                    : null
+                }
               />
-            </>
-          )}
-        </Grid>
-      </Box>
+            ))}
+            {currentUser && entities.length === 0 && (
+              <EmptyHint>
+                Who made this game? Add a studio or association.
+              </EmptyHint>
+            )}
+            {currentUser && (
+              <>
+                <IconButton
+                  alignSelf="center"
+                  justifySelf="flex-start"
+                  colorPalette="green"
+                  aria-label="Add an author to the game"
+                  onClick={onOpenLinkAuthor}
+                >
+                  <LuPlus />
+                </IconButton>
+                <SearchOrgModal
+                  isOpen={linkAuthorIsOpen}
+                  onClose={onCloseLinkAuthor}
+                  excludedIds={entities.map(({ id }) => id)}
+                  onSelect={(author) => {
+                    fetcher.submit(
+                      { id: author.id },
+                      { method: 'post', action: `/game/${id}/companies/add` }
+                      // { method: 'post', action: './companies/add' }
+                    );
+                  }}
+                />
+              </>
+            )}
+          </Grid>
+        </PageSection>
       )}
       {events.length > 0 && (
-        <Box mb={5} pl={5} pr={5}>
-          <Heading size="md" mb={2}>
-            Made/Exhibited at:
-          </Heading>
+        <PageSection title="Events">
           <List.Root>
             {events.map((event) => (
-              <List.Item key={event.key}>
+              <List.Item key={event.id}>
                 <ChakraLink asChild>
                   <Link to={eventPath(event)}>
-                    <time dateTime={`${new Date(event.starts_at).toISOString()}/${new Date(event.ends_at).toISOString()}`}>
-                      {formatEventRange(event.starts_at, event.ends_at, event.time_zone, { time: false })}
+                    <time
+                      dateTime={`${new Date(event.starts_at).toISOString()}/${new Date(event.ends_at).toISOString()}`}
+                    >
+                      {formatEventRange(
+                        event.starts_at,
+                        event.ends_at,
+                        event.time_zone,
+                        { time: false }
+                      )}
                     </time>
                     . {event.name}
                   </Link>
@@ -266,13 +290,10 @@ const Game = () => {
               </List.Item>
             ))}
           </List.Root>
-        </Box>
+        </PageSection>
       )}
       {igdb_game?.videos.length > 0 && (
-        <Box mb={5} pl={5} pr={5}>
-          <Heading size="md" mb={2}>
-            Videos
-          </Heading>
+        <PageSection title="Videos">
           <Grid
             gap={3}
             templateColumns={[
@@ -295,10 +316,10 @@ const Game = () => {
               </AspectRatio>
             ))}
           </Grid>
-        </Box>
+        </PageSection>
       )}
       {currentUser && (
-        <Box mb={5} pl={5} pr={5}>
+        <Box>
           <Dialog.Root
             open={deleteModal.open}
             onOpenChange={(e) => {
@@ -342,7 +363,7 @@ const Game = () => {
           </Dialog.Root>
         </Box>
       )}
-    </>
+    </Page>
   );
 };
 

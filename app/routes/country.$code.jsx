@@ -2,7 +2,6 @@ import {
   Box,
   Flex,
   Grid,
-  Heading,
   Image,
   Link as ChakraLink,
   SimpleGrid,
@@ -15,6 +14,7 @@ import { countPlaces, getCountryOverview } from '../data/countries.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import countryNames from '../assets/countries.json';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
+import { Page, PageHeader, PageSection } from '../components/Page';
 import EventCard from '../components/EventCard';
 import GameCard from '../components/GameCard';
 import EmptyHint from '../components/EmptyHint';
@@ -35,9 +35,7 @@ export const loader = async ({ request, params }) => {
   const countryCode = params.code.toUpperCase();
 
   // A country exists here once something is placed in it.
-  const places = countryNames[countryCode]
-    ? await countPlaces(countryCode)
-    : 0;
+  const places = countryNames[countryCode] ? await countPlaces(countryCode) : 0;
   if (places === 0) {
     throw new Response('Not Found', { status: 404 });
   }
@@ -95,16 +93,9 @@ export const meta = ({ data, matches, location }) => {
   });
 };
 
-const Section = ({ title, action, children, ...rest }) => (
-  <Box as="section" mb={12} {...rest}>
-    <Flex align="baseline" justify="space-between" gap={3} mb={5} wrap="wrap">
-      <Heading as="h3" size="lg">
-        {title}
-      </Heading>
-      {action}
-    </Flex>
-    {children}
-  </Box>
+// The page's sections, as on every page (design pass).
+const Section = ({ action, ...rest }) => (
+  <PageSection aside={action} {...rest} />
 );
 
 const MoreLink = ({ to, children }) => (
@@ -172,10 +163,8 @@ const CountryPage = () => {
   ];
 
   return (
-    <Box my={5} px={5}>
-      <Heading as="h2" size="2xl" mb={6}>
-        {name}'s indie game scene
-      </Heading>
+    <Page>
+      <PageHeader eyebrow="Country" title={`${name}'s indie game scene`} />
 
       <SimpleGrid
         as="ul"
@@ -328,7 +317,7 @@ const CountryPage = () => {
           </Flex>
         )}
       </Section>
-    </Box>
+    </Page>
   );
 };
 

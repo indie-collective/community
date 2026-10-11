@@ -1,7 +1,8 @@
-import { Box, NativeSelect, Checkbox, Tag, Wrap } from '@chakra-ui/react';
+import { NativeSelect, Checkbox, Tag } from '@chakra-ui/react';
 
 import { Form, useNavigate, useSearchParams, useSubmit } from 'react-router';
 import CountryCombobox from './CountryCombobox';
+import { FilterBar } from './Page';
 
 const Filters = ({ facets, selected, type }) => {
   const submit = useSubmit();
@@ -21,9 +22,8 @@ const Filters = ({ facets, selected, type }) => {
   };
 
   return (
-    <Box method="get" mb={5} asChild>
-      <Form>
-        <Wrap gap={4}>
+    <Form method="get">
+      <FilterBar>
           <CountryCombobox
             countries={facets.countries}
             defaultValue={selected.country}
@@ -56,9 +56,10 @@ const Filters = ({ facets, selected, type }) => {
           )}
 
           {type === 'event' ? (
-            <NativeSelect.Root>
+            <NativeSelect.Root size="sm" width="auto">
               <NativeSelect.Field
                 name="period"
+                aria-label="When"
                 defaultValue={selected.period || 'upcoming'}
                 onChange={handleChange}
                 borderRadius="md"
@@ -103,9 +104,8 @@ const Filters = ({ facets, selected, type }) => {
               </Checkbox.Root>
             </>
           )}
-        </Wrap>
-      </Form>
-    </Box>
+      </FilterBar>
+    </Form>
   );
 };
 

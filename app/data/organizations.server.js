@@ -345,12 +345,12 @@ export async function listOrganizationPoints() {
   return rows.map(({ latitude, longitude }) => [latitude, longitude]);
 }
 
-/** How many organisations there are. */
-export async function countOrganizations() {
+/** How many organisations there are, or of one `type`. */
+export async function countOrganizations({ type } = {}) {
   const [{ value }] = await db
     .select({ value: count() })
     .from(organizations)
-    .where(notDeleted);
+    .where(and(notDeleted, type ? eq(organizations.type, type) : undefined));
   return value;
 }
 

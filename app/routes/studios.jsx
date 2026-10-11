@@ -1,9 +1,7 @@
-import { Box } from '@chakra-ui/react';
-import { useLoaderData, useLocation } from 'react-router';
+import { useLoaderData } from 'react-router';
 
 import { loadOrgList } from '../utils/orgList.server';
-import OrgList from '../components/OrgList';
-import Filters from '../components/Filters';
+import OrgListPage from '../components/OrgListPage';
 import { pageMeta } from '../utils/meta';
 
 export const loader = ({ request }) => loadOrgList(request, 'studio');
@@ -15,19 +13,6 @@ export const meta = ({ matches, location }) =>
     path: location.pathname,
   });
 
-const Studios = () => {
-  const data = useLoaderData();
-  const { search } = useLocation();
-
-  return (
-    <Box p={5}>
-      <Filters
-        facets={data.facets}
-        selected={data.selected}
-      />
-      <OrgList key={search} {...data} />
-    </Box>
-  );
-};
+const Studios = () => <OrgListPage type="studio" data={useLoaderData()} />;
 
 export default Studios;
