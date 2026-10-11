@@ -448,3 +448,35 @@ export async function listUpcomingEventsIn(countryCode, { limit }) {
   ]);
   return { count: value, events: rows.map(withCoverLinks) };
 }
+
+/**
+ * Upcoming events with a place on the map (#211): not over, not canceled,
+ * with coordinates; `{ id, name, starts_at, ends_at, time_zone, cover:
+ * { url, thumbnail_url } | null, location }`.
+ */
+export async function listMappedUpcomingEvents() {
+  const rows = await db
+    .select()
+    .from(events)
+    .where(
+      and(
+        upcoming(new Date()),
+        isNotNull(events.latitude),
+        isNotNull(events.longitude)
+      )
+    )
+    .orderBy(asc(events.startsAt));
+  return rows.map((row) => {
+    const { id, name, starts_at, ends_at, time_zone, cover, location } =
+      shape.event(row);
+    return {
+      id,
+      name,
+      starts_at,
+      ends_at,
+      time_zone,
+      cover: cover ? getImageLinks(cover) : null,
+      location,
+    };
+  });
+}
