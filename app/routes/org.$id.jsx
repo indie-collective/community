@@ -31,6 +31,7 @@ import isAuthenticated from '../utils/isAuthenticated.server';
 import countryNames from '../assets/countries.json';
 import { getOrganization } from '../data/organizations.server';
 import GameCard from '../components/GameCard';
+import { gameRoleLabel } from '../utils/gameRoles';
 import EventCard from '../components/EventCard';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
@@ -235,11 +236,17 @@ const Org = () => {
                 'repeat(4, 1fr)',
               ]}
             >
-              {games.map((game) => (
+              {game_entity.map(({ game, role }) => (
                 <Box minW={0} key={game.id}>
                   <Box variants={variants}>
                     <GameCard {...game} />
                   </Box>
+                  {/* #40: how this organisation took part, when not as the developer. */}
+                  {role && role !== 'developer' && (
+                    <Text fontSize="sm" color="muted" mt={1}>
+                      {gameRoleLabel(role)}
+                    </Text>
+                  )}
                 </Box>
               ))}
             </Grid>

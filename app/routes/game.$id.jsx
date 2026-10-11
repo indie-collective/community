@@ -191,10 +191,20 @@ const Game = () => {
             'repeat(3, 1fr)',
           ]}
         >
-          {entities.map((author) => (
+          {game_entity.map(({ entity: author, role }) => (
             <OrgCard
               key={author.id}
               {...author}
+              involvement={role ?? 'developer'}
+              onInvolvementChange={
+                currentUser
+                  ? (newRole) =>
+                      fetcher.submit(
+                        { id: author.id, role: newRole },
+                        { method: 'post', action: `/game/${id}/companies/role` }
+                      )
+                  : undefined
+              }
               onRemove={
                 currentUser
                   ? () =>
