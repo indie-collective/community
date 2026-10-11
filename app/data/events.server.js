@@ -8,6 +8,7 @@ import {
   eq,
   exists,
   gte,
+  inArray,
   isNotNull,
   isNull,
   lt,
@@ -30,11 +31,18 @@ import getImageLinks from '../utils/imageLinks.server';
 import { logChange } from './changes.server';
 import { gameWithRelations } from './games.server';
 import { imageColumns } from './images.server';
+import { searchIndex } from './search.server';
 import * as shape from './shapes.server';
 import { freeSlug, renameSlugStatements } from './slugs.server';
 import { eventSlug } from '../utils/slug';
 
 const notDeleted = isNull(events.deletedAt);
+
+// Rows in the order of `ids` (as search ranked them), missing ones left out.
+const inOrder = (ids, rows) => {
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  return ids.map((id) => byId.get(id)).filter(Boolean);
+};
 
 // What event cards show: attendance and games (deleted ones left out).
 const CARD_WITH = {
@@ -148,7 +156,12 @@ export async function getEvent(id) {
       participants: {
         with: {
           person: {
-            columns: { id: true, username: true, avatarKey: true, bskyHandle: true },
+            columns: {
+              id: true,
+              username: true,
+              avatarKey: true,
+              bskyHandle: true,
+            },
           },
         },
       },
@@ -463,19 +476,30 @@ export async function removeEventOrganization(eventId, organizationId) {
 }
 
 /**
- * Events whose name or description matches `q`, for pickers: `{ id, name
- * }`, at most `limit`. Empty for an empty query.
+ * Events matching `q` (see data/search), best first (upcoming ones before
+ * past ones), for pickers: `{ id, name }`, at most `limit`. Empty for an
+ * empty query.
  */
 export async function searchEvents(q, { excludeIds = [], limit = 10 } = {}) {
-  const search = matchesSearch(events.searchText, q);
-  if (!search) return [];
-  return db
+  const found = await searchIndex(q, { kinds: ['event'], excludeIds, limit });
+  if (!found || found.hits.length === 0) return [];
+  const ids = found.hits.map((hit) => hit.id);
+  const rows = await db
     .select({ id: events.id, name: events.name, slug: events.slug })
     .from(events)
-    .where(and(search, notDeleted, notInArray(events.id, excludeIds)))
-    .limit(limit);
+    .where(and(notDeleted, inArray(events.id, ids)));
+  return inOrder(ids, rows);
 }
 
+/** Events as cards, computed, in the order of `ids` (search results). */
+export async function listEventCards(ids) {
+  if (ids.length === 0) return [];
+  const rows = await db.query.events.findMany({
+    where: and(notDeleted, inArray(events.id, ids)),
+    with: CARD_WITH,
+  });
+  return Promise.all(inOrder(ids, rows).map(computeCard));
+}
 
 const upcoming = (now) =>
   and(notDeleted, ne(events.status, 'canceled'), gte(events.endsAt, now));

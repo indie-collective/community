@@ -7,9 +7,9 @@ import {
   desc,
   eq,
   exists,
+  inArray,
   isNotNull,
   isNull,
-  notInArray,
   sql,
 } from 'drizzle-orm';
 
@@ -21,11 +21,11 @@ import {
   organizationEvents,
   organizations,
 } from '../db/schema.js';
-import { matchesSearch } from '../db/search.js';
 import computeOrg from '../models/org';
 import getImageLinks from '../utils/imageLinks.server';
 import { logChange } from './changes.server';
 import { imageColumns } from './images.server';
+import { searchIndex } from './search.server';
 import * as shape from './shapes.server';
 import { freeSlug, renameSlugStatements } from './slugs.server';
 import { slugify } from '../utils/slug';
@@ -33,6 +33,12 @@ import { slugify } from '../utils/slug';
 const notDeleted = isNull(organizations.deletedAt);
 // Located: the old location rows always had a country.
 const located = isNotNull(organizations.countryCode);
+
+// Rows in the order of `ids` (as search ranked them), missing ones left out.
+const inOrder = (ids, rows) => {
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  return ids.map((id) => byId.get(id)).filter(Boolean);
+};
 
 const computeAll = (rows) =>
   Promise.all(rows.map(shape.organization).map(computeOrg));
@@ -289,19 +295,36 @@ export async function deleteOrganization(id, { authorId = null } = {}) {
 }
 
 /**
- * Organisations whose name or description matches `q`, for pickers:
+ * Organisations matching `q` (see data/search), best first, for pickers:
  * `{ id, name }`, at most 10. Empty for an empty query.
  */
 export async function searchOrganizations(q, { excludeIds = [] } = {}) {
-  const search = matchesSearch(organizations.searchText, q);
-  if (!search) return [];
-  return db
-    .select({ id: organizations.id, name: organizations.name, slug: organizations.slug })
+  const found = await searchIndex(q, {
+    kinds: ['studio', 'association'],
+    excludeIds,
+  });
+  if (!found || found.hits.length === 0) return [];
+  const ids = found.hits.map((hit) => hit.id);
+  const rows = await db
+    .select({
+      id: organizations.id,
+      name: organizations.name,
+      slug: organizations.slug,
+    })
     .from(organizations)
-    .where(and(search, notDeleted, notInArray(organizations.id, excludeIds)))
-    .limit(10);
+    .where(and(notDeleted, inArray(organizations.id, ids)));
+  return inOrder(ids, rows);
 }
 
+/** Organisations as cards, computed, in the order of `ids` (search results). */
+export async function listOrganizationCards(ids) {
+  if (ids.length === 0) return [];
+  const rows = await db
+    .select()
+    .from(organizations)
+    .where(and(notDeleted, inArray(organizations.id, ids)));
+  return computeAll(inOrder(ids, rows));
+}
 
 /** Every organisation with a location, computed, for the map. */
 export async function listMappedOrganizations() {

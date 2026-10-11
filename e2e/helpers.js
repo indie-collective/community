@@ -8,7 +8,9 @@ import { expect, test as base } from '@playwright/test';
 export const waitForHydration = (page) =>
   page.waitForFunction(() => {
     const main = document.querySelector('main');
-    return !!main && Object.keys(main).some((key) => key.startsWith('__reactFiber'));
+    return (
+      !!main && Object.keys(main).some((key) => key.startsWith('__reactFiber'))
+    );
   });
 
 export const test = base.extend({
@@ -45,10 +47,40 @@ export function watchErrors(page) {
     const text = message.text();
     if (
       message.type() === 'error' &&
-      /Hydration failed|mounting a new|cannot be a descendant|does not recognize|non-boolean attribute/.test(text)
+      /Hydration failed|mounting a new|cannot be a descendant|does not recognize|non-boolean attribute/.test(
+        text
+      )
     ) {
       errors.push(text.split('\n')[0]);
     }
   });
   return errors;
+}
+
+// A route's loader data from a `.data` response (React Router's
+// turbo-stream encoding: a flat array, values referenced by index), enough
+// for plain data: objects, arrays, strings, numbers and booleans.
+export function decodeRouteData(text, routeId) {
+  const values = JSON.parse(text.split('\n')[0]);
+  const decoded = new Map();
+  const at = (index) => {
+    if (index < 0) return { '-6': true, '-7': false }[index] ?? null;
+    if (decoded.has(index)) return decoded.get(index);
+    const value = values[index];
+    let result = value;
+    if (Array.isArray(value) && typeof value[0] !== 'string') {
+      result = [];
+      decoded.set(index, result);
+      for (const item of value) result.push(at(item));
+    } else if (value && typeof value === 'object' && !Array.isArray(value)) {
+      result = {};
+      decoded.set(index, result);
+      for (const [key, item] of Object.entries(value)) {
+        result[values[Number(key.slice(1))]] = at(item);
+      }
+    }
+    decoded.set(index, result);
+    return result;
+  };
+  return at(0)[routeId]?.data;
 }
