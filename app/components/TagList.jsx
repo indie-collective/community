@@ -1,5 +1,5 @@
 import { Flex, Tag } from '@chakra-ui/react';
-import { Link } from 'react-router';
+import Link from './Link';
 
 /**
  * A game's tags as a list, so screen readers, copy-paste and crawlers get

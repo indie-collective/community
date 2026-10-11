@@ -11,12 +11,15 @@ import {
   Field,
   Icon,
 } from '@chakra-ui/react';
-import { data, redirect,
+import {
+  data,
+  redirect,
   Form,
-  Link,
   useActionData,
   useLoaderData,
-  useNavigation } from 'react-router';
+  useNavigation,
+} from 'react-router';
+import Link from '../components/Link';
 import { FaDiscord } from 'react-icons/fa6';
 
 import isAuthenticated from '../utils/isAuthenticated.server';

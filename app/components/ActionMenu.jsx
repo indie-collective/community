@@ -1,6 +1,6 @@
 import { Button, HStack, IconButton, Menu, Portal } from '@chakra-ui/react';
 import { LuEllipsis, LuPencil, LuTimer, LuTrash2 } from 'react-icons/lu';
-import { Link } from 'react-router';
+import Link from './Link';
 
 /**
  * A record page's actions for members (design pass): Edit, in plain sight,

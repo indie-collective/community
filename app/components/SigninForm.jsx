@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Input, Button, Link as ChakraLink, Flex, HStack, Checkbox, Field } from '@chakra-ui/react';
-import { Form, Link, useSearchParams, useSubmit } from 'react-router';
+import { Form, useSearchParams, useSubmit } from 'react-router';
+import Link from './Link';
 
 
 const validationSchema = yup.object().shape({

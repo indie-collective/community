@@ -1,8 +1,9 @@
-import { Box, Button, Center, Grid, Presence } from '@chakra-ui/react';
+import { Box, Button, Center, Grid } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useFetcher, useLocation } from 'react-router';
 
 import OrgCard from './OrgCard';
+import Reveal from './Reveal';
 
 /**
  * The grid of org cards for the studios and associations lists, and a
@@ -10,7 +11,11 @@ import OrgCard from './OrgCard';
  * Takes the route's loader data: `orgs`, `hasMore` and `page`. Render it with
  * `key={location.search}` so it starts over when the filters change.
  */
-const OrgList = ({ orgs: firstOrgs, hasMore: firstHasMore, page: firstPage }) => {
+const OrgList = ({
+  orgs: firstOrgs,
+  hasMore: firstHasMore,
+  page: firstPage,
+}) => {
   const location = useLocation();
   const fetcher = useFetcher();
   // Pages loaded before the one the fetcher holds now.
@@ -44,17 +49,11 @@ const OrgList = ({ orgs: firstOrgs, hasMore: firstHasMore, page: firstPage }) =>
           'repeat(4, 1fr)',
         ]}
       >
-        {orgs.map((org) => (
+        {orgs.map((org, index) => (
           <Box key={org.id} minW={0}>
-            <Presence
-              present
-              animationName={{
-                _open: 'fade-in',
-                _closed: 'fade-out'
-              }}
-              animationDuration='moderate'>
+            <Reveal index={index}>
               <OrgCard {...org} />
-            </Presence>
+            </Reveal>
           </Box>
         ))}
       </Grid>

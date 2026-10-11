@@ -43,25 +43,21 @@ function EventCard({
       rounded={10}
       href={eventPath({ id, slug })}
       ref={ref}
-      transition="background-color 200ms ease-out"
-      cursor="pointer"
-      _hover={{
-        bg: { base: 'gray.200', _dark: 'gray.700' },
-      }}
     >
       <AspectRatio ratio={2}>
         <Image
           size="100%"
           objectFit="cover"
           src={cover?.thumbnail_url ?? placeholder}
-          alt="Event cover"
+          alt=""
           rounded={5}
+          data-card-image
         />
       </AspectRatio>
       <Box padding={2}>
         <Heading
           as="h3"
-          size="lg"
+          size="md"
           title={name}
           textDecoration={status === 'canceled' && 'line-through'}
           color={status === 'canceled' ? 'muted' : undefined}
@@ -84,7 +80,9 @@ function EventCard({
             <LuCalendar />
           </Icon>
           <Box asChild lineClamp={1} ml={1}>
-            <time dateTime={startsAt && new Date(startsAt).toISOString()}>{startsAtText}</time>
+            <time dateTime={startsAt && new Date(startsAt).toISOString()}>
+              {startsAtText}
+            </time>
           </Box>
         </Flex>
 

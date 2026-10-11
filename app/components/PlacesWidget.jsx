@@ -1,7 +1,7 @@
 import { Box, Heading, Text, Flex, Button } from '@chakra-ui/react';
 import { useColorModeValue } from "./ui/color-mode";
 import { LuChevronRight } from 'react-icons/lu';
-import { Link } from 'react-router';
+import Link from './Link';
 import { Overlay } from 'pigeon-maps';
 import TileMap from './TileMap';
 

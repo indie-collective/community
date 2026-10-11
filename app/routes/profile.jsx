@@ -15,7 +15,8 @@ import {
 } from '@chakra-ui/react';
 import { FaBluesky, FaMoon, FaSun } from 'react-icons/fa6';
 import { LuPencil } from 'react-icons/lu';
-import { Form, Link, useLoaderData, useSearchParams } from 'react-router';
+import { Form, useLoaderData, useSearchParams } from 'react-router';
+import Link from '../components/Link';
 
 import { getProfile } from '../data/people.server';
 import isAuthenticated from '../utils/isAuthenticated.server';

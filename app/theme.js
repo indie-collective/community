@@ -17,9 +17,52 @@ const config = defineConfig({
         color: 'whiteAlpha.900',
       },
     },
+
+    // Page transitions (design pass): the page fades out quickly and the
+    // next one fades in as it rises; the header and footer stay put; a
+    // card's image moves into the page it opens (record-image, CardLink).
+    '::view-transition-old(root)': {
+      animation: '120ms ease-out both vt-fade-out',
+    },
+    '::view-transition-new(root)': {
+      animation: '260ms cubic-bezier(0.2, 0, 0, 1) 60ms both vt-fade-in',
+    },
+    '::view-transition-group(record-image)': {
+      animationDuration: '340ms',
+      animationTimingFunction: 'cubic-bezier(0.2, 0, 0, 1)',
+    },
+    '::view-transition-old(record-image), ::view-transition-new(record-image)':
+      {
+        height: '100%',
+        objectFit: 'cover',
+        overflow: 'clip',
+      },
+
+    // People who ask for less motion get none: no page transitions, and
+    // animations and transitions end at once.
+    '@media (prefers-reduced-motion: reduce)': {
+      '::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*)':
+        {
+          animation: 'none !important',
+        },
+      '*, *::before, *::after': {
+        animationDuration: '0.01ms !important',
+        animationDelay: '0ms !important',
+        animationIterationCount: '1 !important',
+        transitionDuration: '0.01ms !important',
+        scrollBehavior: 'auto !important',
+      },
+    },
   },
   theme: {
     keyframes: {
+      'vt-fade-out': { to: { opacity: 0 } },
+      'vt-fade-in': { from: { opacity: 0, transform: 'translateY(8px)' } },
+      // Lists appearing (Reveal).
+      rise: {
+        from: { opacity: 0, transform: 'translateY(10px)' },
+        to: { opacity: 1, transform: 'none' },
+      },
       highlight: {
         '0%, 100%': {
           transform: 'scale(1)',

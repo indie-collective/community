@@ -1,6 +1,6 @@
 import { Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { LuHouse, LuSearch } from 'react-icons/lu';
-import { Link } from 'react-router';
+import Link from './Link';
 
 const statusCodes = {
   400: 'Bad Request',

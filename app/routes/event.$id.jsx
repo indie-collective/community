@@ -28,12 +28,12 @@ import {
 } from 'react-icons/lu';
 import {
   Form,
-  Link,
   isRouteErrorResponse,
   useFetcher,
   useLoaderData,
   useRouteError,
 } from 'react-router';
+import Link from '../components/Link';
 
 import TileMap from '../components/TileMap';
 
@@ -175,6 +175,9 @@ const Event = () => {
             src={cover?.url ?? placeholder}
             alt=""
             borderRadius="xl"
+            // The clicked card's image moves here (view transitions, CardLink).
+            data-vt-hero=""
+            css={{ viewTransitionName: 'record-image' }}
           />
         </AspectRatio>
         <DateLabel

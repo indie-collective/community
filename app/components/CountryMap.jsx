@@ -8,7 +8,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import Link from './Link';
 
 import { areasOf, layoutCallouts } from '../utils/countryAreas';
 

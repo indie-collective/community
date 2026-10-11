@@ -18,12 +18,12 @@ import {
 import { LuPlus, LuExternalLink, LuMapPin } from 'react-icons/lu';
 
 import {
-  Link,
   useLoaderData,
   Form,
   isRouteErrorResponse,
   useRouteError,
 } from 'react-router';
+import Link from '../components/Link';
 
 import isAuthenticated from '../utils/isAuthenticated.server';
 import countryNames from '../assets/countries.json';
@@ -115,6 +115,9 @@ const Org = () => {
           alt=""
           borderRadius="lg"
           bg="surface"
+          // The clicked card's image moves here (view transitions, CardLink).
+          data-vt-hero=""
+          css={{ viewTransitionName: 'record-image' }}
         />
         <PageHeader
           flex="1"

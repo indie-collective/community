@@ -8,14 +8,14 @@ import {
   Flex,
   HStack,
   Input,
-  Presence,
   Stack,
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { LuChevronRight, LuPlus, LuSearch } from 'react-icons/lu';
 
 import { useId } from 'react';
-import { Form, Link, useLoaderData } from 'react-router';
+import { Form, useLoaderData } from 'react-router';
+import Link from '../components/Link';
 
 import isAuthenticated from '../utils/isAuthenticated.server';
 import GameCard from '../components/GameCard';
@@ -32,6 +32,7 @@ import {
   listFeaturedOrganizations,
   listOrganizationPoints,
 } from '../data/organizations.server';
+import Reveal from '../components/Reveal';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request);
@@ -170,13 +171,7 @@ const Section = ({ title, to, linkLabel, children, ...rest }) => {
           </Link>
         </Button>
       </Flex>
-      <Presence
-        present
-        animationName={{ _open: 'fade-in', _closed: 'fade-out' }}
-        animationDuration="moderate"
-      >
-        {children}
-      </Presence>
+      <Reveal>{children}</Reveal>
     </Box>
   );
 };

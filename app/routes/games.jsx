@@ -7,29 +7,27 @@ import {
   Badge,
   Wrap,
   WrapItem,
-  Center,
-  Spinner,
-  Presence,
   Input,
   InputGroup,
   NativeSelect,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Link,
   useFetcher,
   useLoaderData,
   useRouteLoaderData,
   useSearchParams,
 } from 'react-router';
+import Link from '../components/Link';
 import { LuPlus, LuSearch } from 'react-icons/lu';
 
 import { countGames, listGames } from '../data/games.server';
 import { FilterBar, Page, PageHeader } from '../components/Page';
-import GameCard from '../components/GameCard';
+import GameCard, { GameCardSkeleton } from '../components/GameCard';
 import useDebounce from '../hooks/useDebounce';
 import { pageMeta } from '../utils/meta';
 import countryNames from '../assets/countries.json';
+import Reveal from '../components/Reveal';
 
 // The sort options: user input picks one by name, never reaches the query.
 // The orders the list offers; data/games knows how to apply them.
@@ -274,26 +272,28 @@ const Games = () => {
           'repeat(3, 1fr)',
         ]}
       >
-        {games.map((game) => (
+        {games.map((game, index) => (
           <Box key={game.id} minW={0}>
-            <Presence
-              present
-              animationName={{
-                _open: 'fade-in',
-                _closed: 'fade-out',
-              }}
-              animationDuration="moderate"
-            >
+            <Reveal index={index}>
               <GameCard {...game} />
-            </Presence>
+            </Reveal>
           </Box>
         ))}
       </Grid>
       <Box ref={end} aria-hidden />
+      {/* Placeholders where the next games will be, while they load. */}
       {fetcher.state === 'loading' && (
-        <Center py={10}>
-          <Spinner size="xl" color="green.500" borderWidth="4px" />
-        </Center>
+        <Grid
+          gap={5}
+          mt={5}
+          templateColumns={['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
+          aria-busy="true"
+          aria-label="Loading more games"
+        >
+          {[0, 1, 2].map((i) => (
+            <GameCardSkeleton key={i} />
+          ))}
+        </Grid>
       )}
     </Page>
   );

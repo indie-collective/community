@@ -14,7 +14,8 @@ import {
 
 import { useColorModeValue } from "../components/ui/color-mode";
 
-import { useLoaderData, Link  } from 'react-router';
+import { useLoaderData } from 'react-router';
+import Link from '../components/Link';
 import { FaCalendarAlt, FaGamepad, FaUsers, FaBuilding, FaMapMarkerAlt, FaHashtag } from 'react-icons/fa';
 import { getYearInReview } from '../data/rewind.server';
 

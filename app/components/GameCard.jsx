@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import Link from './Link';
 import {
   Box,
   Image,
@@ -90,10 +90,14 @@ function GameCard({
             paddingY={2}
             paddingX={5}
             zIndex={2}
-            backgroundColor={image ? {
-              base: '#ffffff99',
-              _dark: '#00000077',
-            } : ''}
+            backgroundColor={
+              image
+                ? {
+                    base: '#ffffff99',
+                    _dark: '#00000077',
+                  }
+                : ''
+            }
             fontWeight="bold"
           >
             <Text>{name}</Text>
@@ -122,25 +126,16 @@ function GameCard({
   }
 
   return (
-    <Card
-      isClickable
-      ref={ref}
-      padding={2}
-      rounded={10}
-      transition="background-color 200ms ease-out"
-      cursor="pointer"
-      _hover={{
-        bg: { base: 'gray.200', _dark: 'gray.700' },
-      }}
-    >
+    <Card isClickable ref={ref} padding={2} rounded={10}>
       <AspectRatio ratio={2}>
         <Image
           size="100%"
           objectFit="cover"
           src={image ?? placeholder}
           srcSet={imageSrcSet}
-          alt="Game cover"
+          alt=""
           rounded="md"
+          data-card-image
         />
       </AspectRatio>
       <Box px={1} py={2}>
