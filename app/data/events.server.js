@@ -476,16 +476,6 @@ export async function searchEvents(q, { excludeIds = [], limit = 10 } = {}) {
     .limit(limit);
 }
 
-/** The most recently added events (the home page), computed. */
-export async function listNewEvents({ limit }) {
-  const rows = await db.query.events.findMany({
-    where: notDeleted,
-    with: CARD_WITH,
-    orderBy: desc(events.createdAt),
-    limit,
-  });
-  return Promise.all(rows.map(computeCard));
-}
 
 const upcoming = (now) =>
   and(notDeleted, ne(events.status, 'canceled'), gte(events.endsAt, now));

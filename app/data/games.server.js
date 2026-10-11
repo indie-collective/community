@@ -417,16 +417,6 @@ export async function searchGames(q, { excludeIds = [] } = {}) {
   return Promise.all(rows.map(computeGame));
 }
 
-/** The newest games (the home page), computed; deleted ones left out. */
-export async function listNewGames({ limit }) {
-  const rows = await db.query.games.findMany({
-    where: notDeleted,
-    with: CARD_WITH,
-    orderBy: desc(games.createdAt),
-    limit,
-  });
-  return Promise.all(rows.map(gameWithRelations).map(computeGame));
-}
 
 /** How many games there are, deleted ones left out. */
 export async function countGames() {
@@ -457,4 +447,26 @@ export async function listGamesMadeIn(countryCode, { limit }) {
     count: value,
     games: await Promise.all(rows.map(gameWithRelations).map(computeGame)),
   };
+}
+
+/**
+ * Games worth featuring (#199): complete ones, with an image, a tag and a
+ * credited organisation, most recently updated first, computed. The
+ * newest games are often the emptiest.
+ */
+export async function listFeaturedGames({ limit }) {
+  const has = (table, column) =>
+    exists(db.select({ one: sql`1` }).from(table).where(eq(column, games.id)));
+  const rows = await db.query.games.findMany({
+    where: and(
+      notDeleted,
+      has(gameImages, gameImages.gameId),
+      has(gameTags, gameTags.gameId),
+      has(gameOrganizations, gameOrganizations.gameId)
+    ),
+    with: CARD_WITH,
+    orderBy: [desc(games.updatedAt), asc(games.id)],
+    limit,
+  });
+  return Promise.all(rows.map(gameWithRelations).map(computeGame));
 }
