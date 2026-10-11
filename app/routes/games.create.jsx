@@ -9,6 +9,7 @@ import { toaster } from '../components/ui/toaster';
 import GameForm from '../components/GameForm';
 import { createGame, resolveGameTags } from '../data/games.server';
 import getOrigin from '../utils/origin.server';
+import { gamePath } from '../utils/slug';
 
 export async function action(args) {
   const { request } = args;
@@ -38,10 +39,10 @@ export async function action(args) {
     await notifyDiscord(
       `${currentUser.username} added game "${data.get(
         'name'
-      )}" at ${new Date().toISOString()} - ${BASE_URL}/game/${game.id}`
+      )}" at ${new Date().toISOString()} - ${BASE_URL}${gamePath(game)}`
     );
 
-    return redirect(`/game/${game.id}`);
+    return redirect(gamePath(game));
   } catch (err) {
     const values = Object.fromEntries(data);
     values.tags = tagsList.map((t) => ({ name: t }));

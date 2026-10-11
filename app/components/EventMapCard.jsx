@@ -5,13 +5,14 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import { formatEventRange } from '../utils/eventTime';
 import Card from './Card';
 import CardLink from './CardLink';
+import { eventPath } from '../utils/slug';
 
 /**
  * An upcoming event in the map's list (#211), the height of an OrgCard: its
  * cover, name, dates (in its own time zone) and city.
  */
 // eslint-disable-next-line no-unused-vars -- `type` and `logo` are the map's, not the card's.
-const EventMapCard = ({ id, name, cover, starts_at, ends_at, time_zone, location, type, logo, ...rest }) => {
+const EventMapCard = ({ id, slug, name, cover, starts_at, ends_at, time_zone, location, type, logo, ...rest }) => {
   const placeholder = usePlaceholder('square');
   return (
     <Card
@@ -38,7 +39,7 @@ const EventMapCard = ({ id, name, cover, starts_at, ends_at, time_zone, location
         <Box flex="1" minW={0}>
           {/* One line: the dates and city fill the rest of the row. */}
           <Heading as="h3" size="md" title={name} truncate>
-            <CardLink to={`/event/${id}`}>{name}</CardLink>
+            <CardLink to={eventPath({ id, slug })}>{name}</CardLink>
           </Heading>
           <Text fontSize="sm" color="purple.500" fontWeight="semibold" truncate>
             {formatEventRange(starts_at, ends_at, time_zone, { time: false })}

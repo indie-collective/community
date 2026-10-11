@@ -21,6 +21,7 @@ import Card from './Card';
 import CardLink from './CardLink';
 import { ORG_STATUSES, orgStatusLabel, orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
 import { GAME_ROLES, gameRoleLabel } from '../utils/gameRoles';
+import { orgPath } from '../utils/slug';
 
 export const OrgCardSkeleton = () => (
   <Flex position="relative" alignItems="center">
@@ -44,6 +45,7 @@ export const OrgCardSkeleton = () => (
 
 const OrgCard = ({
   id,
+  slug,
   type,
   status,
   logo,
@@ -108,7 +110,7 @@ const OrgCard = ({
 
         <Box flex="1">
           <Heading as="h3" size="md" title={name}>
-            <CardLink to={`/org/${id}`}>{name}</CardLink>
+            <CardLink to={orgPath({ id, slug })}>{name}</CardLink>
           </Heading>
 
           {status && status !== 'active' && (

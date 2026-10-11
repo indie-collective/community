@@ -8,7 +8,7 @@ test("a new organisation's history and the admin pages list it", async ({ page }
   await page.getByText('Association', { exact: true }).click();
   await page.getByLabel(/^name/i).fill(name);
   await page.getByRole('button', { name: /submit/i }).click();
-  await expect(page).toHaveURL(/\/org\/[0-9a-f-]{36}$/);
+  await expect(page).toHaveURL(/\/org\/[a-z0-9-]+$/);
   const orgUrl = page.url();
 
   // The history opens on the latest change: the creation, adding the name.
@@ -29,7 +29,7 @@ test("a new organisation's history and the admin pages list it", async ({ page }
 
 // Deleting hides the record and keeps its history, with who deleted it.
 test('an admin deletes an event, and its history records who', async ({ page }) => {
-  const { db, changes, events } = await import('./db.js');
+  const { db, changes, events, idFromPath } = await import('./db.js');
   const { and, desc, eq } = await import('drizzle-orm');
   await signIn(page, ADMIN);
   const created = await page.request.post('/events/create', {
@@ -37,7 +37,7 @@ test('an admin deletes an event, and its history records who', async ({ page }) 
     maxRedirects: 0,
   });
   const path = created.headers().location;
-  const id = path.split('/').pop();
+  const id = await idFromPath(path);
   try {
     const deleted = await page.request.post(`${path}/delete`, { maxRedirects: 0 });
     expect(deleted.status()).toBe(302);

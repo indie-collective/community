@@ -15,6 +15,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Card from './Card';
 import CardLink from './CardLink';
 import TagList from './TagList';
+import { gamePath } from '../utils/slug';
 
 export const GameCardSkeleton = () => (
   <Box>
@@ -32,6 +33,7 @@ export const GameCardSkeleton = () => (
 function GameCard({
   ref,
   id,
+  slug,
   images = [],
   igdb_game,
   name,
@@ -56,7 +58,7 @@ function GameCard({
 
   if (isCompact) {
     return (
-      <Link to={`/game/${id}`}>
+      <Link to={gamePath({ id, slug })}>
         <Box
           rounded={5}
           transition="background-color 200ms ease-out"
@@ -144,7 +146,7 @@ function GameCard({
       </AspectRatio>
       <Box px={1} py={2}>
         <Heading as="h3" size="md" title={name}>
-          <CardLink to={`/game/${id}`}>{name}</CardLink>
+          <CardLink to={gamePath({ id, slug })}>{name}</CardLink>
         </Heading>
       </Box>
       {tags?.length > 0 && <TagList tags={tags} ml="3px" />}

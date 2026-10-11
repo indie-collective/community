@@ -41,9 +41,9 @@ import SectionHeading from '../components/SectionHeading';
 import { ORG_STATUSES, orgStatusLabel, orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
 import EmptyHint from '../components/EmptyHint';
 import { FaBluesky } from 'react-icons/fa6';
+import { pageRecordId } from '../utils/pageRecord.server';
+import { orgPath } from '../utils/slug';
 
-const uuidRegex =
-  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 const variants = {
   initial: { scale: 0.96, y: 30, opacity: 0 },
@@ -62,12 +62,8 @@ const variants = {
 };
 
 export const loader = async ({ request, params }) => {
-  const { id } = params;
-
-  if (!uuidRegex.test(id))
-    throw new Response('Not Found', {
-      status: 404,
-    });
+  // By slug, an old slug or UUID; those redirect to the slug (#209).
+  const id = await pageRecordId('organization', request, params.id);
 
   const currentUser = await isAuthenticated(request);
 
@@ -95,7 +91,7 @@ export const meta = ({ data, matches }) => {
     title: org.name,
     description: summarize(org.about) || `${kind}${place ? ` in ${place}` : ''}.`,
     image: org.logo?.thumbnail_url,
-    path: `/org/${org.id}`,
+    path: orgPath(org),
   });
 };
 

@@ -35,7 +35,7 @@ test.describe('phone width', () => {
 for (const [type, list] of [['game', '/games'], ['event', '/events'], ['org', '/studios']]) {
   test(`${type} pages share their own absolute URL`, async ({ request, baseURL }) => {
     const html = await (await request.get(list)).text();
-    const path = html.match(new RegExp(`/${type}/[0-9a-f-]{36}`))[0];
+    const path = html.match(new RegExp(`/${type}/[a-z0-9-]+`))[0];
     const page = await (await request.get(path)).text();
     expect(page).not.toContain('undefined://');
     expect(page).toContain(`<meta property="og:url" content="${new URL(path, baseURL)}"/>`);
@@ -47,7 +47,7 @@ test('section headings do not include their counts', async ({ page, request }) =
   const paths = ['/places'];
   for (const [type, list] of [['org', '/studios'], ['org', '/associations'], ['event', '/events']]) {
     const html = await (await request.get(list)).text();
-    paths.push(...[...new Set(html.match(new RegExp(`/${type}/[0-9a-f-]{36}`, 'g')))].slice(0, 4));
+    paths.push(...[...new Set(html.match(new RegExp(`/${type}/[a-z0-9-]+`, 'g')))].slice(0, 4));
   }
 
   let checked = 0;
@@ -71,9 +71,9 @@ test('every public page has its own description and a share image', async ({ req
   const listPages = ['/', '/games', '/events', '/studios', '/associations', '/about', '/places', '/countries'];
   const games = await (await request.get('/games')).text();
   const detail = [
-    games.match(/\/game\/[0-9a-f-]{36}/)[0],
-    (await (await request.get('/events')).text()).match(/\/event\/[0-9a-f-]{36}/)[0],
-    (await (await request.get('/studios')).text()).match(/\/org\/[0-9a-f-]{36}/)[0],
+    games.match(/\/game\/[a-z0-9-]+/)[0],
+    (await (await request.get('/events')).text()).match(/\/event\/[a-z0-9-]+/)[0],
+    (await (await request.get('/studios')).text()).match(/\/org\/[a-z0-9-]+/)[0],
   ];
 
   const descriptions = new Map();
@@ -148,7 +148,7 @@ test('robots.txt points to a sitemap listing every kind of page', async ({ reque
   const sitemap = await request.get(new URL(sitemapUrl).pathname);
   expect(sitemap.headers()['content-type']).toContain('application/xml');
   const xml = await sitemap.text();
-  for (const pattern of [/<loc>[^<]+\/countries<\/loc>/, /\/country\/[a-z]{2}<\/loc>/, /\/game\/[0-9a-f-]{36}<\/loc>/, /\/org\/[0-9a-f-]{36}<\/loc>/, /\/event\/[0-9a-f-]{36}<\/loc>/]) {
+  for (const pattern of [/<loc>[^<]+\/countries<\/loc>/, /\/country\/[a-z]{2}<\/loc>/, /\/game\/[a-z0-9-]+<\/loc>/, /\/org\/[a-z0-9-]+<\/loc>/, /\/event\/[a-z0-9-]+<\/loc>/]) {
     expect(xml).toMatch(pattern);
   }
 });

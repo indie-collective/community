@@ -12,6 +12,7 @@ import OrgForm from '../components/OrgForm';
 import { checkBlueskyHandle } from '../utils/bluesky.server';
 import getOrigin from '../utils/origin.server';
 import { ORGANIZATION_STATUSES } from '../db/schema.js';
+import { orgPath } from '../utils/slug';
 
 export async function action(args) {
   const { request } = args;
@@ -53,10 +54,10 @@ export async function action(args) {
         .get('type')
         .toLowerCase()} "${data.get(
         'name'
-      )}" at ${new Date().toISOString()} - ${BASE_URL}/org/${org.id}`
+      )}" at ${new Date().toISOString()} - ${BASE_URL}${orgPath(org)}`
     );
 
-    return redirect(`/org/${org.id}`);
+    return redirect(orgPath(org));
   } catch (err) {
     const values = Object.fromEntries(data);
     return { error: err.message, values };

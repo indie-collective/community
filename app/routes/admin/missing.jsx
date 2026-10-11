@@ -13,6 +13,7 @@ import { LuChevronDown } from 'react-icons/lu';
 
 import isAuthenticated from '../../utils/isAuthenticated.server';
 import { listMissingData } from '../../data/curation.server';
+import { gamePath, orgPath } from '../../utils/slug';
 
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request, true);
@@ -60,9 +61,9 @@ const Missing = () => {
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content>
-                    {games_missing_images.slice(0, 10).map(({ id, name }) => (
+                    {games_missing_images.slice(0, 10).map(({ id, name, slug }) => (
                       <Menu.Item key={id} value={id} asChild>
-                        <ChakraLink href={`/game/${id}`}>
+                        <ChakraLink href={gamePath({ id, slug })}>
                           {name}
                         </ChakraLink>
                       </Menu.Item>
@@ -87,9 +88,9 @@ const Missing = () => {
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content>
-                    {games_missing_source.slice(0, 10).map(({ id, name }) => (
+                    {games_missing_source.slice(0, 10).map(({ id, name, slug }) => (
                       <Menu.Item key={id} value={id} asChild>
-                        <ChakraLink href={`/game/${id}`}>
+                        <ChakraLink href={gamePath({ id, slug })}>
                           {name}
                         </ChakraLink>
                       </Menu.Item>
@@ -114,9 +115,9 @@ const Missing = () => {
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content>
-                    {games_missing_tags.slice(0, 10).map(({ id, name }) => (
+                    {games_missing_tags.slice(0, 10).map(({ id, name, slug }) => (
                       <Menu.Item key={id} value={id} asChild>
-                        <ChakraLink href={`/game/${id}`}>
+                        <ChakraLink href={gamePath({ id, slug })}>
                           {name}
                         </ChakraLink>
                       </Menu.Item>
@@ -146,9 +147,9 @@ const Missing = () => {
               <Portal>
                 <Menu.Positioner>
                   <Menu.Content>
-                    {entities_missing_games.slice(0, 10).map(({ id, name }) => (
+                    {entities_missing_games.slice(0, 10).map(({ id, name, slug }) => (
                       <Menu.Item key={id} value={id} asChild>
-                        <ChakraLink href={`/org/${id}`}>
+                        <ChakraLink href={orgPath({ id, slug })}>
                           {name}
                         </ChakraLink>
                       </Menu.Item>
@@ -175,9 +176,9 @@ const Missing = () => {
                   <Menu.Content>
                     {entities_missing_location
                       .slice(0, 10)
-                      .map(({ id, name }) => (
+                      .map(({ id, name, slug }) => (
                         <Menu.Item key={id} value={id} asChild>
-                          <ChakraLink href={`/org/${id}`}>
+                          <ChakraLink href={orgPath({ id, slug })}>
                             {name}
                           </ChakraLink>
                         </Menu.Item>

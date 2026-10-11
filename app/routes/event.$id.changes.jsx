@@ -22,12 +22,13 @@ import { getHistorySubject, listChanges } from '../data/changes.server';
 import isAuthenticated from '../utils/isAuthenticated.server'
 import { formatDistanceToNow } from 'date-fns';
 import { pageMeta } from '../utils/meta';
+import { routeRecordId } from '../utils/pageRecord.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 export const loader = async ({ request, params }) => {
-  const { id } = params;
+  const id = await routeRecordId('event', params.id);
 
   const currentUser = await isAuthenticated(request, true);
 

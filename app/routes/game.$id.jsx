@@ -38,17 +38,13 @@ import TagList from '../components/TagList';
 import { formatEventRange } from '../utils/eventTime';
 import { pageMeta, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
+import { pageRecordId } from '../utils/pageRecord.server';
+import { eventPath, gamePath } from '../utils/slug';
 
-const uuidRegex =
-  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 export const loader = async ({ request, params, context }) => {
-  const { id } = params;
-
-  if (!uuidRegex.test(id))
-    throw new Response('Not Found', {
-      status: 404,
-    });
+  // By slug, an old slug or UUID; those redirect to the slug (#209).
+  const id = await pageRecordId('game', request, params.id);
 
   // Stale IGDB data is refreshed after the response (#254).
   const game = await getGame(id, { context });
@@ -85,7 +81,7 @@ export const meta = ({ data, matches }) => {
     shareTitle: game.name,
     description: summarize(game.about) || `${generated}.`,
     image: game.game_image?.[0]?.image?.thumbnail_url,
-    path: `/game/${game.id}`,
+    path: gamePath(game),
   });
 };
 
@@ -260,7 +256,7 @@ const Game = () => {
             {events.map((event) => (
               <List.Item key={event.key}>
                 <ChakraLink asChild>
-                  <Link to={`/event/${event.id}`}>
+                  <Link to={eventPath(event)}>
                     <time dateTime={`${new Date(event.starts_at).toISOString()}/${new Date(event.ends_at).toISOString()}`}>
                       {formatEventRange(event.starts_at, event.ends_at, event.time_zone, { time: false })}
                     </time>

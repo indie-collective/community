@@ -21,6 +21,7 @@ import fs from 'node:fs';
 import pg from 'pg';
 
 import * as to from '../app/db/fromPostgres.js';
+import { assignSlugs } from '../app/utils/slug.js';
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -191,6 +192,23 @@ const tables = [
     })),
   ],
 ];
+
+// --- Readable URLs (#209) ----------------------------------------------------
+// Every game, organisation and event gets its slug; the oldest keeps the
+// plain one when names repeat.
+for (const [table, rows] of tables) {
+  if (!['games', 'organizations', 'events'].includes(table)) continue;
+  const slugs = assignSlugs(
+    rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      startsAt: row.starts_at,
+      createdAt: row.created_at,
+    })),
+    { event: table === 'events' }
+  );
+  for (const row of rows) row.slug = slugs.get(row.id);
+}
 
 // --- Write SQL ---------------------------------------------------------------
 

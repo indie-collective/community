@@ -9,12 +9,14 @@ import { authorizer, canWrite } from '../utils/auth.server';
 import { toaster } from '../components/ui/toaster';
 import GameForm from '../components/GameForm';
 import { getGameForEdit, resolveGameTags, updateGame } from '../data/games.server';
+import { gamePath } from '../utils/slug';
+import { routeRecordId } from '../utils/pageRecord.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 export const loader = async ({ request, params }) => {
-  const { id } = params;
+  const id = await routeRecordId('game', params.id);
 
   const currentUser = await isAuthenticated(request, true);
 
@@ -34,7 +36,7 @@ export const loader = async ({ request, params }) => {
 
 export async function action(args) {
   const { request, params } = args;
-  const { id } = params;
+  const id = await routeRecordId('game', params.id);
 
   const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
@@ -55,7 +57,7 @@ export async function action(args) {
       authorId: currentUser.id,
     });
 
-    return redirect(`/game/${game.id}`);
+    return redirect(gamePath(game));
   } catch (err) {
     console.log(err);
 

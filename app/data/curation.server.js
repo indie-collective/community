@@ -21,7 +21,7 @@ const without = (table, column, id) =>
 
 const newestFirst = (table, ...conditions) =>
   db
-    .select({ id: table.id, name: table.name })
+    .select({ id: table.id, name: table.name, slug: table.slug })
     .from(table)
     .where(and(isNull(table.deletedAt), ...conditions))
     .orderBy(desc(table.createdAt));

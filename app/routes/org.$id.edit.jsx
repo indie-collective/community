@@ -13,12 +13,14 @@ import { toaster } from '../components/ui/toaster';
 import OrgForm from '../components/OrgForm';
 import { checkBlueskyHandle } from '../utils/bluesky.server';
 import { ORGANIZATION_STATUSES } from '../db/schema.js';
+import { orgPath } from '../utils/slug';
+import { routeRecordId } from '../utils/pageRecord.server';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 export const loader = async ({ request, params }) => {
-  const { id } = params;
+  const id = await routeRecordId('organization', params.id);
 
   // Redirects to sign-in before anything is loaded.
   await isAuthenticated(request, true);
@@ -42,7 +44,7 @@ export const loader = async ({ request, params }) => {
 
 export async function action(args) {
   const { params, request } = args;
-  const { id } = params;
+  const id = await routeRecordId('organization', params.id);
 
   const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
@@ -84,7 +86,7 @@ export async function action(args) {
       authorId: currentUser.id,
     });
 
-    return redirect(`/org/${org.id}`);
+    return redirect(orgPath(org));
   } catch (err) {
     console.log(err);
 

@@ -27,7 +27,7 @@ test('logging out clears the session', async ({ page }) => {
 for (const [type, list] of [['event', '/events'], ['org', '/studios']]) {
   test(`${type} edit pages require sign-in`, async ({ page, request }) => {
     const html = await (await request.get(list)).text();
-    const path = `${html.match(new RegExp(`/${type}/[0-9a-f-]{36}`))[0]}/edit`;
+    const path = `${html.match(new RegExp(`/${type}/[a-z0-9-]+`))[0]}/edit`;
 
     const signedOut = await request.get(path, { maxRedirects: 0 });
     expect(signedOut.status()).toBe(302);

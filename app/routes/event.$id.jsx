@@ -55,17 +55,13 @@ import SectionHeading from '../components/SectionHeading';
 import { formatEventDate, formatEventRange } from '../utils/eventTime';
 import { pageMeta, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
+import { pageRecordId } from '../utils/pageRecord.server';
+import { eventPath } from '../utils/slug';
 
-const uuidRegex =
-  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 
 export const loader = async ({ request, params }) => {
-  const { id } = params;
-
-  if (!uuidRegex.test(id))
-    throw new Response('Not Found', {
-      status: 404,
-    });
+  // By slug, an old slug or UUID; those redirect to the slug (#209).
+  const id = await pageRecordId('event', request, params.id);
 
   const currentUser = await isAuthenticated(request);
 
@@ -110,7 +106,7 @@ export const meta = ({ data, matches }) => {
     shareTitle: event.name,
     description: summarize(event.about) || description,
     image: event.cover?.thumbnail_url,
-    path: `/event/${event.id}`,
+    path: eventPath(event),
   });
 };
 
@@ -571,7 +567,7 @@ const Event = () => {
                   </Text>
                 ) : (
                   <ChakraLink asChild>
-                    <Link to={`/event/${edition.id}`}>{edition.name}</Link>
+                    <Link to={eventPath(edition)}>{edition.name}</Link>
                   </ChakraLink>
                 )}
                 <Text as="span" color="muted" ml={2} fontSize="sm">

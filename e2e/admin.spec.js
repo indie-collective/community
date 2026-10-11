@@ -10,7 +10,7 @@ test('a member creates an organisation and an admin deletes it', async ({ browse
   await member.getByText('Association', { exact: true }).click();
   await member.getByLabel(/^name/i).fill(name);
   await member.getByRole('button', { name: /submit/i }).click();
-  await expect(member).toHaveURL(/\/org\/[0-9a-f-]{36}$/);
+  await expect(member).toHaveURL(/\/org\/[a-z0-9-]+$/);
   await expect(member.getByRole('heading', { name })).toBeVisible();
   const orgUrl = member.url();
   await member.close();

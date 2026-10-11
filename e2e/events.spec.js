@@ -1,18 +1,21 @@
 import { and, eq, isNotNull } from 'drizzle-orm';
 
-import { db, eventParticipants, events, people, searchText } from './db.js';
+import { db, eventParticipants, events, idFromPath, people, searchText } from './db.js';
 import { expect, test, MEMBER, signIn } from './helpers';
+import { eventSlug } from '../app/utils/slug.js';
 
 // A new event tomorrow, in the same place as a seeded one.
-async function createEvent(name) {
+async function createEvent(name, startsAt = new Date(Date.now() + 86400000)) {
   const [placed] = await db.select().from(events).where(isNotNull(events.countryCode)).limit(1);
   const [event] = await db
     .insert(events)
     .values({
       name,
+      // As the app would give it (#209).
+      slug: eventSlug(name, startsAt),
       searchText: searchText(name),
-      startsAt: new Date(Date.now() + 86400000),
-      endsAt: new Date(Date.now() + 2 * 86400000),
+      startsAt,
+      endsAt: new Date(startsAt.getTime() + 86400000),
       countryCode: placed.countryCode,
       city: placed.city,
       latitude: placed.latitude,
@@ -122,7 +125,7 @@ test.describe('event times', () => {
   test('a Rennes event keeps its local time through an unchanged edit', async ({ page }) => {
     await signIn(page, MEMBER);
     const path = await postEvent(page, rennes, '2026-11-20T14:00', '2026-11-22T19:30');
-    const id = path.split('/').pop();
+    const id = await idFromPath(path);
     try {
       expect((await findEvent(id)).timeZone).toBe('Europe/Paris');
 
@@ -143,7 +146,7 @@ test.describe('event times', () => {
   test('a Kyoto event shows Kyoto time, the same before and after hydration', async ({ page }) => {
     await signIn(page, MEMBER);
     const path = await postEvent(page, kyoto, '2026-12-05T19:00', '2026-12-05T22:00');
-    const id = path.split('/').pop();
+    const id = await idFromPath(path);
     const errors = [];
     page.on('console', (message) => {
       if (message.type() === 'error' && /hydrat/i.test(message.text())) errors.push(message.text().split('\n')[0]);
@@ -194,9 +197,8 @@ test('an event with no related events has no empty "Related events" section', as
 // website and tickets.
 test('an event lists its editions, and links its website and tickets', async ({ page }) => {
   const tag = Date.now() % 100000;
-  const past = await createEvent(`Fjordfest ${tag} 2025`);
-  const now = await createEvent(`Fjordfest ${tag} 2026`);
-  await db.update(events).set({ startsAt: new Date('2025-06-01'), endsAt: new Date('2025-06-03') }).where(eq(events.id, past.id));
+  const past = await createEvent(`Fjordfest ${tag} 2025`, new Date('2025-06-01'));
+  const now = await createEvent(`Fjordfest ${tag} 2026`, new Date('2026-06-01'));
   try {
     // A member links this year's edition to last year's, and adds the links.
     await signIn(page, MEMBER);
@@ -206,19 +208,19 @@ test('an event lists its editions, and links its website and tickets', async ({ 
     await page.getByRole('textbox', { name: 'Search for the previous edition' }).fill(`Fjordfest ${tag}`);
     await page.getByRole('button', { name: `Fjordfest ${tag} 2025` }).click();
     await page.getByRole('button', { name: /submit|save/i }).click();
-    await expect(page).toHaveURL(`/event/${now.id}`);
+    await expect(page).toHaveURL(`/event/fjordfest-${tag}-2026`);
 
     await expect(page.getByRole('link', { name: 'Website' })).toHaveAttribute('href', 'https://fjordfest.example/');
     await expect(page.getByRole('link', { name: 'Tickets' })).toHaveAttribute('href', 'https://tickets.example/fjordfest');
     await expect(page.getByRole('heading', { name: 'Editions' })).toBeVisible();
     await expect(page.getByText('(this one)')).toBeVisible();
-    await expect(page.getByRole('link', { name: `Fjordfest ${tag} 2025` })).toHaveAttribute('href', `/event/${past.id}`);
+    await expect(page.getByRole('link', { name: `Fjordfest ${tag} 2025` })).toHaveAttribute('href', `/event/fjordfest-${tag}-2025`);
     // An edition isn't also a "related event".
     await expect(page.getByRole('heading', { name: 'Related events' })).toHaveCount(0);
 
     // And the other way round.
     await page.goto(`/event/${past.id}`);
-    await expect(page.getByRole('link', { name: `Fjordfest ${tag} 2026` })).toHaveAttribute('href', `/event/${now.id}`);
+    await expect(page.getByRole('link', { name: `Fjordfest ${tag} 2026` })).toHaveAttribute('href', `/event/fjordfest-${tag}-2026`);
   } finally {
     await deleteEvent(now.id);
     await deleteEvent(past.id);

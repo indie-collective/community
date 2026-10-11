@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Fragment, useEffect } from 'react';
 
 import useDebounce from '../hooks/useDebounce';
+import { orgPath } from '../utils/slug';
 
 // Defaults as parameters: React 19 ignores defaultProps on function components.
 const PossibleOrgDuplicates = ({ value = '', ignoredId }) => {
@@ -31,7 +32,7 @@ const PossibleOrgDuplicates = ({ value = '', ignoredId }) => {
           {orgs.data.map((org, i) => (
             <Fragment key={org.id}>
               {i > 0 && ', '}
-              <ChakraLink color="green.500" asChild><Link to={`/org/${org.id}`}>
+              <ChakraLink color="green.500" asChild><Link to={orgPath(org)}>
                   {org.name}
                 </Link></ChakraLink>
             </Fragment>

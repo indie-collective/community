@@ -13,6 +13,7 @@ import { zonedInputToDate } from '../utils/eventTime';
 import { timeZoneAt } from '../utils/timeZone.server';
 import getOrigin from '../utils/origin.server';
 import { webUrl } from '../utils/url';
+import { eventPath } from '../utils/slug';
 
 export async function action(args) {
   const { request } = args;
@@ -55,10 +56,10 @@ export async function action(args) {
     await notifyDiscord(
       `${currentUser.username} added event "${data.get(
         'name'
-      )}" at ${new Date().toISOString()} - ${BASE_URL}/event/${event.id}`
+      )}" at ${new Date().toISOString()} - ${BASE_URL}${eventPath(event)}`
     );
 
-    return redirect(`/event/${event.id}`);
+    return redirect(eventPath(event));
   } catch (err) {
     const values = Object.fromEntries(data);
     return { error: err.message, values };

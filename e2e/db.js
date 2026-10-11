@@ -21,3 +21,17 @@ export async function retryBusy(query) {
     }
   }
 }
+
+// The record ID behind a page URL (#209: pages are addressed by slug).
+export async function idFromPath(path) {
+  const [, segment, value] = path.match(/\/(game|org|event)\/([^/?#]+)/);
+  const { eq, or } = await import('drizzle-orm');
+  const schema = await import('../app/db/schema.js');
+  const table = { game: schema.games, org: schema.organizations, event: schema.events }[segment];
+  const { db } = await import('../app/db/node.js');
+  const [row] = await db
+    .select({ id: table.id })
+    .from(table)
+    .where(or(eq(table.id, value), eq(table.slug, value)));
+  return row?.id;
+}

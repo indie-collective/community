@@ -2,9 +2,10 @@ import { Text } from '@chakra-ui/react';
 import { redirect } from 'react-router';
 
 import { getLatestChangeId } from '../../data/changes.server';
+import { routeRecordId } from '../../utils/pageRecord.server';
 
 export async function loader({ params }) {
-  const { id } = params;
+  const id = await routeRecordId('organization', params.id);
 
   const changeId = await getLatestChangeId('organization', id);
 
