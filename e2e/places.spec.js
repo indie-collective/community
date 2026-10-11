@@ -221,3 +221,49 @@ test.describe('the places drawer on a phone', () => {
     await expect.poll(top).toBeGreaterThan(844 - 120);
   });
 });
+
+// #39: closed organisations are hidden from the map unless asked for, and
+// their status shows on their page.
+test('closed organisations show on the map only when asked for', async ({ page }) => {
+  const { db, organizations } = await import('./db.js');
+  const { inArray } = await import('drizzle-orm');
+  const tag = Date.now() % 100000;
+  // XQ: no seeded org lives there.
+  const place = { countryCode: 'XQ', city: `Reykjavík ${tag}`, latitude: 64.1466, longitude: -21.9426 };
+  const [open, closed] = await db
+    .insert(organizations)
+    .values([
+      { name: `Open Studio ${tag}`, type: 'studio', ...place },
+      { name: `Closed Studio ${tag}`, type: 'studio', status: 'closed', ...place },
+    ])
+    .returning();
+  try {
+    await page.goto('/places?country=XQ', { waitUntil: 'networkidle' });
+    await expect(page.locator(`[id="${open.id}"]`)).toBeAttached();
+    await expect(page.locator(`[id="${closed.id}"]`)).toHaveCount(0);
+
+    await page.getByText('Show closed organisations').click();
+    await expect(page.locator(`[id="${closed.id}"]`)).toBeAttached();
+
+    await page.goto(`/org/${closed.id}`);
+    await expect(page.getByText('Closed', { exact: true })).toBeVisible();
+  } finally {
+    await db.delete(organizations).where(inArray(organizations.id, [open.id, closed.id]));
+  }
+});
+
+test('the org form sets the status', async ({ page }) => {
+  const { db, organizations } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const [org] = await db.insert(organizations).values({ name: `Pausing Studio ${Date.now() % 100000}`, type: 'studio' }).returning();
+  try {
+    await signIn(page, MEMBER);
+    await page.goto(`/org/${org.id}/edit`);
+    await page.getByRole('combobox', { name: 'Status' }).selectOption('hiatus');
+    await page.getByRole('button', { name: /submit|save/i }).click();
+    await expect(page).toHaveURL(`/org/${org.id}`);
+    await expect(page.getByText('On hiatus', { exact: true })).toBeVisible();
+  } finally {
+    await db.delete(organizations).where(eq(organizations.id, org.id));
+  }
+});

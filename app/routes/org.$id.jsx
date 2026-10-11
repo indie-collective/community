@@ -38,7 +38,7 @@ import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import { pageMeta, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
-import { orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
+import { ORG_STATUSES, orgStatusLabel, orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
 import EmptyHint from '../components/EmptyHint';
 import { FaBluesky } from 'react-icons/fa6';
 
@@ -110,6 +110,7 @@ const Org = () => {
     id,
     name,
     type,
+    status,
     site,
     bsky_handle,
     about,
@@ -148,6 +149,11 @@ const Org = () => {
                 {orgTypeLabel(type)}
               </Badge>
             </DarkMode>
+            {status && status !== 'active' && (
+              <Badge rounded={3} ml={2} colorPalette={ORG_STATUSES[status]?.color}>
+                {orgStatusLabel(status)}
+              </Badge>
+            )}
             {bsky_handle && (
               <ChakraLink
                 href={`https://bsky.app/profile/${bsky_handle}`}
