@@ -5,25 +5,38 @@ import { expect, test, ADMIN, MEMBER, signIn } from './helpers';
 // callback signs nobody in.
 test('the sign-in page offers Bluesky', async ({ page }) => {
   await page.goto('/signin');
-  await expect(page.getByLabel('Your Bluesky handle')).toHaveAttribute('placeholder', 'yourname.bsky.social');
-  await expect(page.getByRole('button', { name: 'Sign in with Bluesky' })).toBeVisible();
+  await expect(page.getByLabel('Your Bluesky handle')).toHaveAttribute(
+    'placeholder',
+    'yourname.bsky.social'
+  );
+  await expect(
+    page.getByRole('button', { name: 'Sign in with Bluesky' })
+  ).toBeVisible();
 });
 
 test('the OAuth client metadata is published', async ({ request, baseURL }) => {
-  const metadata = await (await request.get('/oauth/client-metadata.json')).json();
+  const metadata = await (
+    await request.get('/oauth/client-metadata.json')
+  ).json();
   expect(metadata).toMatchObject({
     scope: 'atproto transition:email',
     token_endpoint_auth_method: 'none',
     dpop_bound_access_tokens: true,
   });
   // Locally a loopback client, whose callback is on 127.0.0.1.
-  expect(metadata.redirect_uris).toEqual([`${baseURL.replace('localhost', '127.0.0.1')}/auth/bluesky/callback`]);
+  expect(metadata.redirect_uris).toEqual([
+    `${baseURL.replace('localhost', '127.0.0.1')}/auth/bluesky/callback`,
+  ]);
 });
 
 test('a forged callback signs nobody in', async ({ page }) => {
-  await page.goto('/auth/bluesky/callback?state=forged&code=x&iss=https%3A%2F%2Fbsky.social');
+  await page.goto(
+    '/auth/bluesky/callback?state=forged&code=x&iss=https%3A%2F%2Fbsky.social'
+  );
   await expect(page).toHaveURL(/\/signin\?error=/);
-  await expect(page.getByText('Signing in with Bluesky failed. Please try again.')).toBeVisible();
+  await expect(
+    page.getByText('Signing in with Bluesky failed. Please try again.')
+  ).toBeVisible();
   const cookies = await page.context().cookies();
   expect(cookies.find(({ name }) => name === '_session')).toBeUndefined();
 });
@@ -58,48 +71,165 @@ test.describe('linking Bluesky', () => {
 
 // #161: a linked person's Bluesky handle shows on their profile, and their
 // avatar among an event's attendees links to their Bluesky profile.
-test('a Bluesky handle shows on the profile and among attendees', async ({ page }) => {
+test('a Bluesky handle shows on the profile and among attendees', async ({
+  page,
+}) => {
   const { db, events, eventParticipants, people } = await import('./db.js');
   const { and, eq, isNotNull } = await import('drizzle-orm');
   const handle = `member${Date.now() % 100000}.bsky.social`;
-  await db.update(people).set({ did: `did:plc:${Date.now()}`, bskyHandle: handle }).where(eq(people.email, MEMBER));
-  const [member] = await db.select().from(people).where(eq(people.email, MEMBER));
-  const [event] = await db.select().from(events).where(isNotNull(events.countryCode)).limit(1);
-  await db.insert(eventParticipants).values({ eventId: event.id, personId: member.id }).onConflictDoNothing();
+  await db
+    .update(people)
+    .set({ did: `did:plc:${Date.now()}`, bskyHandle: handle })
+    .where(eq(people.email, MEMBER));
+  const [member] = await db
+    .select()
+    .from(people)
+    .where(eq(people.email, MEMBER));
+  const [event] = await db
+    .select()
+    .from(events)
+    .where(isNotNull(events.countryCode))
+    .limit(1);
+  await db
+    .insert(eventParticipants)
+    .values({ eventId: event.id, personId: member.id })
+    .onConflictDoNothing();
   try {
     await signIn(page, MEMBER);
     await page.goto('/profile');
-    await expect(page.getByRole('link', { name: `@${handle}` })).toHaveAttribute('href', `https://bsky.app/profile/${handle}`);
+    await expect(
+      page.getByRole('link', { name: `@${handle}` })
+    ).toHaveAttribute('href', `https://bsky.app/profile/${handle}`);
 
     await page.goto(`/event/${event.id}`);
-    await expect(page.getByRole('link', { name: `@${member.username} on Bluesky` })).toHaveAttribute(
-      'href',
-      `https://bsky.app/profile/${handle}`
-    );
+    await expect(
+      page.getByRole('link', { name: `@${member.username} on Bluesky` })
+    ).toHaveAttribute('href', `https://bsky.app/profile/${handle}`);
   } finally {
     await db
       .delete(eventParticipants)
-      .where(and(eq(eventParticipants.eventId, event.id), eq(eventParticipants.personId, member.id)));
-    await db.update(people).set({ did: null, bskyHandle: null }).where(eq(people.email, MEMBER));
+      .where(
+        and(
+          eq(eventParticipants.eventId, event.id),
+          eq(eventParticipants.personId, member.id)
+        )
+      );
+    await db
+      .update(people)
+      .set({ did: null, bskyHandle: null })
+      .where(eq(people.email, MEMBER));
   }
 });
 
 // #159: Discord sign-in is gone. People who signed up with it get their
 // Bluesky account linked by an admin, from its handle.
-test('sign-in offers Bluesky only, and the header leads there', async ({ page }) => {
+test('sign-in offers Bluesky only, and the header leads there', async ({
+  page,
+}) => {
   await page.goto('/games');
   await page.getByRole('link', { name: 'Sign in' }).click();
   await expect(page).toHaveURL('/signin?prev=%2Fgames');
-  await expect(page.getByRole('button', { name: 'Sign in with Bluesky' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Sign in with Bluesky' })
+  ).toBeVisible();
   await expect(page.getByText(/Discord/)).toHaveCount(0);
   expect((await page.request.get('/auth/discord')).status()).toBe(404);
 });
 
-test("an admin links someone's Bluesky account, and an unknown handle is refused", async ({ page }) => {
+test("an admin links someone's Bluesky account, and an unknown handle is refused", async ({
+  page,
+}) => {
   await signIn(page, ADMIN);
   await page.goto('/admin/users');
-  const handle = page.getByRole('textbox', { name: 'Bluesky handle of harness-member', exact: true });
+  const handle = page.getByRole('textbox', {
+    name: 'Bluesky handle of harness-member',
+    exact: true,
+  });
   await handle.fill('nobody-here.invalid');
   await handle.press('Enter');
-  await expect(page.getByText("“nobody-here.invalid” isn't a Bluesky handle we can find.")).toBeVisible();
+  await expect(
+    page.getByText("“nobody-here.invalid” isn't a Bluesky handle we can find.")
+  ).toBeVisible();
+});
+
+// #160: new games, events and organisations are announced on Bluesky, from
+// the IC account. A local stand-in plays its server.
+test.describe('announcements on Bluesky', () => {
+  const records = [];
+  const sessions = [];
+  let server;
+  test.beforeAll(async () => {
+    const { createServer } = await import('node:http');
+    server = createServer((req, res) => {
+      let body = '';
+      req.on('data', (chunk) => (body += chunk));
+      req.on('end', () => {
+        const json = (status, data) =>
+          res
+            .writeHead(status, { 'Content-Type': 'application/json' })
+            .end(JSON.stringify(data));
+        if (req.url === '/xrpc/com.atproto.server.createSession') {
+          sessions.push(JSON.parse(body));
+          return json(200, { did: 'did:plc:indieco', accessJwt: 'e2e-token' });
+        }
+        if (req.url === '/xrpc/com.atproto.repo.createRecord') {
+          records.push({
+            auth: req.headers.authorization,
+            ...JSON.parse(body),
+          });
+          return json(200, {
+            uri: 'at://did:plc:indieco/app.bsky.feed.post/1',
+            cid: 'x',
+          });
+        }
+        json(404, {});
+      });
+    });
+    await new Promise((resolve) => server.listen(3196, '127.0.0.1', resolve));
+  });
+  test.afterAll(() => new Promise((resolve) => server.close(resolve)));
+
+  test('a new game is posted from the IC account, with a link card', async ({
+    page,
+  }) => {
+    const name = `Announced ${Date.now() % 100000}`;
+    await signIn(page, MEMBER);
+    const created = await page.request.post('/games/create', {
+      form: {
+        name,
+        about: 'A *bold* little game.',
+        site: '',
+        igdb_url: '',
+        tags: '',
+      },
+      maxRedirects: 0,
+    });
+    const path = created.headers().location;
+
+    await expect
+      .poll(() => records.filter((r) => r.record.text.includes(name)).length)
+      .toBe(1);
+    const posted = records.find((r) => r.record.text.includes(name));
+    expect(sessions.at(-1)).toEqual({
+      identifier: 'indieco.test',
+      password: 'e2e-app-password',
+    });
+    expect(posted.auth).toBe('Bearer e2e-token');
+    expect(posted).toMatchObject({
+      repo: 'did:plc:indieco',
+      collection: 'app.bsky.feed.post',
+    });
+    expect(posted.record.text).toBe(
+      `New game on Community: ${name}\n\nhttp://localhost:3100${path}`
+    );
+    expect(posted.record.embed.external).toEqual({
+      uri: `http://localhost:3100${path}`,
+      title: name,
+      description: 'A bold little game.',
+    });
+
+    const { db, games } = await import('./db.js');
+    const { eq } = await import('drizzle-orm');
+    await db.delete(games).where(eq(games.name, name));
+  });
 });

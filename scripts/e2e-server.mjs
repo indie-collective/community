@@ -23,6 +23,10 @@ const vars = {
   DISCORD_NOTIFICATION_WEBHOOK: 'http://127.0.0.1:3199/discord-webhook',
   // A local stand-in for Bluesky's public API (see orgs.spec.js).
   BLUESKY_API: 'http://127.0.0.1:3198',
+  // A local stand-in for the IC account's server (see bluesky.spec.js).
+  BLUESKY_SERVICE: 'http://127.0.0.1:3196',
+  BLUESKY_IDENTIFIER: 'indieco.test',
+  BLUESKY_APP_PASSWORD: 'e2e-app-password',
   // A local stand-in for Twitch and IGDB (see igdb.spec.js).
   TWITCH_OAUTH_API: 'http://127.0.0.1:3197/oauth2',
   IGDB_API: 'http://127.0.0.1:3197/v4',
