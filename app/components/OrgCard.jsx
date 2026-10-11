@@ -19,7 +19,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import countryNames from '../assets/countries.json';
 import Card from './Card';
 import CardLink from './CardLink';
-import { orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
+import { ORG_STATUSES, orgStatusLabel, orgTypeColor, orgTypeLabel } from '../utils/orgTypes';
 import { GAME_ROLES, gameRoleLabel } from '../utils/gameRoles';
 
 export const OrgCardSkeleton = () => (
@@ -45,6 +45,7 @@ export const OrgCardSkeleton = () => (
 const OrgCard = ({
   id,
   type,
+  status,
   logo,
   name,
   location,
@@ -109,6 +110,12 @@ const OrgCard = ({
           <Heading as="h3" size="md" title={name}>
             <CardLink to={`/org/${id}`}>{name}</CardLink>
           </Heading>
+
+          {status && status !== 'active' && (
+            <Badge size="sm" colorPalette={ORG_STATUSES[status]?.color}>
+              {orgStatusLabel(status)}
+            </Badge>
+          )}
 
           {involvement &&
             (onInvolvementChange ? (

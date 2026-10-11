@@ -12,6 +12,7 @@ import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import { toaster } from '../components/ui/toaster';
 import OrgForm from '../components/OrgForm';
 import { checkBlueskyHandle } from '../utils/bluesky.server';
+import { ORGANIZATION_STATUSES } from '../db/schema.js';
 
 const uuidRegex =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -73,6 +74,8 @@ export async function action(args) {
     const org = await updateOrganization(id, {
       name: data.get('name'),
       type: data.get('type').toLowerCase(),
+      // #39; anything else keeps the current one (or the default).
+      status: ORGANIZATION_STATUSES.includes(data.get('status')) ? data.get('status') : undefined,
       site: data.get('site'),
       bskyHandle: bsky_handle,
       about: data.get('about'),

@@ -11,6 +11,7 @@ import { toaster } from '../components/ui/toaster';
 import OrgForm from '../components/OrgForm';
 import { checkBlueskyHandle } from '../utils/bluesky.server';
 import getOrigin from '../utils/origin.server';
+import { ORGANIZATION_STATUSES } from '../db/schema.js';
 
 export async function action(args) {
   const { request } = args;
@@ -34,6 +35,8 @@ export async function action(args) {
     const org = await createOrganization({
       name: data.get('name'),
       type: data.get('type').toLowerCase(),
+      // #39; anything else keeps the current one (or the default).
+      status: ORGANIZATION_STATUSES.includes(data.get('status')) ? data.get('status') : undefined,
       site: data.get('site'),
       // Throws a message for the form if it doesn't resolve (#161).
       bskyHandle: await checkBlueskyHandle(data.get('bsky_handle')),

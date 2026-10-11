@@ -17,6 +17,7 @@ import {
   Field,
   HStack,
   RadioCard,
+  NativeSelect,
 } from '@chakra-ui/react';
 import { LuPencil } from 'react-icons/lu';
 import TileMap from './TileMap';
@@ -26,7 +27,7 @@ import PlacesSearch from '../components/PlacesSearch';
 import PossibleOrgDuplicates from '../components/PossibleOrgDuplicates';
 import usePlaceholder from '../hooks/usePlaceholder';
 import useMergeRefs from '../hooks/useMergeRefs';
-import { ORG_TYPES, orgTypeColor } from '../utils/orgTypes';
+import { ORG_STATUSES, ORG_TYPES, orgTypeColor } from '../utils/orgTypes';
 import ThumbnailFields from './ThumbnailFields';
 
 const validationSchema = yup.object().shape({
@@ -74,7 +75,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
   const [logo, setLogo] = useState(defaultData.logo);
   const [logoFile, setLogoFile] = useState(null);
 
-  const { id, type = 'studio', name, location: l, site, bsky_handle, about } = defaultData;
+  const { id, type = 'studio', status = 'active', name, location: l, site, bsky_handle, about } = defaultData;
   const {
     handleSubmit,
     register,
@@ -190,6 +191,22 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
           <Field.ErrorText>
             {errors.type && errors.type.message}
           </Field.ErrorText>
+        </Field.Root>
+        <Field.Root gridColumn="1 / 3">
+          <Field.Label>Status</Field.Label>
+          <NativeSelect.Root width="12rem">
+            <NativeSelect.Field name="status" defaultValue={status}>
+              {Object.entries(ORG_STATUSES).map(([value, { label }]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          <Field.HelperText>
+            Closed organisations are hidden from the map unless asked for.
+          </Field.HelperText>
         </Field.Root>
         <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
           <Field.Label>Name<Field.RequiredIndicator /></Field.Label>

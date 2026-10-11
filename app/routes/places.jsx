@@ -5,6 +5,7 @@ import {
   Flex,
   useBreakpointValue,
   Icon,
+  Switch,
 } from '@chakra-ui/react';
 import { Overlay, ZoomControl } from 'pigeon-maps';
 import { usePrevious } from 'react-use';
@@ -191,6 +192,12 @@ const Places = () => {
   const [currentBounds, setCurrentBounds] = useState();
   const [highlightedOrg, setHighlightedOrg] = useState();
   const [isMovingBandOpen, setMovingBandOpen] = useState(false);
+  // #39: closed organisations are hidden unless asked for.
+  const [showClosed, setShowClosed] = useState(false);
+  const shownOrgs = useMemo(
+    () => (showClosed ? orgs : orgs.filter((org) => org.status !== 'closed')),
+    [orgs, showClosed]
+  );
   const location = useLocation();
   const navigate = useNavigate();
   const selectedId = location.hash?.substring(1);
@@ -216,7 +223,7 @@ const Places = () => {
   const handleOrgCardEnter = useCallback((org) => setHighlightedOrg(org.id));
   const handleOrgCardOut = useCallback(() => setHighlightedOrg());
 
-  const orgsInBounds = orgs.filter((org) => {
+  const orgsInBounds = shownOrgs.filter((org) => {
     if (!currentBounds || !org.location || !org.location.latitude) return true;
 
     return inBounds(org.location, currentBounds);
@@ -238,7 +245,7 @@ const Places = () => {
   }, [orgsInBounds, selectedId, prevSelectedId, setMovingBandOpen]);
 
   const orgsMarkers = useMemo(() => {
-    return orgs.map((org) => (
+    return shownOrgs.map((org) => (
       // todo: bring back z index 2
       <Overlay
         key={org.id}
@@ -256,7 +263,7 @@ const Places = () => {
         />
       </Overlay>
     ));
-  }, [orgs, highlightedOrg]);
+  }, [shownOrgs, highlightedOrg]);
 
   return (
     // TODO: Fix this weird hack, see margin bottom in app
@@ -268,10 +275,21 @@ const Places = () => {
       direction="column"
       overflow="hidden"
     >
+      <Flex justify="flex-end" px={5} mt={3}>
+        <Switch.Root
+          size="sm"
+          checked={showClosed}
+          onCheckedChange={({ checked }) => setShowClosed(checked)}
+        >
+          <Switch.HiddenInput />
+          <Switch.Control />
+          <Switch.Label>Show closed organisations</Switch.Label>
+        </Switch.Root>
+      </Flex>
       <Box
         ref={containerRef}
         flex="1"
-        mt={5}
+        mt={2}
         padding={{ base: 0, md: 5 }}
         display={{ base: '', md: 'flex' }}
         h="100%"

@@ -214,6 +214,7 @@ export async function createOrganization({
   about,
   location,
   logoId,
+  status,
   authorId = null,
 }) {
   const id = crypto.randomUUID();
@@ -222,6 +223,7 @@ export async function createOrganization({
       id,
       name,
       type,
+      status,
       site,
       bskyHandle,
       about,
@@ -242,7 +244,7 @@ export async function createOrganization({
  */
 export async function updateOrganization(
   id,
-  { name, type, site, bskyHandle, about, location, logoId, authorId }
+  { name, type, status, site, bskyHandle, about, location, logoId, authorId }
 ) {
   await db.batch([
     db
@@ -251,6 +253,7 @@ export async function updateOrganization(
         name,
         lastModifiedById: authorId,
         type,
+        status,
         site,
         bskyHandle,
         about,
