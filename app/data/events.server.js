@@ -491,6 +491,20 @@ export async function searchEvents(q, { excludeIds = [], limit = 10 } = {}) {
   return inOrder(ids, rows);
 }
 
+/**
+ * The latest events that are over, newest first: computed, for lists of
+ * rows (name, dates, place).
+ */
+export async function listRecentEvents({ limit }) {
+  const rows = await db
+    .select()
+    .from(events)
+    .where(and(notDeleted, lt(events.endsAt, new Date())))
+    .orderBy(desc(events.startsAt))
+    .limit(limit);
+  return Promise.all(rows.map(shape.event).map(computeEvent));
+}
+
 /** Events as cards, computed, in the order of `ids` (search results). */
 export async function listEventCards(ids) {
   if (ids.length === 0) return [];

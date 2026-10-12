@@ -33,7 +33,7 @@ test('an admin adds and deletes a tag', async ({ page }) => {
   await signIn(page, ADMIN);
   await page.goto('/admin/tags');
   await page.getByPlaceholder('New tag name').fill(tag);
-  await page.getByRole('button', { name: 'Add', exact: true }).click();
+  await page.getByRole('main').getByRole('button', { name: 'Add', exact: true }).click();
   const row = page.getByRole('row').filter({ hasText: tag });
   await expect(row).toBeVisible();
   await row.getByRole('button', { name: 'Delete' }).click();

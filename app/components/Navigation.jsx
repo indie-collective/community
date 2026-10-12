@@ -14,15 +14,13 @@ import {
   VisuallyHidden,
   Spacer,
   Button,
-  Menu,
-  Portal,
 } from '@chakra-ui/react';
-import { LuMenu, LuChevronDown } from 'react-icons/lu';
+import { LuMenu } from 'react-icons/lu';
 import { useLocation, useNavigation, useRouteLoaderData } from 'react-router';
 import Link from './Link';
 
 import Logo from '../components/Logo';
-import AvatarButton from './AvatarButton';
+import AccountMenu from './AccountMenu';
 import SearchInput from './SearchInput';
 import AddMenuButton from './AddMenuButton';
 
@@ -66,43 +64,6 @@ const Navigation = ({ search }) => {
   // where the root loader may not have produced data.
   const { currentUser } = useRouteLoaderData('root') ?? {};
 
-  const AdminDropdown = ({ isMobile = false }) => (
-    <Menu.Root>
-      <Menu.Trigger asChild>
-        <Button
-          size="md"
-          variant="solid"
-          borderRadius="full"
-          colorPalette="gray"
-          fontWeight="bold"
-          textAlign="left"
-          w={isMobile ? '100%' : 'auto'}
-          justifyContent={isMobile ? 'space-between' : 'center'}
-        >
-          Admin
-          <LuChevronDown />
-        </Button>
-      </Menu.Trigger>
-      <Portal>
-        <Menu.Positioner>
-          <Menu.Content>
-            <Menu.Item value="item-0" asChild cursor="pointer">
-              <Link to="/admin/users">Users</Link>
-            </Menu.Item>
-            <Menu.Item value="item-1" asChild cursor="pointer">
-              <Link to="/admin/changes">Changes</Link>
-            </Menu.Item>
-            <Menu.Item value="item-2" asChild cursor="pointer">
-              <Link to="/admin/missing">Missing</Link>
-            </Menu.Item>
-            <Menu.Item value="item-3" asChild cursor="pointer">
-              <Link to="/admin/tags">Tags</Link>
-            </Menu.Item>
-          </Menu.Content>
-        </Menu.Positioner>
-      </Portal>
-    </Menu.Root>
-  );
 
   if (variant === 'mobile') {
     return (
@@ -151,10 +112,8 @@ const Navigation = ({ search }) => {
                 <NavLink href="/countries">Countries</NavLink>
                 <NavLink href="/places">Map</NavLink>
 
-                {currentUser?.isAdmin && <AdminDropdown isMobile />}
-
                 <Box pt={2} display="flex" justifyContent="center">
-                  <AvatarButton />
+                  <AccountMenu fullWidth />
                 </Box>
               </VStack>
             </Box>
@@ -194,7 +153,7 @@ const Navigation = ({ search }) => {
 
             <HStack gap={2} justifyContent="flex-end">
               {currentUser && <AddMenuButton />}
-              <AvatarButton />
+              <AccountMenu />
             </HStack>
           </HStack>
         </Flex>
@@ -209,7 +168,6 @@ const Navigation = ({ search }) => {
           <NavLink href="/countries">Countries</NavLink>
           <NavLink href="/places">Map</NavLink>
           <Spacer />
-          {currentUser?.isAdmin && <AdminDropdown />}
         </HStack>
       </Box>
     </VStack>

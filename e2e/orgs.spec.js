@@ -15,7 +15,8 @@ for (const [list, label, short] of [['/studios', 'Studio', 'Studio'], ['/associa
     await expect(page.locator('main').getByText(short, { exact: true }).first()).toBeVisible();
 
     await page.locator('main a[href^="/org/"]').first().click();
-    await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
+    // The page says what it is: "Association", then its place when it has one.
+    await expect(page.locator('main').getByText(new RegExp(`^${label}( · |$)`)).first()).toBeVisible();
   });
 }
 
@@ -133,13 +134,13 @@ test('the studios list loads past the first 50, keeping the filters', async ({ p
   }
 });
 
-// #86: "Add organisation" from the associations list starts an association.
+// #86: "Add a studio or association" from the associations list starts an association.
 test('adding an organisation from a list pre-selects its type', async ({ page }) => {
   await signIn(page, MEMBER);
   for (const [list, type] of [['/associations', 'Association'], ['/studios', 'Studio']]) {
     await page.goto(list);
-    await page.getByRole('button', { name: 'Add new' }).click();
-    await page.getByRole('menuitem', { name: 'Add organisation' }).click();
+    await page.getByRole('banner').getByRole('button', { name: 'Add', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'Add a studio or association' }).click();
     await expect(page).toHaveURL(`/orgs/create?type=${type.toLowerCase()}`);
     await expect(page.getByRole('radio', { name: type })).toBeChecked();
   }

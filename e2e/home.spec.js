@@ -21,7 +21,7 @@ test('signed-in members don\'t see the introduction', async ({ page }) => {
   await expect(page.getByText('The indie game scene, mapped by its community')).toHaveCount(0);
   await expect(page.getByText('Know one we\'re missing?')).toHaveCount(0);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Indie Collective Community');
-  await expect(page.getByRole('region', { name: 'Upcoming events' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Events' })).toBeVisible();
 });
 
 // #199: it features complete entries, recently updated, not just the newest.

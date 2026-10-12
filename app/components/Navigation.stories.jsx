@@ -23,8 +23,11 @@ export const SignedIn = {
       currentUser: { id: 'p1', username: 'member', first_name: 'Jean-Michel', isAdmin: false },
     },
   },
+  // The account menu (design pass): the avatar, with the name in its menu.
   play: async ({ canvasElement }) => {
-    await expect(await within(canvasElement).findByText('Jean-Michel')).toBeVisible();
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole('button', { name: 'Your account' })).toBeVisible();
+    await expect(canvas.queryByRole('link', { name: /sign in/i })).toBeNull();
   },
 };
 

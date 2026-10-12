@@ -121,14 +121,14 @@ export async function listOrganizations({
   };
 }
 
-/** The most recently updated organisations of either type (/orgs). */
+/** The most recently added organisations of either type (/orgs, home). */
 export async function listRecentOrganizations({ limit }) {
   return computeAll(
     await db
       .select()
       .from(organizations)
       .where(notDeleted)
-      .orderBy(desc(organizations.updatedAt))
+      .orderBy(desc(organizations.createdAt), asc(organizations.id))
       .limit(limit)
   );
 }
@@ -343,6 +343,20 @@ export async function listOrganizationPoints() {
     .from(organizations)
     .where(and(notDeleted, located));
   return rows.map(({ latitude, longitude }) => [latitude, longitude]);
+}
+
+/**
+ * Where organisations are: the `limit` countries with the most, as
+ * `{ country_code, count }`, and how many countries have any.
+ */
+export async function countOrganizationsByCountry({ limit }) {
+  const rows = await db
+    .select({ country_code: organizations.countryCode, count: count() })
+    .from(organizations)
+    .where(and(notDeleted, located))
+    .groupBy(organizations.countryCode)
+    .orderBy(desc(count()), asc(organizations.countryCode));
+  return { top: rows.slice(0, limit), countries: rows.length };
 }
 
 /** How many organisations there are, or of one `type`. */

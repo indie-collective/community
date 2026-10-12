@@ -90,6 +90,16 @@ const config = defineConfig({
         muted: {
           value: { base: '{colors.gray.600}', _dark: '{colors.gray.400}' },
         },
+        // What a record is, at a glance: a dot per kind (KindDot). Green
+        // stays for actions.
+        kind: {
+          game: { value: { base: '{colors.orange.400}', _dark: '{colors.orange.300}' } },
+          studio: { value: { base: '{colors.blue.400}', _dark: '{colors.blue.300}' } },
+          association: {
+            value: { base: '{colors.purple.400}', _dark: '{colors.purple.300}' },
+          },
+          event: { value: { base: '{colors.pink.400}', _dark: '{colors.pink.300}' } },
+        },
       },
     },
     tokens: {

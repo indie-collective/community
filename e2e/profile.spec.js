@@ -14,7 +14,8 @@ test('editing the profile updates the header', async ({ page }) => {
 
   await expect(page).toHaveURL('/profile');
   await page.goto('/');
-  await expect(page.getByText(name).first()).toBeVisible();
+  await page.getByRole('banner').getByRole('button', { name: 'Your account' }).click();
+  await expect(page.getByRole('menu').getByText(name)).toBeVisible();
 });
 
 test('a taken username is flagged and the save reports the error', async ({ page }) => {
