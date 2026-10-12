@@ -1,5 +1,16 @@
-import { Box, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Grid,
+  Heading,
+  HStack,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { useId } from 'react';
+
+import KindDot from './kit/KindDot';
+import Link from './Link';
 
 /**
  * Every page's column (design pass): the same gutters, and the same space
@@ -26,9 +37,9 @@ export const PageHeader = ({
 }) => (
   <Stack as="header" gap={2} mb={{ base: 6, md: 8 }} {...rest}>
     {eyebrow && (
-      <Text fontSize="sm" fontWeight="medium" color="muted">
+      <Box fontSize="sm" fontWeight="medium" color="muted">
         {eyebrow}
-      </Text>
+      </Box>
     )}
     <Flex
       gap={3}
@@ -98,4 +109,40 @@ export const FilterBar = ({ children, ...rest }) => (
   >
     {children}
   </Flex>
+);
+
+/**
+ * Where a record page sits (design pass): its list, then what it is, e.g.
+ * "Studios / ● Studio · Closed". `label` is plain text, so it reads (and
+ * matches) as one line.
+ */
+export const Crumb = ({ to, list, kind, label }) => (
+  <HStack gap={2} wrap="wrap">
+    <Link to={to}>{list}</Link>
+    <Text as="span" aria-hidden>
+      /
+    </Text>
+    <HStack as="span" gap={1.5}>
+      <KindDot kind={kind} />
+      <span>{label}</span>
+    </HStack>
+  </HStack>
+);
+
+/**
+ * A record page's body (design pass): the content, and its fact sheet
+ * beside it on wide screens (staying in view as the page scrolls) or
+ * after the opening content on narrow ones.
+ */
+export const DetailLayout = ({ children, aside }) => (
+  <Grid
+    templateColumns={{ base: '1fr', lg: 'minmax(0, 1fr) 300px' }}
+    gap={8}
+    alignItems="start"
+  >
+    <Box minW={0}>{children}</Box>
+    <Box minW={0} position={{ lg: 'sticky' }} top={{ lg: 4 }}>
+      {aside}
+    </Box>
+  </Grid>
 );

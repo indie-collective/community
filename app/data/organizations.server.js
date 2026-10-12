@@ -10,6 +10,7 @@ import {
   inArray,
   isNotNull,
   isNull,
+  ne,
   sql,
 } from 'drizzle-orm';
 
@@ -314,6 +315,38 @@ export async function searchOrganizations(q, { excludeIds = [] } = {}) {
     .from(organizations)
     .where(and(notDeleted, inArray(organizations.id, ids)));
   return inOrder(ids, rows);
+}
+
+/**
+ * Other organisations in the same city as `org` (design pass: "Nearby"):
+ * up to `limit`, computed, those with games first, and how many there are.
+ * Empty without a city.
+ */
+export async function listOrganizationsNear(org, { limit }) {
+  const city = org.location?.city?.trim();
+  if (!city) return { orgs: [], count: 0 };
+  const where = and(
+    notDeleted,
+    ne(organizations.id, org.id),
+    eq(organizations.countryCode, org.location.country_code),
+    sql`lower(${organizations.city}) = lower(${city})`
+  );
+  const hasGames = exists(
+    db
+      .select({ one: sql`1` })
+      .from(gameOrganizations)
+      .where(eq(gameOrganizations.organizationId, organizations.id))
+  );
+  const [rows, [{ value }]] = await Promise.all([
+    db
+      .select()
+      .from(organizations)
+      .where(where)
+      .orderBy(desc(hasGames), asc(organizations.name))
+      .limit(limit),
+    db.select({ value: count() }).from(organizations).where(where),
+  ]);
+  return { orgs: await computeAll(rows), count: value };
 }
 
 /** Organisations as cards, computed, in the order of `ids` (search results). */

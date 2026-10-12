@@ -8,7 +8,6 @@ import {
   Button,
   useDisclosure,
   IconButton,
-  List,
   Dialog,
   Portal,
   Link as ChakraLink,
@@ -33,13 +32,24 @@ import { SearchOrgModal } from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
-import { Page, PageHeader, PageSection } from '../components/Page';
+import {
+  Crumb,
+  DetailLayout,
+  Page,
+  PageHeader,
+  PageSection,
+} from '../components/Page';
+import FactSheet from '../components/kit/FactSheet';
+import { Row, RowList } from '../components/kit/RowList';
+import DateBadge from '../components/kit/DateBadge';
+import CountryCode from '../components/kit/CountryCode';
+import countryNames from '../assets/countries.json';
 import TagList from '../components/TagList';
 import { formatEventRange } from '../utils/eventTime';
 import { pageMeta, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
 import { pageRecordId } from '../utils/pageRecord.server';
-import { eventPath, gamePath } from '../utils/slug';
+import { eventPath, gamePath, orgPath } from '../utils/slug';
 
 export const loader = async ({ request, params, context }) => {
   // By slug, an old slug or UUID; those redirect to the slug (#209).
@@ -125,20 +135,77 @@ const Game = () => {
       }))
     : [];
 
-  // What kind of page this is, and who made it (design pass).
-  const makers = entities.slice(0, 2).map((entity) => entity.name);
-  const eyebrow = [
-    'Game',
-    makers.length > 0 &&
-      `by ${makers.join(' and ')}${entities.length > 2 ? ' and others' : ''}`,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  // Where its studios are, and its latest event, for the fact sheet.
+  const places = [
+    ...new Set(
+      entities
+        .map(({ location }) =>
+          location
+            ? [location.city, countryNames[location.country_code]]
+                .filter(Boolean)
+                .join(', ')
+            : null
+        )
+        .filter(Boolean)
+    ),
+  ];
+  const latest = events.reduce(
+    (last, event) =>
+      !last || new Date(event.starts_at) > new Date(last.starts_at)
+        ? event
+        : last,
+    null
+  );
+  const genres = igdb_game?.genres?.map((genre) => genre.name) ?? [];
+  const facts = [
+    [
+      entities.length === 1 ? 'Studio' : 'Studios',
+      entities.length > 0 && (
+        <Stack gap={0.5}>
+          {entities.map((entity) => (
+            <ChakraLink asChild key={entity.id}>
+              <Link to={orgPath(entity)}>{entity.name}</Link>
+            </ChakraLink>
+          ))}
+        </Stack>
+      ),
+    ],
+    ['Made in', places.length > 0 && places.join('; ')],
+    ['Tags', tags.length > 0 && <TagList tags={tags} linked />],
+    [
+      'Website',
+      site && (
+        <ChakraLink href={site} target="_blank" rel="noopener noreferrer">
+          {site.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+          <LuExternalLink />
+        </ChakraLink>
+      ),
+    ],
+    [
+      'Events',
+      latest &&
+        `${events.length}, last in ${new Date(latest.starts_at).getUTCFullYear()}`,
+    ],
+    ['Genres', genres.length > 0 && genres.join(', ')],
+    [
+      'IGDB',
+      game.igdb_slug && (
+        <ChakraLink
+          href={`https://www.igdb.com/games/${game.igdb_slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          igdb.com
+          <LuExternalLink />
+        </ChakraLink>
+      ),
+    ],
+  ];
 
   return (
     <Page>
       <PageHeader
-        eyebrow={eyebrow}
+        eyebrow={<Crumb to="/games" list="Games" kind="game" label="Game" />}
         title={name}
         actions={
           currentUser && (
@@ -150,174 +217,154 @@ const Game = () => {
           )
         }
       />
-      <Box mb={{ base: 8, md: 10 }}>
-        <Box mb={5}>
-          <MotionGallery
-            gameId={id}
-            images={images.concat(igdb_images)}
-            currentUser={currentUser}
-            fetcher={fetcher}
-          />
-        </Box>
-
-        {tags?.length > 0 && (
-          <TagList
-            tags={tags}
-            size="md"
-            fontSize="0.8rem"
-            linked
-            ml="3px"
-            mt="5px"
-          />
-        )}
-
-        {about && (
-          <Box py={3} maxW="540px">
-            <Markdown value={about} />
+      <DetailLayout aside={<FactSheet facts={facts} />}>
+        <Box mb={{ base: 8, md: 10 }}>
+          <Box mb={5}>
+            <MotionGallery
+              gameId={id}
+              images={images.concat(igdb_images)}
+              currentUser={currentUser}
+              fetcher={fetcher}
+            />
           </Box>
-        )}
 
-        {site && (
-          <Button asChild>
-            <ChakraLink
-              href={site}
-              title={site.replace(/https?:\/\//, '')}
-              target="_blank"
-              rel="noopener noreferrer"
+          {about && (
+            <Box maxW="2xl" fontSize="md">
+              <Markdown value={about} />
+            </Box>
+          )}
+        </Box>
+        {(currentUser || entities.length > 0) && (
+          <PageSection title="Made by">
+            <Grid
+              gap={5}
+              templateColumns={[
+                '1fr',
+                'repeat(2, 1fr)',
+                'repeat(2, 1fr)',
+                'repeat(3, 1fr)',
+              ]}
             >
-              Visit website
-              <LuExternalLink />
-            </ChakraLink>
-          </Button>
+              {game_entity.map(({ entity: author, role }) => (
+                <OrgCard
+                  key={author.id}
+                  {...author}
+                  involvement={role ?? 'developer'}
+                  onInvolvementChange={
+                    currentUser
+                      ? (newRole) =>
+                          fetcher.submit(
+                            { id: author.id, role: newRole },
+                            {
+                              method: 'post',
+                              action: `/game/${id}/companies/role`,
+                            }
+                          )
+                      : undefined
+                  }
+                  onRemove={
+                    currentUser
+                      ? () =>
+                          fetcher.submit(
+                            { id: author.id },
+                            {
+                              method: 'post',
+                              action: `/game/${id}/companies/delete`,
+                            }
+                            // { method: 'post', action: './companies/delete' }
+                          )
+                      : null
+                  }
+                />
+              ))}
+              {currentUser && entities.length === 0 && (
+                <EmptyHint>
+                  Who made this game? Add a studio or association.
+                </EmptyHint>
+              )}
+              {currentUser && (
+                <>
+                  <IconButton
+                    alignSelf="center"
+                    justifySelf="flex-start"
+                    colorPalette="green"
+                    aria-label="Add an author to the game"
+                    onClick={onOpenLinkAuthor}
+                  >
+                    <LuPlus />
+                  </IconButton>
+                  <SearchOrgModal
+                    isOpen={linkAuthorIsOpen}
+                    onClose={onCloseLinkAuthor}
+                    excludedIds={entities.map(({ id }) => id)}
+                    onSelect={(author) => {
+                      fetcher.submit(
+                        { id: author.id },
+                        { method: 'post', action: `/game/${id}/companies/add` }
+                        // { method: 'post', action: './companies/add' }
+                      );
+                    }}
+                  />
+                </>
+              )}
+            </Grid>
+          </PageSection>
         )}
-      </Box>
-      {(currentUser || entities.length > 0) && (
-        <PageSection title="Made by">
-          <Grid
-            gap={5}
-            templateColumns={[
-              '1fr',
-              'repeat(2, 1fr)',
-              'repeat(2, 1fr)',
-              'repeat(3, 1fr)',
-            ]}
-          >
-            {game_entity.map(({ entity: author, role }) => (
-              <OrgCard
-                key={author.id}
-                {...author}
-                involvement={role ?? 'developer'}
-                onInvolvementChange={
-                  currentUser
-                    ? (newRole) =>
-                        fetcher.submit(
-                          { id: author.id, role: newRole },
-                          {
-                            method: 'post',
-                            action: `/game/${id}/companies/role`,
-                          }
-                        )
-                    : undefined
-                }
-                onRemove={
-                  currentUser
-                    ? () =>
-                        fetcher.submit(
-                          { id: author.id },
-                          {
-                            method: 'post',
-                            action: `/game/${id}/companies/delete`,
-                          }
-                          // { method: 'post', action: './companies/delete' }
-                        )
-                    : null
-                }
-              />
-            ))}
-            {currentUser && entities.length === 0 && (
-              <EmptyHint>
-                Who made this game? Add a studio or association.
-              </EmptyHint>
-            )}
-            {currentUser && (
-              <>
-                <IconButton
-                  alignSelf="center"
-                  justifySelf="flex-start"
-                  colorPalette="green"
-                  aria-label="Add an author to the game"
-                  onClick={onOpenLinkAuthor}
-                >
-                  <LuPlus />
-                </IconButton>
-                <SearchOrgModal
-                  isOpen={linkAuthorIsOpen}
-                  onClose={onCloseLinkAuthor}
-                  excludedIds={entities.map(({ id }) => id)}
-                  onSelect={(author) => {
-                    fetcher.submit(
-                      { id: author.id },
-                      { method: 'post', action: `/game/${id}/companies/add` }
-                      // { method: 'post', action: './companies/add' }
-                    );
-                  }}
+        {events.length > 0 && (
+          <PageSection title="Shown at">
+            <RowList>
+              {events.map((event) => (
+                <Row
+                  key={event.id}
+                  to={eventPath(event)}
+                  start={
+                    <DateBadge
+                      value={event.starts_at}
+                      timeZone={event.time_zone}
+                    />
+                  }
+                  title={event.name}
+                  sub={formatEventRange(
+                    event.starts_at,
+                    event.ends_at,
+                    event.time_zone,
+                    {
+                      time: false,
+                    }
+                  )}
+                  end={<CountryCode code={event.location?.country_code} />}
                 />
-              </>
-            )}
-          </Grid>
-        </PageSection>
-      )}
-      {events.length > 0 && (
-        <PageSection title="Events">
-          <List.Root>
-            {events.map((event) => (
-              <List.Item key={event.id}>
-                <ChakraLink asChild>
-                  <Link to={eventPath(event)}>
-                    <time
-                      dateTime={`${new Date(event.starts_at).toISOString()}/${new Date(event.ends_at).toISOString()}`}
-                    >
-                      {formatEventRange(
-                        event.starts_at,
-                        event.ends_at,
-                        event.time_zone,
-                        { time: false }
-                      )}
-                    </time>
-                    . {event.name}
-                  </Link>
-                </ChakraLink>
-              </List.Item>
-            ))}
-          </List.Root>
-        </PageSection>
-      )}
-      {igdb_game?.videos.length > 0 && (
-        <PageSection title="Videos">
-          <Grid
-            gap={3}
-            templateColumns={[
-              'repeat(1, 1fr)',
-              'repeat(2, 1fr)',
-              'repeat(3, 1fr)',
-            ]}
-          >
-            {igdb_game?.videos?.map(({ id, name, video_id }) => (
-              <AspectRatio key={id} ratio={16 / 9}>
-                <Box
-                  as="iframe"
-                  objectFit="cover"
-                  width="100%"
-                  height="100%"
-                  title={name}
-                  src={`https://www.youtube.com/embed/${video_id}`}
-                  allowFullScreen
-                />
-              </AspectRatio>
-            ))}
-          </Grid>
-        </PageSection>
-      )}
+              ))}
+            </RowList>
+          </PageSection>
+        )}
+        {igdb_game?.videos.length > 0 && (
+          <PageSection title="Videos">
+            <Grid
+              gap={3}
+              templateColumns={[
+                'repeat(1, 1fr)',
+                'repeat(2, 1fr)',
+                'repeat(3, 1fr)',
+              ]}
+            >
+              {igdb_game?.videos?.map(({ id, name, video_id }) => (
+                <AspectRatio key={id} ratio={16 / 9}>
+                  <Box
+                    as="iframe"
+                    objectFit="cover"
+                    width="100%"
+                    height="100%"
+                    title={name}
+                    src={`https://www.youtube.com/embed/${video_id}`}
+                    allowFullScreen
+                  />
+                </AspectRatio>
+              ))}
+            </Grid>
+          </PageSection>
+        )}
+      </DetailLayout>
       {currentUser && (
         <Box>
           <Dialog.Root

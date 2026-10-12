@@ -5,18 +5,30 @@ test('filters narrow the studios list', async ({ page }) => {
   const before = await page.locator('a[href^="/org/"]').count();
   await page.getByText('Has published games').click();
   await expect(page).toHaveURL(/has_games=on/);
-  expect(await page.locator('a[href^="/org/"]').count()).toBeLessThanOrEqual(before);
+  expect(await page.locator('a[href^="/org/"]').count()).toBeLessThanOrEqual(
+    before
+  );
 });
 
 // #202: cards showed raw "studio"/"assoc", the org page the raw enum value.
-for (const [list, label, short] of [['/studios', 'Studio', 'Studio'], ['/associations', 'Association', 'Assoc.']]) {
+for (const [list, label, short] of [
+  ['/studios', 'Studio', 'Studio'],
+  ['/associations', 'Association', 'Assoc.'],
+]) {
   test(`${list} labels the org type as "${label}"`, async ({ page }) => {
     await page.goto(list);
-    await expect(page.locator('main').getByText(short, { exact: true }).first()).toBeVisible();
+    await expect(
+      page.locator('main').getByText(short, { exact: true }).first()
+    ).toBeVisible();
 
     await page.locator('main a[href^="/org/"]').first().click();
     // The page says what it is: "Association", then its place when it has one.
-    await expect(page.locator('main').getByText(new RegExp(`^${label}( · |$)`)).first()).toBeVisible();
+    await expect(
+      page
+        .locator('main')
+        .getByText(new RegExp(`^${label}( · |$)`))
+        .first()
+    ).toBeVisible();
   });
 }
 
@@ -39,11 +51,15 @@ test('the studios country filter is searchable', async ({ page }) => {
   const code = new URL(page.url()).searchParams.get('country');
 
   await page.goto(`/studios?country=${code}`);
-  await expect(page.getByRole('combobox', { name: 'Country' })).toHaveValue(label);
+  await expect(page.getByRole('combobox', { name: 'Country' })).toHaveValue(
+    label
+  );
 });
 
 // #198: an org without games or events shows signed-in users how to add them.
-test('an empty org page hints at adding games and events when signed in', async ({ page }) => {
+test('an empty org page hints at adding games and events when signed in', async ({
+  page,
+}) => {
   const { db, organizations } = await import('./db.js');
   const { eq, inArray } = await import('drizzle-orm');
   const [org] = await db
@@ -57,9 +73,13 @@ test('an empty org page hints at adding games and events when signed in', async 
     await signIn(page, MEMBER);
     await page.goto(`/org/${org.id}`);
     await expect(page.getByText('No games yet.')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Add a game' })).toHaveAttribute('href', '/games/create');
+    await expect(
+      page.getByRole('link', { name: 'Add a game' })
+    ).toHaveAttribute('href', '/games/create');
     await expect(page.getByText('No hosted events yet.')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Add an event' })).toHaveAttribute('href', '/events/create');
+    await expect(
+      page.getByRole('link', { name: 'Add an event' })
+    ).toHaveAttribute('href', '/events/create');
   } finally {
     await db.delete(organizations).where(eq(organizations.id, org.id));
   }
@@ -72,16 +92,23 @@ test.describe('Bluesky handles on organizations', () => {
     const { createServer } = await import('node:http');
     // Knows handles ending in .bsky.social; any other is "Unable to resolve".
     server = createServer((req, res) => {
-      const handle = new URL(req.url, 'http://x').searchParams.get('handle') ?? '';
+      const handle =
+        new URL(req.url, 'http://x').searchParams.get('handle') ?? '';
       const known = handle.endsWith('.bsky.social');
       res.writeHead(known ? 200 : 400, { 'content-type': 'application/json' });
-      res.end(JSON.stringify(known ? { did: 'did:plc:test' } : { error: 'InvalidRequest' }));
+      res.end(
+        JSON.stringify(
+          known ? { did: 'did:plc:test' } : { error: 'InvalidRequest' }
+        )
+      );
     });
     await new Promise((resolve) => server.listen(3198, '127.0.0.1', resolve));
   });
   test.afterAll(() => new Promise((resolve) => server.close(resolve)));
 
-  test('a handle is normalised, checked and linked; an unknown one is refused', async ({ page }) => {
+  test('a handle is normalised, checked and linked; an unknown one is refused', async ({
+    page,
+  }) => {
     await signIn(page, MEMBER);
     await page.goto('/orgs/create');
     const name = `Sky Studio ${Date.now() % 100000}`;
@@ -89,18 +116,27 @@ test.describe('Bluesky handles on organizations', () => {
     await page.getByLabel(/^name/i).fill(name);
     await page.getByLabel('Bluesky handle').fill('nobody.example.com');
     await page.getByRole('button', { name: /submit/i }).click();
-    await expect(page.getByText('No Bluesky account is called "nobody.example.com".')).toBeVisible();
+    await expect(
+      page.getByText('No Bluesky account is called "nobody.example.com".')
+    ).toBeVisible();
 
     await page.getByLabel('Bluesky handle').fill('@Sky-Studio.bsky.social');
     await page.getByRole('button', { name: /submit/i }).click();
     await expect(page).toHaveURL(/\/org\/[a-z0-9-]+$/);
-    const link = page.getByRole('link', { name: 'Bluesky: @sky-studio.bsky.social' });
-    await expect(link).toHaveAttribute('href', 'https://bsky.app/profile/sky-studio.bsky.social');
+    const link = page.getByRole('link', {
+      name: 'Bluesky: @sky-studio.bsky.social',
+    });
+    await expect(link).toHaveAttribute(
+      'href',
+      'https://bsky.app/profile/sky-studio.bsky.social'
+    );
   });
 });
 
 // The lists showed the first 50 orgs and nothing more; the rest load in pages.
-test('the studios list loads past the first 50, keeping the filters', async ({ page }) => {
+test('the studios list loads past the first 50, keeping the filters', async ({
+  page,
+}) => {
   const { db, organizations } = await import('./db.js');
   const { eq, inArray } = await import('drizzle-orm');
   // XQ is a user-assigned ISO code: no seeded org lives there.
@@ -108,7 +144,14 @@ test('the studios list loads past the first 50, keeping the filters', async ({ p
   const updatedAt = new Date();
   await db.batch(
     Array.from({ length: 55 }, (_, i) =>
-      db.insert(organizations).values({ name: `Paged Studio ${i + 1}`, type: 'studio', countryCode: 'XQ', updatedAt })
+      db
+        .insert(organizations)
+        .values({
+          name: `Paged Studio ${i + 1}`,
+          type: 'studio',
+          countryCode: 'XQ',
+          updatedAt,
+        })
     )
   );
   try {
@@ -116,14 +159,20 @@ test('the studios list loads past the first 50, keeping the filters', async ({ p
     const cards = page.locator('main a[href^="/org/"]');
     await expect(cards).toHaveCount(50);
 
-    const next = page.waitForRequest((request) => /[?&]page=2\b/.test(request.url()));
+    const next = page.waitForRequest((request) =>
+      /[?&]page=2\b/.test(request.url())
+    );
     await page.getByRole('button', { name: 'Load more' }).click();
     expect(new URL((await next).url()).searchParams.get('country')).toBe('XQ');
 
     await expect(cards).toHaveCount(55);
-    const hrefs = await cards.evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+    const hrefs = await cards.evaluateAll((links) =>
+      links.map((link) => link.getAttribute('href'))
+    );
     expect(new Set(hrefs).size).toBe(55);
-    await expect(page.getByRole('button', { name: 'Load more' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Load more' })).toHaveCount(
+      0
+    );
 
     // Changing a filter starts the list over: none of these has games.
     await page.getByText('Has published games').click();
@@ -135,19 +184,31 @@ test('the studios list loads past the first 50, keeping the filters', async ({ p
 });
 
 // #86: "Add a studio or association" from the associations list starts an association.
-test('adding an organisation from a list pre-selects its type', async ({ page }) => {
+test('adding an organisation from a list pre-selects its type', async ({
+  page,
+}) => {
   await signIn(page, MEMBER);
-  for (const [list, type] of [['/associations', 'Association'], ['/studios', 'Studio']]) {
+  for (const [list, type] of [
+    ['/associations', 'Association'],
+    ['/studios', 'Studio'],
+  ]) {
     await page.goto(list);
-    await page.getByRole('banner').getByRole('button', { name: 'Add', exact: true }).click();
-    await page.getByRole('menuitem', { name: 'Add a studio or association' }).click();
+    await page
+      .getByRole('banner')
+      .getByRole('button', { name: 'Add', exact: true })
+      .click();
+    await page
+      .getByRole('menuitem', { name: 'Add a studio or association' })
+      .click();
     await expect(page).toHaveURL(`/orgs/create?type=${type.toLowerCase()}`);
     await expect(page.getByRole('radio', { name: type })).toBeChecked();
   }
 });
 
 // #258: a country page's cities link to the lists filtered by city.
-test('the studios list filters by city, and keeps it across other filters', async ({ page }) => {
+test('the studios list filters by city, and keeps it across other filters', async ({
+  page,
+}) => {
   const { db, organizations } = await import('./db.js');
   const { eq, inArray } = await import('drizzle-orm');
   const tag = Date.now() % 100000;
@@ -164,7 +225,9 @@ test('the studios list filters by city, and keeps it across other filters', asyn
     )
     .returning();
   try {
-    await page.goto(`/studios?country=NO&city=${encodeURIComponent(`fjordheim ${tag}`)}`);
+    await page.goto(
+      `/studios?country=NO&city=${encodeURIComponent(`fjordheim ${tag}`)}`
+    );
     await expect(page.getByText(`In fjordheim ${tag}`)).toBeVisible();
     await expect(page.getByText(here.name)).toBeVisible();
     await expect(page.getByText(there.name)).toHaveCount(0);
@@ -178,6 +241,62 @@ test('the studios list filters by city, and keeps it across other filters', asyn
     await expect(page).not.toHaveURL(/city=/);
     await expect(page.getByText(`In fjordheim ${tag}`)).toHaveCount(0);
   } finally {
-    await db.delete(organizations).where(inArray(organizations.id, [here.id, there.id]));
+    await db
+      .delete(organizations)
+      .where(inArray(organizations.id, [here.id, there.id]));
+  }
+});
+
+// Design pass: an organisation's page has a fact sheet, and lists the
+// others in its city.
+test('an organisation page has key facts and its neighbours', async ({
+  page,
+}) => {
+  const { db, organizations } = await import('./db.js');
+  const { inArray } = await import('drizzle-orm');
+  const tag = Date.now() % 100000;
+  const city = `Pinewick ${tag}`;
+  const [home, neighbour, elsewhere] = await db
+    .insert(organizations)
+    .values([
+      {
+        name: `Lantern Works ${tag}`,
+        type: 'studio',
+        countryCode: 'FR',
+        city,
+        region: 'Gironde',
+      },
+      {
+        name: `Moss Club ${tag}`,
+        type: 'association',
+        countryCode: 'FR',
+        city,
+      },
+      {
+        name: `Far Away ${tag}`,
+        type: 'studio',
+        countryCode: 'FR',
+        city: `Elsewhere ${tag}`,
+      },
+    ])
+    .returning();
+  try {
+    await page.goto(`/org/${home.id}`);
+    const facts = page.getByRole('complementary', { name: 'Key facts' });
+    await expect(facts).toContainText(`${city}, Gironde, France`);
+    await expect(facts.getByRole('link', { name: 'France' })).toHaveAttribute(
+      'href',
+      '/country/fr'
+    );
+
+    const nearby = page.getByRole('region', { name: 'Nearby' });
+    await expect(
+      nearby.getByRole('link', { name: new RegExp(neighbour.name) })
+    ).toBeVisible();
+    await expect(nearby.getByText(elsewhere.name)).toHaveCount(0);
+  } finally {
+    await db
+      .delete(organizations)
+      .where(inArray(organizations.id, [home.id, neighbour.id, elsewhere.id]));
   }
 });
