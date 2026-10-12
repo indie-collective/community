@@ -300,3 +300,13 @@ test('an organisation page has key facts and its neighbours', async ({
       .where(inArray(organizations.id, [home.id, neighbour.id, elsewhere.id]));
   }
 });
+
+// Design pass: the top countries are one click away.
+test('the studios list filters by a top country in one click', async ({ page }) => {
+  await page.goto('/studios');
+  const chips = page.getByRole('group', { name: 'Top countries' }).getByRole('button');
+  const code = (await chips.first().innerText()).slice(0, 2);
+  await chips.first().click();
+  await expect(page).toHaveURL(new RegExp(`[?&]country=${code}`));
+  await expect(chips.first()).toHaveAttribute('aria-pressed', 'true');
+});

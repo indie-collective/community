@@ -10,6 +10,9 @@ import {
   Input,
   InputGroup,
   NativeSelect,
+  Group,
+  Image,
+  Text,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -19,11 +22,14 @@ import {
   useSearchParams,
 } from 'react-router';
 import Link from '../components/Link';
-import { LuPlus, LuSearch } from 'react-icons/lu';
+import { LuLayoutGrid, LuList, LuPlus, LuSearch } from 'react-icons/lu';
 
 import { countGames, listGames } from '../data/games.server';
 import { FilterBar, Page, PageHeader } from '../components/Page';
 import GameCard, { GameCardSkeleton } from '../components/GameCard';
+import { Row, RowList } from '../components/kit/RowList';
+import usePlaceholder from '../hooks/usePlaceholder';
+import { gamePath } from '../utils/slug';
 import useDebounce from '../hooks/useDebounce';
 import { pageMeta } from '../utils/meta';
 import countryNames from '../assets/countries.json';
@@ -32,9 +38,9 @@ import Reveal from '../components/Reveal';
 // The sort options: user input picks one by name, never reaches the query.
 // The orders the list offers; data/games knows how to apply them.
 const SORTS = {
-  updated: { label: 'Recently updated' },
-  newest: { label: 'Recently added' },
-  name: { label: 'Name (A–Z)' },
+  updated: { label: 'Recently updated', summary: 'recently updated first' },
+  newest: { label: 'Recently added', summary: 'newest first' },
+  name: { label: 'Name (A–Z)', summary: 'by name' },
 };
 const DEFAULT_SORT = 'updated';
 
@@ -50,13 +56,16 @@ export const loader = async ({ request }) => {
   const countryCode = searchParams.get('country')?.toUpperCase();
   const country = countryNames[countryCode] ? countryCode : null;
 
-  const [{ tags, games }, total] = await Promise.all([
+  const [{ tags, games, matching }, total] = await Promise.all([
     listGames({ page, tags: selectedTags, q, sort, country }),
     countGames(),
   ]);
 
   const data = {
     total,
+    matching,
+    // Cards, or a denser list (design pass); kept in the URL.
+    view: searchParams.get('view') === 'list' ? 'list' : 'cards',
     tags,
     games,
     q: q ?? '',
@@ -75,6 +84,42 @@ export const meta = ({ matches, location }) =>
     path: location.pathname,
   });
 
+// "146 games tagged action, made in France · recently updated first".
+function summary({ matching, selectedTags, country, q, sort }) {
+  const parts = [
+    `${matching.toLocaleString('en')} ${matching === 1 ? 'game' : 'games'}`,
+  ];
+  const filters = [
+    selectedTags.length > 0 && `tagged ${selectedTags.join(' and ')}`,
+    country && `made in ${country.name}`,
+    q && `matching “${q}”`,
+  ].filter(Boolean);
+  return `${parts.concat(filters.join(', ')).filter(Boolean).join(' ')} · ${SORTS[sort].summary}`;
+}
+
+// A game's first image, small, for list rows.
+const GameThumb = ({ game }) => {
+  const placeholder = usePlaceholder();
+  const src =
+    game.images?.[0]?.thumbnail_url ??
+    game.igdb_game?.screenshots?.[0]?.url?.replace(
+      't_thumb',
+      't_screenshot_med'
+    ) ??
+    placeholder;
+  return (
+    <Image
+      src={src}
+      alt=""
+      w="64px"
+      h="36px"
+      objectFit="cover"
+      borderRadius="md"
+      flexShrink={0}
+    />
+  );
+};
+
 const Games = () => {
   const {
     games: initialGames,
@@ -83,6 +128,8 @@ const Games = () => {
     sort,
     country,
     total,
+    matching,
+    view,
   } = useLoaderData();
   const { currentUser } = useRouteLoaderData('root') ?? {};
   const [searchParams, setSearchParams] = useSearchParams();
@@ -180,7 +227,7 @@ const Games = () => {
           )
         }
       />
-      <FilterBar direction="column" align="stretch">
+      <FilterBar direction="column" align="stretch" wrap="nowrap">
         <Flex gap={3} wrap="wrap" align="center">
           <InputGroup
             startElement={<LuSearch />}
@@ -263,23 +310,74 @@ const Games = () => {
           })}
         </Wrap>
       </FilterBar>
-      <Grid
-        gap={5}
-        templateColumns={[
-          '1fr',
-          'repeat(2, 1fr)',
-          'repeat(3, 1fr)',
-          'repeat(3, 1fr)',
-        ]}
-      >
-        {games.map((game, index) => (
-          <Box key={game.id} minW={0}>
-            <Reveal index={index}>
-              <GameCard {...game} />
-            </Reveal>
-          </Box>
-        ))}
-      </Grid>
+      {/* What the list shows, and how (design pass). */}
+      <Flex justify="space-between" align="center" gap={3} wrap="wrap" mb={4}>
+        <Text color="muted" fontSize="sm" aria-live="polite">
+          {summary({ matching, selectedTags, country, q, sort })}
+        </Text>
+        <Group attached role="group" aria-label="View">
+          {[
+            ['cards', 'Cards', LuLayoutGrid],
+            ['list', 'List', LuList],
+          ].map(([value, label, Icon]) => (
+            <Button
+              key={value}
+              size="xs"
+              variant={view === value ? 'solid' : 'outline'}
+              colorPalette="gray"
+              aria-pressed={view === value}
+              onClick={() =>
+                updateParams(
+                  { view: value === 'cards' ? '' : value },
+                  { replace: true }
+                )
+              }
+            >
+              <Icon />
+              {label}
+            </Button>
+          ))}
+        </Group>
+      </Flex>
+      {view === 'list' ? (
+        <RowList aria-label="Games">
+          {games.map((game) => (
+            <Row
+              key={game.id}
+              to={gamePath(game)}
+              start={<GameThumb game={game} />}
+              title={game.name}
+              sub={[
+                game.entities?.map((entity) => entity.name).join(', '),
+                game.tags
+                  ?.slice(0, 3)
+                  .map((tag) => tag.name)
+                  .join(', '),
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            />
+          ))}
+        </RowList>
+      ) : (
+        <Grid
+          gap={5}
+          templateColumns={[
+            '1fr',
+            'repeat(2, 1fr)',
+            'repeat(3, 1fr)',
+            'repeat(3, 1fr)',
+          ]}
+        >
+          {games.map((game, index) => (
+            <Box key={game.id} minW={0}>
+              <Reveal index={index}>
+                <GameCard {...game} />
+              </Reveal>
+            </Box>
+          ))}
+        </Grid>
+      )}
       <Box ref={end} aria-hidden />
       {/* Placeholders where the next games will be, while they load. */}
       {fetcher.state === 'loading' && (

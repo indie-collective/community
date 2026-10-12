@@ -30,11 +30,17 @@ export const Row = ({ to, start, title, sub, end }) => {
         <Text fontWeight="semibold" truncate>
           {title}
         </Text>
-        {sub && (
-          <Text fontSize="sm" color="muted" truncate>
-            {sub}
-          </Text>
-        )}
+        {sub &&
+          (typeof sub === 'string' ? (
+            <Text fontSize="sm" color="muted" truncate>
+              {sub}
+            </Text>
+          ) : (
+            // Rich content (a search match): its own text elements.
+            <Box fontSize="sm" color="muted">
+              {sub}
+            </Box>
+          ))}
       </Box>
       {end}
     </Flex>

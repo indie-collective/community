@@ -98,11 +98,11 @@ test('a country page gives the overview of its scene', async ({ page }) => {
     // The games list follows: only games made in Antarctica, until the filter is removed.
     await page.getByRole('link', { name: /^All [\d,]+ games?$/ }).click();
     await expect(page).toHaveURL('/games?country=AQ');
-    await expect(page.getByText('Made in Antarctica')).toBeVisible();
+    await expect(page.getByText('Made in Antarctica', { exact: true })).toBeVisible();
     await expect(page.getByText(`Glacier Run ${tag}`)).toBeVisible();
     await page.getByRole('button', { name: 'Show games from every country' }).click();
     await expect(page).toHaveURL('/games');
-    await expect(page.getByText('Made in Antarctica')).toHaveCount(0);
+    await expect(page.getByText('Made in Antarctica', { exact: true })).toHaveCount(0);
   } finally {
     await retryBusy(() => db.delete(events).where(inArray(events.id, created.map((e) => e.id))));
     await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));

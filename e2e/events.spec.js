@@ -364,3 +364,11 @@ test('the events page lists upcoming events, then recent ones', async ({
     await db.delete(events).where(inArray(events.id, [soon.id, past.id]));
   }
 });
+
+// Design pass: how many events each year, each year a way into its list.
+test('the events page charts events per year', async ({ page }) => {
+  await page.goto('/events');
+  const chart = page.getByRole('region', { name: 'Events per year' });
+  const year = chart.getByRole('link').first();
+  await expect(year).toHaveAttribute('href', /^\/events\?period=\d{4}$/);
+});

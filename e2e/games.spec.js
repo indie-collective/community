@@ -221,3 +221,19 @@ test('a game without a website can be edited', async ({ page }) => {
     await db.delete(games).where(eq(games.id, game.id));
   }
 });
+
+// Design pass: the list says what it shows, and switches to a denser list.
+test('the games list summarises its filters and switches to a list', async ({ page }) => {
+  await page.goto('/games');
+  await expect(page.getByText(/^[\d,]+ games · recently updated first$/)).toBeVisible();
+  const first = await page.locator('main h3 a[href^="/game/"]').first().innerText();
+
+  await page.getByRole('button', { name: 'List' }).click();
+  await expect(page).toHaveURL(/[?&]view=list/);
+  const rows = page.getByRole('list', { name: 'Games' }).getByRole('link');
+  await expect(rows.first()).toContainText(first);
+  await expect(page.getByRole('button', { name: 'List' })).toHaveAttribute('aria-pressed', 'true');
+
+  await page.getByRole('button', { name: 'Cards' }).click();
+  await expect(page).not.toHaveURL(/view=list/);
+});

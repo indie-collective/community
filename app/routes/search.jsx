@@ -1,26 +1,43 @@
-import { Box, Button, Grid, Heading, HStack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Grid,
+  Heading,
+  HStack,
+  Image,
+  Text,
+} from '@chakra-ui/react';
 import { LuChevronLeft, LuChevronRight, LuPlus } from 'react-icons/lu';
 import { useLoaderData } from 'react-router';
 import Link from '../components/Link';
 
 import { searchSite } from '../data/site.server';
-import GameCard from '../components/GameCard';
-import OrgCard from '../components/OrgCard';
-import EventCard from '../components/EventCard';
 import SearchMatch from '../components/SearchMatch';
+import { Row, RowList } from '../components/kit/RowList';
+import DateBadge from '../components/kit/DateBadge';
+import KindDot from '../components/kit/KindDot';
+import CountryCode from '../components/kit/CountryCode';
+import { formatEventRange } from '../utils/eventTime';
+import { eventPath, gamePath, orgPath } from '../utils/slug';
+
+const PATHS = {
+  game: gamePath,
+  studio: orgPath,
+  association: orgPath,
+  event: eventPath,
+};
 import { Page, PageHeader } from '../components/Page';
 
 // The kinds of results, in the order the page shows them (#306).
 const KINDS = [
-  { kind: 'game', label: 'Games', one: 'game', Card: GameCard },
-  { kind: 'studio', label: 'Studios', one: 'studio', Card: OrgCard },
+  { kind: 'game', label: 'Games', one: 'game' },
+  { kind: 'studio', label: 'Studios', one: 'studio' },
   {
     kind: 'association',
     label: 'Associations',
     one: 'association',
-    Card: OrgCard,
   },
-  { kind: 'event', label: 'Events', one: 'event', Card: EventCard },
+  { kind: 'event', label: 'Events', one: 'event' },
 ];
 const PREVIEW_SIZE = 6;
 const PAGE_SIZE = 24;
@@ -103,24 +120,84 @@ const Tabs = ({ q, kind, counts }) => {
   );
 };
 
-const Results = ({ kind, records }) => {
-  const { Card } = KINDS.find((k) => k.kind === kind);
-  return (
-    <Grid
-      as="ul"
-      listStyleType="none"
-      gap={4}
-      templateColumns={['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
-    >
-      {records.map((record) => (
-        <Box as="li" key={record.id} minW={0}>
-          <Card {...record} />
-          <SearchMatch kind={kind} match={record.search_match} />
-        </Box>
-      ))}
-    </Grid>
-  );
+// What a result is, when its match doesn't say: a game's studios, an
+// organisation's place, an event's date and place.
+const describe = (kind, record) => {
+  if (kind === 'game')
+    return record.entities?.map((entity) => entity.name).join(', ');
+  if (kind === 'event') {
+    return [
+      formatEventRange(record.starts_at, record.ends_at, record.time_zone, {
+        time: false,
+      }),
+      record.location?.city,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+  }
+  return record.location?.city;
 };
+
+const thumbnail = (kind, record) =>
+  kind === 'game'
+    ? (record.images?.[0]?.thumbnail_url ??
+      record.igdb_game?.screenshots?.[0]?.url?.replace(
+        't_thumb',
+        't_screenshot_med'
+      ))
+    : record.logo?.thumbnail_url;
+
+// Results as rows (design pass): what it is, and why it matched.
+const Results = ({ kind, records }) => (
+  <RowList>
+    {records.map((record) => {
+      const image = kind !== 'event' && thumbnail(kind, record);
+      return (
+        <Row
+          key={record.id}
+          to={PATHS[kind](record)}
+          start={
+            kind === 'event' ? (
+              <DateBadge value={record.starts_at} timeZone={record.time_zone} />
+            ) : (
+              <Box
+                w="44px"
+                h="44px"
+                flexShrink={0}
+                borderRadius="md"
+                overflow="hidden"
+                bg="bg.muted"
+                display="grid"
+                placeItems="center"
+              >
+                {image ? (
+                  <Image
+                    src={image}
+                    alt=""
+                    w="100%"
+                    h="100%"
+                    objectFit="cover"
+                  />
+                ) : (
+                  <KindDot kind={kind} boxSize="10px" />
+                )}
+              </Box>
+            )
+          }
+          title={record.name}
+          sub={
+            record.search_match ? (
+              <SearchMatch kind={kind} match={record.search_match} />
+            ) : (
+              describe(kind, record) || undefined
+            )
+          }
+          end={<CountryCode code={record.location?.country_code} />}
+        />
+      );
+    })}
+  </RowList>
+);
 
 const Pages = ({ q, kind, page, count }) => {
   const pages = Math.ceil(count / PAGE_SIZE);

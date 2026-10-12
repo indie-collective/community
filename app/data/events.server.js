@@ -77,7 +77,7 @@ const computeCard = (row) =>
  *
  * @returns {Promise<{ events, pastEvents, countries, years }>} events with
  *   covers as `{ url, thumbnail_url }`; countries as `{ country_code,
- *   _count }`; years as `{ year: string }`
+ *   _count }`; years as `{ year: string, count }`, latest first
  */
 export async function listEvents({ country = null, period = 'upcoming' }) {
   const now = new Date();
@@ -115,12 +115,15 @@ export async function listEvents({ country = null, period = 'upcoming' }) {
       .where(and(notDeleted, isNotNull(events.countryCode)))
       .groupBy(events.countryCode)
       .orderBy(desc(count())),
+    // Each year with events, and how many (the events per year chart).
     db
-      .selectDistinct({
+      .select({
         year: sql`strftime('%Y', ${events.startsAt} / 1000, 'unixepoch')`,
+        count: count(),
       })
       .from(events)
       .where(notDeleted)
+      .groupBy(sql`1`)
       .orderBy(desc(sql`1`)),
   ]);
 
@@ -128,7 +131,7 @@ export async function listEvents({ country = null, period = 'upcoming' }) {
     events: rows.map(withCoverLinks),
     pastEvents: pastRows.map(withCoverLinks),
     countries,
-    years: years.map(({ year }) => ({ year: String(year) })),
+    years: years.map(({ year, count: n }) => ({ year: String(year), count: n })),
   };
 }
 

@@ -150,7 +150,7 @@ export async function listGames({
     ...tagNames.map(taggedWith)
   );
 
-  const [links, rows] = await Promise.all([
+  const [links, rows, [{ matching }]] = await Promise.all([
     db
       .select({
         id: tags.id,
@@ -171,6 +171,8 @@ export async function listGames({
       limit: pageSize,
       with: CARD_WITH,
     }),
+    // How many games the filters match, for the list's summary line.
+    db.select({ matching: count() }).from(games).where(where),
   ]);
 
   const byTag = new Map();
@@ -185,6 +187,7 @@ export async function listGames({
 
   return {
     tags: tagRows,
+    matching,
     games: await Promise.all(rows.map(gameWithRelations).map(computeGame)),
   };
 }
