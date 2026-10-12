@@ -237,3 +237,13 @@ test('the games list summarises its filters and switches to a list', async ({ pa
   await page.getByRole('button', { name: 'Cards' }).click();
   await expect(page).not.toHaveURL(/view=list/);
 });
+
+// Design pass: the add form says what comes after adding.
+test('adding a game says what comes next', async ({ page }) => {
+  await signIn(page, MEMBER);
+  await page.goto('/games/create');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Add a game');
+  const next = page.getByRole('complementary', { name: 'After adding' });
+  await expect(next.getByRole('listitem')).toHaveCount(3);
+  await expect(next).toContainText('Link the studios that made it');
+});

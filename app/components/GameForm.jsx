@@ -108,6 +108,9 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
             placeholder="What is it about?"
             whiteSpace="pre-wrap"
           />
+          <Field.HelperText>
+            Markdown works: **bold**, lists, links.
+          </Field.HelperText>
           <Field.ErrorText>
             {errors.about && errors.about.message}
           </Field.ErrorText>
@@ -132,6 +135,7 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
             {...register('tags')}
             placeholder="action, mystery, multiplayer"
           />
+          <Field.HelperText>Separated by commas. Existing tags are reused.</Field.HelperText>
           <Field.ErrorText>
             {errors.tags && errors.tags.message}
           </Field.ErrorText>

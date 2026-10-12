@@ -4,9 +4,9 @@ import {
   Grid,
   Image,
   Link as ChakraLink,
-  SimpleGrid,
   Stack,
   Text,
+  HStack,
 } from '@chakra-ui/react';
 import { redirect, useLoaderData } from 'react-router';
 import Link from '../components/Link';
@@ -16,6 +16,7 @@ import isAuthenticated from '../utils/isAuthenticated.server';
 import countryNames from '../assets/countries.json';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import { Page, PageHeader, PageSection } from '../components/Page';
+import StatStrip from '../components/kit/StatStrip';
 import EventCard from '../components/EventCard';
 import GameCard from '../components/GameCard';
 import EmptyHint from '../components/EmptyHint';
@@ -146,61 +147,56 @@ const CountryPage = () => {
     upcomingEvents,
   } = country;
 
-  const stats = [
-    [counts.studios, 'studio', 'studios', `/studios?country=${code}`],
-    [
-      counts.associations,
-      'association',
-      'associations',
-      `/associations?country=${code}`,
-    ],
-    [counts.games, 'game', 'games', `/games?country=${code}`],
-    [
-      counts.events,
-      'upcoming event',
-      'upcoming events',
-      `/events?country=${code}`,
-    ],
-  ];
-
   return (
     <Page>
-      <PageHeader eyebrow="Country" title={`${name}'s indie game scene`} />
+      <PageHeader
+        eyebrow={
+          <HStack gap={2}>
+            <Link to="/countries">Countries</Link>
+            <Text as="span" aria-hidden>
+              /
+            </Text>
+            <span>Country</span>
+          </HStack>
+        }
+        title={`${name}'s indie game scene`}
+      />
 
-      <SimpleGrid
-        as="ul"
-        listStyle="none"
-        columns={{ base: 2, md: 4 }}
-        gap={3}
+      {/* The scene's numbers, each a way into its list (design pass). */}
+      <StatStrip
         mb={12}
-      >
-        {stats.map(([value, one, many, to]) => (
-          <Box as="li" key={many}>
-            <ChakraLink
-              asChild
-              display="block"
-              h="100%"
-              p={4}
-              borderRadius="lg"
-              borderWidth="1px"
-              bg="bg.panel"
-              _hover={{
-                textDecoration: 'none',
-                borderColor: 'border.emphasized',
-              }}
-            >
-              <Link to={to}>
-                <Text fontSize="3xl" fontWeight="bold" lineHeight="1">
-                  {value.toLocaleString('en')}
-                </Text>
-                <Text color="muted" mt={1}>
-                  {value === 1 ? one : many}
-                </Text>
-              </Link>
-            </ChakraLink>
-          </Box>
-        ))}
-      </SimpleGrid>
+        aria-label={`${name} on Community`}
+        items={[
+          {
+            value: counts.studios,
+            label: counts.studios === 1 ? 'studio' : 'studios',
+            kind: 'studio',
+            to: `/studios?country=${code}`,
+          },
+          {
+            value: counts.associations,
+            label: counts.associations === 1 ? 'association' : 'associations',
+            kind: 'association',
+            to: `/associations?country=${code}`,
+          },
+          {
+            value: cities.length,
+            label: cities.length === 1 ? 'city' : 'cities',
+          },
+          {
+            value: counts.games,
+            label: counts.games === 1 ? 'game' : 'games',
+            kind: 'game',
+            to: `/games?country=${code}`,
+          },
+          {
+            value: counts.events,
+            label: counts.events === 1 ? 'upcoming event' : 'upcoming events',
+            kind: 'event',
+            to: `/events?country=${code}`,
+          },
+        ]}
+      />
 
       {hasMap && cities.some((city) => city.lat != null) ? (
         <Section title={`Where ${name}'s scene is`}>

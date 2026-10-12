@@ -146,3 +146,42 @@ export const DetailLayout = ({ children, aside }) => (
     </Box>
   </Grid>
 );
+
+/**
+ * An "add" page (design pass): the title and what to put in, the form, and
+ * beside it what comes after adding, so the form isn't the whole story.
+ *
+ * @param {{ title: string, description: string, next: string[] }} props
+ */
+export const AddPage = ({ title, description, next, children }) => (
+  <Page maxW="900px" mx="auto">
+    <PageHeader title={title} description={description} />
+    <Grid
+      templateColumns={{ base: '1fr', md: 'minmax(0, 1fr) 240px' }}
+      gap={8}
+      alignItems="start"
+    >
+      <Box minW={0} maxW="560px">
+        {children}
+      </Box>
+      <Box
+        as="aside"
+        aria-labelledby="after-adding"
+        bg="surface"
+        borderRadius="xl"
+        shadow="xs"
+        p={4}
+        fontSize="sm"
+      >
+        <Text id="after-adding" fontWeight="semibold" mb={2}>
+          After adding
+        </Text>
+        <Box as="ol" pl={5} display="grid" gap={2} color="muted">
+          {next.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </Box>
+      </Box>
+    </Grid>
+  </Page>
+);

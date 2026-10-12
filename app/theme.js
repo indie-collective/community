@@ -90,14 +90,13 @@ const config = defineConfig({
         muted: {
           value: { base: '{colors.gray.600}', _dark: '{colors.gray.400}' },
         },
-        // What a record is, at a glance: a dot per kind (KindDot). Green
-        // stays for actions.
+        // What a record is, at a glance: a dot per kind (KindDot). Studios
+        // and associations keep the yellow and green of their badges and
+        // the country maps.
         kind: {
           game: { value: { base: '{colors.orange.400}', _dark: '{colors.orange.300}' } },
-          studio: { value: { base: '{colors.blue.400}', _dark: '{colors.blue.300}' } },
-          association: {
-            value: { base: '{colors.purple.400}', _dark: '{colors.purple.300}' },
-          },
+          studio: { value: { base: '{colors.yellow.solid}', _dark: '{colors.yellow.solid}' } },
+          association: { value: { base: '{colors.green.solid}', _dark: '{colors.green.solid}' } },
           event: { value: { base: '{colors.pink.400}', _dark: '{colors.pink.300}' } },
         },
       },

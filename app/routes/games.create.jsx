@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+
 import {
   redirect,
   useActionData,
@@ -18,7 +18,7 @@ import { gamePath } from '../utils/slug';
 import { announceOnBluesky } from '../utils/blueskyPost.server';
 import { afterResponse } from '../utils/igdbData.server';
 import { summarize } from '../utils/meta';
-import { PageHeader } from '../components/Page';
+import { AddPage } from '../components/Page';
 
 export async function action(args) {
   const { request } = args;
@@ -110,15 +110,21 @@ const CreateGame = () => {
   }, [actionData?.error, navigation.state === 'submitting']);
 
   return (
-    <Box maxW="560px" mx="auto" px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
-      <PageHeader title="Add a game" />
-
+    <AddPage
+      title="Add a game"
+      description="Name it, say what it is, and add where to find it. Anyone can improve it afterwards."
+      next={[
+        "Link the studios that made it, from the game's page.",
+        'Add the events it was shown at.',
+        "New entries are announced on the Indie Collective's channels.",
+      ]}
+    >
       <GameForm
         method="POST"
         loading={navigation.state === 'submitting'}
         defaultData={actionData?.values || loaderData?.values}
       />
-    </Box>
+    </AddPage>
   );
 };
 

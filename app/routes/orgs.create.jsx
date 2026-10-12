@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+
 import {
   redirect,
   useActionData,
@@ -21,7 +21,7 @@ import { orgPath } from '../utils/slug';
 import { announceOnBluesky } from '../utils/blueskyPost.server';
 import { afterResponse } from '../utils/igdbData.server';
 import { summarize } from '../utils/meta';
-import { PageHeader } from '../components/Page';
+import { AddPage } from '../components/Page';
 
 export async function action(args) {
   const { request } = args;
@@ -130,15 +130,21 @@ const CreateOrg = () => {
   }, [actionData?.error, navigation.state === 'submitting']);
 
   return (
-    <Box maxW="560px" mx="auto" px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
-      <PageHeader title="Add a studio or association" />
-
+    <AddPage
+      title="Add a studio or association"
+      description="Who they are, where they are, and where to find them. Anyone can improve it afterwards."
+      next={[
+        "Link their games, from each game's page.",
+        'Add the events they organise.',
+        "New entries are announced on the Indie Collective's channels.",
+      ]}
+    >
       <OrgForm
         method="post"
         loading={navigation.state === 'submitting'}
         defaultData={actionData?.values || loaderData?.values}
       />
-    </Box>
+    </AddPage>
   );
 };
 

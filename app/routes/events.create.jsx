@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+
 import { redirect, useActionData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
@@ -17,7 +17,7 @@ import { eventPath } from '../utils/slug';
 import { announceOnBluesky } from '../utils/blueskyPost.server';
 import { afterResponse } from '../utils/igdbData.server';
 import { summarize } from '../utils/meta';
-import { PageHeader } from '../components/Page';
+import { AddPage } from '../components/Page';
 
 export async function action(args) {
   const { request } = args;
@@ -111,15 +111,21 @@ const CreateEvent = () => {
   }, [actionData?.error, navigation.state === 'submitting']);
 
   return (
-    <Box maxW="560px" mx="auto" px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
-      <PageHeader title="Add an event" />
-
+    <AddPage
+      title="Add an event"
+      description="When and where it happens, and where to find out more. Anyone can improve it afterwards."
+      next={[
+        "Add the games shown there, from the event's page.",
+        'Add who organises it.',
+        "New entries are announced on the Indie Collective's channels.",
+      ]}
+    >
       <EventForm
         method="POST"
         loading={navigation.state === 'submitting'}
         defaultData={actionData?.values}
       />
-    </Box>
+    </AddPage>
   );
 };
 
