@@ -35,7 +35,7 @@ import {
 } from 'react-router';
 import Link from '../components/Link';
 
-import TileMap from '../components/TileMap';
+import EventMap from '../components/EventMap';
 
 import {
   getEvent,
@@ -343,20 +343,8 @@ const Event = () => {
       )}
 
       {location && location.longitude && location.latitude && (
-        <Box
-          height={['120px', '180px']}
-          overflow="hidden"
-          borderRadius="xl"
-          mb={{ base: 8, md: 10 }}
-        >
-          <TileMap
-            defaultWidth={1200}
-            defaultHeight={180}
-            center={[location.latitude, location.longitude]}
-            zoom={location.street ? 16 : 11}
-            mouseEvents={false}
-            touchEvents={false}
-          />
+        <Box mb={{ base: 8, md: 10 }}>
+          <EventMap location={location} />
         </Box>
       )}
 
