@@ -15,6 +15,13 @@ export const orgTypeLabel = (type, { short = false } = {}) =>
 export const orgTypeColor = (type) => ORG_TYPES[type]?.color ?? 'gray';
 
 /**
+ * A map pin's colour token: the organisation type's colour (#321), purple
+ * for events (#211).
+ */
+export const pinColor = (type) =>
+  type === 'event' ? 'purple.500' : `${orgTypeColor(type)}.500`;
+
+/**
  * Whether an organisation is still going (#39), labelled everywhere: the
  * `organizations.status` values. Only those not active get a badge.
  */
