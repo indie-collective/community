@@ -165,21 +165,24 @@ test('places opens on a country when given one', async ({ page }) => {
 });
 
 // #212: the event form asked a random a./b./c. OSM subdomain for "@2x"
-// tiles, which OSM answers with 400; every map now uses one tile provider.
+// tiles, which OSM answers with 400; maps use one documented tile host each.
+// #322: event pages use Stadia's quieter tiles, retina ones on this screen.
 test.describe('on a high-density screen', () => {
   test.use({ deviceScaleFactor: 2 });
 
-  test('maps load tiles from tile.openstreetmap.org only', async ({ page }) => {
+  test('maps load tiles from their documented hosts only', async ({ page }) => {
     await signIn(page, MEMBER);
     const events = await (await page.request.get('/events')).text();
     const event = events.match(/\/event\/[a-z0-9-]+/)[0];
+    const osm = /^https:\/\/tile\.openstreetmap\.org\/\d+\/\d+\/\d+\.png$/;
+    const stadia = /^https:\/\/tiles\.stadiamaps\.com\/tiles\/alidade_smooth(_dark)?\/\d+\/\d+\/\d+@2x\.png$/;
 
-    for (const path of ['/places', event, `${event}/edit`]) {
+    for (const [path, host] of [['/places', osm], [event, stadia], [`${event}/edit`, osm]]) {
       await page.goto(path, { waitUntil: 'networkidle' });
-      const tiles = await page.locator('img[src*="openstreetmap.org"]').evaluateAll((imgs) => imgs.map((img) => img.src));
+      const tiles = await page.locator('.pigeon-tiles img').evaluateAll((imgs) => imgs.map((img) => img.currentSrc));
       expect(tiles.length, path).toBeGreaterThan(0);
-      for (const src of tiles) expect(src, path).toMatch(/^https:\/\/tile\.openstreetmap\.org\/\d+\/\d+\/\d+\.png$/);
-      await expect(page.getByRole('link', { name: 'OpenStreetMap' }).first()).toBeVisible();
+      for (const src of tiles) expect(src, path).toMatch(host);
+      await expect(page.getByRole('link', { name: /OpenStreetMap/ }).first()).toBeVisible();
     }
   });
 });
