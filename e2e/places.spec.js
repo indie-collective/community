@@ -165,8 +165,8 @@ test('places opens on a country when given one', async ({ page }) => {
 });
 
 // #212: the event form asked a random a./b./c. OSM subdomain for "@2x"
-// tiles, which OSM answers with 400; maps use one documented tile host each.
-// #322: event pages use Stadia's quieter tiles, retina ones on this screen.
+// tiles, which OSM answers with 400; pigeon-maps maps use OSM's one
+// documented host. #322: event pages draw OpenFreeMap's vector tiles.
 test.describe('on a high-density screen', () => {
   test.use({ deviceScaleFactor: 2 });
 
@@ -174,16 +174,20 @@ test.describe('on a high-density screen', () => {
     await signIn(page, MEMBER);
     const events = await (await page.request.get('/events')).text();
     const event = events.match(/\/event\/[a-z0-9-]+/)[0];
-    const osm = /^https:\/\/tile\.openstreetmap\.org\/\d+\/\d+\/\d+\.png$/;
-    const stadia = /^https:\/\/tiles\.stadiamaps\.com\/tiles\/alidade_smooth(_dark)?\/\d+\/\d+\/\d+@2x\.png$/;
 
-    for (const [path, host] of [['/places', osm], [event, stadia], [`${event}/edit`, osm]]) {
+    for (const path of ['/places', `${event}/edit`]) {
       await page.goto(path, { waitUntil: 'networkidle' });
-      const tiles = await page.locator('.pigeon-tiles img').evaluateAll((imgs) => imgs.map((img) => img.currentSrc));
+      const tiles = await page.locator('.pigeon-tiles img').evaluateAll((imgs) => imgs.map((img) => img.src));
       expect(tiles.length, path).toBeGreaterThan(0);
-      for (const src of tiles) expect(src, path).toMatch(host);
-      await expect(page.getByRole('link', { name: /OpenStreetMap/ }).first()).toBeVisible();
+      for (const src of tiles) expect(src, path).toMatch(/^https:\/\/tile\.openstreetmap\.org\/\d+\/\d+\/\d+\.png$/);
+      await expect(page.getByRole('link', { name: 'OpenStreetMap' }).first()).toBeVisible();
     }
+
+    const style = page.waitForRequest('https://tiles.openfreemap.org/styles/bright');
+    await page.goto(event);
+    await style;
+    await expect(page.locator('.maplibregl-map')).toBeAttached();
+    await expect(page.getByRole('link', { name: 'OpenStreetMap' }).first()).toBeVisible();
   });
 });
 

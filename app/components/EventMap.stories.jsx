@@ -15,8 +15,7 @@ export default {
 export const Default = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // The tiles and pin draw once hydrated (ClientOnly).
-    await expect(await canvas.findByTestId('map-pin')).toBeInTheDocument();
+    await expect(canvas.getByTestId('map-pin')).toBeInTheDocument();
     const link = canvas.getByRole('link', { name: 'Open in Maps' });
     await expect(link).toHaveAttribute(
       'href',

@@ -1,13 +1,23 @@
+import { useEffect, useRef } from 'react';
 import { Box, ClientOnly, HStack, Text } from '@chakra-ui/react';
-import { Overlay } from 'pigeon-maps';
 import { LuExternalLink } from 'react-icons/lu';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 import MapPin from './MapPin';
-import TileMap, { SMOOTH_TILES } from './TileMap';
 import { useColorMode } from './ui/color-mode';
 import { pinColor } from '../utils/orgTypes';
 
 const PIN_SIZE = 48;
+
+/**
+ * OpenFreeMap's vector styles (#322): free, with no account or key. Bright,
+ * and Fiord in dark mode (its Dark is near black). `land` is each style's
+ * background, shown until the tiles draw.
+ */
+const STYLES = {
+  light: { url: 'https://tiles.openfreemap.org/styles/bright', land: '#f8f4f0' },
+  dark: { url: 'https://tiles.openfreemap.org/styles/fiord', land: '#45516e' },
+};
 
 /**
  * Where to send people from the map: the place in their maps app (Google
@@ -17,12 +27,47 @@ const mapsUrl = ({ latitude, longitude }) =>
   `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
 
 /**
- * An event page's map (#322): the venue under an event pin, on the quieter
- * tiles (their dark variant in dark mode). The whole map opens the place in
- * a maps app.
+ * The tiles, drawn by MapLibre, loaded only on pages with a map. Its tiles
+ * are 512px, so its zoom is one less than pigeon-maps' for the same view.
+ */
+function VectorMap({ location, style }) {
+  const container = useRef();
+
+  useEffect(() => {
+    // Effects never run on the server: this keeps MapLibre out of its bundle.
+    if (import.meta.env.SSR) return;
+    let map;
+    let cancelled = false;
+    Promise.all([
+      import('maplibre-gl'),
+      // Vite's dependency bundling breaks MapLibre's own path to its worker.
+      import('maplibre-gl/dist/maplibre-gl-worker.mjs?url'),
+    ]).then(([maplibregl, { default: workerUrl }]) => {
+      if (cancelled) return;
+      maplibregl.setWorkerUrl(workerUrl);
+      map = new maplibregl.Map({
+        container: container.current,
+        style,
+        center: [location.longitude, location.latitude],
+        zoom: location.street ? 14 : 10,
+        interactive: false,
+        attributionControl: { compact: true },
+      });
+    });
+    return () => {
+      cancelled = true;
+      map?.remove();
+    };
+  }, [location.latitude, location.longitude, location.street, style]);
+
+  return <Box ref={container} position="absolute" inset={0} />;
+}
+
+/**
+ * An event page's map (#322): the venue under an event pin, on OpenFreeMap
+ * (Fiord in dark mode). The whole map opens the place in a maps app.
  */
 export default function EventMap({ location }) {
-  const center = [location.latitude, location.longitude];
   const dark = useColorMode().colorMode === 'dark';
 
   return (
@@ -33,49 +78,47 @@ export default function EventMap({ location }) {
       borderRadius="xl"
       borderWidth="1px"
       borderColor={{ base: 'gray.200', _dark: 'gray.800' }}
-      bg={{ base: SMOOTH_TILES.light.land, _dark: SMOOTH_TILES.dark.land }}
+      bg={{ base: STYLES.light.land, _dark: STYLES.dark.land }}
       css={{
-        // The land colour behind the tiles, so the hairline gaps between
-        // them don't show the page through.
-        '& .pigeon-tiles': { background: SMOOTH_TILES.light.land },
         _dark: {
-          '& .pigeon-tiles': { background: SMOOTH_TILES.dark.land },
-          // pigeon-maps styles the credits inline, hence !important.
-          '& .pigeon-attribution': {
-            background: 'rgba(0, 0, 0, 0.6) !important',
-            color: '#d4d4d8 !important',
+          '& .maplibregl-ctrl-attrib': {
+            background: 'rgba(0, 0, 0, 0.6)',
+            color: '#d4d4d8',
           },
-          '& .pigeon-attribution a': { color: '#93c5fd !important' },
+          '& .maplibregl-ctrl-attrib a': { color: '#93c5fd' },
+          '& .maplibregl-ctrl-attrib-button': { filter: 'invert(1)' },
         },
-        // Above the link, so the credits stay clickable.
-        '& .pigeon-attribution': { zIndex: 2 },
+        '& .maplibregl-ctrl-attrib': { fontSize: '10px' },
         _hover: { '& [data-maps-cta]': { bg: 'surface' } },
       }}
     >
       {/* After hydration, once the colour mode is known: the server renders
-          light, and dark-mode visitors would see light tiles flash first.
-          Until then, the box shows the mode's land colour. */}
+          light, and dark-mode visitors would see the light map flash first.
+          Until then, the box shows the style's land colour. */}
       <ClientOnly>
         {() => (
-          <TileMap
-            tiles="smooth"
-            dark={dark}
-            defaultWidth={1200}
-            defaultHeight={240}
-            center={center}
-            zoom={location.street ? 15 : 11}
-            mouseEvents={false}
-            touchEvents={false}
-          >
-            <Overlay anchor={center} offset={[PIN_SIZE / 2, PIN_SIZE]}>
-              <Box filter="drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3))">
-                <MapPin color={pinColor('event')} size={PIN_SIZE} />
-              </Box>
-            </Overlay>
-          </TileMap>
+          <VectorMap
+            location={location}
+            style={STYLES[dark ? 'dark' : 'light'].url}
+          />
         )}
       </ClientOnly>
 
+      {/* The map doesn't move, so the pin sits at its centre: its tip on the
+          venue. */}
+      <Box
+        position="absolute"
+        left="50%"
+        top="50%"
+        transform="translate(-50%, -100%)"
+        filter="drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3))"
+        pointerEvents="none"
+      >
+        <MapPin color={pinColor('event')} size={PIN_SIZE} />
+      </Box>
+
+      {/* Below the map's credits (MapLibre's controls sit at z-index 2), so
+          they stay clickable. */}
       <Box
         as="a"
         href={mapsUrl(location)}
