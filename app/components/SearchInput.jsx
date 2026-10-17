@@ -114,7 +114,7 @@ const SearchInput = () => {
               insetStart={3}
               top="50%"
               transform="translateY(-50%)"
-              color="green.500"
+              color="brand"
               pointerEvents="none"
               zIndex={1}
             >
@@ -125,8 +125,15 @@ const SearchInput = () => {
               name="q"
               placeholder="Search"
               ps={10}
-              bg={{ base: 'gray.100', _dark: 'gray.800' }}
+              bg="surface"
+              borderWidth="2px"
+              borderColor="ink"
               borderRadius="full"
+              _focusVisible={{
+                outline: 'none',
+                borderColor: 'ink',
+                shadow: 'pop',
+              }}
               onKeyDown={(event) => {
                 // Enter without a suggestion picked: every result.
                 if (event.key === 'Enter' && !highlighted) {

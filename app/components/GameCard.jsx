@@ -29,6 +29,25 @@ export const GameCardSkeleton = () => (
   </Box>
 );
 
+/**
+ * A game's picture for cards and the homepage cover: its first IGDB
+ * screenshot, else its first uploaded image.
+ */
+export function gameImage({ images = [], igdb_game }) {
+  let image = images[0]?.thumbnail_url;
+  let imageSrcSet = images[0]?.thumbnail_url;
+
+  const imageFromIGDB = igdb_game?.screenshots[0]?.url;
+  if (imageFromIGDB) {
+    image = imageFromIGDB.replace(/t_thumb/, 't_cover_big');
+    imageSrcSet = `${image}, ${imageFromIGDB.replace(
+      /t_thumb/,
+      't_cover_big_2x'
+    )} 2x`;
+  }
+  return { image, imageSrcSet };
+}
+
 function GameCard({
   ref,
   id,
@@ -40,19 +59,79 @@ function GameCard({
   entities,
   onRemove,
   isCompact,
+  // Magazine pass: 'cover' is the full-bleed cover with a floating label,
+  // for the homepage; `tilt` (degrees) sets it a little off-straight, and
+  // `featured` gives it the bigger label of the big slot.
+  variant,
+  tilt = 0,
+  featured = false,
 }) {
   const placeholder = usePlaceholder();
+  const { image, imageSrcSet } = gameImage({ images, igdb_game });
 
-  let image = images[0]?.thumbnail_url;
-  let imageSrcSet = images[0]?.thumbnail_url;
-
-  const imageFromIGDB = igdb_game?.screenshots[0]?.url;
-  if (imageFromIGDB) {
-    image = imageFromIGDB.replace(/t_thumb/, 't_cover_big');
-    imageSrcSet = `${image}, ${imageFromIGDB.replace(
-      /t_thumb/,
-      't_cover_big_2x'
-    )} 2x`;
+  if (variant === 'cover') {
+    const studio = entities?.[0]?.name;
+    return (
+      <Card
+        isClickable
+        ref={ref}
+        h="100%"
+        minH="150px"
+        rounded="xl"
+        overflow="hidden"
+        borderWidth="2px"
+        borderColor="ink"
+        bg="surface"
+        transform={`rotate(${tilt}deg)`}
+        transition="transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1)"
+        _hover={{ transform: 'rotate(0deg) scale(1.03)', zIndex: 1 }}
+      >
+        <Image
+          position="absolute"
+          inset={0}
+          w="100%"
+          h="100%"
+          objectFit="cover"
+          src={image ?? placeholder}
+          srcSet={imageSrcSet}
+          alt=""
+          data-card-image
+        />
+        <Box
+          position="absolute"
+          left={2.5}
+          right={2.5}
+          bottom={2.5}
+          bg="surface"
+          rounded="lg"
+          px={3}
+          py={2}
+          shadow="lift"
+        >
+          <Heading
+            as="h3"
+            size={featured ? 'xl' : 'sm'}
+            fontWeight={featured ? '800' : 'bold'}
+            lineHeight="1.15"
+            title={name}
+          >
+            <CardLink to={gamePath({ id, slug })}>{name}</CardLink>
+          </Heading>
+          {studio && (
+            <Text
+              fontSize="2xs"
+              fontWeight="semibold"
+              letterSpacing="wider"
+              textTransform="uppercase"
+              color="muted"
+              lineClamp={1}
+            >
+              {studio}
+            </Text>
+          )}
+        </Box>
+      </Card>
+    );
   }
 
   if (isCompact) {

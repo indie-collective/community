@@ -1,5 +1,14 @@
-import { Box, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Heading,
+  HStack,
+  Link as ChakraLink,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { useId } from 'react';
+import Link from './Link';
 
 /**
  * Every page's column (design pass): the same gutters, and the same space
@@ -99,3 +108,76 @@ export const FilterBar = ({ children, ...rest }) => (
     {children}
   </Flex>
 );
+
+/**
+ * A department of the homepage magazine (magazine pass): a heavy rule, a
+ * kicker saying what's in it, a big title, and a link to the full list.
+ * Labelled by its heading, so it's a region screen readers can jump to.
+ */
+export const Department = ({
+  title,
+  kicker,
+  to,
+  linkLabel,
+  children,
+  ...rest
+}) => {
+  const headingId = useId();
+  return (
+    <Box
+      as="section"
+      aria-labelledby={headingId}
+      minW={0}
+      mb={{ base: 10, md: 14 }}
+      {...rest}
+    >
+      <Flex
+        align="flex-end"
+        gap={3}
+        wrap="wrap"
+        borderTop="2px solid"
+        borderColor="ink"
+        pt={2}
+        mb={5}
+      >
+        <Box minW={0}>
+          {kicker && (
+            <Text
+              fontSize="xs"
+              fontWeight="semibold"
+              letterSpacing="wider"
+              textTransform="uppercase"
+              color="brandDeep"
+            >
+              {kicker}
+            </Text>
+          )}
+          <Heading
+            as="h2"
+            id={headingId}
+            fontSize={{ base: '3xl', md: '4xl' }}
+            fontWeight="800"
+            letterSpacing="-0.03em"
+            lineHeight="1"
+          >
+            {title}
+          </Heading>
+        </Box>
+        {to && (
+          <ChakraLink
+            asChild
+            ml="auto"
+            fontWeight="semibold"
+            fontSize="sm"
+            borderBottom="2px solid"
+            borderColor="brand"
+            _hover={{ color: 'brand', textDecoration: 'none' }}
+          >
+            <Link to={to}>{linkLabel} →</Link>
+          </ChakraLink>
+        )}
+      </Flex>
+      {children}
+    </Box>
+  );
+};

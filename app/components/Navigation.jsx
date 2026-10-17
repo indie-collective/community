@@ -37,17 +37,22 @@ function NavLink(props) {
       : location.pathname.startsWith(href);
   const isNavigatingTo = navigation.location?.pathname === href;
 
+  // Magazine pass: the current section is an ink pill; the others tilt a
+  // little onto a panel under the pointer.
   return (
     <Button
-      variant={isActive ? 'solid' : 'ghost'}
-      colorPalette="green"
-      color={{
-        base: isActive ? 'white' : 'gray.600',
-        _dark: isActive ? 'white' : 'gray.300',
-      }}
-      fontWeight="bold"
-      size="md"
+      variant="ghost"
+      bg={isActive ? 'ink' : 'transparent'}
+      color={isActive ? 'canvas' : 'ink'}
+      fontWeight="semibold"
+      size="sm"
+      px={3}
       borderRadius="full"
+      transition="transform 150ms ease-out, background-color 150ms ease-out"
+      _hover={
+        isActive ? { bg: 'ink' } : { bg: 'surface', transform: 'rotate(-2deg)' }
+      }
+      aria-current={isActive ? 'page' : undefined}
       loading={isNavigatingTo}
       {...rest}
       asChild
@@ -56,6 +61,50 @@ function NavLink(props) {
     </Button>
   );
 }
+
+// The masthead's name: the logo, and the title beside it on wide screens.
+const Wordmark = ({ showTitle }) => (
+  <Link to="/">
+    <HStack as="span" gap={2.5}>
+      <Logo height={showTitle ? '36px' : '32px'} />
+      {showTitle ? (
+        <Flex as="span" direction="column" lineHeight="1">
+          <Text
+            as="span"
+            fontFamily="heading"
+            fontWeight="800"
+            fontSize="xl"
+            letterSpacing="-0.03em"
+          >
+            Indie Collective
+          </Text>
+          <Text
+            as="span"
+            fontSize="2xs"
+            fontWeight="semibold"
+            letterSpacing="wider"
+            textTransform="uppercase"
+            color="brandDeep"
+            mt={0.5}
+          >
+            Community
+          </Text>
+        </Flex>
+      ) : (
+        <VisuallyHidden>Community</VisuallyHidden>
+      )}
+    </HStack>
+  </Link>
+);
+
+const NAV = [
+  ['/games', 'Games'],
+  ['/studios', 'Studios'],
+  ['/associations', 'Associations'],
+  ['/events', 'Events'],
+  ['/countries', 'Countries'],
+  ['/places', 'Map'],
+];
 
 const Navigation = ({ search }) => {
   const { open, onToggle } = useDisclosure();
@@ -70,11 +119,9 @@ const Navigation = ({ search }) => {
     <Menu.Root>
       <Menu.Trigger asChild>
         <Button
-          size="md"
-          variant="solid"
+          size="sm"
+          variant="popOutline"
           borderRadius="full"
-          colorPalette="gray"
-          fontWeight="bold"
           textAlign="left"
           w={isMobile ? '100%' : 'auto'}
           justifyContent={isMobile ? 'space-between' : 'center'}
@@ -108,52 +155,55 @@ const Navigation = ({ search }) => {
     return (
       <Box
         as="header"
-        shadow="sm"
-        bg="surface"
+        bg="canvas"
         width="100%"
+        borderBottom="2px solid"
+        borderColor="ink"
         // Stays put while the page changes (view transitions).
         css={{ viewTransitionName: 'site-header' }}
       >
         <HStack
           gap={3}
           px={4}
-          py={2}
+          py={2.5}
           justifyContent="space-between"
           alignItems="center"
         >
-          <Link to="/">
-            <HStack as="span" gap="2">
-              <Logo />
-              <VisuallyHidden>Community</VisuallyHidden>
-            </HStack>
-          </Link>
+          <Wordmark />
 
           <HStack gap={2} flex="1" justifyContent="flex-end">
             <SearchInput />
             {currentUser && <AddMenuButton />}
-            <IconButton variant="ghost" onClick={onToggle}>
+            <IconButton
+              variant="popOutline"
+              size="md"
+              rounded="full"
+              aria-label="Menu"
+              aria-expanded={open}
+              onClick={onToggle}
+            >
               <LuMenu />
             </IconButton>
           </HStack>
         </HStack>
         <Collapsible.Root open={open}>
           <Collapsible.Content>
-            <Box
-              py={2}
-              borderTop="1px solid"
-              borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
-            >
-              <VStack as="nav" aria-label="Main" gap={2} px={4} align="stretch">
-                <NavLink href="/games">Games</NavLink>
-                <NavLink href="/studios">Studios</NavLink>
-                <NavLink href="/associations">Associations</NavLink>
-                <NavLink href="/events">Events</NavLink>
-                <NavLink href="/countries">Countries</NavLink>
-                <NavLink href="/places">Map</NavLink>
+            <Box py={3} borderTop="1px dashed" borderColor="rule">
+              <VStack as="nav" aria-label="Main" gap={1} px={4} align="stretch">
+                {NAV.map(([href, label]) => (
+                  <NavLink
+                    key={href}
+                    href={href}
+                    size="md"
+                    justifyContent="flex-start"
+                  >
+                    {label}
+                  </NavLink>
+                ))}
 
                 {currentUser?.isAdmin && <AdminDropdown isMobile />}
 
-                <Box pt={2} display="flex" justifyContent="center">
+                <Box pt={3} display="flex" justifyContent="center">
                   <AvatarButton />
                 </Box>
               </VStack>
@@ -164,50 +214,44 @@ const Navigation = ({ search }) => {
     );
   }
 
+  // The masthead (magazine pass): the name, search and the account on the
+  // paper, then the sections between two ink rules.
   return (
     <VStack
       as="header"
       gap={0}
       width="100%"
       maxWidth={960}
+      px={5}
+      pt={4}
       // Stays put while the page changes (view transitions).
       css={{ viewTransitionName: 'site-header' }}
     >
-      {/* Top Level */}
-      <Box w="100%" bg="surface" borderBottomRadius="30px">
-        <Flex justifyContent="center">
-          <HStack
-            gap={2}
-            py={2}
-            px={2}
-            pl={3}
-            width="100%"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Link to="/">
-              <Logo height="40px" />
-              <VisuallyHidden>Community</VisuallyHidden>
-            </Link>
+      <HStack gap={5} width="100%" pb={3} alignItems="center">
+        <Wordmark showTitle />
 
-            <SearchInput />
+        <Box flex="1" maxW="420px" ml="auto">
+          <SearchInput />
+        </Box>
 
-            <HStack gap={2} justifyContent="flex-end">
-              {currentUser && <AddMenuButton />}
-              <AvatarButton />
-            </HStack>
-          </HStack>
-        </Flex>
-      </Box>
-      {/* Second Level */}
-      <Box w="100%" mt={2} py={2} px={2} bg="surface" borderRadius="full">
-        <HStack as="nav" aria-label="Main" gap={4} width="100%">
-          <NavLink href="/games">Games</NavLink>
-          <NavLink href="/studios">Studios</NavLink>
-          <NavLink href="/associations">Associations</NavLink>
-          <NavLink href="/events">Events</NavLink>
-          <NavLink href="/countries">Countries</NavLink>
-          <NavLink href="/places">Map</NavLink>
+        <HStack gap={3} flexShrink={0}>
+          {currentUser && <AddMenuButton />}
+          <AvatarButton />
+        </HStack>
+      </HStack>
+      <Box
+        w="100%"
+        py={1.5}
+        borderTop="2px solid"
+        borderBottom="2px solid"
+        borderColor="ink"
+      >
+        <HStack as="nav" aria-label="Main" gap={1} width="100%">
+          {NAV.map(([href, label]) => (
+            <NavLink key={href} href={href}>
+              {label}
+            </NavLink>
+          ))}
           <Spacer />
           {currentUser?.isAdmin && <AdminDropdown />}
         </HStack>
