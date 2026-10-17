@@ -14,8 +14,117 @@ import countryNames from '../assets/countries.json';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Card from './Card';
 import CardLink from './CardLink';
-import { formatEventDate } from '../utils/eventTime';
+import { formatEventDate, formatEventDay } from '../utils/eventTime';
+import Sticker from './Sticker';
 import { eventPath } from '../utils/slug';
+
+const placeOf = (location) =>
+  location &&
+  (location.city
+    ? `${location.city}, ${location.country_code}`
+    : countryNames[location.country_code.toUpperCase()]);
+
+/**
+ * An event as a ticket stub (magazine pass): the day and month on the stub,
+ * a perforation, then the name and place. For the homepage's agenda.
+ */
+const EventTicket = ({
+  id,
+  slug,
+  name,
+  status,
+  location,
+  startsAt,
+  timeZone,
+}) => {
+  const day = formatEventDay(startsAt, timeZone);
+  const startsAtText = formatEventDate(startsAt, timeZone);
+  const canceled = status === 'canceled';
+  // The punched holes either side of the perforation, cut in the page colour.
+  const hole = {
+    content: "''",
+    position: 'absolute',
+    left: '66px',
+    w: '16px',
+    h: '16px',
+    borderRadius: 'full',
+    bg: 'canvas',
+  };
+
+  return (
+    <Card
+      isClickable
+      display="grid"
+      gridTemplateColumns="74px 1fr"
+      bg="surface"
+      rounded="xl"
+      shadow="lift"
+      transition="transform 200ms ease-out"
+      _hover={{ transform: 'translateY(-4px) rotate(-0.8deg)' }}
+      _before={{ ...hole, top: '-8px' }}
+      _after={{ ...hole, bottom: '-8px' }}
+    >
+      <Flex
+        direction="column"
+        align="center"
+        justify="center"
+        borderRight="2px dashed"
+        borderColor="rule"
+        py={3}
+        aria-hidden
+      >
+        <Text
+          fontFamily="heading"
+          fontWeight="800"
+          fontSize="3xl"
+          lineHeight="1"
+          letterSpacing="-0.03em"
+          fontVariantNumeric="tabular-nums"
+        >
+          {day?.day}
+        </Text>
+        <Text
+          fontSize="xs"
+          fontWeight="semibold"
+          letterSpacing="wider"
+          textTransform="uppercase"
+          color="brandDeep"
+        >
+          {day?.month}
+        </Text>
+      </Flex>
+      <Box px={4} py={3} minW={0}>
+        <Heading
+          as="h3"
+          size="md"
+          title={name}
+          lineHeight="1.2"
+          textDecoration={canceled ? 'line-through' : undefined}
+          color={canceled ? 'muted' : undefined}
+        >
+          <CardLink to={eventPath({ id, slug })}>{name}</CardLink>
+        </Heading>
+        <Text fontSize="sm" color="muted" mt={1} lineClamp={1}>
+          <time dateTime={startsAt && new Date(startsAt).toISOString()}>
+            {startsAtText}
+          </time>
+          {location && ` · ${placeOf(location)}`}
+        </Text>
+      </Box>
+      {canceled && (
+        <Sticker
+          tone="coral"
+          rotate={3}
+          position="absolute"
+          top="-10px"
+          right={3}
+        >
+          Canceled
+        </Sticker>
+      )}
+    </Card>
+  );
+};
 
 function EventCard({
   ref,
@@ -30,8 +139,17 @@ function EventCard({
   starts_at: startsAt,
   ends_at: endsAt,
   time_zone: timeZone,
+  variant,
 }) {
   const placeholder = usePlaceholder();
+
+  if (variant === 'ticket') {
+    return (
+      <EventTicket
+        {...{ id, slug, name, status, location, startsAt, timeZone }}
+      />
+    );
+  }
 
   // In the event's own time zone, identical on server and browser (#204).
   const startsAtText = formatEventDate(startsAt, timeZone);

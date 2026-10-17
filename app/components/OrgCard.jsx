@@ -64,9 +64,57 @@ const OrgCard = ({
   // with onInvolvementChange, a select to change it.
   involvement,
   onInvolvementChange,
+  // Magazine pass: 'badge' is the homepage masthead's round logo, ringed in
+  // its type's colour, with the name and type and city under it.
+  variant,
   ...rest
 }) => {
   const placeholder = usePlaceholder('square');
+
+  if (variant === 'badge') {
+    return (
+      <Card isClickable textAlign="center" rounded="xl" p={2} {...rest}>
+        <Box
+          mx="auto"
+          w="100%"
+          maxW="110px"
+          aspectRatio={1}
+          rounded="full"
+          overflow="hidden"
+          borderWidth="3px"
+          borderColor={type === 'association' ? 'brand' : 'sun'}
+          bg="surface"
+          transition="transform 300ms cubic-bezier(0.3, 1.6, 0.5, 1)"
+          css={{
+            '[data-card]:hover &': { transform: 'rotate(-10deg) scale(1.06)' },
+          }}
+        >
+          <Image
+            w="100%"
+            h="100%"
+            objectFit="contain"
+            src={logo?.thumbnail_url ?? placeholder}
+            alt=""
+            data-card-image
+          />
+        </Box>
+        <Heading as="h3" size="sm" mt={2} lineHeight="1.2" title={name}>
+          <CardLink to={orgPath({ id, slug })}>{name}</CardLink>
+        </Heading>
+        <Text
+          fontSize="2xs"
+          fontWeight="semibold"
+          letterSpacing="wider"
+          textTransform="uppercase"
+          color="muted"
+          lineClamp={1}
+        >
+          {orgTypeLabel(type)}
+          {location?.city && ` · ${location.city}`}
+        </Text>
+      </Card>
+    );
+  }
 
   return (
     <Card id={id} isClickable padding={2} rounded={10} {...rest}>
