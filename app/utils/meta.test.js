@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { DEFAULT_DESCRIPTION, pageMeta, summarize } from './meta';
+import { DEFAULT_DESCRIPTION, gameShareImage, pageMeta, shareImage, summarize } from './meta';
 
 const matches = [{ id: 'root', data: { origin: 'https://community.test' } }];
 const tag = (tags, key) => tags.find((t) => t.name === key || t.property === key)?.content;
@@ -60,5 +60,80 @@ describe('pageMeta', () => {
     expect(tag(tags, 'og:url')).toBeUndefined();
     expect(tag(tags, 'og:image')).toBeUndefined();
     expect(tag(tags, 'twitter:card')).toBe('summary');
+  });
+
+  // #333
+  it('shares the image size and alt text when known', () => {
+    const tags = pageMeta(matches, {
+      title: 'A',
+      image: { url: 'https://cdn.test/a.jpg', width: 1920, height: 1080, alt: 'Celeste' },
+    });
+    expect(tag(tags, 'og:image')).toBe('https://cdn.test/a.jpg');
+    expect(tag(tags, 'og:image:width')).toBe('1920');
+    expect(tag(tags, 'og:image:height')).toBe('1080');
+    expect(tag(tags, 'og:image:alt')).toBe('Celeste');
+    expect(tag(tags, 'twitter:image:alt')).toBe('Celeste');
+    expect(tag(tags, 'twitter:card')).toBe('summary_large_image');
+  });
+
+  it('leaves out an unknown size', () => {
+    const tags = pageMeta(matches, { title: 'A', image: { url: '/a.png', width: null, height: null } });
+    expect(tag(tags, 'og:image')).toBe('https://community.test/a.png');
+    expect(tag(tags, 'og:image:width')).toBeUndefined();
+    expect(tag(tags, 'og:image:alt')).toBeUndefined();
+  });
+
+  it('gives protocol-relative images (IGDB) https', () => {
+    const tags = pageMeta(matches, { title: 'A', image: '//images.igdb.com/a.jpg' });
+    expect(tag(tags, 'og:image')).toBe('https://images.igdb.com/a.jpg');
+  });
+
+  it('uses a small card for square images, such as logos', () => {
+    const tags = pageMeta(matches, { title: 'A', image: { url: '/logo.png', width: 512, height: 512 } });
+    expect(tag(tags, 'twitter:card')).toBe('summary');
+  });
+
+  it('falls back to the default image for an image without a URL', () => {
+    expect(tag(pageMeta(matches, { title: 'A', image: {} }), 'og:image')).toBe('https://community.test/og-default.png');
+  });
+});
+
+describe('gameShareImage', () => {
+  const uploaded = { url: 'https://cdn.test/a.jpg', thumbnail_url: 'https://cdn.test/thumb_a.webp', width: 1920, height: 1080 };
+  const igdb_game = { screenshots: [{ url: '//images.igdb.com/igdb/image/upload/t_thumb/sc1.jpg' }] };
+
+  it("uses the first uploaded image, full size, over IGDB's", () => {
+    expect(gameShareImage({ name: 'Celeste', game_image: [{ image: uploaded }], igdb_game })).toEqual({
+      url: 'https://cdn.test/a.jpg',
+      width: 1920,
+      height: 1080,
+      alt: 'Celeste',
+    });
+  });
+
+  it('falls back to the first IGDB screenshot, at share size', () => {
+    expect(gameShareImage({ name: 'Celeste', game_image: [], igdb_game })).toEqual({
+      url: '//images.igdb.com/igdb/image/upload/t_screenshot_huge/sc1.jpg',
+      width: 1280,
+      height: 720,
+      alt: 'Celeste',
+    });
+  });
+
+  it('has none without images', () => {
+    expect(gameShareImage({ name: 'Celeste', game_image: [], igdb_game: { screenshots: [] } })).toBeUndefined();
+    expect(gameShareImage({ name: 'Celeste' })).toBeUndefined();
+  });
+});
+
+describe('shareImage', () => {
+  it('shares an uploaded image full size, or nothing', () => {
+    expect(shareImage({ url: '/a.png', thumbnail_url: '/thumb_a.png', width: 10, height: 5 }, 'A')).toEqual({
+      url: '/a.png',
+      width: 10,
+      height: 5,
+      alt: 'A',
+    });
+    expect(shareImage(null, 'A')).toBeUndefined();
   });
 });

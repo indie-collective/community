@@ -36,7 +36,7 @@ import ActionMenu from '../components/ActionMenu';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import TagList from '../components/TagList';
 import { formatEventRange } from '../utils/eventTime';
-import { pageMeta, summarize } from '../utils/meta';
+import { gameShareImage, pageMeta, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { eventPath, gamePath } from '../utils/slug';
@@ -84,7 +84,7 @@ export const meta = ({ data, matches }) => {
     title: `${game.name} - Games`,
     shareTitle: game.name,
     description: summarize(game.about) || `${generated}.`,
-    image: game.game_image?.[0]?.image?.thumbnail_url,
+    image: gameShareImage(game),
     path: gamePath(game),
   });
 };
