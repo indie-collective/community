@@ -83,7 +83,9 @@ test('every public page has its own description and a share image', async ({ req
     expect(description, path).toMatch(/[\p{L}\p{N}]/u);
     expect(metaOf(html, 'og:description'), path).toBe(description);
     expect(metaOf(html, 'og:image'), path).toMatch(/^https?:\/\//);
-    expect(metaOf(html, 'twitter:card'), path).toBe('summary_large_image');
+    // Square images (an org's logo) get the small card (#333).
+    if (listPages.includes(path)) expect(metaOf(html, 'twitter:card'), path).toBe('summary_large_image');
+    else expect(['summary_large_image', 'summary'], path).toContain(metaOf(html, 'twitter:card'));
     if (listPages.includes(path)) descriptions.set(path, description);
   }
   // No two list pages share a description.

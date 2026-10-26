@@ -35,7 +35,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import { Page, PageHeader } from '../components/Page';
-import { pageMeta, summarize } from '../utils/meta';
+import { pageMeta, shareImage, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
 import { ORG_STATUSES, orgStatusLabel, orgTypeLabel } from '../utils/orgTypes';
 import EmptyHint from '../components/EmptyHint';
@@ -76,7 +76,7 @@ export const meta = ({ data, matches }) => {
     title: org.name,
     description:
       summarize(org.about) || `${kind}${place ? ` in ${place}` : ''}.`,
-    image: org.logo?.thumbnail_url,
+    image: shareImage(org.logo, org.name),
     path: orgPath(org),
   });
 };

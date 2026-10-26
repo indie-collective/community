@@ -59,7 +59,7 @@ import ActionMenu from '../components/ActionMenu';
 import { Page, PageHeader } from '../components/Page';
 import countryNames from '../assets/countries.json';
 import { formatEventDate, formatEventRange } from '../utils/eventTime';
-import { pageMeta, summarize } from '../utils/meta';
+import { pageMeta, shareImage, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { eventPath } from '../utils/slug';
@@ -110,7 +110,7 @@ export const meta = ({ data, matches }) => {
     title: `${event.name} | Events`,
     shareTitle: event.name,
     description: summarize(event.about) || description,
-    image: event.cover?.thumbnail_url,
+    image: shareImage(event.cover, event.name),
     path: eventPath(event),
   });
 };

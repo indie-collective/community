@@ -7,10 +7,11 @@ import { searchText } from '../db/searchText.js';
 
 /**
  * An image column set as the old `image` row: `{ id, image_file: { name } }`,
- * which utils/imageLinks turns into URLs. The key stands in for the ID.
+ * which utils/imageLinks turns into URLs. The key stands in for the ID. Its
+ * size, when stored, goes along for share cards (#333).
  */
-export function image(key, id = key) {
-  return key ? { id, image_file: { name: key } } : null;
+export function image(key, id = key, { width, height } = {}) {
+  return key ? { id, image_file: { name: key }, width, height } : null;
 }
 
 /** A row's location columns as the old `location` row, or null. */
@@ -95,7 +96,7 @@ export function organization(row) {
     bsky_handle: row.bskyHandle,
     lastModifiedById: row.lastModifiedById,
     location: location(row),
-    logo: image(row.logoKey),
+    logo: image(row.logoKey, row.logoKey, { width: row.logoWidth, height: row.logoHeight }),
     ...times(row),
   };
 }
@@ -133,7 +134,7 @@ export function event(row) {
     previous_edition_id: row.previousEditionId,
     lastModifiedById: row.lastModifiedById,
     location: location(row),
-    cover: image(row.coverKey),
+    cover: image(row.coverKey, row.coverKey, { width: row.coverWidth, height: row.coverHeight }),
     ...times(row),
   };
 }
@@ -156,7 +157,7 @@ export function gameImage(row) {
     game_id: row.gameId,
     image_id: row.id,
     created_at: row.createdAt,
-    image: image(row.key, row.id),
+    image: image(row.key, row.id, row),
   };
 }
 
