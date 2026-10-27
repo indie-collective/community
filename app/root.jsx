@@ -50,6 +50,11 @@ export function links() {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Poppins:wght@600;700&display=swap',
     },
+    // Feeds, for readers that find them from any page (#342).
+    { rel: 'alternate', type: 'application/atom+xml', title: 'New on Indie Collective', href: '/feed.xml' },
+    { rel: 'alternate', type: 'application/atom+xml', title: 'New games', href: '/games/feed.xml' },
+    { rel: 'alternate', type: 'application/atom+xml', title: 'New events', href: '/events/feed.xml' },
+    { rel: 'alternate', type: 'application/atom+xml', title: 'New studios and associations', href: '/orgs/feed.xml' },
   ];
 }
 
