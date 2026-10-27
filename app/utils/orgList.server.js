@@ -1,6 +1,8 @@
 import {
   countOrganizations,
+  countPublishers,
   listOrganizations,
+  listPublishers,
 } from '../data/organizations.server';
 
 export const PAGE_SIZE = 50;
@@ -48,5 +50,33 @@ export async function loadOrgList(request, type) {
       has_games,
       has_events,
     },
+  };
+}
+
+/**
+ * One page of the publishers list (#331), with the filters from the URL
+ * (`country`, `city`, `tag`) and the country and tag facets.
+ *
+ * @param {Request} request
+ */
+export async function loadPublisherList(request) {
+  const { searchParams } = new URL(request.url);
+  const page = Math.max(1, Math.floor(Number(searchParams.get('page'))) || 1);
+  const country = searchParams.get('country');
+  const city = searchParams.get('city')?.trim() || null;
+  const tag = searchParams.get('tag')?.trim() || null;
+
+  const [{ orgs, hasMore, countries, tags }, total] = await Promise.all([
+    listPublishers({ page, pageSize: PAGE_SIZE, country, city, tag }),
+    countPublishers(),
+  ]);
+
+  return {
+    total,
+    orgs,
+    hasMore,
+    page,
+    facets: { countries, tags },
+    selected: { country, city, tag },
   };
 }

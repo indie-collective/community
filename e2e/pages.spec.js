@@ -1,7 +1,7 @@
 import { expect, test, watchErrors } from './helpers';
 
 // Site-wide checks: every public page renders, the 404 page, phone width.
-const pages = ['/', '/games', '/events', '/studios', '/associations', '/about', '/countries', '/places', '/places2', '/rewind', '/search?q=Conference', '/search', '/search?q=%20', '/signin'];
+const pages = ['/', '/games', '/events', '/studios', '/associations', '/publishers', '/about', '/countries', '/places', '/places2', '/rewind', '/search?q=Conference', '/search', '/search?q=%20', '/signin'];
 
 for (const path of pages) {
   test(`${path} renders and hydrates cleanly`, async ({ page }) => {
@@ -68,7 +68,7 @@ const metaOf = (html, key) =>
   html.match(new RegExp(`<meta (?:name|property)="${key}" content="([^"]*)"`))?.[1];
 
 test('every public page has its own description and a share image', async ({ request }) => {
-  const listPages = ['/', '/games', '/events', '/studios', '/associations', '/about', '/places', '/countries'];
+  const listPages = ['/', '/games', '/events', '/studios', '/associations', '/publishers', '/about', '/places', '/countries'];
   const games = await (await request.get('/games')).text();
   const detail = [
     games.match(/\/game\/[a-z0-9-]+/)[0],
