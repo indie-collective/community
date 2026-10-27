@@ -14,6 +14,7 @@ import {
   Field,
   Circle,
   Float,
+  Checkbox,
 } from '@chakra-ui/react';
 import { LuCheck, LuX, LuPencil } from 'react-icons/lu';
 import { Form, useFetcher, useSubmit } from 'react-router';
@@ -51,6 +52,7 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
     first_name: firstName,
     last_name: lastName,
     about,
+    profile_hidden: profileHidden,
   } = defaultData;
   const [avatar, setAvatar] = useState(defaultData.avatar);
   const [avatarFile, setAvatarFile] = useState(null);
@@ -197,6 +199,20 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
         <Field.ErrorText>
           {errors.about && errors.about.message}
         </Field.ErrorText>
+      </Field.Root>
+      {/* #341: profiles are public unless hidden here. */}
+      <Field.Root mb={5}>
+        <Checkbox.Root name="profile_hidden" value="on" defaultChecked={!!profileHidden} colorPalette="green">
+          <Checkbox.HiddenInput />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Hide my public profile</Checkbox.Label>
+        </Checkbox.Root>
+        <Field.HelperText>
+          Your public page shows your name, picture, bio, Bluesky, the events you go to and what you added. Your email
+          is never shown.
+        </Field.HelperText>
       </Field.Root>
       <Button
         type="submit"

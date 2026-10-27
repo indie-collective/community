@@ -90,6 +90,12 @@ const Profile = () => {
           <Heading as="span" size="sm" color="muted">
             @{username}
           </Heading>
+          {/* #341 */}
+          <Text fontSize="sm" mt={2}>
+            <ChakraLink asChild>
+              <Link to={`/people/${username}`}>View your public profile</Link>
+            </ChakraLink>
+          </Text>
         </Box>
 
         <Stack

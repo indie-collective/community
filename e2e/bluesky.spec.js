@@ -69,8 +69,9 @@ test.describe('linking Bluesky', () => {
   });
 });
 
-// #161: a linked person's Bluesky handle shows on their profile, and their
-// avatar among an event's attendees links to their Bluesky profile.
+// #161: a linked person's Bluesky handle shows on their profile; their
+// avatar among an event's attendees links to their public profile (#341),
+// which links their Bluesky.
 test('a Bluesky handle shows on the profile and among attendees', async ({
   page,
 }) => {
@@ -102,8 +103,10 @@ test('a Bluesky handle shows on the profile and among attendees', async ({
     ).toHaveAttribute('href', `https://bsky.app/profile/${handle}`);
 
     await page.goto(`/event/${event.id}`);
+    await page.getByRole('link', { name: `@${member.username}`, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`/people/${member.username}$`));
     await expect(
-      page.getByRole('link', { name: `@${member.username} on Bluesky` })
+      page.getByRole('link', { name: `@${handle}` })
     ).toHaveAttribute('href', `https://bsky.app/profile/${handle}`);
   } finally {
     await db

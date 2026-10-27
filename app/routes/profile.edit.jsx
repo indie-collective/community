@@ -36,6 +36,7 @@ export const action = async ({ request }) => {
       lastName: data.get('lastName') || null,
       username: data.get('username'),
       about: data.get('about') || null,
+      profileHidden: data.get('profile_hidden') === 'on',
     });
 
     // updating session

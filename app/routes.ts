@@ -41,6 +41,7 @@ export default [
   route('profile', 'routes/profile.jsx'),
   route('profile/edit', 'routes/profile.edit.jsx'),
   route('profile/bluesky', 'routes/profile.bluesky.jsx'),
+  route('people/:username', 'routes/people.$username.jsx'),
 
   // Search
   route('search', 'routes/search.jsx'),

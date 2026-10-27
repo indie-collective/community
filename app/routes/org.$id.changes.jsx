@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useColorModeValue } from '../components/ui/color-mode';
 import { LuPlus, LuPencil, LuArrowLeft } from 'react-icons/lu';
+import PersonLink from '../components/PersonLink';
 
 import {
   NavLink,
@@ -152,7 +153,7 @@ const OrgChangeLayout = () => {
 
                         <Stack direction="row" align="center">
                           <Text fontSize="sm">
-                            {author?.username || 'Unknown'}
+                            <PersonLink username={author?.username} />
                           </Text>
                           <Spacer />
                           <Text
