@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useColorModeValue } from "../components/ui/color-mode";
 import { LuPlus, LuPencil, LuArrowLeft } from 'react-icons/lu';
+import PersonLink from '../components/PersonLink';
 
 import { NavLink, Outlet, isRouteErrorResponse, useLoaderData, useMatches, useParams, useRouteError } from 'react-router';
 import Link from '../components/Link';
@@ -137,7 +138,9 @@ const Game = () => {
                         </Stack>
 
                         <Stack direction="row" align="center">
-                          <Text fontSize="sm">{author?.username || 'Unknown'}</Text>
+                          <Text fontSize="sm">
+                            <PersonLink username={author?.username} />
+                          </Text>
                           <Spacer />
                           <Text
                             opacity={0.6}

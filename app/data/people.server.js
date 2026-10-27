@@ -161,6 +161,7 @@ export async function getProfileForEdit(id) {
   const person = await byId(id);
   return {
     ...person,
+    profile_hidden: person.profile_hidden,
     avatar: person.avatar
       ? getImageLinks(person.avatar).thumbnail_url
       : undefined,
@@ -174,7 +175,7 @@ export async function getProfileForEdit(id) {
  */
 export async function updateProfile(
   id,
-  { avatarId, firstName, lastName, username, about }
+  { avatarId, firstName, lastName, username, about, profileHidden }
 ) {
   const [row] = await db
     .update(people)
@@ -184,6 +185,7 @@ export async function updateProfile(
       lastName,
       username,
       about,
+      profileHidden,
     })
     .where(eq(people.id, id))
     .returning();

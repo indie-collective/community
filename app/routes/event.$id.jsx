@@ -326,28 +326,19 @@ const Event = () => {
         {participants.length > 0 && (
           <HStack gap={3} mt={2}>
             <AvatarGroup size="sm">
-              {participants.map(({ id, username, avatar, bsky_handle }) => {
+              {participants.map(({ id, username, avatar }) => {
                 const picture = (
                   <>
                     <Avatar.Fallback name={username} />
                     <Avatar.Image src={avatar && avatar.thumbnail_url} />
                   </>
                 );
-                // #161: to their Bluesky profile, when they have one.
-                return bsky_handle ? (
+                // #341: to their profile, which links their Bluesky (#161).
+                return (
                   <Avatar.Root key={id} title={`@${username}`} asChild>
-                    <a
-                      href={`https://bsky.app/profile/${bsky_handle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`@${username} on Bluesky`}
-                    >
+                    <Link to={`/people/${username}`} aria-label={`@${username}`}>
                       {picture}
-                    </a>
-                  </Avatar.Root>
-                ) : (
-                  <Avatar.Root key={id} title={`@${username}`}>
-                    {picture}
+                    </Link>
                   </Avatar.Root>
                 );
               })}

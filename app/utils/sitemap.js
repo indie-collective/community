@@ -40,7 +40,7 @@ const entry = (origin, path, updated) =>
  */
 export function buildSitemap(
   origin,
-  { countries = [], games = [], orgs = [], events = [] }
+  { countries = [], games = [], orgs = [], events = [], people = [] }
 ) {
   const urls = [
     ...PAGES.map((path) => entry(origin, path)),
@@ -49,6 +49,8 @@ export function buildSitemap(
     ...games.map((game) => entry(origin, gamePath(game), game.updated_at)),
     ...orgs.map((org) => entry(origin, orgPath(org), org.updated_at)),
     ...events.map((event) => entry(origin, eventPath(event), event.updated_at)),
+    // Public profiles (#341).
+    ...people.map((username) => entry(origin, `/people/${username}`)),
   ];
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -66,6 +68,8 @@ export function buildRobots(origin) {
     'Disallow: /admin/',
     'Disallow: /auth/',
     'Disallow: /profile',
+    // Members' private calendars (#342).
+    'Disallow: /my-calendar/',
     'Disallow: /logout',
     '',
     `Sitemap: ${origin}/sitemap.xml`,

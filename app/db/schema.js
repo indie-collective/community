@@ -105,6 +105,8 @@ export const people = sqliteTable(
     bskyHandle: text('bsky_handle'),
     // Until the cutover to Bluesky sign-in (ADR 0002).
     discordId: text('discord_id').unique(),
+    // #341: profiles are public unless the member hides theirs.
+    profileHidden: integer('profile_hidden', { mode: 'boolean' }).notNull().default(false),
     ...timestamps(),
   },
   (t) => [

@@ -78,6 +78,7 @@ export function person(row) {
     avatar_oauth: row.avatarUrl,
     avatar_id: row.avatarKey,
     avatar: image(row.avatarKey),
+    profile_hidden: row.profileHidden,
     ...times(row),
   };
 }
