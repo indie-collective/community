@@ -16,6 +16,8 @@ import {
 export const ORGANIZATION_TYPES = ['studio', 'association'];
 export const ORGANIZATION_STATUSES = ['active', 'closed', 'hiatus'];
 export const EVENT_STATUSES = ['ongoing', 'canceled'];
+// Where people take part (#347): at a place, online, or both.
+export const EVENT_ATTENDANCES = ['in_person', 'online', 'hybrid'];
 export const GAME_ORGANIZATION_ROLES = [
   'developer',
   'co_developer',
@@ -189,6 +191,13 @@ export const events = sqliteTable(
     ...image('cover'),
     // #203: where to buy tickets, beside `site`.
     ticketUrl: text('ticket_url'),
+    // No CHECK: adding one would rebuild the table, and drop its links
+    // with it. The actions only accept EVENT_ATTENDANCES.
+    attendance: text('attendance', { enum: EVENT_ATTENDANCES })
+      .notNull()
+      .default('in_person'),
+    // #347: where to join online (a stream, a Discord, a jam page).
+    onlineUrl: text('online_url'),
     // #203: the edition before this one, linking a series (Stunfest 2025 →
     // Stunfest 2026).
     previousEditionId: text('previous_edition_id').references(

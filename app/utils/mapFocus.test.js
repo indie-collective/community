@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { focusOn, placeAt, zoomToFit } from './mapFocus';
+import { distanceKm, focusOn, placeAt, zoomToFit } from './mapFocus';
 
 const at = (latitude, longitude) => ({ latitude, longitude });
 
@@ -67,5 +67,13 @@ describe('placeAt', () => {
     expect(placeAt('lyon,france')).toBeNull();
     expect(placeAt('91,0')).toBeNull();
     expect(placeAt('0,181')).toBeNull();
+  });
+});
+
+describe('distanceKm', () => {
+  it('measures along the globe', () => {
+    // Lyon to Paris: about 392 km as the crow flies.
+    expect(distanceKm(at(45.764, 4.8357), at(48.8566, 2.3522))).toBeCloseTo(392, -1);
+    expect(distanceKm(at(10, 10), at(10, 10))).toBe(0);
   });
 });
