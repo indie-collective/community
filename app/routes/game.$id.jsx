@@ -36,7 +36,8 @@ import ActionMenu from '../components/ActionMenu';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import TagList from '../components/TagList';
 import { formatEventRange } from '../utils/eventTime';
-import { pageMeta, summarize } from '../utils/meta';
+import { GAME_ROLES } from '../utils/gameRoles';
+import { gameShareImage, pageMeta, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { eventPath, gamePath } from '../utils/slug';
@@ -84,7 +85,7 @@ export const meta = ({ data, matches }) => {
     title: `${game.name} - Games`,
     shareTitle: game.name,
     description: summarize(game.about) || `${generated}.`,
-    image: game.game_image?.[0]?.image?.thumbnail_url,
+    image: gameShareImage(game),
     path: gamePath(game),
   });
 };
@@ -114,7 +115,14 @@ const Game = () => {
   } = game;
   const images = game_image.map(({ image }) => image);
   const tags = game_tag.map(({ tag }) => tag);
-  const entities = game_entity.map(({ entity }) => entity);
+  // A studio with two roles (#335) is credited twice but is one studio.
+  const entities = [
+    ...new Map(game_entity.map(({ entity }) => [entity.id, entity])).values(),
+  ];
+  const rolesOf = (orgId) =>
+    game_entity
+      .filter(({ entity }) => entity.id === orgId)
+      .map(({ role }) => role ?? 'developer');
   const events = game_event.map(({ event }) => event);
 
   const igdb_images = igdb_game
@@ -204,14 +212,16 @@ const Game = () => {
           >
             {game_entity.map(({ entity: author, role }) => (
               <OrgCard
-                key={author.id}
+                key={`${author.id}-${role}`}
                 {...author}
                 involvement={role ?? 'developer'}
+                // #335: its other roles on this game, which it can't take twice.
+                takenRoles={rolesOf(author.id).filter((other) => other !== role)}
                 onInvolvementChange={
                   currentUser
                     ? (newRole) =>
                         fetcher.submit(
-                          { id: author.id, role: newRole },
+                          { id: author.id, from: role, role: newRole },
                           {
                             method: 'post',
                             action: `/game/${id}/companies/role`,
@@ -223,12 +233,11 @@ const Game = () => {
                   currentUser
                     ? () =>
                         fetcher.submit(
-                          { id: author.id },
+                          { id: author.id, role },
                           {
                             method: 'post',
                             action: `/game/${id}/companies/delete`,
                           }
-                          // { method: 'post', action: './companies/delete' }
                         )
                     : null
                 }
@@ -253,12 +262,15 @@ const Game = () => {
                 <SearchOrgModal
                   isOpen={linkAuthorIsOpen}
                   onClose={onCloseLinkAuthor}
-                  excludedIds={entities.map(({ id }) => id)}
+                  // Credited again, a studio takes another role (#335):
+                  // only those with every role are left out.
+                  excludedIds={entities
+                    .map((entity) => entity.id)
+                    .filter((orgId) => rolesOf(orgId).length === GAME_ROLES.length)}
                   onSelect={(author) => {
                     fetcher.submit(
                       { id: author.id },
                       { method: 'post', action: `/game/${id}/companies/add` }
-                      // { method: 'post', action: './companies/add' }
                     );
                   }}
                 />

@@ -180,3 +180,62 @@ test('the studios list filters by city, and keeps it across other filters', asyn
     await db.delete(organizations).where(inArray(organizations.id, [here.id, there.id]));
   }
 });
+
+// #331: publishers come from their games' roles, and can be narrowed to
+// those that published games with a tag; an org page sets them apart.
+test('publishers are listed from their games, by tag, and apart on their page', async ({ page }) => {
+  const { db, gameOrganizations, gameTags, games, organizations, retryBusy, tags } = await import('./db.js');
+  const { eq, inArray } = await import('drizzle-orm');
+  const id = Date.now() % 100000;
+  const [publisher] = await db.insert(organizations).values({ name: `Lantern Press ${id}`, type: 'studio' }).returning();
+  const [made, published, gone] = await db
+    .insert(games)
+    .values([
+      { name: `Self Made ${id}` },
+      { name: `Brought Out ${id}` },
+      { name: `Withdrawn ${id}`, deletedAt: new Date() },
+    ])
+    .returning();
+  const [tag] = await db.insert(tags).values({ name: `lanternish${id}` }).returning();
+  const gameIds = [made.id, published.id, gone.id];
+  try {
+    await db.insert(gameOrganizations).values([
+      { gameId: made.id, organizationId: publisher.id, role: 'developer' },
+      { gameId: published.id, organizationId: publisher.id, role: 'publisher' },
+      { gameId: gone.id, organizationId: publisher.id, role: 'publisher' },
+    ]);
+    await db.insert(gameTags).values({ gameId: published.id, tagId: tag.id });
+
+    await page.goto(`/publishers?tag=${tag.name}`);
+    const card = page.locator('main').getByRole('link', { name: publisher.name });
+    await expect(card).toBeVisible();
+    // The deleted game isn't counted.
+    await expect(page.locator('main').getByText('Published 1 game', { exact: true })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: 'Published games tagged' })).toHaveValue(tag.name);
+
+    await card.click();
+    const madeSection = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Games' }) });
+    const publishedSection = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Published' }) });
+    await expect(publishedSection.getByText(published.name)).toBeVisible();
+    await expect(publishedSection.getByText(made.name)).toHaveCount(0);
+    await expect(madeSection.getByText(made.name)).toBeVisible();
+    await expect(page.getByText(gone.name)).toHaveCount(0);
+  } finally {
+    await retryBusy(() => db.delete(games).where(inArray(games.id, gameIds)));
+    await retryBusy(() => db.delete(tags).where(eq(tags.id, tag.id)));
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.id, publisher.id)));
+  }
+});
+
+test('an org that published nothing is not a publisher', async ({ page }) => {
+  const { db, organizations, retryBusy } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const [org] = await db.insert(organizations).values({ name: `Unpublished ${Date.now() % 100000}`, type: 'studio' }).returning();
+  try {
+    await page.goto('/publishers');
+    await expect(page.getByRole('heading', { name: 'Publishers', level: 1 })).toBeVisible();
+    await expect(page.locator('main').getByRole('link', { name: org.name })).toHaveCount(0);
+  } finally {
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.id, org.id)));
+  }
+});

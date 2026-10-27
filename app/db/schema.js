@@ -214,7 +214,8 @@ export const gameOrganizations = sqliteTable(
       .$defaultFn(() => new Date()),
   },
   (t) => [
-    primaryKey({ columns: [t.gameId, t.organizationId] }),
+    // One row per role, so a studio can be both developer and publisher (#335).
+    primaryKey({ columns: [t.gameId, t.organizationId, t.role] }),
     check('game_organizations_role', oneOf(t.role, GAME_ORGANIZATION_ROLES)),
     index('game_organizations_organization_id').on(t.organizationId),
   ]

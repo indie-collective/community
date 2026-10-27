@@ -35,7 +35,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import { Page, PageHeader } from '../components/Page';
-import { pageMeta, summarize } from '../utils/meta';
+import { pageMeta, shareImage, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
 import { ORG_STATUSES, orgStatusLabel, orgTypeLabel } from '../utils/orgTypes';
 import EmptyHint from '../components/EmptyHint';
@@ -76,7 +76,7 @@ export const meta = ({ data, matches }) => {
     title: org.name,
     description:
       summarize(org.about) || `${kind}${place ? ` in ${place}` : ''}.`,
-    image: org.logo?.thumbnail_url,
+    image: shareImage(org.logo, org.name),
     path: orgPath(org),
   });
 };
@@ -102,6 +102,17 @@ const Org = () => {
   } = org;
 
   const games = game_entity.map(({ game }) => game);
+  // Each game once per section, with every role it had there (#335).
+  const byGame = (links) => [
+    ...links
+      .reduce((all, { game, role }) => {
+        const roles = all.get(game.id)?.roles ?? [];
+        return all.set(game.id, { game, roles: [...roles, role ?? 'developer'] });
+      }, new Map())
+      .values(),
+  ];
+  const published = byGame(game_entity.filter(({ role }) => role === 'publisher'));
+  const made = byGame(game_entity.filter(({ role }) => role !== 'publisher'));
   const events = entity_event.map(({ event }) => event);
 
   return (
@@ -191,33 +202,40 @@ const Org = () => {
           <Markdown value={about} />
         </Box>
       )}
-      {games.length > 0 && (
-        <Box as="section" mb={{ base: 8, md: 10 }}>
-          <SectionHeading mb={4} count={games.length} countLabel="games">
-            Games
-          </SectionHeading>
-          <Grid
-            gap={3}
-            templateColumns={[
-              'repeat(2, 1fr)',
-              'repeat(2, 1fr)',
-              'repeat(3, 1fr)',
-              'repeat(4, 1fr)',
-            ]}
-          >
-            {game_entity.map(({ game, role }) => (
-              <Box minW={0} key={game.id}>
-                <GameCard {...game} />
-                {/* #40: how this organisation took part, when not as the developer. */}
-                {role && role !== 'developer' && (
-                  <Text fontSize="sm" color="muted" mt={1}>
-                    {gameRoleLabel(role)}
-                  </Text>
-                )}
-              </Box>
-            ))}
-          </Grid>
-        </Box>
+      {[
+        // #331: what it published apart from what it made or helped with.
+        ['Games', made],
+        ['Published', published],
+      ].map(
+        ([heading, links]) =>
+          links.length > 0 && (
+            <Box as="section" mb={{ base: 8, md: 10 }} key={heading}>
+              <SectionHeading mb={4} count={links.length} countLabel="games">
+                {heading}
+              </SectionHeading>
+              <Grid
+                gap={3}
+                templateColumns={[
+                  'repeat(2, 1fr)',
+                  'repeat(2, 1fr)',
+                  'repeat(3, 1fr)',
+                  'repeat(4, 1fr)',
+                ]}
+              >
+                {links.map(({ game, roles }) => (
+                  <Box minW={0} key={game.id}>
+                    <GameCard {...game} />
+                    {/* #40: how this organisation took part, when not only as the developer. */}
+                    {roles.some((role) => role !== 'developer' && role !== 'publisher') && (
+                      <Text fontSize="sm" color="muted" mt={1}>
+                        {roles.map(gameRoleLabel).join(', ')}
+                      </Text>
+                    )}
+                  </Box>
+                ))}
+              </Grid>
+            </Box>
+          )
       )}
       {events.length > 0 && (
         <Box as="section" mb={{ base: 8, md: 10 }}>

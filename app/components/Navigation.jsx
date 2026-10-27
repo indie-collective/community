@@ -101,6 +101,7 @@ const NAV = [
   ['/games', 'Games'],
   ['/studios', 'Studios'],
   ['/associations', 'Associations'],
+  ['/publishers', 'Publishers'],
   ['/events', 'Events'],
   ['/countries', 'Countries'],
   ['/places', 'Map'],

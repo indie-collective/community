@@ -7,6 +7,7 @@ const PAGES = [
   '/games',
   '/studios',
   '/associations',
+  '/publishers',
   '/events',
   '/places',
   '/countries',

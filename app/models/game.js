@@ -63,7 +63,10 @@ export default async function computeGame(game) {
     igdb_game,
     game_image,
     images: game_image?.map((gi) => gi.image),
-    entities: game.game_entity?.map(ge => ge.entity),
+    // Once each, though a studio can have two roles (#335).
+    entities: game.game_entity && [
+      ...new Map(game.game_entity.map((ge) => [ge.entity.id, ge.entity])).values(),
+    ],
     tags: game.game_tag?.map(gt => gt.tag),
     game_entity,
   };

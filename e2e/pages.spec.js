@@ -1,7 +1,7 @@
 import { expect, test, watchErrors } from './helpers';
 
 // Site-wide checks: every public page renders, the 404 page, phone width.
-const pages = ['/', '/games', '/events', '/studios', '/associations', '/about', '/countries', '/places', '/places2', '/rewind', '/search?q=Conference', '/search', '/search?q=%20', '/signin'];
+const pages = ['/', '/games', '/events', '/studios', '/associations', '/publishers', '/about', '/countries', '/places', '/places2', '/rewind', '/search?q=Conference', '/search', '/search?q=%20', '/signin'];
 
 for (const path of pages) {
   test(`${path} renders and hydrates cleanly`, async ({ page }) => {
@@ -68,7 +68,7 @@ const metaOf = (html, key) =>
   html.match(new RegExp(`<meta (?:name|property)="${key}" content="([^"]*)"`))?.[1];
 
 test('every public page has its own description and a share image', async ({ request }) => {
-  const listPages = ['/', '/games', '/events', '/studios', '/associations', '/about', '/places', '/countries'];
+  const listPages = ['/', '/games', '/events', '/studios', '/associations', '/publishers', '/about', '/places', '/countries'];
   const games = await (await request.get('/games')).text();
   const detail = [
     games.match(/\/game\/[a-z0-9-]+/)[0],
@@ -83,7 +83,9 @@ test('every public page has its own description and a share image', async ({ req
     expect(description, path).toMatch(/[\p{L}\p{N}]/u);
     expect(metaOf(html, 'og:description'), path).toBe(description);
     expect(metaOf(html, 'og:image'), path).toMatch(/^https?:\/\//);
-    expect(metaOf(html, 'twitter:card'), path).toBe('summary_large_image');
+    // Square images (an org's logo) get the small card (#333).
+    if (listPages.includes(path)) expect(metaOf(html, 'twitter:card'), path).toBe('summary_large_image');
+    else expect(['summary_large_image', 'summary'], path).toContain(metaOf(html, 'twitter:card'));
     if (listPages.includes(path)) descriptions.set(path, description);
   }
   // No two list pages share a description.

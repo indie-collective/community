@@ -7,6 +7,7 @@ import {
   desc,
   eq,
   exists,
+  getTableColumns,
   inArray,
   isNotNull,
   isNull,
@@ -20,6 +21,8 @@ import {
   games,
   organizationEvents,
   organizations,
+  gameTags,
+  tags,
 } from '../db/schema.js';
 import computeOrg from '../models/org';
 import getImageLinks from '../utils/imageLinks.server';
@@ -119,6 +122,123 @@ export async function listOrganizations({
     hasMore: rows.length > pageSize,
     countries,
   };
+}
+
+// Publishers (#331) aren't a type: an organisation of either type is one
+// when it has the publisher role on a game that isn't deleted.
+const publisherLinks = and(
+  eq(gameOrganizations.role, 'publisher'),
+  isNull(games.deletedAt)
+);
+
+// Every publisher's ID and how many games it published, with `tag` when
+// given; a subquery to join organisations to.
+const publishedCounts = (tag) =>
+  db
+    .select({
+      organizationId: gameOrganizations.organizationId,
+      publishedCount: count().as('published_count'),
+    })
+    .from(gameOrganizations)
+    .innerJoin(games, eq(games.id, gameOrganizations.gameId))
+    .where(
+      and(
+        publisherLinks,
+        tag
+          ? exists(
+              db
+                .select({ one: sql`1` })
+                .from(gameTags)
+                .innerJoin(tags, eq(tags.id, gameTags.tagId))
+                .where(and(eq(gameTags.gameId, games.id), eq(tags.name, tag)))
+            )
+          : undefined
+      )
+    )
+    .groupBy(gameOrganizations.organizationId)
+    .as('published');
+
+/**
+ * One page of publishers (#331), those that published the most games
+ * first, and the facets to narrow them: the countries they're in and the
+ * tags of the games they published. `tag` keeps those that published a game
+ * with it, counting only those games; `city` matches case-insensitively.
+ *
+ * @returns {Promise<{ orgs: object[], hasMore: boolean, countries: object[],
+ *   tags: object[] }>} computed orgs (see models/org) with their
+ *   `published_count`; countries as `{ country_code, _count }` and tags as
+ *   `{ id, name, _count }` (publishers), most first
+ */
+export async function listPublishers({
+  page = 1,
+  pageSize = 50,
+  country = null,
+  city = null,
+  tag = null,
+} = {}) {
+  const published = publishedCounts(tag);
+  const all = publishedCounts(null);
+  const publishersWithTag = sql`count(distinct ${gameOrganizations.organizationId})`.mapWith(Number);
+
+  const [rows, countries, tagRows] = await Promise.all([
+    db
+      .select({ ...getTableColumns(organizations), publishedCount: published.publishedCount })
+      .from(organizations)
+      .innerJoin(published, eq(published.organizationId, organizations.id))
+      .where(
+        and(
+          notDeleted,
+          country ? eq(organizations.countryCode, country) : undefined,
+          city ? sql`lower(${organizations.city}) = lower(${city})` : undefined
+        )
+      )
+      // id last, so pages don't overlap when counts and names tie.
+      .orderBy(desc(published.publishedCount), asc(organizations.name), asc(organizations.id))
+      .offset((page - 1) * pageSize)
+      // One extra row tells whether there's a next page.
+      .limit(pageSize + 1),
+    db
+      .select({ country_code: organizations.countryCode, _count: count() })
+      .from(organizations)
+      .innerJoin(all, eq(all.organizationId, organizations.id))
+      .where(and(notDeleted, located))
+      .groupBy(organizations.countryCode)
+      .orderBy(desc(count())),
+    db
+      .select({
+        id: tags.id,
+        name: tags.name,
+        _count: publishersWithTag,
+      })
+      .from(gameTags)
+      .innerJoin(tags, eq(tags.id, gameTags.tagId))
+      .innerJoin(games, eq(games.id, gameTags.gameId))
+      .innerJoin(gameOrganizations, eq(gameOrganizations.gameId, games.id))
+      .innerJoin(organizations, eq(organizations.id, gameOrganizations.organizationId))
+      .where(and(publisherLinks, notDeleted))
+      .groupBy(tags.id)
+      .orderBy(desc(publishersWithTag), asc(tags.name)),
+  ]);
+
+  const pageRows = rows.slice(0, pageSize);
+  const orgs = await computeAll(pageRows);
+  return {
+    orgs: orgs.map((org, i) => ({ ...org, published_count: pageRows[i].publishedCount })),
+    hasMore: rows.length > pageSize,
+    countries,
+    tags: tagRows,
+  };
+}
+
+/** How many organisations have published a game (#331). */
+export async function countPublishers() {
+  const [{ value }] = await db
+    .select({ value: sql`count(distinct ${gameOrganizations.organizationId})`.mapWith(Number) })
+    .from(gameOrganizations)
+    .innerJoin(games, eq(games.id, gameOrganizations.gameId))
+    .innerJoin(organizations, eq(organizations.id, gameOrganizations.organizationId))
+    .where(and(publisherLinks, notDeleted));
+  return value;
 }
 
 /** The most recently updated organisations of either type (/orgs). */

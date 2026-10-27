@@ -64,6 +64,10 @@ const OrgCard = ({
   // with onInvolvementChange, a select to change it.
   involvement,
   onInvolvementChange,
+  // Roles it already has on the game, not offered in the select (#335).
+  takenRoles = [],
+  // #331: on the publishers list, how many games it published.
+  published_count,
   // Magazine pass: 'badge' is the homepage masthead's round logo, ringed in
   // its type's colour, with the name and type and city under it.
   variant,
@@ -178,7 +182,7 @@ const OrgCard = ({
                   onChange={(event) => onInvolvementChange(event.target.value)}
                 >
                   {GAME_ROLES.map(([value, label]) => (
-                    <option key={value} value={value}>
+                    <option key={value} value={value} disabled={takenRoles.includes(value)}>
                       {label}
                     </option>
                   ))}
@@ -190,6 +194,12 @@ const OrgCard = ({
                 {gameRoleLabel(involvement)}
               </Text>
             ))}
+
+          {published_count > 0 && (
+            <Text fontSize="sm" color="muted">
+              Published {published_count} {published_count === 1 ? 'game' : 'games'}
+            </Text>
+          )}
 
           {location && (
             <Flex

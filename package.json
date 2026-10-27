@@ -61,16 +61,16 @@
     "yup": "^0.32.9"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.62.5",
+    "@cloudflare/vite-plugin": "^1.63.1",
     "@eslint/js": "^9.29.0",
     "@faker-js/faker": "^10.1.0",
     "@playwright/test": "^1.63.0",
     "@prisma/client": "^4.4.0",
     "@react-router/dev": "^7.18.4",
-    "@storybook/addon-vitest": "^10.6.1",
+    "@storybook/addon-vitest": "^10.6.2",
     "@storybook/react-vite": "^10.6.1",
     "@testing-library/react": "^16.3.3",
-    "@vitest/browser": "^5.0.2",
+    "@vitest/browser": "^5.0.5",
     "@vitest/browser-playwright": "^5.0.2",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9.29.0",
@@ -82,7 +82,7 @@
     "playwright": "^1.63.0",
     "prettier": "^3.8.3",
     "prisma": "^4.3.1",
-    "storybook": "^10.6.1",
+    "storybook": "^10.6.2",
     "vite": "^8.0.16",
     "vitest": "^5.0.2",
     "wrangler": "^4.149.0"

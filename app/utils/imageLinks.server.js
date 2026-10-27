@@ -12,11 +12,15 @@ export default function getImageLinks(image) {
       id: image.id,
       url: name,
       thumbnail_url: name,
+      width: image.width,
+      height: image.height,
     };
   }
   return {
     id: image.id,
     url: `${base()}/${name}`,
     thumbnail_url: `${base()}/thumb_${name}`,
+    width: image.width,
+    height: image.height,
   };
 }

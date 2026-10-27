@@ -85,7 +85,7 @@ export const SearchOrgModal = ({ isOpen = true, excludedIds = [], onClose = () =
                             }}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
-                                onSelect(game);
+                                onSelect(org);
 
                                 setValue('');
                                 onClose();

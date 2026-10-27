@@ -16,6 +16,7 @@ import {
 
 import { db } from '../db/index.server.js';
 import {
+  GAME_ORGANIZATION_ROLES,
   gameImages,
   gameOrganizations,
   games,
@@ -346,37 +347,66 @@ export async function deleteGame(id, { authorId = null } = {}) {
   ]);
 }
 
-/** Credits an organisation on a game; already credited is fine. */
-export async function addGameOrganization(gameId, organizationId) {
+/**
+ * Credits an organisation on a game. An organisation can take part in more
+ * than one way (#335): without a `role`, it's credited as the developer, or
+ * else in the first role it doesn't have yet (publisher next). Already
+ * credited in that role is fine.
+ */
+export async function addGameOrganization(gameId, organizationId, role) {
+  if (!role) {
+    const taken = (
+      await db
+        .select({ role: gameOrganizations.role })
+        .from(gameOrganizations)
+        .where(
+          and(
+            eq(gameOrganizations.gameId, gameId),
+            eq(gameOrganizations.organizationId, organizationId)
+          )
+        )
+    ).map((link) => link.role);
+    role = ['developer', 'publisher', ...GAME_ORGANIZATION_ROLES].find(
+      (candidate) => !taken.includes(candidate)
+    );
+    if (!role) return;
+  }
   await db
     .insert(gameOrganizations)
-    .values({ gameId, organizationId })
+    .values({ gameId, organizationId, role })
     .onConflictDoNothing();
 }
 
-/** How an organisation took part in a game (#40): one of GAME_ORGANIZATION_ROLES. */
-export async function setGameOrganizationRole(gameId, organizationId, role) {
-  await db
-    .update(gameOrganizations)
-    .set({ role })
-    .where(
-      and(
-        eq(gameOrganizations.gameId, gameId),
-        eq(gameOrganizations.organizationId, organizationId)
-      )
-    );
+const gameOrganizationLink = (gameId, organizationId, role) =>
+  and(
+    eq(gameOrganizations.gameId, gameId),
+    eq(gameOrganizations.organizationId, organizationId),
+    eq(gameOrganizations.role, role)
+  );
+
+/**
+ * Changes how an organisation took part in a game (#40), from one of
+ * GAME_ORGANIZATION_ROLES to another. If it already has the new role too,
+ * the two become one.
+ */
+export async function setGameOrganizationRole(gameId, organizationId, from, to) {
+  if (from === to) return;
+  await db.batch([
+    db
+      .insert(gameOrganizations)
+      .values({ gameId, organizationId, role: to })
+      .onConflictDoNothing(),
+    db
+      .delete(gameOrganizations)
+      .where(gameOrganizationLink(gameId, organizationId, from)),
+  ]);
 }
 
-/** Removes an organisation from a game's credits. */
-export async function removeGameOrganization(gameId, organizationId) {
+/** Removes one of an organisation's roles from a game's credits. */
+export async function removeGameOrganization(gameId, organizationId, role) {
   await db
     .delete(gameOrganizations)
-    .where(
-      and(
-        eq(gameOrganizations.gameId, gameId),
-        eq(gameOrganizations.organizationId, organizationId)
-      )
-    );
+    .where(gameOrganizationLink(gameId, organizationId, role));
 }
 
 /** Adds uploaded images (their upload IDs) to a game, after its others. */
