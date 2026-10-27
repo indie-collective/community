@@ -2,16 +2,24 @@ import { type RouteConfig, index, route } from '@react-router/dev/routes';
 
 // Mirrors the old Remix v1 folder convention: dots in a file name are path
 // segments, and only a sibling folder (e.g. `event.$id/`) creates nesting.
+//
+// Every page is in the navigation, the footer or the sitemap, or linked from
+// another page, except these, unlinked on purpose (#348): healthcheck,
+// robots.txt, images/* and oauth/* (for machines), welcome (where sign-up
+// lands), check-username-availability and search-* (fetched by forms and
+// pickers), places2 (an old address) and coffee (an easter egg).
 export default [
   index('routes/index.jsx'),
 
   route('about', 'routes/about.jsx'),
   route('sitemap.xml', 'routes/sitemap.xml.js'),
   route('robots.txt', 'routes/robots.txt.js'),
+  // An easter egg, kept on purpose: 418 I'm a teapot.
   route('coffee', 'routes/coffee.jsx'),
   route('healthcheck', 'routes/healthcheck.jsx'),
   route('images/*', 'routes/images.$.js'),
   route('rewind', 'routes/rewind.jsx'),
+  route('rewind/:year', 'routes/rewind.$year.jsx'),
   route('welcome', 'routes/welcome.jsx'),
 
   // Auth & account
@@ -33,7 +41,7 @@ export default [
 
   // Places
   route('places', 'routes/places.jsx'),
-  route('places2', 'routes/places2.jsx'),
+  route('places2', 'routes/places2.js'),
   route('countries', 'routes/countries.jsx'),
   route('country/:code', 'routes/country.$code.jsx'),
 
