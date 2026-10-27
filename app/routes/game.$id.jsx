@@ -32,6 +32,7 @@ import { SearchOrgModal } from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
+import ShareMenu from '../components/ShareMenu';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import TagList from '../components/TagList';
 import { GAME_ROLES } from '../utils/gameRoles';
@@ -149,13 +150,16 @@ const Game = () => {
         eyebrow={eyebrow}
         title={name}
         actions={
-          currentUser && (
-            <ActionMenu
-              editLink={`/game/${id}/edit`}
-              changesLink={`/game/${id}/changes`}
-              onDelete={deleteModal.onOpen}
-            />
-          )
+          <>
+            <ShareMenu title={name} path={gamePath(game)} />
+            {currentUser && (
+              <ActionMenu
+                editLink={`/game/${id}/edit`}
+                changesLink={`/game/${id}/changes`}
+                onDelete={deleteModal.onOpen}
+              />
+            )}
+          </>
         }
       />
       <Box mb={{ base: 8, md: 10 }}>
@@ -216,7 +220,9 @@ const Game = () => {
                 {...author}
                 involvement={role ?? 'developer'}
                 // #335: its other roles on this game, which it can't take twice.
-                takenRoles={rolesOf(author.id).filter((other) => other !== role)}
+                takenRoles={rolesOf(author.id).filter(
+                  (other) => other !== role
+                )}
                 onInvolvementChange={
                   currentUser
                     ? (newRole) =>
@@ -266,7 +272,9 @@ const Game = () => {
                   // only those with every role are left out.
                   excludedIds={entities
                     .map((entity) => entity.id)
-                    .filter((orgId) => rolesOf(orgId).length === GAME_ROLES.length)}
+                    .filter(
+                      (orgId) => rolesOf(orgId).length === GAME_ROLES.length
+                    )}
                   onSelect={(author) => {
                     fetcher.submit(
                       { id: author.id },
