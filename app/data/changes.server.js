@@ -40,7 +40,7 @@ const KINDS = {
     legacyName: 'event',
     toShape: shape.event,
     compute: computeEvent,
-    data: sql`json_object('id', ${events.id}, 'name', ${events.name}, 'about', ${events.about}, 'site', ${events.site}, 'starts_at', ${events.startsAt}, 'ends_at', ${events.endsAt}, 'time_zone', ${events.timeZone}, 'status', ${events.status}, ${location(events)}, 'created_at', ${events.createdAt}, 'updated_at', ${events.updatedAt})`,
+    data: sql`json_object('id', ${events.id}, 'name', ${events.name}, 'about', ${events.about}, 'site', ${events.site}, 'starts_at', ${events.startsAt}, 'ends_at', ${events.endsAt}, 'time_zone', ${events.timeZone}, 'status', ${events.status}, 'attendance', ${events.attendance}, 'online_url', ${events.onlineUrl}, ${location(events)}, 'created_at', ${events.createdAt}, 'updated_at', ${events.updatedAt})`,
   },
 };
 const LEGACY_NAMES = Object.fromEntries(

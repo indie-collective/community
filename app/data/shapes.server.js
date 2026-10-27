@@ -131,6 +131,8 @@ export function event(row) {
     time_zone: row.timeZone,
     status: row.status,
     ticket_url: row.ticketUrl,
+    attendance: row.attendance,
+    online_url: row.onlineUrl,
     previous_edition_id: row.previousEditionId,
     lastModifiedById: row.lastModifiedById,
     location: location(row),

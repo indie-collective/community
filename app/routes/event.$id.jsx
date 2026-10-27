@@ -25,6 +25,7 @@ import {
   LuExternalLink,
   LuTicket,
   LuCalendar,
+  LuGlobe,
 } from 'react-icons/lu';
 import {
   Form,
@@ -37,6 +38,7 @@ import Link from '../components/Link';
 
 import PlaceMap from '../components/PlaceMap';
 import ShareMenu from '../components/ShareMenu';
+import VisitorTime from '../components/VisitorTime';
 import { pinColor } from '../utils/orgTypes';
 
 import {
@@ -141,6 +143,8 @@ const Event = () => {
     about,
     site,
     ticket_url: ticketUrl,
+    attendance,
+    online_url: onlineUrl,
     starts_at: startsAt,
     time_zone: timeZone,
     ends_at: endsAt,
@@ -196,7 +200,7 @@ const Event = () => {
         eyebrow={[
           'Event',
           status === 'canceled' ? 'Canceled' : isPast ? 'Past' : 'Upcoming',
-          place,
+          place ?? (attendance === 'online' ? 'Online' : null),
         ]
           .filter(Boolean)
           .join(' · ')}
@@ -251,6 +255,26 @@ const Event = () => {
               </time>
             </Text>
           </HStack>
+          <Box ps={6}>
+            <VisitorTime startsAt={startsAt} endsAt={endsAt} timeZone={timeZone} />
+          </Box>
+          {attendance !== 'in_person' && (
+            <HStack gap={2}>
+              <LuGlobe />
+              <Text>
+                {attendance === 'online' ? 'Online' : 'Also online'}
+                {onlineUrl && (
+                  <>
+                    {' · '}
+                    <ChakraLink href={onlineUrl} target="_blank" rel="noopener noreferrer">
+                      Join online
+                      <LuExternalLink />
+                    </ChakraLink>
+                  </>
+                )}
+              </Text>
+            </HStack>
+          )}
           {location && (
             <HStack gap={2} align="flex-start">
               <Box as="span" mt="3px">

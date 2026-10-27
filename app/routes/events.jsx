@@ -6,7 +6,8 @@ import Link from '../components/Link';
 import { listEvents } from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import EventCard from '../components/EventCard';
-import Filters from '../components/Filters';
+import Filters, { NEAR_RADII } from '../components/Filters';
+import { placeAt } from '../utils/mapFocus';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import { pageMeta } from '../utils/meta';
 import { Page, PageHeader, PageSection } from '../components/Page';
@@ -16,12 +17,23 @@ export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
   const country = searchParams.get('country');
   const period = searchParams.get('period') || 'upcoming';
+  // #347: in person or online, and near a place (the visitor's, from the browser).
+  const where = ['in_person', 'online'].includes(searchParams.get('where'))
+    ? searchParams.get('where')
+    : null;
+  const near = placeAt(searchParams.get('near'));
+  const km = NEAR_RADII.includes(Number(searchParams.get('km')))
+    ? Number(searchParams.get('km'))
+    : 50;
 
   const currentUser = await isAuthenticated(request);
 
   const { events, pastEvents, countries, years } = await listEvents({
     country,
     period,
+    where,
+    near,
+    km,
   });
 
   const data = {
@@ -34,6 +46,9 @@ export const loader = async ({ request }) => {
     selected: {
       country,
       period,
+      where,
+      near: near && searchParams.get('near'),
+      km,
     },
     currentUser,
   };
@@ -72,9 +87,11 @@ const NoEvents = ({ children }) => (
 const Events = () => {
   const { events, pastEvents, currentUser, facets, selected } = useLoaderData();
   const isPeriodUpcoming = selected.period === 'upcoming';
-  const where = selected.country
-    ? ` in ${countryNames[selected.country] ?? selected.country}`
-    : '';
+  const where = [
+    selected.where === 'online' ? ' online' : selected.where === 'in_person' ? ' in person' : '',
+    selected.country ? ` in ${countryNames[selected.country] ?? selected.country}` : '',
+    selected.near ? ` within ${selected.km} km` : '',
+  ].join('');
 
   return (
     <Page>

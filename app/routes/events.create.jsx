@@ -11,6 +11,7 @@ import { toaster } from '../components/ui/toaster';
 import EventForm from '../components/EventForm';
 import { zonedInputToDate } from '../utils/eventTime';
 import { timeZoneAt } from '../utils/timeZone.server';
+import { isTimeZone, parseAttendance } from '../utils/eventAttendance';
 import getOrigin from '../utils/origin.server';
 import { webUrl } from '../utils/url';
 import { eventPath } from '../utils/slug';
@@ -36,8 +37,13 @@ export async function action(args) {
     latitude: parseFloat(data.get('latitude')) || null,
     longitude: parseFloat(data.get('longitude')) || null,
   };
-  // Times are entered as wall-clock time where the event happens (#204).
-  const timeZone = timeZoneAt(location.latitude, location.longitude);
+  const attendance = parseAttendance(data.get('attendance'));
+  // Times are entered as wall-clock time where the event happens (#204);
+  // online, in the zone chosen on the form (#347).
+  const timeZone =
+    attendance === 'online' && isTimeZone(data.get('time_zone'))
+      ? data.get('time_zone')
+      : timeZoneAt(location.latitude, location.longitude);
 
   try {
     const event = await createEvent({
@@ -49,6 +55,8 @@ export async function action(args) {
       about: data.get('about'),
       site: webUrl(data.get('site')),
       ticketUrl: webUrl(data.get('ticket_url')),
+      attendance,
+      onlineUrl: webUrl(data.get('online_url')),
       previousEditionId: data.get('previous_edition_id') || null,
       coverId: data.get('cover'),
       location,
@@ -61,7 +69,7 @@ export async function action(args) {
     const name = data.get('name');
     afterResponse(args.context, () =>
       announceOnBluesky({
-        text: `New event on Community: ${name}${location.city ? `, in ${location.city}` : ''}`,
+        text: `New event on Community: ${name}${location.city ? `, in ${location.city}` : attendance === 'online' ? ', online' : ''}`,
         url: `${BASE_URL}${eventPath(event)}`,
         title: name,
         description:

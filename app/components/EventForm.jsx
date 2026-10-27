@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -14,6 +14,7 @@ import {
   Grid,
   Switch,
   Field,
+  NativeSelect,
 } from '@chakra-ui/react';
 import { LuPencil } from 'react-icons/lu';
 import TileMap from './TileMap';
@@ -26,6 +27,7 @@ import { Form, useSubmit } from 'react-router';
 import { dateToZonedInput } from '../utils/eventTime';
 import ThumbnailFields from './ThumbnailFields';
 import PreviousEditionPicker from './PreviousEditionPicker';
+import { ATTENDANCES } from '../utils/eventAttendance';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
@@ -80,7 +82,6 @@ const propTypes = {
   }),
 };
 
-
 // Defaults as parameters: React 19 ignores defaultProps on function components.
 const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
   const submit = useSubmit();
@@ -96,8 +97,18 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
     id: eventId,
     site,
     ticket_url: ticketUrl,
+    attendance: savedAttendance,
+    online_url: onlineUrl,
     previous_edition: previousEdition,
   } = defaultData;
+  // #347: online events have no place, but a link and a time zone.
+  const [attendance, setAttendance] = useState(savedAttendance ?? 'in_person');
+  const [zones, setZones] = useState([]);
+  const [browserZone, setBrowserZone] = useState(null);
+  useEffect(() => {
+    setZones(Intl.supportedValuesOf?.('timeZone') ?? []);
+    setBrowserZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  }, []);
   const coverRef = useRef();
   const [cover, setCover] = useState(defaultData.cover);
   const [coverFile, setCoverFile] = useState(null);
@@ -152,7 +163,10 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
         })}
       >
         <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
-          <Field.Label htmlFor="name">Name<Field.RequiredIndicator /></Field.Label>
+          <Field.Label htmlFor="name">
+            Name
+            <Field.RequiredIndicator />
+          </Field.Label>
           <Input
             {...register('name')}
             id="name"
@@ -184,8 +198,73 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
             {errors.canceled && errors.canceled.message}
           </Field.ErrorText>
         </Field.Root>
+        <Field.Root gridColumn="1 / 3">
+          <Field.Label htmlFor="attendance">Where</Field.Label>
+          <NativeSelect.Root>
+            <NativeSelect.Field
+              id="attendance"
+              name="attendance"
+              value={attendance}
+              onChange={(event) => setAttendance(event.target.value)}
+            >
+              {ATTENDANCES.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+        </Field.Root>
+        {attendance !== 'in_person' && (
+          <Field.Root gridColumn="1 / 3">
+            <Field.Label htmlFor="online_url">Online link</Field.Label>
+            <Input
+              id="online_url"
+              name="online_url"
+              defaultValue={onlineUrl ?? ''}
+              placeholder="A stream, a Discord, a jam page…"
+              inputMode="url"
+            />
+          </Field.Root>
+        )}
+        {attendance === 'online' && (
+          <Field.Root gridColumn="1 / 3">
+            <Field.Label htmlFor="time_zone">Time zone</Field.Label>
+            <NativeSelect.Root>
+              <NativeSelect.Field
+                id="time_zone"
+                name="time_zone"
+                defaultValue={
+                  savedAttendance === 'online' ? timeZone : undefined
+                }
+                key={browserZone ?? 'server'}
+              >
+                {[
+                  ...new Set([
+                    timeZone ?? browserZone ?? 'Europe/Paris',
+                    ...zones,
+                  ]),
+                ]
+                  .filter(Boolean)
+                  .map((zone) => (
+                    <option key={zone} value={zone}>
+                      {zone.replaceAll('_', ' ')}
+                    </option>
+                  ))}
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+            <Field.HelperText>
+              The start and end times are in this zone.
+            </Field.HelperText>
+          </Field.Root>
+        )}
         <Field.Root invalid={errors.start} required>
-          <Field.Label htmlFor="start">Start<Field.RequiredIndicator /></Field.Label>
+          <Field.Label htmlFor="start">
+            Start
+            <Field.RequiredIndicator />
+          </Field.Label>
           <Input
             {...register('start')}
             id="start"
@@ -198,7 +277,10 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
           </Field.ErrorText>
         </Field.Root>
         <Field.Root gridColumn="2 / 3" invalid={errors.end} required>
-          <Field.Label htmlFor="end">End<Field.RequiredIndicator /></Field.Label>
+          <Field.Label htmlFor="end">
+            End
+            <Field.RequiredIndicator />
+          </Field.Label>
           <Input
             {...register('end')}
             id="end"
@@ -208,51 +290,55 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
           />
           <Field.ErrorText>{errors.end && errors.end.message}</Field.ErrorText>
         </Field.Root>
-        <Field.Root gridColumn="1 / 3">
-          <Field.Label>Location</Field.Label>
+        {attendance !== 'online' && (
+          <Field.Root gridColumn="1 / 3">
+            <Field.Label>Location</Field.Label>
 
-          <Controller
-            control={control}
-            name="location"
-            render={({ field }) => (
-              <PlacesSearch
-                inputProps={{ id: 'location' }}
-                {...field}
-                placeholder="Where is the party?"
-                onClear={() => setValue('location', { label: '', value: null })}
-                onError={() => {
-                  setError('location', {
-                    type: 'custom',
-                    message: 'There was a problem retrieving data.',
-                  });
-                }}
-              />
+            <Controller
+              control={control}
+              name="location"
+              render={({ field }) => (
+                <PlacesSearch
+                  inputProps={{ id: 'location' }}
+                  {...field}
+                  placeholder="Where is the party?"
+                  onClear={() =>
+                    setValue('location', { label: '', value: null })
+                  }
+                  onError={() => {
+                    setError('location', {
+                      type: 'custom',
+                      message: 'There was a problem retrieving data.',
+                    });
+                  }}
+                />
+              )}
+            />
+
+            {location.value && (
+              <Box
+                width="100%"
+                height="100px"
+                overflow="hidden"
+                borderRadius={5}
+                mt={2}
+              >
+                <TileMap
+                  defaultWidth={800}
+                  defaultHeight={100}
+                  center={[location.value.latitude, location.value.longitude]}
+                  zoom={
+                    location.value.bbox
+                      ? viewport(location.value.bbox, [474, 100]).zoom
+                      : 16
+                  }
+                  mouseEvents={false}
+                  touchEvents={false}
+                />
+              </Box>
             )}
-          />
-
-          {location.value && (
-            <Box
-              width="100%"
-              height="100px"
-              overflow="hidden"
-              borderRadius={5}
-              mt={2}
-            >
-              <TileMap
-                defaultWidth={800}
-                defaultHeight={100}
-                center={[location.value.latitude, location.value.longitude]}
-                zoom={
-                  location.value.bbox
-                    ? viewport(location.value.bbox, [474, 100]).zoom
-                    : 16
-                }
-                mouseEvents={false}
-                touchEvents={false}
-              />
-            </Box>
-          )}
-        </Field.Root>
+          </Field.Root>
+        )}
         <Field.Root gridColumn="1 / 3">
           <Field.Label htmlFor="cover">Cover</Field.Label>
 
@@ -300,15 +386,30 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
         </Field.Root>
         <Field.Root>
           <Field.Label htmlFor="site">Website</Field.Label>
-          <Input id="site" name="site" defaultValue={site ?? ''} placeholder="https://…" inputMode="url" />
+          <Input
+            id="site"
+            name="site"
+            defaultValue={site ?? ''}
+            placeholder="https://…"
+            inputMode="url"
+          />
         </Field.Root>
         <Field.Root>
           <Field.Label htmlFor="ticket_url">Tickets</Field.Label>
-          <Input id="ticket_url" name="ticket_url" defaultValue={ticketUrl ?? ''} placeholder="https://…" inputMode="url" />
+          <Input
+            id="ticket_url"
+            name="ticket_url"
+            defaultValue={ticketUrl ?? ''}
+            placeholder="https://…"
+            inputMode="url"
+          />
         </Field.Root>
         <Field.Root gridColumn="1 / 3">
           <Field.Label>Previous edition</Field.Label>
-          <PreviousEditionPicker eventId={eventId} defaultValue={previousEdition} />
+          <PreviousEditionPicker
+            eventId={eventId}
+            defaultValue={previousEdition}
+          />
           <Field.HelperText>
             Links this event to the edition before it, so the series shows on
             both pages.
