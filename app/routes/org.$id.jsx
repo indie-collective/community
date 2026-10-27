@@ -36,6 +36,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import ShareMenu from '../components/ShareMenu';
+import { SubscribeMenu } from '../components/CalendarMenus';
 import { Page, PageHeader } from '../components/Page';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
@@ -160,6 +161,10 @@ const Org = () => {
           actions={
             <>
               <ShareMenu title={name} path={orgPath(org)} />
+              {/* #342: its events in a calendar app. */}
+              {entity_event.length > 0 && (
+                <SubscribeMenu label="Events calendar" calendarPath={`${orgPath(org)}/calendar.ics`} />
+              )}
               {currentUser && (
                 <ActionMenu
                   editLink={`/org/${id}/edit`}

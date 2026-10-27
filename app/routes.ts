@@ -5,7 +5,7 @@ import { type RouteConfig, index, route } from '@react-router/dev/routes';
 //
 // Every page is in the navigation, the footer or the sitemap, or linked from
 // another page, except these, unlinked on purpose (#348): healthcheck,
-// robots.txt, images/* and oauth/* (for machines), welcome (where sign-up
+// robots.txt, images/*, oauth/*, calendars and feeds (for machines), welcome (where sign-up
 // lands), check-username-availability and search-* (fetched by forms and
 // pickers), places2 (an old address) and coffee (an easter egg).
 export default [
@@ -14,6 +14,16 @@ export default [
   route('about', 'routes/about.jsx'),
   route('sitemap.xml', 'routes/sitemap.xml.js'),
   route('robots.txt', 'routes/robots.txt.js'),
+  // Calendars and feeds (#342).
+  route('calendar.ics', 'routes/feeds/calendar.js', { id: 'calendar-all' }),
+  route('country/:code/calendar.ics', 'routes/feeds/calendar.js', { id: 'calendar-country' }),
+  route('org/:id/calendar.ics', 'routes/feeds/calendar.js', { id: 'calendar-org' }),
+  route('event/:id/calendar.ics', 'routes/feeds/calendar.js', { id: 'calendar-event' }),
+  route('my-calendar/:token', 'routes/feeds/calendar.js', { id: 'calendar-mine' }),
+  route('feed.xml', 'routes/feeds/atom.js', { id: 'feed-all' }),
+  route('games/feed.xml', 'routes/feeds/atom.js', { id: 'feed-games' }),
+  route('events/feed.xml', 'routes/feeds/atom.js', { id: 'feed-events' }),
+  route('orgs/feed.xml', 'routes/feeds/atom.js', { id: 'feed-orgs' }),
   // An easter egg, kept on purpose: 418 I'm a teapot.
   route('coffee', 'routes/coffee.jsx'),
   route('healthcheck', 'routes/healthcheck.jsx'),

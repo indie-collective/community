@@ -24,6 +24,7 @@ import { associationsByCity, citiesOf } from '../utils/countryOverview';
 import countryMaps from '../assets/countryMaps.json';
 import CountryMap from '../components/CountryMap';
 import CityList from '../components/CityList';
+import { SubscribeMenu } from '../components/CalendarMenus';
 import { orgPath } from '../utils/slug';
 
 // A country page is the overview of its indie scene, for newcomers and
@@ -165,7 +166,17 @@ const CountryPage = () => {
 
   return (
     <Page>
-      <PageHeader eyebrow="Country" title={`${name}'s indie game scene`} />
+      <PageHeader
+        eyebrow="Country"
+        title={`${name}'s indie game scene`}
+        actions={
+          // #342: its events in a calendar app, and what's new there.
+          <SubscribeMenu
+            calendarPath={`/country/${code.toLowerCase()}/calendar.ics`}
+            feedPath={`/feed.xml?country=${code}`}
+          />
+        }
+      />
 
       <SimpleGrid
         as="ul"

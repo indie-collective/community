@@ -20,6 +20,8 @@ import Link from '../components/Link';
 
 import { getProfile } from '../data/people.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
+import { calendarToken } from '../utils/calendarToken.server';
+import { SubscribeMenu } from '../components/CalendarMenus';
 import { useColorMode } from '../components/ui/color-mode';
 import { PageHeader } from '../components/Page';
 
@@ -28,6 +30,8 @@ export const loader = async ({ request }) => {
 
   return {
     currentUser: await getProfile(currentUser.id),
+    // #342: the private address of their events calendar.
+    calendarPath: `/my-calendar/${await calendarToken(currentUser.id)}`,
   };
 };
 
@@ -41,7 +45,7 @@ const Profile = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   const [searchParams] = useSearchParams();
 
-  const { currentUser } = useLoaderData();
+  const { currentUser, calendarPath } = useLoaderData();
   const {
     username,
     first_name,
@@ -152,6 +156,19 @@ const Profile = () => {
               </Field.Root>
             </Form>
           )}
+        </Stack>
+
+        <Stack as="section" alignSelf="stretch" gap={2} aria-labelledby="my-calendar">
+          <Heading as="h4" size="sm" id="my-calendar">
+            Your events calendar
+          </Heading>
+          <Text fontSize="sm" color="muted">
+            The events you're going to, in your calendar app, kept up to date.
+            Its address is private: anyone with it sees which events you go to.
+          </Text>
+          <Box>
+            <SubscribeMenu label="Add to my calendar" calendarPath={calendarPath} />
+          </Box>
         </Stack>
 
         {about && (

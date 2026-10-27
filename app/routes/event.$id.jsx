@@ -38,6 +38,7 @@ import Link from '../components/Link';
 
 import PlaceMap from '../components/PlaceMap';
 import ShareMenu from '../components/ShareMenu';
+import { AddToCalendar } from '../components/CalendarMenus';
 import VisitorTime from '../components/VisitorTime';
 import { pinColor } from '../utils/orgTypes';
 
@@ -215,6 +216,13 @@ const Event = () => {
         actions={
           <>
             <ShareMenu title={name} path={eventPath(event)} />
+            {!isPast && status !== 'canceled' && (
+              <AddToCalendar
+                event={event}
+                path={eventPath(event)}
+                place={location ? [location.street, location.city].filter(Boolean).join(', ') : null}
+              />
+            )}
             {currentUser && (
               <>
                 {status !== 'canceled' && (

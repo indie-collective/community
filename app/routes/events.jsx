@@ -6,6 +6,7 @@ import Link from '../components/Link';
 import { listEvents } from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import EventCard from '../components/EventCard';
+import { SubscribeMenu } from '../components/CalendarMenus';
 import Filters, { NEAR_RADII } from '../components/Filters';
 import { placeAt } from '../utils/mapFocus';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
@@ -99,14 +100,20 @@ const Events = () => {
         title="Events"
         description="Festivals, conventions, meetups and game jams where indie games are made and shown."
         actions={
-          currentUser && (
-            <Button asChild size="sm">
-              <Link to="/events/create">
-                <LuPlus />
-                Add an event
-              </Link>
-            </Button>
-          )
+          <>
+            <SubscribeMenu
+              calendarPath={selected.country ? `/country/${selected.country.toLowerCase()}/calendar.ics` : '/calendar.ics'}
+              feedPath={`/events/feed.xml${selected.country ? `?country=${selected.country}` : ''}`}
+            />
+            {currentUser && (
+              <Button asChild size="sm">
+                <Link to="/events/create">
+                  <LuPlus />
+                  Add an event
+                </Link>
+              </Button>
+            )}
+          </>
         }
       />
       <Filters facets={facets} selected={selected} type="event" />
