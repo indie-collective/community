@@ -64,6 +64,8 @@ const OrgCard = ({
   // with onInvolvementChange, a select to change it.
   involvement,
   onInvolvementChange,
+  // Roles it already has on the game, not offered in the select (#335).
+  takenRoles = [],
   // #331: on the publishers list, how many games it published.
   published_count,
   ...rest
@@ -132,7 +134,7 @@ const OrgCard = ({
                   onChange={(event) => onInvolvementChange(event.target.value)}
                 >
                   {GAME_ROLES.map(([value, label]) => (
-                    <option key={value} value={value}>
+                    <option key={value} value={value} disabled={takenRoles.includes(value)}>
                       {label}
                     </option>
                   ))}

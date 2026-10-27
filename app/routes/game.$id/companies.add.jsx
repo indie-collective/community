@@ -1,9 +1,10 @@
-import { redirect } from 'react-router';
-
+import { GAME_ORGANIZATION_ROLES } from '../../db/schema.js';
 import { addGameOrganization } from '../../data/games.server';
 import { authorizer, canWrite } from '../../utils/auth.server';
 import { routeRecordId } from '../../utils/pageRecord.server';
 
+// Credits an organisation on the game, in `role` if given (#335). Called by
+// fetchers: no redirect, so the page stays where it is (#336).
 export async function action(args) {
   const { params, request } = args;
   const id = await routeRecordId('game', params.id);
@@ -13,8 +14,12 @@ export async function action(args) {
   });
 
   const data = await request.formData();
+  const role = data.get('role') || undefined;
+  if (role && !GAME_ORGANIZATION_ROLES.includes(role)) {
+    throw new Response('Bad Request', { status: 400 });
+  }
 
-  await addGameOrganization(id, data.get('id'));
+  await addGameOrganization(id, data.get('id'), role);
 
-  return redirect(`/game/${id}`);
+  return { ok: true };
 }

@@ -102,8 +102,17 @@ const Org = () => {
   } = org;
 
   const games = game_entity.map(({ game }) => game);
-  const published = game_entity.filter(({ role }) => role === 'publisher');
-  const made = game_entity.filter(({ role }) => role !== 'publisher');
+  // Each game once per section, with every role it had there (#335).
+  const byGame = (links) => [
+    ...links
+      .reduce((all, { game, role }) => {
+        const roles = all.get(game.id)?.roles ?? [];
+        return all.set(game.id, { game, roles: [...roles, role ?? 'developer'] });
+      }, new Map())
+      .values(),
+  ];
+  const published = byGame(game_entity.filter(({ role }) => role === 'publisher'));
+  const made = byGame(game_entity.filter(({ role }) => role !== 'publisher'));
   const events = entity_event.map(({ event }) => event);
 
   return (
@@ -213,13 +222,13 @@ const Org = () => {
                   'repeat(4, 1fr)',
                 ]}
               >
-                {links.map(({ game, role }) => (
+                {links.map(({ game, roles }) => (
                   <Box minW={0} key={game.id}>
                     <GameCard {...game} />
-                    {/* #40: how this organisation took part, when not as the developer. */}
-                    {role && role !== 'developer' && role !== 'publisher' && (
+                    {/* #40: how this organisation took part, when not only as the developer. */}
+                    {roles.some((role) => role !== 'developer' && role !== 'publisher') && (
                       <Text fontSize="sm" color="muted" mt={1}>
-                        {gameRoleLabel(role)}
+                        {roles.map(gameRoleLabel).join(', ')}
                       </Text>
                     )}
                   </Box>

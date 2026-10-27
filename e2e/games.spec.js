@@ -204,6 +204,60 @@ test('a member sets how a studio took part in a game', async ({ page }) => {
   }
 });
 
+// #335: one studio can be a game's developer and its publisher.
+test('a member credits a studio as both developer and publisher', async ({ page }) => {
+  const { db, gameOrganizations, games, organizations, retryBusy } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const suffix = Date.now() % 100000;
+  const [game] = await db.insert(games).values({ name: `Self-published ${suffix}` }).returning();
+  const [org] = await db.insert(organizations).values({ name: `Both Ways ${suffix}`, type: 'studio' }).returning();
+  await db.insert(gameOrganizations).values({ gameId: game.id, organizationId: org.id });
+  const roles = async () =>
+    (await retryBusy(() => db.select().from(gameOrganizations).where(eq(gameOrganizations.gameId, game.id))))
+      .map((link) => link.role)
+      .sort();
+  try {
+    await signIn(page, MEMBER);
+    await page.goto(`/game/${game.id}`);
+
+    // Added again, the studio is credited as the publisher too.
+    await page.getByRole('button', { name: 'Add an author to the game' }).click();
+    await page.getByPlaceholder('Search...').fill(org.name);
+    const added = page.waitForResponse((response) => response.url().includes('/companies/add'));
+    await page.getByRole('listitem').filter({ hasText: org.name }).click();
+    await added;
+    const selects = page.getByRole('combobox', { name: `Role of ${org.name}` });
+    await expect(selects).toHaveCount(2);
+    expect(await roles()).toEqual(['developer', 'publisher']);
+    // Neither card offers the role the other has.
+    await expect(selects.first().locator('option[value="publisher"]')).toBeDisabled();
+
+    // The org page lists the game once as made and once as published.
+    await page.goto(`/org/${org.id}`);
+    for (const heading of ['Games', 'Published']) {
+      const section = page.locator('section').filter({ has: page.getByRole('heading', { name: heading, exact: true }) });
+      await expect(section.getByText(game.name)).toHaveCount(1);
+    }
+
+    // Removing one role keeps the other.
+    await page.goto(`/game/${game.id}`);
+    const scrolled = await page.evaluate(() => {
+      window.scrollTo(0, 200);
+      return window.scrollY;
+    });
+    const removed = page.waitForResponse((response) => response.url().includes('/companies/delete'));
+    await page.getByRole('button', { name: `Remove ${org.name}` }).last().click();
+    await removed;
+    await expect(selects).toHaveCount(1);
+    expect(await roles()).toHaveLength(1);
+    // #336: the page stays where it was.
+    expect(await page.evaluate(() => window.scrollY)).toBe(scrolled);
+  } finally {
+    await db.delete(games).where(eq(games.id, game.id));
+    await db.delete(organizations).where(eq(organizations.id, org.id));
+  }
+});
+
 // Games without a website (9 in production) couldn't be edited: the form's
 // validation refused the empty (null) website.
 test('a game without a website can be edited', async ({ page }) => {
