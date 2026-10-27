@@ -36,6 +36,7 @@ import {
 import Link from '../components/Link';
 
 import PlaceMap from '../components/PlaceMap';
+import ShareMenu from '../components/ShareMenu';
 import { pinColor } from '../utils/orgTypes';
 
 import {
@@ -208,31 +209,34 @@ const Event = () => {
           </Text>
         }
         actions={
-          currentUser && (
-            <>
-              {status !== 'canceled' && (
-                <JoinEventButton
-                  size="sm"
-                  minWidth={100}
-                  eventId={id}
-                  isGoing={isGoing}
-                >
-                  {isPast
-                    ? isGoing
-                      ? 'Went'
-                      : 'I went!'
-                    : isGoing
-                      ? 'Going'
-                      : "Let's go!"}
-                </JoinEventButton>
-              )}
-              <ActionMenu
-                editLink={`/event/${id}/edit`}
-                changesLink={`/event/${id}/changes`}
-                onDelete={deleteModal.onOpen}
-              />
-            </>
-          )
+          <>
+            <ShareMenu title={name} path={eventPath(event)} />
+            {currentUser && (
+              <>
+                {status !== 'canceled' && (
+                  <JoinEventButton
+                    size="sm"
+                    minWidth={100}
+                    eventId={id}
+                    isGoing={isGoing}
+                  >
+                    {isPast
+                      ? isGoing
+                        ? 'Went'
+                        : 'I went!'
+                      : isGoing
+                        ? 'Going'
+                        : "Let's go!"}
+                  </JoinEventButton>
+                )}
+                <ActionMenu
+                  editLink={`/event/${id}/edit`}
+                  changesLink={`/event/${id}/changes`}
+                  onDelete={deleteModal.onOpen}
+                />
+              </>
+            )}
+          </>
         }
       >
         <Stack gap={1} color="muted">

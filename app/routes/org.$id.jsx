@@ -35,10 +35,16 @@ import PlaceMap from '../components/PlaceMap';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
+import ShareMenu from '../components/ShareMenu';
 import { Page, PageHeader } from '../components/Page';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
-import { ORG_STATUSES, orgStatusLabel, orgTypeLabel, pinColor } from '../utils/orgTypes';
+import {
+  ORG_STATUSES,
+  orgStatusLabel,
+  orgTypeLabel,
+  pinColor,
+} from '../utils/orgTypes';
 import EmptyHint from '../components/EmptyHint';
 import { FaBluesky } from 'react-icons/fa6';
 import { pageRecordId } from '../utils/pageRecord.server';
@@ -108,11 +114,16 @@ const Org = () => {
     ...links
       .reduce((all, { game, role }) => {
         const roles = all.get(game.id)?.roles ?? [];
-        return all.set(game.id, { game, roles: [...roles, role ?? 'developer'] });
+        return all.set(game.id, {
+          game,
+          roles: [...roles, role ?? 'developer'],
+        });
       }, new Map())
       .values(),
   ];
-  const published = byGame(game_entity.filter(({ role }) => role === 'publisher'));
+  const published = byGame(
+    game_entity.filter(({ role }) => role === 'publisher')
+  );
   const made = byGame(game_entity.filter(({ role }) => role !== 'publisher'));
   const events = entity_event.map(({ event }) => event);
 
@@ -147,13 +158,16 @@ const Org = () => {
             .join(' · ')}
           title={name}
           actions={
-            currentUser && (
-              <ActionMenu
-                editLink={`/org/${id}/edit`}
-                changesLink={`/org/${id}/changes`}
-                onDelete={deleteModal.onOpen}
-              />
-            )
+            <>
+              <ShareMenu title={name} path={orgPath(org)} />
+              {currentUser && (
+                <ActionMenu
+                  editLink={`/org/${id}/edit`}
+                  changesLink={`/org/${id}/changes`}
+                  onDelete={deleteModal.onOpen}
+                />
+              )}
+            </>
           }
         >
           <HStack gap={4} wrap="wrap" fontSize="sm" color="muted">
@@ -205,7 +219,11 @@ const Org = () => {
           id={id}
           color={pinColor(type)}
           logo={logo}
-          label={[location.city, countryNames[location.country_code]].filter(Boolean).join(', ') || name}
+          label={
+            [location.city, countryNames[location.country_code]]
+              .filter(Boolean)
+              .join(', ') || name
+          }
         />
       )}
 
@@ -238,7 +256,9 @@ const Org = () => {
                   <Box minW={0} key={game.id}>
                     <GameCard {...game} />
                     {/* #40: how this organisation took part, when not only as the developer. */}
-                    {roles.some((role) => role !== 'developer' && role !== 'publisher') && (
+                    {roles.some(
+                      (role) => role !== 'developer' && role !== 'publisher'
+                    ) && (
                       <Text fontSize="sm" color="muted" mt={1}>
                         {roles.map(gameRoleLabel).join(', ')}
                       </Text>
