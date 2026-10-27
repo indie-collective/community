@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { focusOn, zoomToFit } from './mapFocus';
+import { focusOn, placeAt, zoomToFit } from './mapFocus';
 
 const at = (latitude, longitude) => ({ latitude, longitude });
 
@@ -52,5 +52,20 @@ describe('zoomToFit', () => {
     expect(
       zoomToFit({ sw: [48, 2], ne: [48, 2] }, { width: 1240, height: 835 })
     ).toBe(12);
+  });
+});
+
+describe('placeAt', () => {
+  it('reads a lat,lng parameter', () => {
+    expect(placeAt('45.764,4.8357')).toEqual({ latitude: 45.764, longitude: 4.8357 });
+  });
+
+  it('refuses missing, malformed or impossible places', () => {
+    expect(placeAt(null)).toBeNull();
+    expect(placeAt('')).toBeNull();
+    expect(placeAt('45.7')).toBeNull();
+    expect(placeAt('lyon,france')).toBeNull();
+    expect(placeAt('91,0')).toBeNull();
+    expect(placeAt('0,181')).toBeNull();
   });
 });

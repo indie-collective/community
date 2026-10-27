@@ -202,6 +202,7 @@ const Org = () => {
       {location?.latitude && location?.longitude && (
         <PlaceMap
           location={location}
+          id={id}
           color={pinColor(type)}
           logo={logo}
           label={[location.city, countryNames[location.country_code]].filter(Boolean).join(', ') || name}
