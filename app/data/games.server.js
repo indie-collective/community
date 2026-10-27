@@ -18,6 +18,7 @@ import { db } from '../db/index.server.js';
 import {
   GAME_ORGANIZATION_ROLES,
   gameImages,
+  gameMilestones,
   gameOrganizations,
   games,
   gameTags,
@@ -95,6 +96,7 @@ export function gameWithRelations(row) {
         event: shape.event(link.event),
       }));
   }
+  if (row.milestones) game.game_milestone = row.milestones.map(shape.gameMilestone);
   if ('igdb' in row) game.igdb = shape.igdb(row.igdb);
   return game;
 }
@@ -198,7 +200,11 @@ export async function listGames({
 export async function getGame(id, { context } = {}) {
   const row = await db.query.games.findFirst({
     where: and(eq(games.id, id), notDeleted),
-    with: { ...CARD_WITH, events: { with: { event: true } } },
+    with: {
+      ...CARD_WITH,
+      events: { with: { event: true } },
+      milestones: { orderBy: [asc(gameMilestones.date)] },
+    },
   });
   if (!row) return null;
   const game = gameWithRelations(row);
@@ -408,6 +414,34 @@ export async function removeGameOrganization(gameId, organizationId, role) {
     .delete(gameOrganizations)
     .where(gameOrganizationLink(gameId, organizationId, role));
 }
+
+/**
+ * Adds a step to a game's timeline (#332): `kind` one of
+ * GAME_MILESTONE_KINDS, `date` and `precision` as utils/gameTimeline's
+ * milestoneDate makes them. It's a change to the game, in its history.
+ */
+export async function addGameMilestone(gameId, { kind, date, precision, note, authorId = null }) {
+  await db.batch([
+    db.insert(gameMilestones).values({ gameId, kind, date, datePrecision: precision, note: note || null }),
+    touch(gameId, authorId),
+    logChange('update', 'game', gameId, authorId),
+  ]);
+}
+
+/** Removes a step from a game's timeline, in the game's history too. */
+export async function removeGameMilestone(gameId, milestoneId, { authorId = null } = {}) {
+  await db.batch([
+    db
+      .delete(gameMilestones)
+      .where(and(eq(gameMilestones.gameId, gameId), eq(gameMilestones.id, milestoneId))),
+    touch(gameId, authorId),
+    logChange('update', 'game', gameId, authorId),
+  ]);
+}
+
+// Marks a game as just changed by `authorId`.
+const touch = (gameId, authorId) =>
+  db.update(games).set({ lastModifiedById: authorId, updatedAt: new Date() }).where(eq(games.id, gameId));
 
 /** Adds uploaded images (their upload IDs) to a game, after its others. */
 export async function addGameImages(gameId, imageIds) {

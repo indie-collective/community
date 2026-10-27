@@ -23,6 +23,23 @@ export const GAME_ORGANIZATION_ROLES = [
   'porting',
   'support',
 ];
+// A step in a game's life (#332), as shown on its timeline.
+export const GAME_MILESTONE_KINDS = [
+  'announced',
+  'prototype',
+  'alpha',
+  'beta',
+  'demo',
+  'early_access',
+  'funded',
+  'signed',
+  'released',
+  'ported',
+  'update',
+  'other',
+];
+// How much of a milestone's date is known: the year, the month or the day.
+export const DATE_PRECISIONS = ['year', 'month', 'day'];
 export const PERSON_ROLES = ['admin', 'member', 'restricted'];
 export const CHANGE_OPERATIONS = ['create', 'update', 'delete'];
 
@@ -337,6 +354,32 @@ export const gameTags = sqliteTable(
   ]
 );
 
+// The steps of a game's life (#332): announced, in beta, released… with
+// when, as precisely as it's known. `date` is the start of that period
+// (UTC), so they sort; `note` says more ("on Switch", "with Raw Fury").
+export const gameMilestones = sqliteTable(
+  'game_milestones',
+  {
+    id: id(),
+    gameId: text('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    kind: text('kind', { enum: GAME_MILESTONE_KINDS }).notNull(),
+    date: time('date').notNull(),
+    datePrecision: text('date_precision', { enum: DATE_PRECISIONS })
+      .notNull()
+      .default('month'),
+    note: text('note'),
+    ...timestamps(),
+  },
+  (t) => [
+    index('game_milestones_game_id').on(t.gameId, t.date),
+    check('game_milestones_kind', oneOf(t.kind, GAME_MILESTONE_KINDS)),
+    check('game_milestones_date_precision', oneOf(t.datePrecision, DATE_PRECISIONS)),
+    check('game_milestones_note_length', sql`length(${t.note}) <= 140`),
+  ]
+);
+
 // The change log: one row per create, update or delete of a game,
 // organisation or event, written by the app with the change (#150).
 export const changes = sqliteTable(
@@ -422,6 +465,7 @@ export const gamesRelations = relations(games, ({ many, one }) => ({
   events: many(gameEvents),
   images: many(gameImages),
   tags: many(gameTags),
+  milestones: many(gameMilestones),
   igdb: one(gameIgdb),
 }));
 
@@ -498,6 +542,10 @@ export const gameTagsRelations = relations(gameTags, ({ one }) => ({
 
 export const changesRelations = relations(changes, ({ one }) => ({
   author: one(people, { fields: [changes.authorId], references: [people.id] }),
+}));
+
+export const gameMilestonesRelations = relations(gameMilestones, ({ one }) => ({
+  game: one(games, { fields: [gameMilestones.gameId], references: [games.id] }),
 }));
 
 export const gameIgdbRelations = relations(gameIgdb, ({ one }) => ({

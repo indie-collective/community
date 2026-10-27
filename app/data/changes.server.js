@@ -5,7 +5,7 @@
 import { and, desc, eq, lt, sql } from 'drizzle-orm';
 
 import { db } from '../db/index.server.js';
-import { changes, events, games, organizations } from '../db/schema.js';
+import { changes, events, gameMilestones, games, organizations } from '../db/schema.js';
 import computeEvent from '../models/event';
 import computeGame from '../models/game';
 import computeOrg from '../models/org';
@@ -23,7 +23,8 @@ const KINDS = {
     legacyName: 'game',
     toShape: shape.game,
     compute: computeGame,
-    data: sql`json_object('id', ${games.id}, 'name', ${games.name}, 'about', ${games.about}, 'site', ${games.site}, 'igdb_slug', ${games.igdbSlug}, 'deleted', json(iif(${games.deletedAt} is null, 'false', 'true')), 'created_at', ${games.createdAt}, 'updated_at', ${games.updatedAt})`,
+    // With its timeline (#332), oldest first, so history shows its changes.
+    data: sql`json_object('id', ${games.id}, 'name', ${games.name}, 'about', ${games.about}, 'site', ${games.site}, 'igdb_slug', ${games.igdbSlug}, 'deleted', json(iif(${games.deletedAt} is null, 'false', 'true')), 'timeline', (select json_group_array(json_object('kind', m.kind, 'date', m.date, 'date_precision', m.date_precision, 'note', m.note)) from (select * from ${gameMilestones} where ${gameMilestones}.game_id = ${games}.id order by date) m), 'created_at', ${games.createdAt}, 'updated_at', ${games.updatedAt})`,
   },
   organization: {
     table: organizations,

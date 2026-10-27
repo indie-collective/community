@@ -11,6 +11,7 @@ import {
 import { isRouteErrorResponse, useLoaderData, useRouteError } from 'react-router';
 
 import { getHistorySubject, getRevision } from '../../data/changes.server';
+import { milestonesText } from '../../utils/gameTimeline';
 import isAuthenticated from '../../utils/isAuthenticated.server'
 import { pageMeta } from '../../utils/meta';
 import { routeRecordId } from '../../utils/pageRecord.server';
@@ -63,6 +64,11 @@ export const loader = async ({ request, params }) => {
       site: diff.diffWords(
          previousData.site || '',
         revision.operation === 'delete' ? '' : revisionData.site || ''
+      ),
+      // #332: one line per milestone.
+      timeline: diff.diffLines(
+        milestonesText(previousData.timeline),
+        revision.operation === 'delete' ? '' : milestonesText(revisionData.timeline)
       ),
     },
     createdAt: revision.created_at,
@@ -139,7 +145,7 @@ const Game = () => {
               .map(([key, changes]) => (
                 <Table.Row>
                   <Table.ColumnHeader>{key}</Table.ColumnHeader>
-                  <Table.Cell whiteSpace="normal">
+                  <Table.Cell whiteSpace={key === 'timeline' ? 'pre-line' : 'normal'}>
                     {changes
                       .filter((l) => !l.added)
                       .map(({ removed, value }) => (
@@ -151,7 +157,7 @@ const Game = () => {
                         </Text>
                       ))}
                   </Table.Cell>
-                  <Table.Cell whiteSpace="normal">
+                  <Table.Cell whiteSpace={key === 'timeline' ? 'pre-line' : 'normal'}>
                     {changes
                       .filter((l) => !l.removed)
                       .map(({ added, value }) => (

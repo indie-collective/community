@@ -8,7 +8,6 @@ import {
   Button,
   useDisclosure,
   IconButton,
-  List,
   Dialog,
   Portal,
   Link as ChakraLink,
@@ -35,12 +34,12 @@ import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import TagList from '../components/TagList';
-import { formatEventRange } from '../utils/eventTime';
 import { GAME_ROLES } from '../utils/gameRoles';
 import { gameShareImage, pageMeta, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
+import GameTimeline from '../components/GameTimeline';
 import { pageRecordId } from '../utils/pageRecord.server';
-import { eventPath, gamePath } from '../utils/slug';
+import { gamePath } from '../utils/slug';
 
 export const loader = async ({ request, params, context }) => {
   // By slug, an old slug or UUID; those redirect to the slug (#209).
@@ -111,6 +110,7 @@ const Game = () => {
     game_entity,
     game_tag,
     game_event,
+    game_milestone,
     igdb_game,
   } = game;
   const images = game_image.map(({ image }) => image);
@@ -279,31 +279,13 @@ const Game = () => {
           </Grid>
         </PageSection>
       )}
-      {events.length > 0 && (
-        <PageSection title="Events">
-          <List.Root>
-            {events.map((event) => (
-              <List.Item key={event.id}>
-                <ChakraLink asChild>
-                  <Link to={eventPath(event)}>
-                    <time
-                      dateTime={`${new Date(event.starts_at).toISOString()}/${new Date(event.ends_at).toISOString()}`}
-                    >
-                      {formatEventRange(
-                        event.starts_at,
-                        event.ends_at,
-                        event.time_zone,
-                        { time: false }
-                      )}
-                    </time>
-                    . {event.name}
-                  </Link>
-                </ChakraLink>
-              </List.Item>
-            ))}
-          </List.Root>
-        </PageSection>
-      )}
+      <GameTimeline
+        gameId={id}
+        milestones={game_milestone}
+        events={events}
+        igdbReleaseDate={igdb_game?.first_release_date}
+        currentUser={currentUser}
+      />
       {igdb_game?.videos.length > 0 && (
         <PageSection title="Videos">
           <Grid
