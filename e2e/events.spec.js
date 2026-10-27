@@ -364,3 +364,20 @@ test('the events page lists upcoming events, then recent ones', async ({
     await db.delete(events).where(inArray(events.id, [soon.id, past.id]));
   }
 });
+
+// #337: the map shows the city around the event, with a pin on it.
+test('an event page maps its city with a pin', async ({ page }) => {
+  const event = await createEvent(`Mapped ${Date.now() % 100000}`);
+  try {
+    await page.goto(`/event/${event.id}`);
+    const map = page.getByRole('img', { name: `Map of ${event.city}`, exact: false });
+    await expect(map).toBeVisible();
+    await expect(map.getByTestId('map-pin')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'View on OpenStreetMap' })).toHaveAttribute(
+      'href',
+      `https://www.openstreetmap.org/?mlat=${event.latitude}&mlon=${event.longitude}#map=16/${event.latitude}/${event.longitude}`
+    );
+  } finally {
+    await deleteEvent(event.id);
+  }
+});
