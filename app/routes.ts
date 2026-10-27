@@ -77,6 +77,7 @@ export default [
   route('orgs/create', 'routes/orgs.create.jsx'),
   route('associations', 'routes/associations.jsx'),
   route('studios', 'routes/studios.jsx'),
+  route('publishers', 'routes/publishers.jsx'),
   route('org/:id', 'routes/org.$id.jsx'),
   route('org/:id/edit', 'routes/org.$id.edit.jsx'),
   route('org/:id/delete', 'routes/org.$id.delete.jsx'),

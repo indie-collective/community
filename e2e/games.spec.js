@@ -194,9 +194,10 @@ test('a member sets how a studio took part in a game', async ({ page }) => {
     await page.reload();
     await expect(role).toHaveValue('publisher');
 
-    // The org page says so under the game.
+    // The org page lists the game as published (#331).
     await page.goto(`/org/${org.id}`);
-    await expect(page.getByText('Publisher', { exact: true })).toBeVisible();
+    const published = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Published' }) });
+    await expect(published.getByText(game.name)).toBeVisible();
   } finally {
     await db.delete(games).where(eq(games.id, game.id));
     await db.delete(organizations).where(eq(organizations.id, org.id));

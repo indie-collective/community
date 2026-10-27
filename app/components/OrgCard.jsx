@@ -64,6 +64,8 @@ const OrgCard = ({
   // with onInvolvementChange, a select to change it.
   involvement,
   onInvolvementChange,
+  // #331: on the publishers list, how many games it published.
+  published_count,
   ...rest
 }) => {
   const placeholder = usePlaceholder('square');
@@ -142,6 +144,12 @@ const OrgCard = ({
                 {gameRoleLabel(involvement)}
               </Text>
             ))}
+
+          {published_count > 0 && (
+            <Text fontSize="sm" color="muted">
+              Published {published_count} {published_count === 1 ? 'game' : 'games'}
+            </Text>
+          )}
 
           {location && (
             <Flex

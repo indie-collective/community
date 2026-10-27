@@ -19,9 +19,16 @@ const COPY = {
       'Associations and collectives that bring indie game makers together',
     add: 'Add an association',
   },
+  // #331: no "add" button: an organisation is a publisher once it has
+  // published a game.
+  publisher: {
+    title: 'Publishers',
+    description:
+      'Studios and associations that published indie games, most games first',
+  },
 };
 
-/** The studios or associations list (design pass: one page for both). */
+/** The studios, associations or publishers list (design pass: one page for all). */
 const OrgListPage = ({ type, data }) => {
   const { search } = useLocation();
   const { currentUser } = useRouteLoaderData('root') ?? {};
@@ -33,7 +40,8 @@ const OrgListPage = ({ type, data }) => {
         title={title}
         description={`${description}: ${data.total.toLocaleString('en')} so far.`}
         actions={
-          currentUser && (
+          currentUser &&
+          add && (
             <Button asChild size="sm">
               <Link to="/orgs/create">
                 <LuPlus />
