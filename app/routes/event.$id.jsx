@@ -35,7 +35,8 @@ import {
 } from 'react-router';
 import Link from '../components/Link';
 
-import TileMap from '../components/TileMap';
+import PlaceMap from '../components/PlaceMap';
+import { pinColor } from '../utils/orgTypes';
 
 import {
   getEvent,
@@ -343,21 +344,7 @@ const Event = () => {
       )}
 
       {location && location.longitude && location.latitude && (
-        <Box
-          height={['120px', '180px']}
-          overflow="hidden"
-          borderRadius="xl"
-          mb={{ base: 8, md: 10 }}
-        >
-          <TileMap
-            defaultWidth={1200}
-            defaultHeight={180}
-            center={[location.latitude, location.longitude]}
-            zoom={location.street ? 16 : 11}
-            mouseEvents={false}
-            touchEvents={false}
-          />
-        </Box>
+        <PlaceMap location={location} color={pinColor('event')} label={place || name} />
       )}
 
       {about && (

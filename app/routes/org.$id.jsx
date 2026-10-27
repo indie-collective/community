@@ -31,13 +31,14 @@ import { getOrganization } from '../data/organizations.server';
 import GameCard from '../components/GameCard';
 import { gameRoleLabel } from '../utils/gameRoles';
 import EventCard from '../components/EventCard';
+import PlaceMap from '../components/PlaceMap';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import { Page, PageHeader } from '../components/Page';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
-import { ORG_STATUSES, orgStatusLabel, orgTypeLabel } from '../utils/orgTypes';
+import { ORG_STATUSES, orgStatusLabel, orgTypeLabel, pinColor } from '../utils/orgTypes';
 import EmptyHint from '../components/EmptyHint';
 import { FaBluesky } from 'react-icons/fa6';
 import { pageRecordId } from '../utils/pageRecord.server';
@@ -196,6 +197,16 @@ const Org = () => {
           </HStack>
         </PageHeader>
       </Flex>
+
+      {/* #337: where it is, at city level. */}
+      {location?.latitude && location?.longitude && (
+        <PlaceMap
+          location={location}
+          color={pinColor(type)}
+          logo={logo}
+          label={[location.city, countryNames[location.country_code]].filter(Boolean).join(', ') || name}
+        />
+      )}
 
       {about && (
         <Box mb={{ base: 8, md: 10 }} maxW="2xl">

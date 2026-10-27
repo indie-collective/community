@@ -239,3 +239,29 @@ test('an org that published nothing is not a publisher', async ({ page }) => {
     await retryBusy(() => db.delete(organizations).where(eq(organizations.id, org.id)));
   }
 });
+
+// #337: organisation pages map where they are, when they have coordinates.
+test('an organisation page maps its city, only when it has coordinates', async ({ page }) => {
+  const { db, organizations } = await import('./db.js');
+  const { inArray } = await import('drizzle-orm');
+  const suffix = Date.now() % 100000;
+  const [placed, unplaced] = await db
+    .insert(organizations)
+    .values([
+      { name: `Mapped Studio ${suffix}`, type: 'studio', city: 'Lyon', countryCode: 'FR', latitude: 45.764, longitude: 4.8357 },
+      { name: `Unmapped Studio ${suffix}`, type: 'studio' },
+    ])
+    .returning();
+  try {
+    await page.goto(`/org/${placed.id}`);
+    const map = page.getByRole('img', { name: /^Map of Lyon/ });
+    await expect(map.getByTestId('map-pin')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'View on OpenStreetMap' })).toBeVisible();
+
+    await page.goto(`/org/${unplaced.id}`);
+    await expect(page.getByRole('heading', { name: unplaced.name })).toBeVisible();
+    await expect(page.getByRole('img', { name: /^Map of/ })).toHaveCount(0);
+  } finally {
+    await db.delete(organizations).where(inArray(organizations.id, [placed.id, unplaced.id]));
+  }
+});
