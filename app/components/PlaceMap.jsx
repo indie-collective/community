@@ -1,7 +1,8 @@
-import { Box, Link as ChakraLink } from '@chakra-ui/react';
+import { Box, Flex, Link as ChakraLink, Text } from '@chakra-ui/react';
 import { Overlay } from 'pigeon-maps';
-import { LuExternalLink } from 'react-icons/lu';
+import { LuExternalLink, LuMapPin } from 'react-icons/lu';
 
+import Link from './Link';
 import MapPin from './MapPin';
 import TileMap from './TileMap';
 
@@ -15,46 +16,87 @@ const PIN_SIZE = 40;
 export const openStreetMapUrl = ({ latitude, longitude }) =>
   `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}#map=16/${latitude}/${longitude}`;
 
+/** /places opened on the place, with the record's card picked (#322). */
+export const placesUrl = ({ latitude, longitude }, id) =>
+  `/places?at=${latitude},${longitude}${id ? `#${id}` : ''}`;
+
 /**
  * A banner map of where an event or organisation is: the city around it,
- * with a pin on it. Not interactive, so it doesn't catch page scrolling; a
- * link opens OpenStreetMap for a closer look.
+ * with a pin on it, and its address. The map itself isn't interactive, so it
+ * doesn't catch page scrolling: it opens the places map there, and a link
+ * opens OpenStreetMap for directions.
  */
-const PlaceMap = ({ location, color, logo, label }) => {
+const PlaceMap = ({ location, id, color, logo, label, address }) => {
   const anchor = [location.latitude, location.longitude];
   return (
-    <Box position="relative" mb={{ base: 8, md: 10 }}>
-      <Box
+    <Box as="figure" mb={{ base: 8, md: 10 }}>
+      <ChakraLink
+        asChild
+        display="block"
         height={['160px', '220px']}
         overflow="hidden"
         borderRadius="xl"
-        role="img"
-        aria-label={`Map of ${label}`}
+        borderWidth="1px"
+        borderColor="border"
+        transition="box-shadow 0.2s"
+        _hover={{ boxShadow: 'md' }}
+        _focusVisible={{
+          outline: '2px solid',
+          outlineColor: 'colorPalette.focusRing',
+          outlineOffset: '2px',
+        }}
       >
-        <TileMap
-          defaultWidth={1200}
-          defaultHeight={220}
-          center={anchor}
-          zoom={CITY_ZOOM}
-          mouseEvents={false}
-          touchEvents={false}
+        <Link
+          to={placesUrl(location, id)}
+          aria-label={`Map of ${label}: open on the places map`}
         >
-          {/* The pin's tip on the place. */}
-          <Overlay anchor={anchor} offset={[PIN_SIZE / 2, PIN_SIZE]}>
-            <MapPin color={color} logo={logo} size={PIN_SIZE} />
-          </Overlay>
-        </TileMap>
-      </Box>
-      <ChakraLink
-        href={openStreetMapUrl(location)}
-        target="_blank"
-        rel="noopener noreferrer"
-        fontSize="sm"
-        mt={2}
-      >
-        View on OpenStreetMap
-        <LuExternalLink />
+          <TileMap
+            defaultWidth={1200}
+            defaultHeight={220}
+            center={anchor}
+            zoom={CITY_ZOOM}
+            mouseEvents={false}
+            touchEvents={false}
+            // Credited in the caption: links can't sit inside this link.
+            attribution={false}
+          >
+            {/* The pin's tip on the place. */}
+            <Overlay anchor={anchor} offset={[PIN_SIZE / 2, PIN_SIZE]}>
+              <MapPin color={color} logo={logo} size={PIN_SIZE} />
+            </Overlay>
+          </TileMap>
+        </Link>
       </ChakraLink>
+      <Flex
+        as="figcaption"
+        mt={2}
+        gap={3}
+        wrap="wrap"
+        justify="space-between"
+        fontSize="sm"
+      >
+        {address && (
+          <Text color="muted" display="flex" alignItems="center" gap={1}>
+            <LuMapPin />
+            {address}
+          </Text>
+        )}
+        <ChakraLink
+          href={openStreetMapUrl(location)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View on OpenStreetMap
+          <LuExternalLink />
+        </ChakraLink>
+      </Flex>
+      <Text fontSize="xs" color="muted" mt={1}>
+        Map ©{' '}
+        <ChakraLink href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
+          OpenStreetMap
+        </ChakraLink>{' '}
+        contributors
+      </Text>
     </Box>
   );
 };

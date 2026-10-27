@@ -17,7 +17,7 @@ import { FixedSizeList as List } from 'react-window';
 // import Error from '../../../client/pages/_error';
 import { Tooltip } from '../components/ui/tooltip';
 import ClusterMap from '../components/ClusterMap';
-import { focusOn, zoomToFit } from '../utils/mapFocus';
+import { focusOn, placeAt, zoomToFit } from '../utils/mapFocus';
 import OrgCard from '../components/OrgCard';
 import SwipeableEdgeDrawer from '../components/SwipeableEdgeDrawer';
 import SectionHeading from '../components/SectionHeading';
@@ -142,10 +142,11 @@ const MovingBand = React.memo(({ header, children, isOpen, onClose }) => {
 });
 
 export const loader = async ({ request }) => {
+  const params = new URL(request.url).searchParams;
   // ?country=XX opens the map on that country's organisations (#258).
-  const countryCode = new URL(request.url).searchParams
-    .get('country')
-    ?.toUpperCase();
+  const countryCode = params.get('country')?.toUpperCase();
+  // ?at=lat,lng opens it on a place, from an event or organisation page (#322).
+  const at = placeAt(params.get('at'));
 
   const [orgs, events] = await Promise.all([
     listMappedOrganizations(),
@@ -155,7 +156,9 @@ export const loader = async ({ request }) => {
     orgs,
     // Upcoming events go on the map too (#211); past ones don't.
     events: events.map((event) => ({ ...event, type: 'event', logo: event.cover })),
-    focus: countryCode
+    focus: at
+      ? focusOn([at])
+      : countryCode
       ? focusOn(
           orgs
             .filter((org) => org.location?.country_code === countryCode)

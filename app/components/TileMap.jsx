@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react';
 import { Map } from 'pigeon-maps';
 
 /**
@@ -10,6 +11,22 @@ import { Map } from 'pigeon-maps';
  */
 export const tileProvider = (x, y, z) => `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
 
-const TileMap = (props) => <Map {...props} provider={tileProvider} />;
+// Calmer tiles that sit with the site's colours (#322): muted in light mode,
+// inverted to a dark map in dark mode. Only the tiles: pins keep their colour.
+const TILES = 'img[src^="https://tile.openstreetmap.org/"]';
+const tileStyle = {
+  [`& ${TILES}`]: { filter: 'saturate(0.45) brightness(1.04) contrast(0.92)' },
+  _dark: {
+    [`& ${TILES}`]: {
+      filter: 'invert(1) hue-rotate(180deg) saturate(0.4) brightness(0.9) contrast(0.85)',
+    },
+  },
+};
+
+const TileMap = (props) => (
+  <Box css={tileStyle} height="100%">
+    <Map {...props} provider={tileProvider} />
+  </Box>
+);
 
 export default TileMap;

@@ -254,13 +254,17 @@ test('an organisation page maps its city, only when it has coordinates', async (
     .returning();
   try {
     await page.goto(`/org/${placed.id}`);
-    const map = page.getByRole('img', { name: /^Map of Lyon/ });
+    const map = page.getByRole('link', { name: /^Map of Lyon/ });
     await expect(map.getByTestId('map-pin')).toBeVisible();
     await expect(page.getByRole('link', { name: 'View on OpenStreetMap' })).toBeVisible();
+    // #322: it opens the places map on the studio.
+    await map.click();
+    await expect(page).toHaveURL(new RegExp(`/places\\?at=45.764,4.8357#${placed.id}$`));
+    await expect(page.locator(`[id="${placed.id}"]`)).toBeAttached();
 
     await page.goto(`/org/${unplaced.id}`);
     await expect(page.getByRole('heading', { name: unplaced.name })).toBeVisible();
-    await expect(page.getByRole('img', { name: /^Map of/ })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: /^Map of/ })).toHaveCount(0);
   } finally {
     await db.delete(organizations).where(inArray(organizations.id, [placed.id, unplaced.id]));
   }

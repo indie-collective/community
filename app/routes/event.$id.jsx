@@ -344,7 +344,13 @@ const Event = () => {
       )}
 
       {location && location.longitude && location.latitude && (
-        <PlaceMap location={location} color={pinColor('event')} label={place || name} />
+        <PlaceMap
+          location={location}
+          id={id}
+          color={pinColor('event')}
+          label={place || name}
+          address={[location.street, location.city].filter(Boolean).join(', ')}
+        />
       )}
 
       {about && (
