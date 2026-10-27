@@ -65,6 +65,8 @@ export default [
     route('companies/role', 'routes/game.$id/companies.role.jsx'),
     route('images/add', 'routes/game.$id/images.add.jsx'),
     route('images/delete', 'routes/game.$id/images.delete.jsx'),
+    route('milestones/add', 'routes/game.$id/milestones.add.jsx'),
+    route('milestones/delete', 'routes/game.$id/milestones.delete.jsx'),
   ]),
   route('game/:id/edit', 'routes/game.$id.edit.jsx'),
   route('game/:id/changes', 'routes/game.$id.changes.jsx', [

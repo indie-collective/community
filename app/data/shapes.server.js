@@ -161,6 +161,18 @@ export function gameImage(row) {
   };
 }
 
+/** A game's milestone (#332), with snake_case fields like the rest. */
+export function gameMilestone(row) {
+  return {
+    id: row.id,
+    game_id: row.gameId,
+    kind: row.kind,
+    date: row.date,
+    date_precision: row.datePrecision,
+    note: row.note,
+  };
+}
+
 /** A tag as the old `tag` row. */
 export function tag(row) {
   return { id: row.id, name: row.name, ...times(row) };

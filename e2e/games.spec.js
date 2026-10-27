@@ -276,3 +276,93 @@ test('a game without a website can be edited', async ({ page }) => {
     await db.delete(games).where(eq(games.id, game.id));
   }
 });
+
+// #332: a game's timeline puts its milestones and events in order, with how
+// long each step came after the first; members add and remove milestones,
+// and the game's history records it.
+test('a member builds a game timeline from milestones and events', async ({ page }) => {
+  const { db, events, gameEvents, games, retryBusy } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const id = Date.now() % 100000;
+  const [game] = await db.insert(games).values({ name: `Long Road ${id}` }).returning();
+  const [event] = await db
+    .insert(events)
+    .values({
+      name: `Showcase ${id}`,
+      startsAt: new Date(Date.UTC(2022, 4, 20, 10)),
+      endsAt: new Date(Date.UTC(2022, 4, 22, 18)),
+      timeZone: 'UTC',
+    })
+    .returning();
+  await db.insert(gameEvents).values({ gameId: game.id, eventId: event.id });
+  try {
+    // Visitors see the event on the timeline, and no form.
+    await page.goto(`/game/${game.id}`);
+    const timeline = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Timeline' }) });
+    await expect(timeline.getByRole('link', { name: event.name })).toBeVisible();
+    await expect(timeline.getByRole('button', { name: 'Add to timeline' })).toHaveCount(0);
+
+    await signIn(page, MEMBER);
+    await page.goto(`/game/${game.id}`);
+    const add = async (kind, year, month, note = '') => {
+      const saved = page.waitForResponse((response) => response.url().includes('/milestones/add'));
+      await timeline.getByLabel('Step').selectOption({ label: kind });
+      await timeline.getByLabel('Year').fill(year);
+      await timeline.getByLabel('Month').selectOption({ label: month });
+      await timeline.getByLabel('Note').fill(note);
+      await timeline.getByRole('button', { name: 'Add to timeline' }).click();
+      await saved;
+    };
+    await add('Announced', '2021', 'Feb', 'at a showcase');
+    await expect(timeline.getByText('February 2021')).toBeVisible();
+    await add('Released', '2023', 'Jun');
+
+    // In order, with the time since the first step.
+    const items = timeline.locator('li');
+    await expect(items).toHaveCount(3);
+    await expect(items.nth(0)).toContainText('Announced');
+    await expect(items.nth(0)).toContainText('at a showcase');
+    await expect(items.nth(1)).toContainText(event.name);
+    await expect(items.nth(1)).toContainText('+1 year 3 months');
+    await expect(items.nth(2)).toContainText('Released');
+    await expect(timeline.getByText('2 years 4 months to release')).toBeVisible();
+
+    // The history says what changed: /changes opens the latest revision.
+    await page.goto(`/game/${game.id}/changes`);
+    await expect(page).toHaveURL(/\/changes\/[0-9a-f-]{36}$/);
+    await expect(page.getByRole('cell', { name: /June 2023: Released/ })).toBeVisible();
+
+    await page.goto(`/game/${game.id}`);
+    const removed = page.waitForResponse((response) => response.url().includes('/milestones/delete'));
+    await timeline.getByRole('button', { name: 'Remove Released from the timeline' }).click();
+    await removed;
+    await expect(items).toHaveCount(2);
+    await expect(timeline.getByText('to release')).toHaveCount(0);
+  } finally {
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+    await retryBusy(() => db.delete(events).where(eq(events.id, event.id)));
+  }
+});
+
+test('a timeline refuses dates that do not exist', async ({ page, request }) => {
+  const { db, gameMilestones, games, retryBusy } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const [game] = await db.insert(games).values({ name: `Odd Dates ${Date.now() % 100000}` }).returning();
+  try {
+    await signIn(page, MEMBER);
+    const response = await page.request.post(`/game/${game.id}/milestones/add`, {
+      form: { kind: 'beta', year: '2021', month: '2', day: '30', note: '' },
+    });
+    expect(response.status()).toBe(400);
+    expect(await retryBusy(() => db.select().from(gameMilestones).where(eq(gameMilestones.gameId, game.id)))).toEqual([]);
+    // Signed out, nothing can be added.
+    const signedOut = await request.post(`/game/${game.id}/milestones/add`, {
+      form: { kind: 'beta', year: '2021' },
+      maxRedirects: 0,
+    });
+    expect(signedOut.status()).not.toBe(200);
+    expect(await retryBusy(() => db.select().from(gameMilestones).where(eq(gameMilestones.gameId, game.id)))).toEqual([]);
+  } finally {
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+  }
+});
