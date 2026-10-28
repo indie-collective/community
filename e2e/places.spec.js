@@ -306,3 +306,19 @@ test('the map shows upcoming events, and filters by kind', async ({ page }) => {
     await retryBusy(() => db.delete(organizations).where(inArray(organizations.id, [studio.id])));
   }
 });
+
+// #375: on desktop the map's wrapper shrank to nothing beside the list, and
+// the map hung 360px off the left of the screen. It fills its column again.
+test('the places map fills its column beside the list on desktop', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/places');
+  const map = page.locator('.pigeon-tiles-box').first().locator('..');
+  await expect(map).toBeVisible();
+  const box = await map.boundingBox();
+  expect(box.width).toBeGreaterThan(400);
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(1440);
+  // Beside the list, not under it.
+  const list = await page.getByRole('heading', { name: /^Locations/ }).boundingBox();
+  expect(list.x).toBeGreaterThan(box.x + box.width - 1);
+});

@@ -38,10 +38,21 @@ const useNearScreen = () => {
   return [ref, near];
 };
 
+// The wrapper fills its parent like the map did before it (#375): in a flex
+// row (the places page, beside its list) it takes the room that's left,
+// rather than shrinking to its content, which is the map's 100% of nothing.
 const TileMap = (props) => {
   const [ref, near] = useNearScreen();
   return (
-    <Box ref={ref} css={tileStyle} height="100%" minHeight="1px">
+    <Box
+      ref={ref}
+      css={tileStyle}
+      width="100%"
+      flex="1 1 0"
+      minWidth={0}
+      height="100%"
+      minHeight="1px"
+    >
       {near && <Map {...props} provider={tileProvider} />}
     </Box>
   );
