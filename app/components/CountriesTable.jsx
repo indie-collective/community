@@ -41,8 +41,10 @@ const STATS = [
 
 const plural = (n, one) =>
   `${n.toLocaleString('en')} ${one}${n === 1 ? '' : 's'}`;
+// Starting with the code the tile shows, so the link's name includes its
+// visible text (#350, WCAG 2.5.3).
 const describe = (country) =>
-  `${country.name}: ${STATS.map(([key, , one]) => plural(country[key], one)).join(', ')}`;
+  `${country.code}, ${country.name}: ${STATS.map(([key, , one]) => plural(country[key], one)).join(', ')}`;
 
 const Tile = ({ country }) => {
   const palette = PALETTES[country.continent] ?? 'gray';

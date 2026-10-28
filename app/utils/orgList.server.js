@@ -4,6 +4,8 @@ import {
   listOrganizations,
   listPublishers,
 } from '../data/organizations.server';
+import { isFeatureOn } from '../data/featureFlags.server';
+import isAuthenticated from './isAuthenticated.server';
 
 export const PAGE_SIZE = 50;
 
@@ -65,7 +67,8 @@ export async function loadPublisherList(request) {
   const country = searchParams.get('country');
   const city = searchParams.get('city')?.trim() || null;
   const tag = searchParams.get('tag')?.trim() || null;
-  const pitches = searchParams.get('pitches') === 'on';
+  // #345: behind the opportunities feature flag (/admin/flags).
+  const pitches = searchParams.get('pitches') === 'on' && (await isFeatureOn('opportunities', await isAuthenticated(request)));
 
   const [{ orgs, hasMore, countries, tags }, total] = await Promise.all([
     listPublishers({ page, pageSize: PAGE_SIZE, country, city, tag, pitches }),

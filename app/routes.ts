@@ -64,7 +64,7 @@ export default [
   route('missions', 'routes/missions.jsx'),
   route('missions/:kind/:gap', 'routes/missions.$kind.$gap.jsx'),
 
-  // Opportunities (#345)
+  // Opportunities (#345), behind their feature flag
   route('opportunities', 'routes/opportunities.jsx'),
   route('opportunities/new', 'routes/opportunities.new.jsx'),
   route('opportunities/:id/delete', 'routes/opportunities.$id.delete.js'),
@@ -113,6 +113,7 @@ export default [
     route('companies/role', 'routes/game.$id/companies.role.jsx'),
     route('images/add', 'routes/game.$id/images.add.jsx'),
     route('images/delete', 'routes/game.$id/images.delete.jsx'),
+    route('images/alt', 'routes/game.$id/images.alt.jsx'),
     route('milestones/add', 'routes/game.$id/milestones.add.jsx'),
     route('milestones/delete', 'routes/game.$id/milestones.delete.jsx'),
   ]),
@@ -137,6 +138,7 @@ export default [
   route('admin/duplicates/merge', 'routes/admin/duplicates.merge.jsx'),
   route('admin/tags', 'routes/admin/tags.jsx'),
   route('admin/users', 'routes/admin/users.jsx'),
+  route('admin/flags', 'routes/admin/flags.jsx'),
 
   route('*', 'routes/$.jsx'),
 ] satisfies RouteConfig;

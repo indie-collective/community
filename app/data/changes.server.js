@@ -55,7 +55,7 @@ const KINDS = {
       list('event_ids', 'event_id', 'game_events where game_events.game_id = "games"."id"', 'event_id'),
       list(
         'images',
-        "json_object('key', key, 'width', width, 'height', height, 'position', position)",
+        "json_object('key', key, 'width', width, 'height', height, 'position', position, 'alt', alt)",
         'game_images where game_images.game_id = "games"."id"',
         'position, key'
       ),
@@ -302,7 +302,7 @@ function linkStatements(kind, recordId, before) {
       'images',
       gameImages,
       eq(gameImages.gameId, recordId),
-      items('images').map(({ key, width, height, position }) => ({ gameId: recordId, key, width, height, position }))
+      items('images').map(({ key, width, height, position, alt }) => ({ gameId: recordId, key, width, height, position, alt }))
     );
     replace(
       'milestones',

@@ -27,6 +27,7 @@ import AvatarButton from './AvatarButton';
 import SearchInput from './SearchInput';
 import AddMenuButton from './AddMenuButton';
 import { useT } from '../i18n';
+import useFeature from '../hooks/useFeature';
 
 function NavLink(props) {
   const { href, children, ...rest } = props;
@@ -99,13 +100,14 @@ const Wordmark = ({ showTitle }) => (
   </Link>
 );
 
+// [href, message key, feature flag it needs]
 const NAV = [
   ['/games', 'nav.games'],
   ['/studios', 'nav.studios'],
   ['/associations', 'nav.associations'],
   ['/publishers', 'nav.publishers'],
   ['/events', 'nav.events'],
-  ['/opportunities', 'nav.opportunities'],
+  ['/opportunities', 'nav.opportunities', 'opportunities'],
   ['/countries', 'nav.countries'],
   ['/places', 'nav.map'],
 ];
@@ -120,6 +122,9 @@ const Navigation = ({ search }) => {
   const { currentUser, unreadNotifications = 0 } =
     useRouteLoaderData('root') ?? {};
   const t = useT();
+  const features = { opportunities: useFeature('opportunities') };
+  // Sections behind a flag that's off for them stay out of the header.
+  const nav = NAV.filter(([, , flag]) => !flag || features[flag]);
 
   // #343: what happened to what they follow.
   const Bell = () => (
@@ -197,6 +202,9 @@ const Navigation = ({ search }) => {
             <Menu.Item value="item-6" asChild cursor="pointer">
               <Link to="/admin/sources">Sources</Link>
             </Menu.Item>
+            <Menu.Item value="item-7" asChild cursor="pointer">
+              <Link to="/admin/flags">Feature flags</Link>
+            </Menu.Item>
           </Menu.Content>
         </Menu.Positioner>
       </Portal>
@@ -249,7 +257,7 @@ const Navigation = ({ search }) => {
                 px={4}
                 align="stretch"
               >
-                {NAV.map(([href, key]) => (
+                {nav.map(([href, key]) => (
                   <NavLink
                     key={href}
                     href={href}
@@ -307,7 +315,7 @@ const Navigation = ({ search }) => {
         borderColor="ink"
       >
         <HStack as="nav" aria-label={t('nav.main')} gap={1} width="100%">
-          {NAV.map(([href, key]) => (
+          {nav.map(([href, key]) => (
             <NavLink key={href} href={href}>
               {t(key)}
             </NavLink>

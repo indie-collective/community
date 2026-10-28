@@ -35,3 +35,16 @@ export async function idFromPath(path) {
     .where(or(eq(table.id, value), eq(table.slug, value)));
   return row?.id;
 }
+
+// Sets a feature flag (utils/featureFlags) to off, admins or on; null puts
+// it back to its default.
+export async function setFlag(key, state) {
+  const { eq } = await import('drizzle-orm');
+  const { kv } = await import('../app/db/schema.js');
+  const { db } = await import('../app/db/node.js');
+  await retryBusy(() =>
+    state === null
+      ? db.delete(kv).where(eq(kv.key, `flag:${key}`))
+      : db.insert(kv).values({ key: `flag:${key}`, value: state }).onConflictDoUpdate({ target: kv.key, set: { value: state } })
+  );
+}

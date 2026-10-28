@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Image,
   Grid,
   AspectRatio,
@@ -12,7 +13,7 @@ import { useState } from 'react';
 import ImageUploader from '../components/ImageUploader';
 import Lightbox from './Lightbox';
 
-const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
+const MotionGallery = ({ gameId, gameName = 'the game', images, currentUser, fetcher }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
 
   const uploadingImages =
@@ -38,28 +39,37 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
             position="relative"
             gridColumn={index === 0 ? '1 / -1' : 'auto'}
           >
+            {/* A button, so it opens from the keyboard too (#350). */}
             <AspectRatio ratio={16 / 9}>
-              <Image
-                src={image.thumbnail_url || image.url}
-                borderRadius="md"
-                objectFit="cover"
-                size="100%"
+              <Box
+                as="button"
+                type="button"
+                aria-label={image.alt ? `${image.alt}: open` : `Open image ${index + 1} of ${gameName}`}
                 cursor="pointer"
-                alt=""
-                // The first image is where a card's image moves to
-                // (view transitions, CardLink).
-                {...(index === 0 && {
-                  'data-vt-hero': '',
-                  css: { viewTransitionName: 'record-image' },
-                })}
-                opacity={image.uploading ? 0.5 : 1}
-                onClick={() => {
-                  setSelectedIndex(index);
-                }}
-                transition="transform 0.2s"
-                _hover={{ transform: 'scale(1.02)' }}
-                _active={{ transform: 'scale(0.98)' }}
-              />
+                borderRadius="md"
+                overflow="hidden"
+                _focusVisible={{ outline: '2px solid', outlineColor: 'colorPalette.focusRing', outlineOffset: '2px' }}
+                onClick={() => setSelectedIndex(index)}
+              >
+                <Image
+                  src={image.thumbnail_url || image.url}
+                  borderRadius="md"
+                  objectFit="cover"
+                  size="100%"
+                  alt={image.alt ?? ''}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  // The first image is where a card's image moves to
+                  // (view transitions, CardLink).
+                  {...(index === 0 && {
+                    'data-vt-hero': '',
+                    css: { viewTransitionName: 'record-image' },
+                  })}
+                  opacity={image.uploading ? 0.5 : 1}
+                  transition="transform 0.2s"
+                  _hover={{ transform: 'scale(1.02)' }}
+                  _active={{ transform: 'scale(0.98)' }}
+                />
+              </Box>
             </AspectRatio>
             {image.uploading && (
               <Spinner
@@ -69,6 +79,25 @@ const MotionGallery = ({ gameId, images, currentUser, fetcher }) => {
                 size="lg"
                 pointerEvents="none"
               />
+            )}
+            {currentUser && !image.external && !image.uploading && (
+              // #350: what it shows, for those who can't see it.
+              <Button
+                position="absolute"
+                bottom={2}
+                left={2}
+                size="xs"
+                variant="subtle"
+                aria-label={`Describe image ${index + 1}`}
+                onClick={() => {
+                  const alt = window.prompt('What does this image show? (For people who can’t see it.)', image.alt ?? '');
+                  if (alt !== null) {
+                    fetcher.submit({ id: image.id, alt }, { method: 'post', action: `/game/${gameId}/images/alt` });
+                  }
+                }}
+              >
+                {image.alt ? 'Alt ✓' : 'Add alt text'}
+              </Button>
             )}
             {currentUser && !image.external && !image.uploading && (
               <IconButton

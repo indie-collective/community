@@ -5,6 +5,7 @@ import CountryCombobox from '../components/CountryCombobox';
 import OpportunityList from '../components/OpportunityList';
 import { FilterBar, Page, PageHeader } from '../components/Page';
 import { listOpportunities, listOpportunityCountries } from '../data/opportunities.server';
+import { requireFeature } from '../data/featureFlags.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { pageMeta } from '../utils/meta';
 import { OPPORTUNITY_KINDS } from '../utils/opportunities';
@@ -15,8 +16,10 @@ export const loader = async ({ request }) => {
   const kind = OPPORTUNITY_KINDS.some(([value]) => value === params.get('kind')) ? params.get('kind') : null;
   const country = params.get('country')?.toUpperCase() || null;
   const remote = params.get('remote') === 'on';
-  const [currentUser, opportunities, countries] = await Promise.all([
-    isAuthenticated(request),
+  const currentUser = await isAuthenticated(request);
+  // Behind their feature flag (/admin/flags).
+  await requireFeature('opportunities', currentUser);
+  const [opportunities, countries] = await Promise.all([
     listOpportunities({ kind, country, remote }),
     listOpportunityCountries(),
   ]);

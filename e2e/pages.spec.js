@@ -140,7 +140,8 @@ test('countries are in the navigation, as a periodic table', async ({ page }) =>
     );
     await expect(first.getByText(/^[A-Z]{2}$/)).toBeVisible();
 
-    const antarctica = page.getByRole('link', { name: /^Antarctica: / });
+    // Its code first, as the tile shows it (#350).
+    const antarctica = page.getByRole('link', { name: /^AQ, Antarctica: / });
     await expect(antarctica).toHaveAttribute('href', '/country/aq');
     // Tiles come grouped by continent, in the legend's order, Antarctica
     // last. Seeded places are random, so other Antarctic territories (South

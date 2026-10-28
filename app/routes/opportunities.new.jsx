@@ -4,6 +4,7 @@ import { Form, redirect, useActionData, useLoaderData, useNavigation } from 'rea
 import { PageHeader } from '../components/Page';
 import countryNames from '../assets/countries.json';
 import { createOpportunity, getOpportunityTarget } from '../data/opportunities.server';
+import { requireFeature } from '../data/featureFlags.server';
 import { actionErrorMessage } from '../utils/actionError.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
@@ -21,12 +22,13 @@ async function targetOf(request) {
 }
 
 export const loader = async ({ request }) => {
-  await isAuthenticated(request, true);
+  await requireFeature('opportunities', await isAuthenticated(request, true));
   return { target: await targetOf(request) };
 };
 
 export async function action(args) {
   const currentUser = await authorizer.authorize(args, { rules: [canWrite] });
+  await requireFeature('opportunities', currentUser);
   const target = await targetOf(args.request);
   const form = await args.request.formData();
   const fields = parseOpportunity(form);

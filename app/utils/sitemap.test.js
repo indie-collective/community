@@ -60,6 +60,12 @@ describe('public profiles in the sitemap (#341)', () => {
     expect(xml).toContain('<loc>https://community.indieco.xyz/people/jam</loc>');
   });
 
+  it('leaves out pages behind a feature flag that is off', () => {
+    const xml = buildSitemap('https://community.indieco.xyz', { hidden: ['/opportunities'] });
+    expect(xml).not.toContain('/opportunities');
+    expect(xml).toContain('<loc>https://community.indieco.xyz/events</loc>');
+  });
+
   it('keeps crawlers out of private calendars', () => {
     expect(buildRobots('https://community.indieco.xyz')).toContain('Disallow: /my-calendar/');
   });

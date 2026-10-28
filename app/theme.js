@@ -9,6 +9,19 @@ const config = defineConfig({
     html: {
       colorPalette: 'green',
     },
+    // #350: no motion for those who asked for less (transitions, hovers,
+    // animations, page cross-fades).
+    '@media (prefers-reduced-motion: reduce)': {
+      '*, *::before, *::after': {
+        animationDuration: '0.01ms !important',
+        animationIterationCount: '1 !important',
+        transitionDuration: '0.01ms !important',
+        scrollBehavior: 'auto !important',
+      },
+      '::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*)': {
+        animation: 'none !important',
+      },
+    },
     // One page background (the canvas), with panels (surface) on it.
     body: {
       color: 'ink',
@@ -120,6 +133,12 @@ const config = defineConfig({
         coral: { value: { base: '#ff6b5b', _dark: '#ff8475' } },
         lilac: { value: { base: '#b9a7ff', _dark: '#c4b5ff' } },
         onPop: { value: '#10201d' },
+        // Solid green (buttons, badges) a shade darker, so its white text
+        // reads (#350: green.600 was 3.3:1, under WCAG AA's 4.5:1; green.700
+        // is 5:1).
+        green: {
+          solid: { value: '{colors.green.700}' },
+        },
       },
       shadows: {
         // A hard offset shadow means "you can press this" (magazine pass).

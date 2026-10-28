@@ -81,10 +81,13 @@ const PlaceMap = ({ location, id, color, logo, label, address }) => {
             {address}
           </Text>
         )}
+        {/* WCAG 2.5.8: at least 24px tall, beside the address. */}
         <ChakraLink
           href={openStreetMapUrl(location)}
           target="_blank"
           rel="noopener noreferrer"
+          minHeight="6"
+          alignItems="center"
         >
           View on OpenStreetMap
           <LuExternalLink />
