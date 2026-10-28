@@ -33,6 +33,8 @@ import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
 import ShareMenu from '../components/ShareMenu';
+import OpportunityList from '../components/OpportunityList';
+import { listOpportunities } from '../data/opportunities.server';
 import { ReportDuplicate } from '../components/Duplicates';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import TagList from '../components/TagList';
@@ -58,6 +60,7 @@ export const loader = async ({ request, params, context }) => {
   const data = {
     game,
     currentUser: await isAuthenticated(request),
+    opportunities: await listOpportunities({ gameId: id }),
   };
 
   return data;
@@ -92,7 +95,7 @@ export const meta = ({ data, matches }) => {
 };
 
 const Game = () => {
-  const { game, currentUser } = useLoaderData();
+  const { game, currentUser, opportunities } = useLoaderData();
   const fetcher = useFetcher();
 
   const {
@@ -367,6 +370,25 @@ const Game = () => {
             </Portal>
           </Dialog.Root>
         </Box>
+      )}
+      {/* #345: what it's looking for. */}
+      {(opportunities.length > 0 || currentUser) && (
+        <PageSection
+          title="Opportunities"
+          aside={
+            currentUser && (
+              <Button asChild size="sm" variant="outline">
+                <Link to={`/opportunities/new?for=game:${id}`}>Post an opportunity</Link>
+              </Button>
+            )
+          }
+        >
+          {opportunities.length > 0 ? (
+            <OpportunityList opportunities={opportunities} currentUser={currentUser} showFor={false} />
+          ) : (
+            <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
+          )}
+        </PageSection>
       )}
       {currentUser && (
         <ReportDuplicate kind="game" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />

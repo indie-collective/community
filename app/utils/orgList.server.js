@@ -65,9 +65,10 @@ export async function loadPublisherList(request) {
   const country = searchParams.get('country');
   const city = searchParams.get('city')?.trim() || null;
   const tag = searchParams.get('tag')?.trim() || null;
+  const pitches = searchParams.get('pitches') === 'on';
 
   const [{ orgs, hasMore, countries, tags }, total] = await Promise.all([
-    listPublishers({ page, pageSize: PAGE_SIZE, country, city, tag }),
+    listPublishers({ page, pageSize: PAGE_SIZE, country, city, tag, pitches }),
     countPublishers(),
   ]);
 
@@ -77,6 +78,6 @@ export async function loadPublisherList(request) {
     hasMore,
     page,
     facets: { countries, tags },
-    selected: { country, city, tag },
+    selected: { country, city, tag, pitches: pitches ? 'on' : null },
   };
 }

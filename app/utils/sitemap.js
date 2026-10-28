@@ -9,6 +9,7 @@ const PAGES = [
   '/associations',
   '/publishers',
   '/events',
+  '/opportunities',
   '/places',
   '/countries',
   '/about',

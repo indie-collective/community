@@ -43,6 +43,11 @@ export default [
   route('profile/bluesky', 'routes/profile.bluesky.jsx'),
   route('people/:username', 'routes/people.$username.jsx'),
 
+  // Opportunities (#345)
+  route('opportunities', 'routes/opportunities.jsx'),
+  route('opportunities/new', 'routes/opportunities.new.jsx'),
+  route('opportunities/:id/delete', 'routes/opportunities.$id.delete.js'),
+
   // Duplicates (#346)
   route('duplicates', 'routes/duplicates/likely.js'),
   route('duplicates/flag', 'routes/duplicates/flag.js'),

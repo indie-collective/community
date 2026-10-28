@@ -152,6 +152,7 @@ const Navigation = ({ search }) => {
                 <NavLink href="/associations">Associations</NavLink>
                 <NavLink href="/publishers">Publishers</NavLink>
                 <NavLink href="/events">Events</NavLink>
+                <NavLink href="/opportunities">Opportunities</NavLink>
                 <NavLink href="/countries">Countries</NavLink>
                 <NavLink href="/places">Map</NavLink>
 
@@ -211,6 +212,7 @@ const Navigation = ({ search }) => {
           <NavLink href="/associations">Associations</NavLink>
           <NavLink href="/publishers">Publishers</NavLink>
           <NavLink href="/events">Events</NavLink>
+          <NavLink href="/opportunities">Opportunities</NavLink>
           <NavLink href="/countries">Countries</NavLink>
           <NavLink href="/places">Map</NavLink>
           <Spacer />

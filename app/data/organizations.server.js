@@ -28,6 +28,7 @@ import computeOrg from '../models/org';
 import getImageLinks from '../utils/imageLinks.server';
 import { recordChange } from './changes.server';
 import { assertSiteIsFree } from './duplicates.server';
+import { openToPitches } from './opportunities.server';
 import { imageColumns } from './images.server';
 import { searchIndex } from './search.server';
 import * as shape from './shapes.server';
@@ -176,6 +177,7 @@ export async function listPublishers({
   country = null,
   city = null,
   tag = null,
+  pitches = false,
 } = {}) {
   const published = publishedCounts(tag);
   const all = publishedCounts(null);
@@ -190,7 +192,9 @@ export async function listPublishers({
         and(
           notDeleted,
           country ? eq(organizations.countryCode, country) : undefined,
-          city ? sql`lower(${organizations.city}) = lower(${city})` : undefined
+          city ? sql`lower(${organizations.city}) = lower(${city})` : undefined,
+          // #345: taking pitches now.
+          pitches ? openToPitches(organizations.id) : undefined
         )
       )
       // id last, so pages don't overlap when counts and names tie.
