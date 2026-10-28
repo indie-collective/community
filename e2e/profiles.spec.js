@@ -67,7 +67,7 @@ test('hidden and restricted profiles are not found', async ({ request }) => {
   }
 });
 
-test('a member hides their profile, and still sees it themselves', async ({ page, browser }) => {
+test('a member hides their profile, and still sees it themselves', async ({ page, newPage }) => {
   await signIn(page, MEMBER);
   const [member] = await db.select().from(people).where(eq(people.email, MEMBER));
   try {
@@ -83,9 +83,8 @@ test('a member hides their profile, and still sees it themselves', async ({ page
 
     await page.goto(`/people/${member.username}`);
     await expect(page.getByText('Only you can see this page: your profile is hidden.')).toBeVisible();
-    const visitor = await browser.newPage();
+    const visitor = await newPage();
     expect((await visitor.goto(`/people/${member.username}`)).status()).toBe(404);
-    await visitor.close();
   } finally {
     await db.update(people).set({ profileHidden: false }).where(eq(people.id, member.id));
   }

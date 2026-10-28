@@ -79,11 +79,11 @@ test('a member fills a description on a mission, skips one, and sees what it ear
   }
 });
 
-test("two members on the same mission don't get the same record", async ({ browser }) => {
+test("two members on the same mission don't get the same record", async ({ newPage }) => {
   const id = suffix();
   const [newest, next] = await newOrgs([`Claimed ${id}`, `Next ${id}`]);
-  const one = await browser.newPage();
-  const other = await browser.newPage();
+  const one = await newPage();
+  const other = await newPage();
   try {
     await signIn(one, MEMBER);
     await signIn(other, ADMIN);
@@ -96,8 +96,6 @@ test("two members on the same mission don't get the same record", async ({ brows
     await other.goto(`/missions/organization/about?start=${Date.now()}`);
     await expect(other.getByTestId('mission-record')).toHaveText(next.name);
   } finally {
-    await one.close();
-    await other.close();
     await retryBusy(() => db.delete(missionClaims).where(inArray(missionClaims.recordId, [newest.id, next.id])));
     await retryBusy(() => db.delete(organizations).where(inArray(organizations.id, [newest.id, next.id])));
   }

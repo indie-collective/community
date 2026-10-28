@@ -13,15 +13,31 @@ export const waitForHydration = (page) =>
     );
   });
 
+function gotoHydrated(page) {
+  const goto = page.goto.bind(page);
+  page.goto = async (url, options) => {
+    const response = await goto(url, options);
+    await waitForHydration(page);
+    return response;
+  };
+  return page;
+}
+
 export const test = base.extend({
   page: async ({ page }, use) => {
-    const goto = page.goto.bind(page);
-    page.goto = async (url, options) => {
-      const response = await goto(url, options);
-      await waitForHydration(page);
-      return response;
-    };
-    await use(page);
+    await use(gotoHydrated(page));
+  },
+  // A page of its own (another person, signed in apart), whose goto waits for
+  // hydration like `page`'s. Closed after the test, even one that timed out,
+  // when closing can fail as Playwright has already disposed of it.
+  newPage: async ({ browser }, use) => {
+    const pages = [];
+    await use(async () => {
+      const page = gotoHydrated(await browser.newPage());
+      pages.push(page);
+      return page;
+    });
+    await Promise.allSettled(pages.map((page) => page.close()));
   },
 });
 

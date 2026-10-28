@@ -1,9 +1,9 @@
 import { expect, test, ADMIN, MEMBER, signIn, waitForHydration } from './helpers';
 
-test('a member creates an organisation and an admin deletes it', async ({ browser }) => {
+test('a member creates an organisation and an admin deletes it', async ({ newPage }) => {
   const name = `E2E Studio ${Date.now() % 100000}`;
 
-  const member = await browser.newPage();
+  const member = await newPage();
   await signIn(member, MEMBER);
   await member.goto('/orgs/create');
   await waitForHydration(member);
@@ -13,9 +13,8 @@ test('a member creates an organisation and an admin deletes it', async ({ browse
   await expect(member).toHaveURL(/\/org\/[a-z0-9-]+$/);
   await expect(member.getByRole('heading', { name })).toBeVisible();
   const orgUrl = member.url();
-  await member.close();
 
-  const admin = await browser.newPage();
+  const admin = await newPage();
   await signIn(admin, ADMIN);
   await admin.goto(orgUrl);
   await waitForHydration(admin);
@@ -25,7 +24,6 @@ test('a member creates an organisation and an admin deletes it', async ({ browse
   await expect(admin).toHaveURL(/\/orgs$/);
   await admin.goto(orgUrl);
   await expect(admin.getByText('Not Found')).toBeVisible();
-  await admin.close();
 });
 
 test('an admin adds and deletes a tag', async ({ page }) => {
@@ -48,9 +46,9 @@ test('members cannot open admin pages', async ({ page }) => {
 
 // #156: rights are stored in the database; an admin changes them on
 // /admin/users, and the change applies without signing out.
-test('an admin restricts and restores a member, taking effect at once', async ({ browser }) => {
+test('an admin restricts and restores a member, taking effect at once', async ({ newPage }) => {
   const email = `e2e-role-${Date.now() % 100000}@indieco.test`;
-  const member = await browser.newPage();
+  const member = await newPage();
   await signIn(member, email);
   const username = email.split('@')[0];
   const name = `Role Check ${Date.now() % 100000}`;
@@ -60,7 +58,7 @@ test('an admin restricts and restores a member, taking effect at once', async ({
       maxRedirects: 0,
     });
 
-  const admin = await browser.newPage();
+  const admin = await newPage();
   await signIn(admin, ADMIN);
   await admin.goto('/admin/users');
   const role = admin.getByRole('combobox', { name: `Role of ${username}` });
@@ -81,6 +79,4 @@ test('an admin restricts and restores a member, taking effect at once', async ({
   const { db, games } = await import('./db.js');
   const { eq } = await import('drizzle-orm');
   await db.delete(games).where(eq(games.name, name));
-  await member.close();
-  await admin.close();
 });

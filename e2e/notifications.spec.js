@@ -14,12 +14,12 @@ const clear = async () => {
   await retryBusy(() => db.delete(follows).where(eq(follows.personId, id)));
 };
 
-test('a member follows a studio and hears when it publishes a game, on the site and in their feed', async ({ browser }) => {
+test('a member follows a studio and hears when it publishes a game, on the site and in their feed', async ({ newPage }) => {
   const id = suffix();
-  const [studio] = await db.insert(organizations).values({ name: `Followed${id}`, type: 'studio', searchText: searchText('x') }).returning();
-  const [game] = await db.insert(games).values({ name: `Brought Out ${id}`, searchText: 'x' }).returning();
-  const member = await browser.newPage();
-  const admin = await browser.newPage();
+  const [studio] = await retryBusy(() => db.insert(organizations).values({ name: `Followed${id}`, type: 'studio', searchText: searchText('x') }).returning());
+  const [game] = await retryBusy(() => db.insert(games).values({ name: `Brought Out ${id}`, searchText: 'x' }).returning());
+  const member = await newPage();
+  const admin = await newPage();
   try {
     await signIn(member, MEMBER);
     await clear();
@@ -54,20 +54,18 @@ test('a member follows a studio and hears when it publishes a game, on the site 
     const xml = await (await member.request.get(feed, { headers: { cookie: '' } })).text();
     expect(xml).toContain(`<title>Followed${id} published Brought Out ${id}</title>`);
   } finally {
-    await member.close();
-    await admin.close();
     await clear();
     await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
     await retryBusy(() => db.delete(organizations).where(eq(organizations.id, studio.id)));
   }
 });
 
-test("followers of a country hear of new events there, not of the author's own changes", async ({ page }) => {
+test("followers of a country hear of new events there, not of the author's own changes", async ({ page, newPage }) => {
   const id = suffix();
   await signIn(page, MEMBER);
   await clear();
   const member = await memberId();
-  await db.insert(follows).values({ personId: member, recordType: 'country', recordId: 'FR' });
+  await retryBusy(() => db.insert(follows).values({ personId: member, recordType: 'country', recordId: 'FR' }));
   let eventId;
   try {
     // The member adds one themself: nothing to tell them.
@@ -78,14 +76,13 @@ test("followers of a country hear of new events there, not of the author's own c
     expect(own.status()).toBe(302);
 
     const { idFromPath } = await import('./db.js');
-    const admin = await page.context().browser().newPage();
+    const admin = await newPage();
     await signIn(admin, ADMIN);
     const created = await admin.request.post('/events/create', {
       multipart: { name: `Jam in Lyon ${id}`, start: '2031-02-01T10:00', end: '2031-02-01T12:00', about: '', site: '', city: 'Lyon', country_code: 'FR', latitude: '45.76', longitude: '4.84' },
       maxRedirects: 0,
     });
     eventId = await idFromPath(created.headers().location);
-    await admin.close();
 
     await expect
       .poll(async () => (await retryBusy(() => db.select().from(notifications).where(eq(notifications.personId, member)))).map((n) => n.data.message))
@@ -96,26 +93,27 @@ test("followers of a country hear of new events there, not of the author's own c
   }
 });
 
-test('followers of an event hear when it is canceled, and can stop following from their profile', async ({ page, browser }) => {
+test('followers of an event hear when it is canceled, and can stop following from their profile', async ({ page, newPage }) => {
   const id = suffix();
   const startsAt = new Date(Date.now() + 10 * 86400000);
-  const [event] = await db
-    .insert(events)
-    .values({ name: `Maybe Fest ${id}`, searchText: searchText('x'), startsAt, endsAt: new Date(startsAt.getTime() + 3600000) })
-    .returning();
+  const [event] = await retryBusy(() =>
+    db
+      .insert(events)
+      .values({ name: `Maybe Fest ${id}`, searchText: searchText('x'), startsAt, endsAt: new Date(startsAt.getTime() + 3600000) })
+      .returning()
+  );
   await signIn(page, MEMBER);
   await clear();
   const member = await memberId();
-  await db.insert(follows).values({ personId: member, recordType: 'event', recordId: event.id });
+  await retryBusy(() => db.insert(follows).values({ personId: member, recordType: 'event', recordId: event.id }));
   try {
-    const admin = await browser.newPage();
+    const admin = await newPage();
     await signIn(admin, ADMIN);
     await admin.goto(`/event/${event.id}/edit`);
     await waitForHydration(admin);
     await admin.getByText('Mark as canceled').click();
     await admin.getByRole('button', { name: /submit/i }).click();
     await expect(admin.getByText('This event was canceled.')).toBeVisible();
-    await admin.close();
 
     await expect
       .poll(async () => (await retryBusy(() => db.select().from(notifications).where(eq(notifications.personId, member)))).map((n) => n.data.message))

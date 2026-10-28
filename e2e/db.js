@@ -29,10 +29,12 @@ export async function idFromPath(path) {
   const schema = await import('../app/db/schema.js');
   const table = { game: schema.games, org: schema.organizations, event: schema.events }[segment];
   const { db } = await import('../app/db/node.js');
-  const [row] = await db
-    .select({ id: table.id })
-    .from(table)
-    .where(or(eq(table.id, value), eq(table.slug, value)));
+  const [row] = await retryBusy(() =>
+    db
+      .select({ id: table.id })
+      .from(table)
+      .where(or(eq(table.id, value), eq(table.slug, value)))
+  );
   return row?.id;
 }
 

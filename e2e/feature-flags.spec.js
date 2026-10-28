@@ -29,8 +29,8 @@ test('opportunities are hidden while their flag is off', async ({ page }) => {
   }
 });
 
-test('an admin shows opportunities to admins only, then to everyone', async ({ browser }) => {
-  const admin = await browser.newPage();
+test('an admin shows opportunities to admins only, then to everyone', async ({ newPage }) => {
+  const admin = await newPage();
   await signIn(admin, ADMIN);
   await admin.goto('/admin/flags');
   await waitForHydration(admin);
@@ -43,7 +43,7 @@ test('an admin shows opportunities to admins only, then to everyone', async ({ b
   await admin.goto('/opportunities');
   await expect(admin.getByRole('heading', { name: 'Opportunities' })).toBeVisible();
 
-  const member = await browser.newPage();
+  const member = await newPage();
   await signIn(member, MEMBER);
   expect((await member.goto('/opportunities')).status()).toBe(404);
 
@@ -54,9 +54,6 @@ test('an admin shows opportunities to admins only, then to everyone', async ({ b
   await expect(row.getByTestId('flag-state')).toHaveText('Everyone');
   expect((await member.goto('/opportunities')).status()).toBe(200);
   await expect(member.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Opportunities' })).toBeVisible();
-
-  await admin.close();
-  await member.close();
 });
 
 test('members can’t see or change the flags', async ({ page }) => {
