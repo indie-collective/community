@@ -15,8 +15,11 @@ import { FaBluesky, FaGithub, FaInstagram, FaDiscord } from 'react-icons/fa6';
 import Link from './Link';
 
 import Logo from './Logo';
+import { useT } from '../i18n';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Footer = () => {
+  const t = useT();
   return (
     <Box
       bg="surface"
@@ -48,16 +51,18 @@ const Footer = () => {
           <Logo />
 
           <ChakraLink asChild>
-            <Link to="/about">About</Link>
+            <Link to="/about">{t('footer.about')}</Link>
           </ChakraLink>
           <ChakraLink asChild>
-            <Link to="/data">Open data</Link>
+            <Link to="/data">{t('footer.data')}</Link>
           </ChakraLink>
           <ChakraLink asChild>
-            <Link to="/api">API</Link>
+            <Link to="/api">{t('footer.api')}</Link>
           </ChakraLink>
           {/* #320 */}
           <FeedbackWidget />
+          {/* #344 */}
+          <LanguageSwitcher />
           <ChakraLink
             href="https://indieco.xyz/"
             target="_blank"
@@ -70,7 +75,7 @@ const Footer = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Donate <LuExternalLink mx="2px" />
+            {t('footer.donate')} <LuExternalLink mx="2px" />
           </ChakraLink>
 
           <ButtonGroup variant="ghost" colorPalette="gray">

@@ -7,8 +7,10 @@ import {
 } from '@chakra-ui/react';
 import { useLocation, useRouteLoaderData } from 'react-router';
 import Link from './Link';
+import { useT } from '../i18n';
 
 const AvatarButton = () => {
+  const t = useT();
   const data = useRouteLoaderData('root');
   const { pathname, search } = useLocation();
 
@@ -37,7 +39,7 @@ const AvatarButton = () => {
   const prev = pathname === '/signin' ? '' : `?prev=${encodeURIComponent(pathname + search)}`;
   return (
     <Button asChild w="100%" size="lg" borderRadius="full">
-      <Link to={`/signin${prev}`}>Sign in</Link>
+      <Link to={`/signin${prev}`}>{t('nav.signIn')}</Link>
     </Button>
   );
 };

@@ -13,6 +13,7 @@ import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import { pageMeta } from '../utils/meta';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import countryNames from '../assets/countries.json';
+import { useT } from '../i18n';
 
 export const loader = async ({ request }) => {
   const { searchParams } = new URL(request.url);
@@ -87,6 +88,7 @@ const NoEvents = ({ children }) => (
 
 const Events = () => {
   const { events, pastEvents, currentUser, facets, selected } = useLoaderData();
+  const t = useT();
   const isPeriodUpcoming = selected.period === 'upcoming';
   const where = [
     selected.where === 'online' ? ' online' : selected.where === 'in_person' ? ' in person' : '',
@@ -97,8 +99,8 @@ const Events = () => {
   return (
     <Page>
       <PageHeader
-        title="Events"
-        description="Festivals, conventions, meetups and game jams where indie games are made and shown."
+        title={t('lists.events.title')}
+        description={t('lists.events.description')}
         actions={
           <>
             <SubscribeMenu
@@ -109,7 +111,7 @@ const Events = () => {
               <Button asChild size="sm">
                 <Link to="/events/create">
                   <LuPlus />
-                  Add an event
+                  {t('lists.events.add')}
                 </Link>
               </Button>
             )}
@@ -119,7 +121,7 @@ const Events = () => {
       <Filters facets={facets} selected={selected} type="event" />
       {isPeriodUpcoming ? (
         <>
-          <PageSection title="Upcoming">
+          <PageSection title={t('lists.events.upcoming')}>
             {events.length > 0 ? (
               <EventGrid events={events} />
             ) : (
@@ -127,7 +129,7 @@ const Events = () => {
             )}
           </PageSection>
           {pastEvents.length > 0 && (
-            <PageSection title="Recently">
+            <PageSection title={t('lists.events.recently')}>
               <EventGrid events={pastEvents} />
             </PageSection>
           )}

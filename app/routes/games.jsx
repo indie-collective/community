@@ -28,6 +28,7 @@ import useDebounce from '../hooks/useDebounce';
 import { pageMeta } from '../utils/meta';
 import countryNames from '../assets/countries.json';
 import Reveal from '../components/Reveal';
+import { useT } from '../i18n';
 
 // The sort options: user input picks one by name, never reaches the query.
 // The orders the list offers; data/games knows how to apply them.
@@ -164,17 +165,18 @@ const Games = () => {
     fetcher.load(`/games?page=${page}&${searchParams.toString()}`);
   }, [atEnd, hasMore, fetcher.state, page, searchParams]);
 
+  const t = useT();
   return (
     <Page>
       <PageHeader
-        title="Games"
-        description={`Indie games from the community, with who made them and where they were shown: ${total.toLocaleString('en')} so far.`}
+        title={t('lists.games.title')}
+        description={t('lists.games.description', { count: total })}
         actions={
           currentUser && (
             <Button asChild size="sm">
               <Link to="/games/create">
                 <LuPlus />
-                Add a game
+                {t('lists.games.add')}
               </Link>
             </Button>
           )

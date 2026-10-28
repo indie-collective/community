@@ -28,20 +28,23 @@ import {
   timeToRelease,
 } from '../utils/gameTimeline';
 import { eventPath } from '../utils/slug';
+import { useLanguage } from '../i18n';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 // When an entry happened, as precisely as it's known.
-const EntryDate = ({ entry }) =>
-  entry.type === 'event' ? (
+const EntryDate = ({ entry }) => {
+  const language = useLanguage();
+  return entry.type === 'event' ? (
     <time dateTime={new Date(entry.event.starts_at).toISOString()}>
-      {formatEventRange(entry.event.starts_at, entry.event.ends_at, entry.event.time_zone, { time: false })}
+      {formatEventRange(entry.event.starts_at, entry.event.ends_at, entry.event.time_zone, { time: false, locale: language })}
     </time>
   ) : (
     <time dateTime={entry.date.toISOString().slice(0, { year: 4, month: 7 }[entry.precision] ?? 10)}>
       {formatMilestoneDate(entry.date, entry.precision)}
     </time>
   );
+};
 
 // What happened: the milestone, the event (linked) or the release.
 const EntryTitle = ({ entry }) => {

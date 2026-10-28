@@ -6,6 +6,7 @@ import { formatEventRange } from '../utils/eventTime';
 import Card from './Card';
 import CardLink from './CardLink';
 import { eventPath } from '../utils/slug';
+import { useLanguage } from '../i18n';
 
 /**
  * An upcoming event in the map's list (#211), the height of an OrgCard: its
@@ -13,6 +14,7 @@ import { eventPath } from '../utils/slug';
  */
 // eslint-disable-next-line no-unused-vars -- `type` and `logo` are the map's, not the card's.
 const EventMapCard = ({ id, slug, name, cover, starts_at, ends_at, time_zone, location, type, logo, ...rest }) => {
+  const language = useLanguage();
   const placeholder = usePlaceholder('square');
   return (
     <Card
@@ -42,7 +44,7 @@ const EventMapCard = ({ id, slug, name, cover, starts_at, ends_at, time_zone, lo
             <CardLink to={eventPath({ id, slug })}>{name}</CardLink>
           </Heading>
           <Text fontSize="sm" color="purple.500" fontWeight="semibold" truncate>
-            {formatEventRange(starts_at, ends_at, time_zone, { time: false })}
+            {formatEventRange(starts_at, ends_at, time_zone, { time: false, locale: language })}
           </Text>
           {location?.city && (
             <Text fontSize="xs" color="muted" textTransform="uppercase" lineClamp={1}>
