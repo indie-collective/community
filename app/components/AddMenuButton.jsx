@@ -40,6 +40,11 @@ const AddMenuButton = () => {
             <Menu.Item _hover={{ textDecor: 'none' }} value="item-2" asChild>
               <ChakraLink href={orgType ? `/orgs/create?type=${orgType}` : '/orgs/create'}>Add organisation</ChakraLink>
             </Menu.Item>
+            <Menu.Separator />
+            {/* #339: or fill in what's missing. */}
+            <Menu.Item _hover={{ textDecor: 'none' }} value="item-3" asChild>
+              <ChakraLink href="/missions">Help complete the map</ChakraLink>
+            </Menu.Item>
           </Menu.Content>
         </Menu.Positioner>
       </Portal>

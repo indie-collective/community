@@ -519,6 +519,33 @@ export const sources = sqliteTable(
   ]
 );
 
+// Fact-finding missions (#339): which record a member is working on, skipped,
+// completed or flagged, so two people don't get the same one at once and
+// nobody is given again what they skipped.
+export const MISSION_STATUSES = ['claimed', 'skipped', 'done', 'flagged', 'resolved'];
+export const missionClaims = sqliteTable(
+  'mission_claims',
+  {
+    personId: text('person_id')
+      .notNull()
+      .references(() => people.id, { onDelete: 'cascade' }),
+    recordType: text('record_type').notNull(),
+    recordId: text('record_id').notNull(),
+    gap: text('gap').notNull(),
+    status: text('status', { enum: MISSION_STATUSES }).notNull(),
+    // Why it was flagged: duplicate, gone, not indie, wrong.
+    reason: text('reason'),
+    updatedAt: time('updated_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [
+    primaryKey({ columns: [t.personId, t.recordType, t.recordId] }),
+    index('mission_claims_record').on(t.recordType, t.recordId),
+    check('mission_claims_status', oneOf(t.status, MISSION_STATUSES)),
+  ]
+);
+
 // Pairs of records a member flagged as duplicates, or an admin said aren't
 // (#346), so the admin view doesn't suggest them again. Kind is "game",
 // "organization" or "event"; the two IDs are in order.

@@ -1,4 +1,4 @@
-import { Alert, Avatar, Box, Grid, HStack, Link as ChakraLink, List, Stack, Text } from '@chakra-ui/react';
+import { Alert, Avatar, Badge, Box, Grid, HStack, Link as ChakraLink, List, Stack, Text } from '@chakra-ui/react';
 import { FaBluesky } from 'react-icons/fa6';
 import { useLoaderData } from 'react-router';
 
@@ -100,6 +100,17 @@ const PersonPage = () => {
       )}
 
       <PageSection title="Contributions">
+        {/* #339: from missions and every edit. */}
+        <HStack gap={4} mb={3} wrap="wrap" data-testid="badges">
+          <Text>
+            <b>{profile.points}</b> points · <b>{profile.completed}</b> records completed
+          </Text>
+          {profile.badges.map((badge) => (
+            <Badge key={badge.key} colorPalette="yellow" title={badge.description}>
+              {badge.name}
+            </Badge>
+          ))}
+        </HStack>
         <Text mb={4} data-testid="contribution-counts">
           Added {contributions.added} {contributions.added === 1 ? 'record' : 'records'} and made{' '}
           {contributions.edited} {contributions.edited === 1 ? 'edit' : 'edits'}.

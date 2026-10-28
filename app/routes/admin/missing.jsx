@@ -1,201 +1,116 @@
-import { redirect, useLoaderData, Form, useSubmit } from 'react-router';
+import { Badge, Box, Button, Grid, HStack, Link as ChakraLink, List, Stack, Tabs, Text } from '@chakra-ui/react';
+import { Form, useLoaderData, useNavigate } from 'react-router';
+
 import Link from '../../components/Link';
-import {
-    Heading,
-  Link as ChakraLink,
-  Box,
-  IconButton,
-  Stat,
-  Menu,
-  HStack,
-  Portal,
-} from '@chakra-ui/react';
-import { LuChevronDown } from 'react-icons/lu';
-
+import { PageHeader, PageSection } from '../../components/Page';
+import PersonLink from '../../components/PersonLink';
+import { countGaps, listGapRecords, listMissionFlags, resolveFlag } from '../../data/missions.server';
 import isAuthenticated from '../../utils/isAuthenticated.server';
-import { listMissingData } from '../../data/curation.server';
-import { gamePath, orgPath } from '../../utils/slug';
-import { PageHeader } from '../../components/Page';
+import { FLAG_REASONS, GAPS, KIND_LABELS, MISSION_KINDS, gapOf } from '../../utils/missions';
 
-export const loader = async ({ request }) => {
+// What's missing (#339): the same gaps as missions, counted by kind, each
+// listed in full, and what members flagged on missions.
+
+const requireAdmin = async (request) => {
   const currentUser = await isAuthenticated(request, true);
-
-  if (!currentUser.isAdmin) {
-    throw new Response('Not Found', {
-      status: 404,
-    });
-  }
-
-  return listMissingData();
+  if (!currentUser.isAdmin) throw new Response('Not Found', { status: 404 });
 };
 
-export const meta = () => [
-  {
-    title: 'Users - Community Administration',
-  },
-];
+export const loader = async ({ request }) => {
+  await requireAdmin(request);
+  const params = new URL(request.url).searchParams;
+  const kind = MISSION_KINDS.includes(params.get('kind')) ? params.get('kind') : 'game';
+  const gap = gapOf(kind, params.get('gap')) ?? GAPS[kind][0];
+  const page = Math.max(1, Number(params.get('page')) || 1);
+  const [counts, list, flags] = await Promise.all([countGaps(), listGapRecords(kind, gap.key, { page }), listMissionFlags()]);
+  return { counts, kind, gap: gap.key, page, ...list, flags };
+};
+
+export const action = async ({ request }) => {
+  await requireAdmin(request);
+  const data = await request.formData();
+  await resolveFlag(data.get('person'), data.get('kind'), data.get('record'));
+  return { resolved: true };
+};
+
+export const meta = () => [{ title: 'Missing data - Community Administration' }];
+
+const REASONS = Object.fromEntries(FLAG_REASONS);
 
 const Missing = () => {
-  const {
-    games_missing_images,
-    games_missing_source,
-    games_missing_tags,
-    entities_missing_games,
-    entities_missing_location,
-  } = useLoaderData();
-
+  const { counts, kind, gap, page, records, hasMore, flags } = useLoaderData();
+  const navigate = useNavigate();
   return (
     <Box px={{ base: 4, md: 5 }} pt={{ base: 5, md: 7 }} pb={12}>
-      <PageHeader eyebrow="Admin" title="Missing data" />
-      <Box mt={15}>
-        <Heading>Games</Heading>
+      <PageHeader
+        eyebrow="Admin"
+        title="Missing data"
+        description="What records are missing, as members see it on missions (/missions)."
+      />
 
-        <HStack mt={5} gap={10}>
-          <HStack gap={3}>
-            <Menu.Root>
-              <Menu.Trigger asChild>
-                <IconButton aria-label="List: missing images" size="lg">
-                  <LuChevronDown />
-                </IconButton>
-              </Menu.Trigger>
-              <Portal>
-                <Menu.Positioner>
-                  <Menu.Content>
-                    {games_missing_images.slice(0, 10).map(({ id, name, slug }) => (
-                      <Menu.Item key={id} value={id} asChild>
-                        <ChakraLink href={gamePath({ id, slug })}>
-                          {name}
-                        </ChakraLink>
-                      </Menu.Item>
-                    ))}
-                  </Menu.Content>
-                </Menu.Positioner>
-              </Portal>
-            </Menu.Root>
-            <Stat.Root>
-              <Stat.Label>Missing images</Stat.Label>
-              <Stat.ValueText>{games_missing_images.length}</Stat.ValueText>
-            </Stat.Root>
-          </HStack>
+      {flags.length > 0 && (
+        <PageSection title="Flagged on missions">
+          <Stack gap={2}>
+            {flags.map((flag) => (
+              <HStack key={`${flag.person_id}:${flag.record_id}`} gap={3} wrap="wrap" data-testid="mission-flag">
+                <Badge colorPalette="orange">{REASONS[flag.reason] ?? flag.reason}</Badge>
+                <ChakraLink asChild>
+                  <Link to={flag.path}>{flag.name}</Link>
+                </ChakraLink>
+                <Text fontSize="sm" color="muted">
+                  by <PersonLink username={flag.username} />
+                </Text>
+                <Form method="post">
+                  <input type="hidden" name="person" value={flag.person_id} />
+                  <input type="hidden" name="kind" value={flag.kind} />
+                  <input type="hidden" name="record" value={flag.record_id} />
+                  <Button type="submit" size="xs" variant="outline">
+                    Dealt with
+                  </Button>
+                </Form>
+              </HStack>
+            ))}
+          </Stack>
+        </PageSection>
+      )}
 
-          <HStack gap={3}>
-            <Menu.Root>
-              <Menu.Trigger asChild>
-                <IconButton aria-label="List: made by nobody" size="lg">
-                  <LuChevronDown />
-                </IconButton>
-              </Menu.Trigger>
-              <Portal>
-                <Menu.Positioner>
-                  <Menu.Content>
-                    {games_missing_source.slice(0, 10).map(({ id, name, slug }) => (
-                      <Menu.Item key={id} value={id} asChild>
-                        <ChakraLink href={gamePath({ id, slug })}>
-                          {name}
-                        </ChakraLink>
-                      </Menu.Item>
-                    ))}
-                  </Menu.Content>
-                </Menu.Positioner>
-              </Portal>
-            </Menu.Root>
-            <Stat.Root>
-              <Stat.Label>Made by nobody</Stat.Label>
-              <Stat.ValueText>{games_missing_source.length}</Stat.ValueText>
-            </Stat.Root>
-          </HStack>
-
-          <HStack gap={3}>
-            <Menu.Root>
-              <Menu.Trigger asChild>
-                <IconButton aria-label="List: without tags" size="lg">
-                  <LuChevronDown />
-                </IconButton>
-              </Menu.Trigger>
-              <Portal>
-                <Menu.Positioner>
-                  <Menu.Content>
-                    {games_missing_tags.slice(0, 10).map(({ id, name, slug }) => (
-                      <Menu.Item key={id} value={id} asChild>
-                        <ChakraLink href={gamePath({ id, slug })}>
-                          {name}
-                        </ChakraLink>
-                      </Menu.Item>
-                    ))}
-                  </Menu.Content>
-                </Menu.Positioner>
-              </Portal>
-            </Menu.Root>
-            <Stat.Root>
-              <Stat.Label>Without tags</Stat.Label>
-              <Stat.ValueText>{games_missing_tags.length}</Stat.ValueText>
-            </Stat.Root>
-          </HStack>
-        </HStack>
-      </Box>
-      <Box mt={15}>
-        <Heading>Studios & Associations</Heading>
-
-        <HStack mt={5} gap={10}>
-          <HStack gap={3}>
-            <Menu.Root>
-              <Menu.Trigger asChild>
-                <IconButton aria-label="List: making nothing" size="lg">
-                  <LuChevronDown />
-                </IconButton>
-              </Menu.Trigger>
-              <Portal>
-                <Menu.Positioner>
-                  <Menu.Content>
-                    {entities_missing_games.slice(0, 10).map(({ id, name, slug }) => (
-                      <Menu.Item key={id} value={id} asChild>
-                        <ChakraLink href={orgPath({ id, slug })}>
-                          {name}
-                        </ChakraLink>
-                      </Menu.Item>
-                    ))}
-                  </Menu.Content>
-                </Menu.Positioner>
-              </Portal>
-            </Menu.Root>
-            <Stat.Root>
-              <Stat.Label>Making nothing</Stat.Label>
-              <Stat.ValueText>{entities_missing_games.length}</Stat.ValueText>
-            </Stat.Root>
-          </HStack>
-
-          <HStack gap={3}>
-            <Menu.Root>
-              <Menu.Trigger asChild>
-                <IconButton aria-label="List: based nowhere" size="lg">
-                  <LuChevronDown />
-                </IconButton>
-              </Menu.Trigger>
-              <Portal>
-                <Menu.Positioner>
-                  <Menu.Content>
-                    {entities_missing_location
-                      .slice(0, 10)
-                      .map(({ id, name, slug }) => (
-                        <Menu.Item key={id} value={id} asChild>
-                          <ChakraLink href={orgPath({ id, slug })}>
-                            {name}
-                          </ChakraLink>
-                        </Menu.Item>
-                      ))}
-                  </Menu.Content>
-                </Menu.Positioner>
-              </Portal>
-            </Menu.Root>
-            <Stat.Root>
-              <Stat.Label>Based nowhere</Stat.Label>
-              <Stat.ValueText>
-                {entities_missing_location.length}
-              </Stat.ValueText>
-            </Stat.Root>
-          </HStack>
-        </HStack>
-      </Box>
+      <Tabs.Root value={kind} onValueChange={({ value }) => navigate(`?kind=${value}`)} mb={4}>
+        <Tabs.List>
+          {MISSION_KINDS.map((value) => (
+            <Tabs.Trigger key={value} value={value}>
+              {KIND_LABELS[value]}
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+      </Tabs.Root>
+      <Grid templateColumns={['repeat(2, 1fr)', 'repeat(3, 1fr)', 'repeat(5, 1fr)']} gap={2} mb={6}>
+        {GAPS[kind].map((item) => (
+          <Button
+            key={item.key}
+            asChild
+            variant={item.key === gap ? 'solid' : 'outline'}
+            size="sm"
+            justifyContent="space-between"
+          >
+            <Link to={`?kind=${kind}&gap=${item.key}`} data-testid={`gap-${item.key}`}>
+              {item.label} <Badge ml={2}>{counts[kind][item.key].toLocaleString('en')}</Badge>
+            </Link>
+          </Button>
+        ))}
+      </Grid>
+      <List.Root ps={5} gap={1}>
+        {records.map((record) => (
+          <List.Item key={record.id}>
+            <ChakraLink asChild>
+              <Link to={record.path}>{record.name}</Link>
+            </ChakraLink>
+          </List.Item>
+        ))}
+      </List.Root>
+      <HStack justify="space-between" mt={4}>
+        {page > 1 ? <Link to={`?kind=${kind}&gap=${gap}&page=${page - 1}`}>← Newer</Link> : <span />}
+        {hasMore && <Link to={`?kind=${kind}&gap=${gap}&page=${page + 1}`}>Older →</Link>}
+      </HStack>
     </Box>
   );
 };
