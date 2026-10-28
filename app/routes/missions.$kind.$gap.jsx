@@ -1,12 +1,12 @@
-import { Alert, Box, Button, Field, HStack, Input, Link as ChakraLink, NativeSelect, Stack, Text, Textarea } from '@chakra-ui/react';
+import { Alert, Box, Button, HStack, Link as ChakraLink, NativeSelect, Stack, Text } from '@chakra-ui/react';
 import { Form, redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
 import AchievementShelf from '../components/AchievementBadge';
 import { LuExternalLink } from 'react-icons/lu';
 
 import Link from '../components/Link';
+import MissionInput from '../components/MissionInput';
 import { Page, PageHeader } from '../components/Page';
 import {
-  completeRecord,
   fillGap,
   flagRecord,
   memberStats,
@@ -15,8 +15,10 @@ import {
 } from '../data/missions.server';
 import { actionErrorMessage } from '../utils/actionError.server';
 import { authorizer, canWrite } from '../utils/auth.server';
+import { parseFormWithUploads } from '../utils/createUploadHandler.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { FLAG_REASONS, KIND_LABELS, MISSION_KINDS, MISSION_SIZE, gapOf } from '../utils/missions';
+import { pickedOrCreated } from '../utils/quickCreate.server';
 
 // A mission (#339): MISSION_SIZE records missing the same thing, one at a
 // time (?n=1…), then what it earned (since ?start=).
@@ -66,15 +68,17 @@ export async function action(args) {
   const gap = missionOf(params);
   const url = new URL(request.url);
   const { n, start } = stepOf(url);
-  const data = await request.formData();
+  // An image is uploaded (#378), once the member is known to be allowed.
+  const data = await parseFormWithUploads(request, gap.input === 'image' ? ['upload'] : []);
   const recordId = data.get('record');
   try {
     switch (data.get('intent')) {
       case 'fill':
-        await fillGap(currentUser.id, params.kind, recordId, gap.key, data.get('value'));
-        break;
-      case 'done':
-        await completeRecord(currentUser.id, params.kind, recordId, gap.key);
+        // The organisation picked, or added from the picker (#374).
+        if (gap.input === 'organization' && (data.get('id') || data.get('name'))) {
+          data.set('organization', (await pickedOrCreated('organization', data, { request, currentUser })).id);
+        }
+        await fillGap(currentUser.id, params.kind, recordId, gap.key, data);
         break;
       case 'flag':
         await flagRecord(currentUser.id, params.kind, recordId, gap.key, data.get('reason'));
@@ -89,14 +93,6 @@ export async function action(args) {
 }
 
 export const meta = ({ data }) => [{ title: data ? `Mission: ${data.gap.label.toLowerCase()}` : 'Mission' }];
-
-const INPUTS = {
-  text: { label: 'Description', placeholder: 'What it is, in a few sentences…' },
-  url: { label: 'Address', placeholder: 'https://…' },
-  tags: { label: 'Tags', placeholder: 'platformer, co-op, pixel art' },
-  igdb: { label: 'IGDB page', placeholder: 'https://www.igdb.com/games/…' },
-  bluesky: { label: 'Bluesky handle', placeholder: 'studio.bsky.social' },
-};
 
 const Summary = ({ kind, gap, summary }) => (
   <Stack gap={4} maxW="xl" data-testid="mission-summary">
@@ -142,7 +138,6 @@ const Mission = () => {
     );
   }
   const { record } = next;
-  const input = INPUTS[gap.input];
   return (
     <Page>
       <PageHeader eyebrow={`Mission · ${n} of ${MISSION_SIZE}`} title={title} />
@@ -187,31 +182,12 @@ const Mission = () => {
           </Alert.Root>
         )}
 
-        <Form method="post" key={record.id}>
+        <Form method="post" key={record.id} encType={gap.input === 'image' ? 'multipart/form-data' : undefined}>
           <input type="hidden" name="record" value={record.id} />
-          {input ? (
-            <Field.Root>
-              <Field.Label htmlFor="value">{input.label}</Field.Label>
-              {gap.input === 'text' ? (
-                <Textarea id="value" name="value" minH="8rem" placeholder={input.placeholder} />
-              ) : (
-                <Input id="value" name="value" placeholder={input.placeholder} />
-              )}
-            </Field.Root>
-          ) : (
-            <Text>
-              Add it on its page:{' '}
-              <ChakraLink asChild>
-                <Link to={record.edit} target="_blank">
-                  edit {record.name}
-                </Link>
-              </ChakraLink>
-              , then come back for the next one.
-            </Text>
-          )}
+          <MissionInput kind={kind} gap={gap} />
           <HStack mt={4} gap={2} wrap="wrap">
-            <Button type="submit" name="intent" value={input ? 'fill' : 'done'} colorPalette="green" loading={busy}>
-              {input ? 'Save and next' : 'Done, next'}
+            <Button type="submit" name="intent" value="fill" colorPalette="green" loading={busy}>
+              Save and next
             </Button>
             <Button type="submit" name="intent" value="skip" variant="outline" disabled={busy}>
               I don&apos;t know, skip
