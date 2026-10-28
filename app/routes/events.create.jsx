@@ -16,9 +16,6 @@ import { isTimeZone, parseAttendance } from '../utils/eventAttendance';
 import getOrigin from '../utils/origin.server';
 import { webUrl } from '../utils/url';
 import { eventPath } from '../utils/slug';
-import { announceOnBluesky } from '../utils/blueskyPost.server';
-import { afterResponse } from '../utils/igdbData.server';
-import { summarize } from '../utils/meta';
 import { PageHeader } from '../components/Page';
 
 export async function action(args) {
@@ -65,19 +62,6 @@ export async function action(args) {
     });
 
     const BASE_URL = getOrigin(request);
-
-    // #160: and on Bluesky, from the IC account, after the response.
-    const name = data.get('name');
-    afterResponse(args.context, () =>
-      announceOnBluesky({
-        text: `New event on Community: ${name}${location.city ? `, in ${location.city}` : attendance === 'online' ? ', online' : ''}`,
-        url: `${BASE_URL}${eventPath(event)}`,
-        title: name,
-        description:
-          summarize(data.get('about')) ||
-          "An event on Indie Collective's community database.",
-      })
-    );
 
     await notifyDiscord(
       `${currentUser.username} added event "${data.get(

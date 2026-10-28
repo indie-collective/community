@@ -33,6 +33,13 @@ export default {
     ctx.waitUntil(refreshStalestIGDBData());
     // #343: events starting in a week, or tomorrow.
     const { sendEventReminders } = await import('../app/data/notifications.server.js');
-    ctx.waitUntil(sendEventReminders(new Date(controller.scheduledTime)));
+    const now = new Date(controller.scheduledTime);
+    ctx.waitUntil(sendEventReminders(now));
+    // #319: Monday morning's Bluesky summary of the week.
+    const { isWeeklySlot } = await import('../app/utils/weeklySummary.js');
+    if (isWeeklySlot(now)) {
+      const { postWeeklySummary } = await import('../app/data/weeklySummary.server.js');
+      ctx.waitUntil(postWeeklySummary({ now }));
+    }
   },
 };
