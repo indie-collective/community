@@ -67,7 +67,8 @@ test('a country page gives the overview of its scene', async ({ page }) => {
     // The map, with the city called out; choosing it shows its studios and associations.
     await expect(page.getByRole('heading', { name: "Where Antarctica's scene is" })).toBeVisible();
     const map = page.getByRole('group', { name: 'Map of the main areas for indie games' });
-    const callout = map.getByRole('button', { name: `Frostville ${tag}: 2 studios, 1 association` });
+    // Named by what it shows (#350): the area, then its counts.
+    const callout = map.getByRole('button', { name: new RegExp(`^Frostville ${tag}\\s*2 studios, 1 association$`) });
     await expect(callout).toBeVisible();
     await expect(page.getByRole('link', { name: 'Explore Antarctica on the map' })).toHaveAttribute('href', '/places?country=AQ');
 

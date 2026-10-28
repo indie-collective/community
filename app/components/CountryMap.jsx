@@ -100,7 +100,7 @@ const Callout = ({
     <g
       role="button"
       tabIndex={0}
-      aria-label={`${areaName(area)}: ${splitText(area)}`}
+      // Named by its visible text: the area and its counts (#350, WCAG 2.5.3).
       aria-pressed={on}
       style={{ cursor: 'pointer', outline: 'none' }}
       onPointerEnter={() => onFocus(index)}

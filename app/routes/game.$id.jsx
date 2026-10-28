@@ -181,6 +181,7 @@ const Game = () => {
         <Box mb={5}>
           <MotionGallery
             gameId={id}
+            gameName={name}
             images={images.concat(igdb_images)}
             currentUser={currentUser}
             fetcher={fetcher}

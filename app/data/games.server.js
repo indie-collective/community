@@ -508,6 +508,16 @@ export async function removeGameImages(gameId, imageIds, { authorId = null } = {
   ]);
 }
 
+/** Says what a game's image shows (#350), as a change to the game. */
+export async function setGameImageAlt(gameId, imageId, alt, { authorId = null } = {}) {
+  await changeGame(gameId, authorId, [
+    db
+      .update(gameImages)
+      .set({ alt: alt?.trim().slice(0, 300) || null })
+      .where(and(eq(gameImages.gameId, gameId), eq(gameImages.id, imageId))),
+  ]);
+}
+
 /**
  * Games matching `q` (see data/search), best first, for pickers: computed
  * games with only `id` and `name`, at most 10. Empty for an empty query.

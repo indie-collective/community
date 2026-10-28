@@ -14,7 +14,7 @@ async function computeGameEntity(gameEntity) {
 function computeGameImage(gameImage) {
   return {
     ...gameImage,
-    image: gameImage.image ? getImageLinks(gameImage.image) : undefined,
+    image: gameImage.image ? { ...getImageLinks(gameImage.image), alt: gameImage.alt ?? null } : undefined,
   };
 }
 

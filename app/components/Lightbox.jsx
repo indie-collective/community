@@ -1,7 +1,7 @@
 import { Box, IconButton, Image, Portal } from '@chakra-ui/react';
 import { LuX, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 import { FaExpand, FaCompress } from 'react-icons/fa';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 // v2 animated with framer-motion (AnimatePresence + motion.div slide
 // variants). The migration dropped framer-motion, so transitions use Chakra's
@@ -9,6 +9,13 @@ import { useState, useEffect, useCallback } from 'react';
 const Lightbox = ({ images, index, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(index);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // A dialog (#350): focus goes into it, and back where it was on closing.
+  const closeRef = useRef(null);
+  useEffect(() => {
+    const before = document.activeElement;
+    closeRef.current?.focus();
+    return () => before?.focus?.();
+  }, []);
 
   const paginate = useCallback(
     (step) =>
@@ -66,6 +73,9 @@ const Lightbox = ({ images, index, onClose }) => {
         overflow="hidden"
         animationName="fade-in"
         animationDuration="moderate"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Images"
       >
         {/* Close Button */}
         <IconButton
@@ -76,6 +86,7 @@ const Lightbox = ({ images, index, onClose }) => {
           variant="ghost"
           color="white"
           _hover={{ bg: 'whiteAlpha.200' }}
+          ref={closeRef}
           aria-label="Close Lightbox"
           zIndex={10002}><LuX /></IconButton>
 
@@ -138,7 +149,7 @@ const Lightbox = ({ images, index, onClose }) => {
           >
             <Image
               src={images[currentIndex].url}
-              alt={`Image ${currentIndex + 1}`}
+              alt={images[currentIndex]?.alt || `Image ${currentIndex + 1}`}
               maxW="100%"
               maxH="100%"
               objectFit="contain"

@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { Map } from 'pigeon-maps';
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * The one place map tiles are configured (#212): every map renders through
@@ -23,10 +24,27 @@ const tileStyle = {
   },
 };
 
-const TileMap = (props) => (
-  <Box css={tileStyle} height="100%">
-    <Map {...props} provider={tileProvider} />
-  </Box>
-);
+// Maps load only once they're near the screen (#350): their tiles are the
+// heaviest part of a page, and many maps sit below the fold.
+const useNearScreen = () => {
+  const ref = useRef(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    if (!ref.current || typeof IntersectionObserver === 'undefined') return setNear(true);
+    const observer = new IntersectionObserver(([entry]) => entry.isIntersecting && setNear(true), { rootMargin: '300px' });
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, near];
+};
+
+const TileMap = (props) => {
+  const [ref, near] = useNearScreen();
+  return (
+    <Box ref={ref} css={tileStyle} height="100%" minHeight="1px">
+      {near && <Map {...props} provider={tileProvider} />}
+    </Box>
+  );
+};
 
 export default TileMap;

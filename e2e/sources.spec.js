@@ -35,7 +35,9 @@ test.beforeAll(async () => {
     const url = new URL(req.url, BASE);
     if (url.pathname === '/steam/appdetails') {
       const id = url.searchParams.get('appids');
-      res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify({ [id]: STEAM[id] ?? { success: false } }));
+      // A website of its own each time: one game per website (#346).
+      const app = STEAM[id] && { ...STEAM[id], data: { ...STEAM[id].data, website: `https://lanternquest${Date.now()}.example` } };
+      res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify({ [id]: app ?? { success: false } }));
       return;
     }
     const page = PAGES[url.pathname];
@@ -47,29 +49,34 @@ test.beforeAll(async () => {
 test.afterAll(() => new Promise((resolve) => server.close(resolve)));
 
 test('a game added from its Steam page is filled in, and remembers the page', async ({ page }) => {
-  await signIn(page, MEMBER);
-  await page.goto('/games/create');
-  await waitForHydration(page);
-  await page.getByLabel('Start from a link').fill('https://store.steampowered.com/app/77/Lantern_Quest/');
-  await page.getByRole('button', { name: 'Fill in' }).click();
-  await expect(page.getByTestId('prefilled')).toContainText('Filled in from Steam');
-  await expect(page.getByLabel(/^name/i)).toHaveValue('Lantern Quest');
   const name = `Lantern Quest ${Date.now() % 100000}`;
-  await page.getByLabel(/^name/i).fill(name);
-  await page.getByRole('button', { name: /submit/i }).click();
-  await expect(page.getByRole('heading', { name, level: 1 })).toBeVisible();
-  await expect(page.getByText('A tiny quest.')).toBeVisible();
-
-  const [game] = await retryBusy(() => db.select().from(games).where(eq(games.name, name)));
   try {
-    expect(game.site).toBe('https://lanternquest.example');
+    await signIn(page, MEMBER);
+    await page.goto('/games/create');
+    await waitForHydration(page);
+    await page.getByLabel('Start from a link').fill('https://store.steampowered.com/app/77/Lantern_Quest/');
+    await page.getByRole('button', { name: 'Fill in' }).click();
+    await expect(page.getByTestId('prefilled')).toContainText('Filled in from Steam');
+    await expect(page.getByLabel(/^name/i)).toHaveValue('Lantern Quest');
+    await page.getByLabel(/^name/i).fill(name);
+    await page.getByRole('button', { name: /submit/i }).click();
+    await expect(page.getByRole('heading', { name, level: 1 })).toBeVisible();
+    await expect(page.getByText('A tiny quest.')).toBeVisible();
+
+    const [game] = await retryBusy(() => db.select().from(games).where(eq(games.name, name)));
+    expect(game.site).toMatch(/^https:\/\/lanternquest\d+\.example$/);
     const linked = await retryBusy(() => db.select().from(sources).where(eq(sources.recordId, game.id)));
     expect(linked.map((source) => [source.source, source.url])).toEqual([['steam', 'https://store.steampowered.com/app/77/']]);
   } finally {
-    await retryBusy(() => db.delete(sources).where(eq(sources.recordId, game.id)));
-    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+    // Even when it failed half-way: a leftover game would be the games list's first.
+    const made = await retryBusy(() => db.select().from(games).where(eq(games.name, name)));
+    for (const game of made) {
+      await retryBusy(() => db.delete(sources).where(eq(sources.recordId, game.id)));
+      await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+    }
   }
 });
+
 
 test('an event form is filled in from its page: name, times where it happens, tickets', async ({ page }) => {
   await signIn(page, MEMBER);

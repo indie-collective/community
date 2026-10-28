@@ -99,6 +99,13 @@
       "when": 1793150654169,
       "tag": "0013_mission_claims",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1793162550103,
+      "tag": "0014_game_image_alt",
+      "breakpoints": true
     }
   ]
 }
