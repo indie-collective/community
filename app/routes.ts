@@ -12,6 +12,9 @@ export default [
   index('routes/index.jsx'),
 
   route('about', 'routes/about.jsx'),
+  // Open data (#304).
+  route('data', 'routes/data.jsx'),
+  route('data/:file', 'routes/data.$file.js'),
   route('sitemap.xml', 'routes/sitemap.xml.js'),
   route('robots.txt', 'routes/robots.txt.js'),
   // Calendars and feeds (#342).

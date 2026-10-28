@@ -13,6 +13,7 @@ const PAGES = [
   '/places',
   '/countries',
   '/about',
+  '/data',
 ];
 
 const escape = (text) =>
