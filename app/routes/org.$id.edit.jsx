@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
+import { actionErrorMessage } from '../utils/actionError.server';
 import { useEffect } from 'react';
 
 import {
@@ -67,7 +68,7 @@ export async function action(args) {
   try {
     bsky_handle = await checkBlueskyHandle(data.get('bsky_handle'));
   } catch (err) {
-    return { error: err.message, values: Object.fromEntries(data) };
+    return { error: await actionErrorMessage(err), values: Object.fromEntries(data) };
   }
 
   try {
@@ -92,7 +93,7 @@ export async function action(args) {
     console.log(err);
 
     const values = Object.fromEntries(data);
-    return { error: 'Updating the organization failed', values };
+    return { error: await actionErrorMessage(err, 'Updating the organization failed'), values };
   }
 }
 

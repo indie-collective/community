@@ -19,7 +19,7 @@ export const loader = async ({ request, params }) => {
   return { profile };
 };
 
-const fullName = (profile) => [profile.first_name, profile.last_name].filter(Boolean).join(' ');
+const fullName = (profile) => profile.first_name ?? '';
 
 export const meta = ({ data, matches }) =>
   data

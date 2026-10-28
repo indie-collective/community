@@ -5,6 +5,7 @@ import {
   useLoaderData,
   useNavigation,
 } from 'react-router';
+import { actionErrorMessage } from '../utils/actionError.server';
 import { useEffect } from 'react';
 
 import { createOrganization } from '../data/organizations.server';
@@ -84,7 +85,7 @@ export async function action(args) {
     return redirect(orgPath(org));
   } catch (err) {
     const values = Object.fromEntries(data);
-    return { error: err.message, values };
+    return { error: await actionErrorMessage(err), values };
   }
 }
 

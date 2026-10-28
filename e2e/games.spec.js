@@ -327,10 +327,12 @@ test('a member builds a game timeline from milestones and events', async ({ page
     await expect(items.nth(2)).toContainText('Released');
     await expect(timeline.getByText('2 years 4 months to release')).toBeVisible();
 
-    // The history says what changed: /changes opens the latest revision.
-    await page.goto(`/game/${game.id}/changes`);
-    await expect(page).toHaveURL(/\/changes\/[0-9a-f-]{36}$/);
-    await expect(page.getByRole('cell', { name: /June 2023: Released/ })).toBeVisible();
+    // The change log records each step (#309).
+    const { changes, desc } = { ...(await import('./db.js')), ...(await import('drizzle-orm')) };
+    const [latest] = await retryBusy(() =>
+      db.select().from(changes).where(eq(changes.recordId, game.id)).orderBy(desc(changes.createdAt)).limit(1)
+    );
+    expect(latest.data.after.milestones.map((step) => step.kind)).toContain('released');
 
     await page.goto(`/game/${game.id}`);
     const removed = page.waitForResponse((response) => response.url().includes('/milestones/delete'));

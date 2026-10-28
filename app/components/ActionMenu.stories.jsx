@@ -7,10 +7,10 @@ const onDelete = fn();
 export default {
   title: 'Layout/ActionMenu',
   component: ActionMenu,
-  args: { editLink: '/org/1/edit', changesLink: '/org/1/changes', onDelete },
+  args: { editLink: '/org/1/edit', onDelete },
 };
 
-// Edit in plain sight; History and Delete in the "More actions" menu, whose
+// Edit in plain sight; Delete (admins only) in the "More actions" menu, whose
 // trigger is one button (it used to nest a <button> in a <button>).
 export const Default = {
   play: async ({ canvasElement }) => {
@@ -24,10 +24,7 @@ export const Default = {
     await userEvent.click(buttons[0]);
 
     const body = within(canvasElement.ownerDocument.body);
-    await expect(
-      await body.findByRole('menuitem', { name: 'History' })
-    ).toHaveAttribute('href', '/org/1/changes');
-    await userEvent.click(body.getByRole('menuitem', { name: 'Delete' }));
+    await userEvent.click(await body.findByRole('menuitem', { name: 'Delete' }));
     await expect(onDelete).toHaveBeenCalled();
   },
 };

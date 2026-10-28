@@ -9,7 +9,7 @@ export async function action(args) {
   const { params, request } = args;
   const id = await routeRecordId('game', params.id);
 
-  await authorizer.authorize(args, {
+  const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
   });
 
@@ -19,7 +19,7 @@ export async function action(args) {
     throw new Response('Bad Request', { status: 400 });
   }
 
-  await addGameOrganization(id, data.get('id'), role);
+  await addGameOrganization(id, data.get('id'), role, { authorId: currentUser.id });
 
   return { ok: true };
 }

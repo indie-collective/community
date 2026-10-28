@@ -155,8 +155,7 @@ const Game = () => {
             {currentUser && (
               <ActionMenu
                 editLink={`/game/${id}/edit`}
-                changesLink={`/game/${id}/changes`}
-                onDelete={deleteModal.onOpen}
+                onDelete={currentUser.isAdmin ? deleteModal.onOpen : undefined}
               />
             )}
           </>

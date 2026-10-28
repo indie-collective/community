@@ -21,6 +21,11 @@ const vars = {
   DEV_SIGNIN: 'true',
   // A local catcher (see auth.spec.js) stands in for Discord's webhook.
   DISCORD_NOTIFICATION_WEBHOOK: 'http://127.0.0.1:3199/discord-webhook',
+  // And for the moderators' channel (see moderation.spec.js).
+  DISCORD_MODERATION_WEBHOOK: 'http://127.0.0.1:3195/moderation-webhook',
+  // The harness members make more than 15 changes a run; moderation.spec.js
+  // fills a new member's hour up to this.
+  EDITS_PER_HOUR: '100',
   // A local stand-in for Bluesky's public API (see orgs.spec.js).
   BLUESKY_API: 'http://127.0.0.1:3198',
   // A local stand-in for the IC account's server (see bluesky.spec.js).

@@ -8,13 +8,13 @@ export async function action(args) {
   const { params, request } = args;
   const id = await routeRecordId('event', params.id);
 
-  await authorizer.authorize(args, {
+  const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
   });
 
   const data = await request.formData();
 
-  await removeEventOrganization(id, data.get('id'));
+  await removeEventOrganization(id, data.get('id'), { authorId: currentUser.id });
 
   return redirect(`/event/${id}`);
 }

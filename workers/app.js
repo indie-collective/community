@@ -2,6 +2,7 @@
 // refreshes the stalest stored IGDB data, for games nobody visits (#254).
 import { createRequestHandler } from 'react-router';
 
+import { requestScope } from '../app/utils/background.server.js';
 import { withEdgeCache } from './edgeCache.js';
 
 const requestHandler = createRequestHandler(
@@ -11,7 +12,9 @@ const requestHandler = createRequestHandler(
 
 export default {
   fetch(request, env, ctx) {
-    const handle = (req) => requestHandler(req, { cloudflare: { env, ctx } });
+    // In the request's scope, so data modules can work after the response.
+    const handle = (req) =>
+      requestScope.run({ ctx }, () => requestHandler(req, { cloudflare: { env, ctx } }));
     // Signed-out pages, cached for a minute (edgeCache.js). Not under
     // `vite dev`, where an edit must show at once; EDGE_CACHE=off turns it
     // off in a build (the end-to-end tests).

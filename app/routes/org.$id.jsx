@@ -168,8 +168,7 @@ const Org = () => {
               {currentUser && (
                 <ActionMenu
                   editLink={`/org/${id}/edit`}
-                  changesLink={`/org/${id}/changes`}
-                  onDelete={deleteModal.onOpen}
+                  onDelete={currentUser.isAdmin ? deleteModal.onOpen : undefined}
                 />
               )}
             </>
