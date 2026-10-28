@@ -48,8 +48,8 @@ async function renameGame(page, game, name) {
 
 test('a change keeps only what changed, a save without change keeps nothing, and links are recorded', async ({ page }) => {
   const id = suffix();
-  const [game] = await db.insert(games).values({ name: `Logged ${id}`, slug: `logged-${id}`, about: 'A long description '.repeat(50) }).returning();
-  const [studio] = await db.insert(organizations).values({ name: `Logged Studio ${id}`, type: 'studio' }).returning();
+  const [game] = await retryBusy(() => db.insert(games).values({ name: `Logged ${id}`, slug: `logged-${id}`, about: 'A long description '.repeat(50) }).returning());
+  const [studio] = await retryBusy(() => db.insert(organizations).values({ name: `Logged Studio ${id}`, type: 'studio' }).returning());
   try {
     await signIn(page, MEMBER);
     await renameGame(page, game, `Logged ${id} renamed`);
@@ -89,7 +89,7 @@ test('a change keeps only what changed, a save without change keeps nothing, and
 });
 
 test("a member can't delete, and doesn't see Delete", async ({ page }) => {
-  const [game] = await db.insert(games).values({ name: `Undeletable ${suffix()}` }).returning();
+  const [game] = await retryBusy(() => db.insert(games).values({ name: `Undeletable ${suffix()}` }).returning());
   try {
     await signIn(page, MEMBER);
     await page.goto(`/game/${game.id}`);
@@ -110,11 +110,11 @@ test("a member's changes beyond the hourly limit are refused", async ({ page }) 
   const email = `busy-${suffix()}@indieco.test`;
   await signIn(page, email);
   const person = await personByEmail(email);
-  const [game] = await db.insert(games).values({ name: `Busy ${suffix()}` }).returning();
+  const [game] = await retryBusy(() => db.insert(games).values({ name: `Busy ${suffix()}` }).returning());
   // Their hour is full (EDITS_PER_HOUR is 100 in the e2e server).
   const full = Array.from({ length: 100 }, () => ({ operation: 'update', tableName: 'games', recordId: game.id, data: {}, authorId: person.id }));
   // D1 takes so many values at a time.
-  for (let i = 0; i < full.length; i += 10) await db.insert(changes).values(full.slice(i, i + 10));
+  for (let i = 0; i < full.length; i += 10) await retryBusy(() => db.insert(changes).values(full.slice(i, i + 10)));
   try {
     await page.goto(`/game/${game.id}/edit`);
     await waitForHydration(page);
@@ -130,17 +130,19 @@ test("a member's changes beyond the hourly limit are refused", async ({ page }) 
   }
 });
 
-test('an admin undoes an update, a create and a delete, each in the log', async ({ browser }) => {
+test('an admin undoes an update, a create and a delete, each in the log', async ({ newPage }) => {
   const id = suffix();
-  const [game] = await db.insert(games).values({ name: `Undo Me ${id}` }).returning();
+  const [game] = await retryBusy(() => db.insert(games).values({ name: `Undo Me ${id}` }).returning());
   const startsAt = new Date(Date.now() + 86400000);
-  const [event] = await db
-    .insert(events)
-    .values({ name: `Undelete Me ${id}`, searchText: searchText('x'), startsAt, endsAt: new Date(startsAt.getTime() + 3600000) })
-    .returning();
+  const [event] = await retryBusy(() =>
+    db
+      .insert(events)
+      .values({ name: `Undelete Me ${id}`, searchText: searchText('x'), startsAt, endsAt: new Date(startsAt.getTime() + 3600000) })
+      .returning()
+  );
   let orgId;
-  const member = await browser.newPage();
-  const admin = await browser.newPage();
+  const member = await newPage();
+  const admin = await newPage();
   try {
     await signIn(member, MEMBER);
     await renameGame(member, game, `Vandalised ${id}`);
@@ -178,8 +180,6 @@ test('an admin undoes an update, a create and a delete, each in the log', async 
     await admin.goto('/admin/changes');
     await expect(admin.getByTestId('change').filter({ hasText: 'Undid' }).first()).toBeVisible();
   } finally {
-    await member.close();
-    await admin.close();
     await retryBusy(() => db.delete(changes).where(inArray(changes.recordId, [game.id, event.id, ...(orgId ? [orgId] : [])])));
     await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
     await retryBusy(() => db.delete(events).where(eq(events.id, event.id)));
@@ -187,18 +187,20 @@ test('an admin undoes an update, a create and a delete, each in the log', async 
   }
 });
 
-test('"Undo all since" restores a vandalised record and skips one edited since by someone else', async ({ browser }) => {
+test('"Undo all since" restores a vandalised record and skips one edited since by someone else', async ({ newPage }) => {
   const id = suffix();
   const email = `vandal-${id}@indieco.test`;
-  const [kept, contested] = await db
-    .insert(games)
-    .values([{ name: `Kept ${id}` }, { name: `Contested ${id}` }])
-    .returning();
-  const [studio] = await db.insert(organizations).values({ name: `Credited ${id}`, type: 'studio' }).returning();
-  await db.insert(gameOrganizations).values({ gameId: kept.id, organizationId: studio.id });
-  const vandal = await browser.newPage();
-  const other = await browser.newPage();
-  const admin = await browser.newPage();
+  const [kept, contested] = await retryBusy(() =>
+    db
+      .insert(games)
+      .values([{ name: `Kept ${id}` }, { name: `Contested ${id}` }])
+      .returning()
+  );
+  const [studio] = await retryBusy(() => db.insert(organizations).values({ name: `Credited ${id}`, type: 'studio' }).returning());
+  await retryBusy(() => db.insert(gameOrganizations).values({ gameId: kept.id, organizationId: studio.id }));
+  const vandal = await newPage();
+  const other = await newPage();
+  const admin = await newPage();
   const since = new Date(Date.now() - 60000);
   try {
     await signIn(vandal, email);
@@ -234,9 +236,6 @@ test('"Undo all since" restores a vandalised record and skips one edited since b
     await expect(admin.getByText('Restricted: they can no longer change anything.')).toBeVisible();
     expect((await personByEmail(email)).role).toBe('restricted');
   } finally {
-    await vandal.close();
-    await other.close();
-    await admin.close();
     await retryBusy(() => db.delete(changes).where(inArray(changes.recordId, [kept.id, contested.id])));
     await retryBusy(() => db.delete(games).where(inArray(games.id, [kept.id, contested.id])));
     await retryBusy(() => db.delete(organizations).where(eq(organizations.id, studio.id)));

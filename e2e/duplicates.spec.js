@@ -49,12 +49,12 @@ test('adding an organisation asks whether it is one already listed, and refuses 
   }
 });
 
-test('a member reports a duplicate, and an admin sees it, or says they differ', async ({ browser }) => {
+test('a member reports a duplicate, and an admin sees it, or says they differ', async ({ newPage }) => {
   const id = suffix();
   const one = await insertOrg(`Reported${id} One`);
   const two = await insertOrg(`Unrelated${id} Two`);
-  const member = await browser.newPage();
-  const admin = await browser.newPage();
+  const member = await newPage();
+  const admin = await newPage();
   try {
     await signIn(member, MEMBER);
     await member.goto(`/org/${one.id}`);
@@ -80,8 +80,6 @@ test('a member reports a duplicate, and an admin sees it, or says they differ', 
     await pair.getByRole('button', { name: /are different$/ }).click();
     await expect(admin.getByTestId('duplicate-pair').filter({ hasText: one.name })).toHaveCount(0);
   } finally {
-    await member.close();
-    await admin.close();
     await retryBusy(() => db.delete(duplicatePairs).where(inArray(duplicatePairs.firstId, [one.id, two.id])));
     await retryBusy(() => db.delete(organizations).where(inArray(organizations.id, [one.id, two.id])));
   }
