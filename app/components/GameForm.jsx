@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import { Input, Button, Textarea, Grid, Field, Link as ChakraLink } from '@chakra-ui/react';
 
 import { DuplicateHint } from './Duplicates';
+import PrefillFromLink from './PrefillFromLink';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
@@ -34,6 +35,7 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
     handleSubmit,
     register,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -62,6 +64,17 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
             replace: true,
           });
         })}>
+        {/* #338: from its Steam or itch.io page, or its website. */}
+        {!id && (
+          <PrefillFromLink
+            kind="game"
+            onFields={(fields) => {
+              for (const field of ['name', 'about', 'site']) {
+                if (fields[field]) setValue(field, fields[field], { shouldValidate: true });
+              }
+            }}
+          />
+        )}
         <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
           <Field.Label>Name<Field.RequiredIndicator /></Field.Label>
           <Input

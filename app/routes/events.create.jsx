@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react';
 import { redirect, useActionData, useNavigation } from 'react-router';
 import { actionErrorMessage } from '../utils/actionError.server';
+import { addSource } from '../data/sources.server';
 import { useEffect } from 'react';
 
 import { createEvent } from '../data/events.server';
@@ -60,6 +61,11 @@ export async function action(args) {
       location,
       authorId: currentUser.id,
     });
+
+    // #338: where it came from, to read again and fill in.
+
+    if (data.get('source_url')) await addSource('event', event.id, data.get('source_url'));
+
 
     const BASE_URL = getOrigin(request);
 

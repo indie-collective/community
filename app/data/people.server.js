@@ -240,3 +240,15 @@ export async function countPeople() {
   const [{ value }] = await db.select({ value: count() }).from(people);
   return value;
 }
+
+// The account automatic fills are recorded under (#338): never signs in (no
+// email, no Bluesky identity), and isn't held to members' hourly limit.
+const BOT = { username: 'indieco-bot', firstName: 'Indie Collective bot', role: 'admin' };
+
+/** The bot account's ID, made the first time. */
+export async function botAccountId() {
+  const [found] = await db.select({ id: people.id }).from(people).where(eq(people.username, BOT.username));
+  if (found) return found.id;
+  const [made] = await db.insert(people).values(BOT).onConflictDoNothing().returning({ id: people.id });
+  return made?.id ?? (await db.select({ id: people.id }).from(people).where(eq(people.username, BOT.username)))[0].id;
+}
