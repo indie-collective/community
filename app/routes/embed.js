@@ -3,6 +3,8 @@
 // light or dark (?theme=dark), linking back to the site.
 import { getApiOrganization, listApiEvents, listOrganizationGamesForWidget } from '../data/api.server';
 import getOrigin from '../utils/origin.server';
+import { requireFeature } from '../data/featureFlags.server';
+import isAuthenticated from '../utils/isAuthenticated.server';
 
 const escape = (text) =>
   String(text ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -35,6 +37,8 @@ ${body}
 </html>`;
 
 export async function loader({ request, params }) {
+  // Behind the "api" flag (/admin/flags), with the API.
+  await requireFeature('api', await isAuthenticated(request));
   const origin = getOrigin(request);
   const theme = new URL(request.url).searchParams.get('theme') === 'dark' ? 'dark' : 'light';
   const org = await getApiOrganization(params.id, { origin });

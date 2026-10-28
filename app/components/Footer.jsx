@@ -12,6 +12,7 @@ import {
 import FeedbackWidget from './FeedbackWidget';
 import * as React from 'react';
 import { FaBluesky, FaGithub, FaInstagram, FaDiscord } from 'react-icons/fa6';
+import { useRouteLoaderData } from 'react-router';
 import Link from './Link';
 
 import Logo from './Logo';
@@ -20,6 +21,8 @@ import LanguageSwitcher from './LanguageSwitcher';
 
 const Footer = () => {
   const t = useT();
+  // The API's link only while its flag is on for them (/admin/flags).
+  const { features } = useRouteLoaderData('root') ?? {};
   return (
     <Box
       bg="surface"
@@ -56,9 +59,11 @@ const Footer = () => {
           <ChakraLink asChild>
             <Link to="/data">{t('footer.data')}</Link>
           </ChakraLink>
-          <ChakraLink asChild>
-            <Link to="/api">{t('footer.api')}</Link>
-          </ChakraLink>
+          {features?.api && (
+            <ChakraLink asChild>
+              <Link to="/api">{t('footer.api')}</Link>
+            </ChakraLink>
+          )}
           {/* #320 */}
           <FeedbackWidget />
           {/* #344 */}

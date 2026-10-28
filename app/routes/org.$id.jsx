@@ -17,12 +17,7 @@ import {
 
 import { LuPlus, LuExternalLink, LuMapPin } from 'react-icons/lu';
 
-import {
-  useLoaderData,
-  Form,
-  isRouteErrorResponse,
-  useRouteError,
-} from 'react-router';
+import { useLoaderData, Form, isRouteErrorResponse, useRouteError, useRouteLoaderData } from 'react-router';
 import Link from '../components/Link';
 
 import isAuthenticated from '../utils/isAuthenticated.server';
@@ -106,6 +101,7 @@ export const meta = ({ data, matches }) => {
 const Org = () => {
   const placeholder = usePlaceholder('square');
   const { org, currentUser, opportunities, following, sources } = useLoaderData();
+  const { features } = useRouteLoaderData('root') ?? {};
 
   const deleteModal = useDisclosure();
   // #346
@@ -398,7 +394,10 @@ const Org = () => {
         </PageSection>
       )}
       {/* #349: its games or events on its own site. */}
-      {(games.length > 0 || events.length > 0) && <EmbedCode org={org} hasGames={games.length > 0} hasEvents={events.length > 0} />}
+      {/* The widgets go with the API, behind its flag (/admin/flags). */}
+      {features?.api && (games.length > 0 || events.length > 0) && (
+        <EmbedCode org={org} hasGames={games.length > 0} hasEvents={events.length > 0} />
+      )}
       {currentUser && (
         <ReportDuplicate kind="organization" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />
       )}

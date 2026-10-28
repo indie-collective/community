@@ -1,9 +1,12 @@
 import { eq, inArray } from 'drizzle-orm';
 
-import { db, events, gameOrganizations, games, gameTags, organizationEvents, organizations, retryBusy, searchText, tags } from './db.js';
-import { expect, test } from './helpers';
+import { db, events, gameOrganizations, games, gameTags, organizationEvents, organizations, retryBusy, searchText, setFlag, tags } from './db.js';
+import { expect, test, ADMIN, signIn } from './helpers';
 
-// #349: the public read-only API, and widgets for other sites.
+// #349: the public read-only API, and widgets for other sites. Behind the
+// "api" flag: on for these tests, then back to its default.
+test.beforeAll(() => setFlag('api', 'on'));
+test.afterAll(() => setFlag('api', null));
 
 const suffix = () => `${Date.now() % 100000}${Math.floor(Math.random() * 100)}`;
 
@@ -111,4 +114,29 @@ test('the API is documented, with its OpenAPI description', async ({ page, reque
   const spec = await (await request.get('/api/v1/openapi.json')).json();
   expect(spec.openapi).toBe('3.1.0');
   expect(Object.keys(spec.paths)).toEqual(expect.arrayContaining(['/games', '/organizations/{id}', '/events']));
+});
+
+// The API is behind its flag, admins only by default: everyone else finds
+// nothing there, nor a link to it.
+test('the API, its documentation and widgets are hidden while the flag is off for them', async ({ page, request }) => {
+  await setFlag('api', null);
+  try {
+    const [studio] = await retryBusy(() => db.select().from(organizations).limit(1));
+    for (const path of ['/api', '/api/v1/games', '/api/v1/openapi.json', `/embed/org/${studio.id}/games`]) {
+      expect((await request.get(path)).status(), path).toBe(404);
+    }
+    await page.goto('/about');
+    await expect(page.getByRole('contentinfo').getByRole('link', { name: 'API' })).toHaveCount(0);
+
+    // Admins see it, to try it out.
+    await signIn(page, ADMIN);
+    expect((await page.goto('/api')).status()).toBe(200);
+    await expect(page.getByRole('contentinfo').getByRole('link', { name: 'API' })).toBeVisible();
+
+    // On for everyone, everyone gets it.
+    await setFlag('api', 'on');
+    expect((await request.get('/api/v1/games')).status()).toBe(200);
+  } finally {
+    await setFlag('api', 'on');
+  }
 });
