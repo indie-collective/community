@@ -462,6 +462,10 @@ const Event = () => {
                       // { method: 'post', action: './games/add' }
                     );
                   }}
+                  // Not found: added, linked, then opened to fill in (#374).
+                  onCreate={(record) =>
+                    fetcher.submit(record, { method: 'post', action: `/event/${id}/games/add` })
+                  }
                 />
               </>
             )}
@@ -530,6 +534,10 @@ const Event = () => {
                       // { method: 'post', action: './hosts/add' }
                     );
                   }}
+                  // Not found: added, linked, then opened to fill in (#374).
+                  onCreate={(record) =>
+                    fetcher.submit(record, { method: 'post', action: `/event/${id}/hosts/add` })
+                  }
                 />
               </>
             )}

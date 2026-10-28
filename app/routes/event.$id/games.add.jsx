@@ -3,6 +3,7 @@ import { redirect } from 'react-router';
 import { addEventGame } from '../../data/events.server';
 import { authorizer, canWrite } from '../../utils/auth.server';
 import { routeRecordId } from '../../utils/pageRecord.server';
+import { afterLinking, pickedOrCreated } from '../../utils/quickCreate.server';
 
 export async function action(args) {
   const { params, request } = args;
@@ -14,7 +15,10 @@ export async function action(args) {
 
   const data = await request.formData();
 
-  await addEventGame(id, data.get('id'), { authorId: currentUser.id });
+  // An existing one, or one added by name from the picker (#374).
+  const picked = await pickedOrCreated('game', data, { request, currentUser });
+  await addEventGame(id, picked.id, { authorId: currentUser.id });
 
-  return redirect(`/event/${id}`);
+  const back = `/event/${id}`;
+  return afterLinking(picked, back) ?? redirect(back);
 }

@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 
 import { searchOrganizations } from '../data/organizations.server';
 import useDebounce from '../hooks/useDebounce';
+import PickerCreate from '../components/PickerCreate';
 
 export async function loader({ request }) {
   const { searchParams } = new URL(request.url);
@@ -23,7 +24,7 @@ export async function loader({ request }) {
 }
 
 // Defaults as parameters: React 19 ignores defaultProps on function components.
-export const SearchOrgModal = ({ isOpen = true, excludedIds = [], onClose = () => {}, onSelect = () => {} }) => {
+export const SearchOrgModal = ({ isOpen = true, excludedIds = [], onClose = () => {}, onSelect = () => {}, onCreate }) => {
   const [value, setValue] = useState('');
   const orgs = useFetcher();
   const debouncedValue = useDebounce(value, 300);
@@ -69,6 +70,23 @@ export const SearchOrgModal = ({ isOpen = true, excludedIds = [], onClose = () =
                   onChange={(e) => setValue(e.target.value)}
                   mb={2}
                 />
+                {/* Not there? Add it, link it, then fill it in (#374). */}
+                <PickerCreate
+                  query={value}
+                  fetcher={orgs}
+                  options={[
+                    { type: 'studio', label: (name) => `Add studio “${name}”` },
+                    { type: 'association', label: (name) => `Add association “${name}”` },
+                  ]}
+                  onCreate={
+                    onCreate &&
+                    ((record) => {
+                      onCreate(record);
+                      setValue('');
+                      onClose();
+                    })
+                  }
+                />
                 {orgs.data && (
                   <Box>
                     {orgs.data.error ? (
@@ -104,7 +122,7 @@ export const SearchOrgModal = ({ isOpen = true, excludedIds = [], onClose = () =
                         ))}
                       </List.Root>
                     ) : (
-                      <Text>No results has been found.</Text>
+                      <Text>No results found.</Text>
                     )}
                   </Box>
                 )}
@@ -124,6 +142,7 @@ SearchOrgModal.propTypes = {
   excludedIds: PropTypes.arrayOf(PropTypes.string),
   onClose: PropTypes.func,
   onSelect: PropTypes.func,
+  onCreate: PropTypes.func,
 };
 
 export default SearchOrgModal;
