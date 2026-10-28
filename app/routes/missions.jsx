@@ -1,6 +1,7 @@
-import { Badge, Box, Button, Grid, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Grid, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { useLoaderData } from 'react-router';
 
+import AchievementShelf from '../components/AchievementBadge';
 import Link from '../components/Link';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import { countGaps, memberStats } from '../data/missions.server';
@@ -38,14 +39,20 @@ const Missions = () => {
           <Text>
             <b>{stats.records}</b> records completed
           </Text>
-          <HStack gap={2} wrap="wrap">
-            {stats.achievements.map((achievement) => (
-              <Badge key={achievement.key} colorPalette="yellow" title={achievement.description}>
-                {achievement.name}
-              </Badge>
-            ))}
-          </HStack>
         </HStack>
+      )}
+      {stats && (
+        // Every badge, and how far there is to go for those not earned (#377).
+        <PageSection
+          title="Your badges"
+          aside={
+            <Text color="muted" fontSize="sm">
+              {stats.achievements.length} of {stats.progress.length} earned
+            </Text>
+          }
+        >
+          <AchievementShelf achievements={stats.progress} data-testid="my-badges" />
+        </PageSection>
       )}
       {Object.entries(GAPS).map(([kind, gaps]) => (
         <PageSection key={kind} title={KIND_LABELS[kind]}>
