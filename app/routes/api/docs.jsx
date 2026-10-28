@@ -4,9 +4,15 @@ import { useLoaderData } from 'react-router';
 import { Page, PageHeader, PageSection } from '../../components/Page';
 import { pageMeta } from '../../utils/meta';
 import getOrigin from '../../utils/origin.server';
+import { requireFeature } from '../../data/featureFlags.server';
+import isAuthenticated from '../../utils/isAuthenticated.server';
 
 // The public API's documentation (#349).
-export const loader = ({ request }) => ({ origin: getOrigin(request) });
+export const loader = async ({ request }) => {
+  // Behind the "api" flag (/admin/flags).
+  await requireFeature('api', await isAuthenticated(request));
+  return { origin: getOrigin(request) };
+};
 
 export const meta = ({ matches, location }) =>
   pageMeta(matches, {

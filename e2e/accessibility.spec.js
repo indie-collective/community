@@ -7,8 +7,14 @@ import { expect, test, MEMBER, signIn, waitForHydration } from './helpers';
 // #350: WCAG 2.2 AA on the main pages, in light and dark, with the keyboard.
 
 // Pages behind feature flags too.
-test.beforeAll(() => setFlag('opportunities', 'on'));
-test.afterAll(() => setFlag('opportunities', null));
+test.beforeAll(async () => {
+  await setFlag('opportunities', 'on');
+  await setFlag('api', 'on');
+});
+test.afterAll(async () => {
+  await setFlag('opportunities', null);
+  await setFlag('api', null);
+});
 
 const STATIC = ['/', '/games', '/studios', '/associations', '/publishers', '/events', '/opportunities', '/places', '/countries', '/search?q=game', '/about', '/signin', '/missions', '/data', '/api'];
 

@@ -9,11 +9,12 @@ import countryNames from '../assets/countries.json';
 // For search engines (#258). Cached for an hour: it only changes as fast as
 // people add things.
 export const loader = async ({ request }) => {
-  const [countries, { games, orgs, events }, people, opportunities] = await Promise.all([
+  const [countries, { games, orgs, events }, people, opportunities, api] = await Promise.all([
     listCountryCodes(),
     listSitemapRecords(),
     listPublicUsernames(),
     isFeatureOn('opportunities', null),
+    isFeatureOn('api', null),
   ]);
   const xml = buildSitemap(getOrigin(request), {
     // Codes the country page doesn't know would only be 404s.
@@ -22,7 +23,7 @@ export const loader = async ({ request }) => {
     orgs,
     events,
     people,
-    hidden: opportunities ? [] : ['/opportunities'],
+    hidden: [!opportunities && '/opportunities', !api && '/api'].filter(Boolean),
   });
   return new Response(xml, {
     headers: {

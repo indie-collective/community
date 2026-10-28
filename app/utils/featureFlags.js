@@ -25,6 +25,13 @@ export const FEATURE_FLAGS = [
       'The interface in Breton, a draft until a Breton speaker reviews it (#373): offered in the language menu, and chosen from a browser’s languages.',
     default: 'admins',
   },
+  {
+    key: 'api',
+    label: 'API and widgets',
+    description:
+      'The public read-only API (/api, /api/v1), its documentation and the widgets other sites embed (/embed), with their links in the footer and on organisations’ pages (#349).',
+    default: 'admins',
+  },
 ];
 
 const isState = (state) => FLAG_STATES.some(([value]) => value === state);

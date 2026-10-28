@@ -13,6 +13,8 @@ import {
 } from '../../data/api.server';
 import { ORGANIZATION_TYPES } from '../../db/schema.js';
 import getOrigin from '../../utils/origin.server';
+import { isFeatureOn } from '../../data/featureFlags.server';
+import isAuthenticated from '../../utils/isAuthenticated.server';
 
 const HEADERS = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -26,6 +28,8 @@ const error = (status, message) => json({ error: message }, status);
 const ONE = { games: getApiGame, organizations: getApiOrganization, events: getApiEvent };
 
 export async function loader({ request, params }) {
+  // Behind the "api" flag (/admin/flags): not found while it's off for them.
+  if (!(await isFeatureOn('api', await isAuthenticated(request)))) return error(404, 'Not found.');
   const url = new URL(request.url);
   const origin = getOrigin(request);
   const q = (name) => url.searchParams.get(name)?.trim() || null;
