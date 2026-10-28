@@ -37,6 +37,8 @@ import OpportunityList from '../components/OpportunityList';
 import { listOpportunities } from '../data/opportunities.server';
 import { isFollowing } from '../data/notifications.server';
 import FollowButton from '../components/FollowButton';
+import SourceCredit from '../components/SourceCredit';
+import { listRecordSources } from '../data/sources.server';
 import { ReportDuplicate } from '../components/Duplicates';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import TagList from '../components/TagList';
@@ -65,6 +67,8 @@ export const loader = async ({ request, params, context }) => {
     currentUser,
     opportunities: await listOpportunities({ gameId: id }),
     following: await isFollowing(currentUser?.id, 'game', id),
+    // #338: where some of it came from.
+    sources: await listRecordSources('game', id),
   };
 
   return data;
@@ -99,7 +103,7 @@ export const meta = ({ data, matches }) => {
 };
 
 const Game = () => {
-  const { game, currentUser, opportunities, following } = useLoaderData();
+  const { game, currentUser, opportunities, following, sources } = useLoaderData();
   const fetcher = useFetcher();
 
   const {
@@ -197,6 +201,7 @@ const Game = () => {
         {about && (
           <Box py={3} maxW="540px">
             <Markdown value={about} />
+            <SourceCredit sources={sources} field="about" value={about} />
           </Box>
         )}
 

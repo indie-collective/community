@@ -2,11 +2,12 @@ import { Box, Text } from '@chakra-ui/react';
 
 import { useColorModeValue } from "./ui/color-mode";
 import { formatEventDay } from '../utils/eventTime';
+import { useLanguage } from '../i18n';
 
 // The day an event starts, in its own time zone (#204).
 const DateLabel = ({ value, timeZone, ...rest }) => {
   const bg = useColorModeValue('#f2f2f2ab', '#282828aa');
-  const day = formatEventDay(value, timeZone);
+  const day = formatEventDay(value, timeZone, { locale: useLanguage() });
 
   return (
     <Box

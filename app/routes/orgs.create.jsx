@@ -6,6 +6,7 @@ import {
   useNavigation,
 } from 'react-router';
 import { actionErrorMessage } from '../utils/actionError.server';
+import { addSource } from '../data/sources.server';
 import { useEffect } from 'react';
 
 import { createOrganization } from '../data/organizations.server';
@@ -55,6 +56,11 @@ export async function action(args) {
       logoId: data.get('logo'),
       authorId: currentUser.id,
     });
+
+    // #338: where it came from, to read again and fill in.
+
+    if (data.get('source_url')) await addSource('organization', org.id, data.get('source_url'));
+
 
     const BASE_URL = getOrigin(request);
 

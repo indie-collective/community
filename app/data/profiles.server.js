@@ -7,6 +7,7 @@ import { changes, eventParticipants, events, games, organizations, people } from
 import getImageLinks from '../utils/imageLinks.server';
 import { eventPath, gamePath, orgPath } from '../utils/slug';
 import * as shape from './shapes.server';
+import { memberStats } from './missions.server';
 
 const RECORDS = {
   games: { table: games, path: gamePath, kind: 'game' },
@@ -98,7 +99,12 @@ export async function getPublicProfile(username, { viewerId } = {}) {
   if (!row || row.role === 'restricted') return null;
   const own = viewerId === row.id;
   if (row.profileHidden && !own) return null;
-  const [attending, contributed] = await Promise.all([attendedEvents(row.id), contributions(row.id)]);
+  const [attending, contributed, stats] = await Promise.all([
+    attendedEvents(row.id),
+    contributions(row.id),
+    // #339: points and badges.
+    memberStats(row.id),
+  ]);
   return {
     username: row.username,
     // First name only: the last name stays private, as everywhere.
@@ -115,6 +121,9 @@ export async function getPublicProfile(username, { viewerId } = {}) {
     own,
     attending,
     contributions: contributed,
+    points: stats.points,
+    completed: stats.records,
+    badges: stats.achievements,
   };
 }
 

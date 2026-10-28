@@ -42,6 +42,8 @@ import OpportunityList from '../components/OpportunityList';
 import { listOpportunities } from '../data/opportunities.server';
 import { isFollowing } from '../data/notifications.server';
 import FollowButton from '../components/FollowButton';
+import SourceCredit from '../components/SourceCredit';
+import { listRecordSources } from '../data/sources.server';
 import { ReportDuplicate } from '../components/Duplicates';
 import { AddToCalendar } from '../components/CalendarMenus';
 import VisitorTime from '../components/VisitorTime';
@@ -73,6 +75,7 @@ import { pageMeta, shareImage, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { eventPath } from '../utils/slug';
+import { useLanguage } from '../i18n';
 
 export const loader = async ({ request, params }) => {
   // By slug, an old slug or UUID; those redirect to the slug (#209).
@@ -98,6 +101,8 @@ export const loader = async ({ request, params }) => {
     currentUser,
     opportunities: await listOpportunities({ eventId: id }),
     following: await isFollowing(currentUser?.id, 'event', id),
+    // #338: where some of it came from.
+    sources: await listRecordSources('event', id),
   };
 
   return data;
@@ -128,9 +133,10 @@ export const meta = ({ data, matches }) => {
 };
 
 const Event = () => {
-  const { event, editions, relatedEvents, currentUser, opportunities, following } = useLoaderData();
+  const { event, editions, relatedEvents, currentUser, opportunities, following, sources } = useLoaderData();
   const fetcher = useFetcher();
   const placeholder = usePlaceholder();
+  const language = useLanguage();
   const {
     open: linkGameIsOpen,
     onOpen: onOpenLinkGame,
@@ -269,7 +275,7 @@ const Event = () => {
                 dateTime={`${new Date(startsAt).toISOString()}/${new Date(endsAt).toISOString()}`}
               >
                 {/* In the event's own time zone, identical on server and browser (#204). */}
-                {formatEventRange(startsAt, endsAt, timeZone)}
+                {formatEventRange(startsAt, endsAt, timeZone, { locale: language })}
               </time>
             </Text>
           </HStack>
@@ -396,6 +402,7 @@ const Event = () => {
             About
           </Heading>
           <Markdown value={about} />
+          <SourceCredit sources={sources} field="about" value={about} />
         </Box>
       )}
 
@@ -553,7 +560,7 @@ const Event = () => {
                     edition.starts_at,
                     edition.ends_at,
                     edition.time_zone,
-                    { time: false }
+                    { time: false, locale: language }
                   )}
                 </Text>
               </List.Item>

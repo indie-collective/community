@@ -11,6 +11,7 @@ import {
 import { LuSearch } from 'react-icons/lu';
 import { Form, useFetcher, useLocation, useNavigate } from 'react-router';
 import { useDebouncedCallback } from 'use-debounce';
+import { useT } from '../i18n';
 
 const KIND_LABELS = {
   game: 'Game',
@@ -33,6 +34,7 @@ const allResults = (q) => ({
  * Typing no longer navigates, so the back button goes where it should.
  */
 const SearchInput = () => {
+  const t = useT();
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
   const suggestions = useFetcher();
@@ -107,7 +109,7 @@ const SearchInput = () => {
           size="lg"
           width="100%"
         >
-          <Combobox.Label srOnly>Search</Combobox.Label>
+          <Combobox.Label srOnly>{t('nav.search')}</Combobox.Label>
           <Combobox.Control>
             <Box
               position="absolute"
@@ -123,7 +125,7 @@ const SearchInput = () => {
             <Combobox.Input
               ref={inputRef}
               name="q"
-              placeholder="Search"
+              placeholder={t('nav.search')}
               ps={10}
               bg="surface"
               borderWidth="2px"
@@ -144,7 +146,7 @@ const SearchInput = () => {
               }}
             />
             <Combobox.IndicatorGroup>
-              <Combobox.ClearTrigger aria-label="Clear search" />
+              <Combobox.ClearTrigger aria-label={t('nav.clearSearch')} />
             </Combobox.IndicatorGroup>
           </Combobox.Control>
           <Portal>

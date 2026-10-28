@@ -491,6 +491,61 @@ export const notifications = sqliteTable(
   (t) => [index('notifications_person').on(t.personId, t.createdAt)]
 );
 
+// A record's pages elsewhere (#338): its website, Steam or itch.io page,
+// Bluesky profile… with what was last read there, kept apart from the
+// record. `filled` is what was copied from it into empty fields, by field.
+export const SOURCE_KINDS = ['website', 'steam', 'itch', 'bluesky'];
+export const sources = sqliteTable(
+  'sources',
+  {
+    id: id(),
+    recordType: text('record_type').notNull(),
+    recordId: text('record_id').notNull(),
+    source: text('source', { enum: SOURCE_KINDS }).notNull(),
+    url: text('url').notNull(),
+    data: text('data', { mode: 'json' }),
+    filled: text('filled', { mode: 'json' }),
+    error: text('error'),
+    fetchedAt: time('fetched_at'),
+    refreshStartedAt: time('refresh_started_at'),
+    createdAt: time('created_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [
+    uniqueIndex('sources_record_url').on(t.recordType, t.recordId, t.url),
+    index('sources_fetched_at').on(t.fetchedAt),
+    check('sources_source', oneOf(t.source, SOURCE_KINDS)),
+  ]
+);
+
+// Fact-finding missions (#339): which record a member is working on, skipped,
+// completed or flagged, so two people don't get the same one at once and
+// nobody is given again what they skipped.
+export const MISSION_STATUSES = ['claimed', 'skipped', 'done', 'flagged', 'resolved'];
+export const missionClaims = sqliteTable(
+  'mission_claims',
+  {
+    personId: text('person_id')
+      .notNull()
+      .references(() => people.id, { onDelete: 'cascade' }),
+    recordType: text('record_type').notNull(),
+    recordId: text('record_id').notNull(),
+    gap: text('gap').notNull(),
+    status: text('status', { enum: MISSION_STATUSES }).notNull(),
+    // Why it was flagged: duplicate, gone, not indie, wrong.
+    reason: text('reason'),
+    updatedAt: time('updated_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [
+    primaryKey({ columns: [t.personId, t.recordType, t.recordId] }),
+    index('mission_claims_record').on(t.recordType, t.recordId),
+    check('mission_claims_status', oneOf(t.status, MISSION_STATUSES)),
+  ]
+);
+
 // Pairs of records a member flagged as duplicates, or an admin said aren't
 // (#346), so the admin view doesn't suggest them again. Kind is "game",
 // "organization" or "event"; the two IDs are in order.

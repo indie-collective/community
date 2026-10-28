@@ -31,6 +31,8 @@ import { ClientStyleContext, ServerStyleContext } from './context';
 import isAuthenticated from './utils/isAuthenticated.server';
 import getOrigin from './utils/origin.server';
 import { countUnread } from './data/notifications.server';
+import { languageOf } from './i18n/language';
+import { useLanguage, useT } from './i18n';
 import { Provider as ChakraProvider } from './components/ui/provider';
 import Error from './components/Error';
 import Navigation from './components/Navigation';
@@ -68,11 +70,12 @@ export const Layout = withEmotionCache((props, cache) => {
 
   // client injection styles
   useInjectStyles(cache);
+  const language = useLanguage();
 
   return (
     // next-themes sets the colour-mode class and style on <html> before React
     // hydrates, so the server's attributes are expected to differ.
-    <html lang="en" suppressHydrationWarning>
+    <html lang={language} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -97,6 +100,9 @@ export const Layout = withEmotionCache((props, cache) => {
   );
 });
 
+// "Skip to content", in the page's language (#344).
+const SkipLabel = () => useT()('nav.skip');
+
 // Navigation, page column and footer, shared by the app and its error pages so
 // an error keeps the site around it.
 // The header and footer sit outside <main>, so landmarks say what they are,
@@ -120,7 +126,7 @@ function AppShell({ children }) {
         transform="translateY(-200%)"
         _focusVisible={{ transform: 'none' }}
       >
-        Skip to content
+        <SkipLabel />
       </Box>
       <Navigation />
       <Box as="main" id="content" flex="1" maxWidth={960} width="100%">
@@ -180,6 +186,8 @@ export const loader = async ({ request }) => {
   return {
     currentUser,
     origin: getOrigin(request),
+    // #344: the interface's language.
+    language: languageOf(request),
     // #343: the bell in the header.
     unreadNotifications: currentUser ? await countUnread(currentUser.id) : 0,
   };

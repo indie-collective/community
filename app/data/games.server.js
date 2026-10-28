@@ -229,7 +229,7 @@ export function resolveGameTags(value) {
 
 // Statements creating the tags named that don't exist yet, and linking the
 // game to exactly those tags.
-function setTagsStatements(gameId, tagNames, now) {
+export function setTagsStatements(gameId, tagNames, now) {
   const statements = [];
   if (tagNames.length > 0) {
     statements.push(

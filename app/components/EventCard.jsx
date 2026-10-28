@@ -17,6 +17,7 @@ import CardLink from './CardLink';
 import { formatEventDate, formatEventDay } from '../utils/eventTime';
 import Sticker from './Sticker';
 import { eventPath } from '../utils/slug';
+import { useLanguage } from '../i18n';
 
 const placeOf = (location) =>
   location &&
@@ -37,8 +38,11 @@ const EventTicket = ({
   startsAt,
   timeZone,
 }) => {
-  const day = formatEventDay(startsAt, timeZone);
-  const startsAtText = formatEventDate(startsAt, timeZone);
+  const language = useLanguage();
+  const day = formatEventDay(startsAt, timeZone, { locale: language });
+  const startsAtText = formatEventDate(startsAt, timeZone, {
+    locale: language,
+  });
   const canceled = status === 'canceled';
   // The punched holes either side of the perforation, cut in the page colour.
   const hole = {
@@ -142,6 +146,7 @@ function EventCard({
   variant,
 }) {
   const placeholder = usePlaceholder();
+  const language = useLanguage();
 
   if (variant === 'ticket') {
     return (
@@ -152,7 +157,9 @@ function EventCard({
   }
 
   // In the event's own time zone, identical on server and browser (#204).
-  const startsAtText = formatEventDate(startsAt, timeZone);
+  const startsAtText = formatEventDate(startsAt, timeZone, {
+    locale: language,
+  });
 
   return (
     <Card

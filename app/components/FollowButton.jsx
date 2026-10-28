@@ -1,6 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import { LuBell, LuBellOff } from 'react-icons/lu';
 import { useFetcher } from 'react-router';
+import { useT } from '../i18n';
 
 /**
  * Follow a game, organisation, event or country (#343), to be told on the
@@ -8,6 +9,7 @@ import { useFetcher } from 'react-router';
  */
 const FollowButton = ({ type, id, following }) => {
   const fetcher = useFetcher();
+  const t = useT();
   // As soon as it's clicked, before the server answers.
   const now = fetcher.formData ? fetcher.formData.get('follow') === 'on' : (fetcher.data?.following ?? following);
   return (
@@ -17,7 +19,7 @@ const FollowButton = ({ type, id, following }) => {
       <input type="hidden" name="follow" value={now ? 'off' : 'on'} />
       <Button type="submit" size="sm" variant={now ? 'subtle' : 'outline'} aria-pressed={now}>
         {now ? <LuBellOff /> : <LuBell />}
-        {now ? 'Following' : 'Follow'}
+        {now ? t('follow.following') : t('follow.follow')}
       </Button>
     </fetcher.Form>
   );

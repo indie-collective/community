@@ -26,6 +26,7 @@ import Logo from '../components/Logo';
 import AvatarButton from './AvatarButton';
 import SearchInput from './SearchInput';
 import AddMenuButton from './AddMenuButton';
+import { useT } from '../i18n';
 
 function NavLink(props) {
   const { href, children, ...rest } = props;
@@ -99,14 +100,14 @@ const Wordmark = ({ showTitle }) => (
 );
 
 const NAV = [
-  ['/games', 'Games'],
-  ['/studios', 'Studios'],
-  ['/associations', 'Associations'],
-  ['/publishers', 'Publishers'],
-  ['/events', 'Events'],
-  ['/opportunities', 'Opportunities'],
-  ['/countries', 'Countries'],
-  ['/places', 'Map'],
+  ['/games', 'nav.games'],
+  ['/studios', 'nav.studios'],
+  ['/associations', 'nav.associations'],
+  ['/publishers', 'nav.publishers'],
+  ['/events', 'nav.events'],
+  ['/opportunities', 'nav.opportunities'],
+  ['/countries', 'nav.countries'],
+  ['/places', 'nav.map'],
 ];
 
 const Navigation = ({ search }) => {
@@ -118,6 +119,7 @@ const Navigation = ({ search }) => {
   // where the root loader may not have produced data.
   const { currentUser, unreadNotifications = 0 } =
     useRouteLoaderData('root') ?? {};
+  const t = useT();
 
   // #343: what happened to what they follow.
   const Bell = () => (
@@ -128,8 +130,8 @@ const Navigation = ({ search }) => {
         rounded="full"
         aria-label={
           unreadNotifications > 0
-            ? `Notifications, ${unreadNotifications} unread`
-            : 'Notifications'
+            ? t('nav.notificationsUnread', { count: unreadNotifications })
+            : t('nav.notifications')
         }
       >
         <Link to="/notifications">
@@ -192,6 +194,9 @@ const Navigation = ({ search }) => {
             <Menu.Item value="item-5" asChild cursor="pointer">
               <Link to="/admin/bluesky">Bluesky summary</Link>
             </Menu.Item>
+            <Menu.Item value="item-6" asChild cursor="pointer">
+              <Link to="/admin/sources">Sources</Link>
+            </Menu.Item>
           </Menu.Content>
         </Menu.Positioner>
       </Portal>
@@ -226,7 +231,7 @@ const Navigation = ({ search }) => {
               variant="popOutline"
               size="md"
               rounded="full"
-              aria-label="Menu"
+              aria-label={t('nav.menu')}
               aria-expanded={open}
               onClick={onToggle}
             >
@@ -237,15 +242,21 @@ const Navigation = ({ search }) => {
         <Collapsible.Root open={open}>
           <Collapsible.Content>
             <Box py={3} borderTop="1px dashed" borderColor="rule">
-              <VStack as="nav" aria-label="Main" gap={1} px={4} align="stretch">
-                {NAV.map(([href, label]) => (
+              <VStack
+                as="nav"
+                aria-label={t('nav.main')}
+                gap={1}
+                px={4}
+                align="stretch"
+              >
+                {NAV.map(([href, key]) => (
                   <NavLink
                     key={href}
                     href={href}
                     size="md"
                     justifyContent="flex-start"
                   >
-                    {label}
+                    {t(key)}
                   </NavLink>
                 ))}
 
@@ -295,10 +306,10 @@ const Navigation = ({ search }) => {
         borderBottom="2px solid"
         borderColor="ink"
       >
-        <HStack as="nav" aria-label="Main" gap={1} width="100%">
-          {NAV.map(([href, label]) => (
+        <HStack as="nav" aria-label={t('nav.main')} gap={1} width="100%">
+          {NAV.map(([href, key]) => (
             <NavLink key={href} href={href}>
-              {label}
+              {t(key)}
             </NavLink>
           ))}
           <Spacer />

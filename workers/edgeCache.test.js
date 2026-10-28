@@ -16,7 +16,7 @@ describe('isCacheable', () => {
     expect(isCacheable(get('/games', 'not_session=abc'))).toBe(true);
   });
 
-  it.each(['/signin', '/signin.data', '/auth/bluesky/callback', '/oauth/client-metadata.json', '/profile', '/admin/users', '/welcome', '/logout'])(
+  it.each(['/signin', '/signin.data', '/auth/bluesky/callback', '/oauth/client-metadata.json', '/profile', '/admin/users', '/welcome', '/logout', '/my-calendar/p1.sig', '/my-feed/p1.sig', '/notifications'])(
     'never caches %s',
     (path) => {
       expect(isCacheable(get(path))).toBe(false);
@@ -51,13 +51,30 @@ describe('withEdgeCache', () => {
     await Promise.all(first.pending);
     expect(await miss.text()).toBe('page');
     expect(miss.headers.get('X-Edge-Cache')).toBe('MISS');
-    expect(c.stored.get('https://community.indieco.xyz/games').headers.get('Cache-Control')).toBe(`public, max-age=${CACHE_SECONDS}`);
+    expect(c.stored.get('https://community.indieco.xyz/games?__lang=en').headers.get('Cache-Control')).toBe(`public, max-age=${CACHE_SECONDS}`);
 
     const hit = await withEdgeCache(get('/games'), ctx(), handle, c);
     expect(await hit.text()).toBe('page');
     expect(hit.headers.get('X-Edge-Cache')).toBe('HIT');
     expect(hit.headers.get('Cache-Control')).toBe('private, no-cache');
     expect(handle).toHaveBeenCalledOnce();
+  });
+
+  // #344: a French visitor never gets the English page, nor the other way.
+  it('keeps a copy for each language', async () => {
+    const c = cache();
+    const handle = vi.fn(async (request) => new Response(request.headers.get('cookie') ?? 'en', { status: 200 }));
+    const french = new Request('https://community.indieco.xyz/games', { headers: { cookie: 'lang=fr' } });
+    const first = ctx();
+    await withEdgeCache(french, first, handle, c);
+    await Promise.all(first.pending);
+    const english = await withEdgeCache(get('/games'), ctx(), handle, c);
+    expect(english.headers.get('X-Edge-Cache')).toBe('MISS');
+    expect(await english.text()).toBe('en');
+    expect([...c.stored.keys()].sort()).toEqual([
+      'https://community.indieco.xyz/games?__lang=en',
+      'https://community.indieco.xyz/games?__lang=fr',
+    ]);
   });
 
   it('renders signed-in visitors, and stores nothing', async () => {

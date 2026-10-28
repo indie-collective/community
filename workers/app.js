@@ -35,11 +35,19 @@ export default {
     const { sendEventReminders } = await import('../app/data/notifications.server.js');
     const now = new Date(controller.scheduledTime);
     ctx.waitUntil(sendEventReminders(now));
+    // #338: read records' pages elsewhere, and fill in what's empty.
+    const { refreshSources } = await import('../app/data/sources.server.js');
+    ctx.waitUntil(refreshSources({ limit: 10, now }));
     // #319: Monday morning's Bluesky summary of the week.
     const { isWeeklySlot } = await import('../app/utils/weeklySummary.js');
     if (isWeeklySlot(now)) {
       const { postWeeklySummary } = await import('../app/data/weeklySummary.server.js');
       ctx.waitUntil(postWeeklySummary({ now }));
+      // #304: and the week's open data export.
+      const { publishExport } = await import('../app/data/openData.server.js');
+      const { toOrigin } = await import('../app/utils/origin.server.js');
+      const origin = toOrigin(env.BASE_URL) || 'https://community.indieco.xyz';
+      ctx.waitUntil(publishExport({ origin, now }));
     }
   },
 };

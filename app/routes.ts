@@ -12,6 +12,15 @@ export default [
   index('routes/index.jsx'),
 
   route('about', 'routes/about.jsx'),
+  // The public API and widgets (#349).
+  route('api', 'routes/api/docs.jsx'),
+  route('api/v1/openapi.json', 'routes/api/openapi.js'),
+  route('api/v1/:collection/:id?', 'routes/api/v1.js'),
+  route('embed/org/:id/:widget', 'routes/embed.js'),
+
+  // Open data (#304).
+  route('data', 'routes/data.jsx'),
+  route('data/:file', 'routes/data.$file.js'),
   route('sitemap.xml', 'routes/sitemap.xml.js'),
   route('robots.txt', 'routes/robots.txt.js'),
   // Calendars and feeds (#342).
@@ -42,15 +51,26 @@ export default [
   route('profile/edit', 'routes/profile.edit.jsx'),
   route('profile/bluesky', 'routes/profile.bluesky.jsx'),
   route('people/:username', 'routes/people.$username.jsx'),
+  // The interface's language (#344).
+  route('language', 'routes/language.js'),
+  // The feedback widget (#320).
+  route('feedback', 'routes/feedback.js'),
   // Follows and notifications (#343).
   route('follow', 'routes/follow.js'),
   route('notifications', 'routes/notifications.jsx'),
   route('my-feed/:token', 'routes/feeds/notifications.js'),
 
+  // Fact-finding missions (#339)
+  route('missions', 'routes/missions.jsx'),
+  route('missions/:kind/:gap', 'routes/missions.$kind.$gap.jsx'),
+
   // Opportunities (#345)
   route('opportunities', 'routes/opportunities.jsx'),
   route('opportunities/new', 'routes/opportunities.new.jsx'),
   route('opportunities/:id/delete', 'routes/opportunities.$id.delete.js'),
+
+  // Outside sources (#338)
+  route('sources/prefill', 'routes/sources/prefill.js'),
 
   // Duplicates (#346)
   route('duplicates', 'routes/duplicates/likely.js'),
@@ -113,6 +133,7 @@ export default [
   route('admin/missing', 'routes/admin/missing.jsx'),
   route('admin/duplicates', 'routes/admin/duplicates.jsx'),
   route('admin/bluesky', 'routes/admin/bluesky.jsx'),
+  route('admin/sources', 'routes/admin/sources.jsx'),
   route('admin/duplicates/merge', 'routes/admin/duplicates.merge.jsx'),
   route('admin/tags', 'routes/admin/tags.jsx'),
   route('admin/users', 'routes/admin/users.jsx'),

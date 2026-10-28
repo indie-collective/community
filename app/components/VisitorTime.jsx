@@ -2,6 +2,7 @@ import { Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { formatEventRange } from '../utils/eventTime';
+import { useLanguage } from '../i18n';
 
 /**
  * An event's times in the visitor's own time zone, when it isn't the
@@ -9,11 +10,12 @@ import { formatEventRange } from '../utils/eventTime';
  */
 const VisitorTime = ({ startsAt, endsAt, timeZone }) => {
   const [zone, setZone] = useState(null);
+  const language = useLanguage();
   useEffect(() => setZone(Intl.DateTimeFormat().resolvedOptions().timeZone), []);
   if (!zone || zone === timeZone) return null;
   return (
     <Text fontSize="sm" data-testid="visitor-time">
-      Your time ({zone.replaceAll('_', ' ')}): {formatEventRange(startsAt, endsAt, zone)}
+      Your time ({zone.replaceAll('_', ' ')}): {formatEventRange(startsAt, endsAt, zone, { locale: language })}
     </Text>
   );
 };

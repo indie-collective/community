@@ -2,8 +2,10 @@ import { HStack, Flex, Text, Button, Avatar } from '@chakra-ui/react';
 import { useLocation, useRouteLoaderData } from 'react-router';
 import { LuLogIn } from 'react-icons/lu';
 import Link from './Link';
+import { useT } from '../i18n';
 
 const AvatarButton = () => {
+  const t = useT();
   const data = useRouteLoaderData('root');
   const { pathname, search } = useLocation();
 
@@ -49,7 +51,7 @@ const AvatarButton = () => {
     >
       <Link to={`/signin${prev}`}>
         <LuLogIn />
-        Sign in
+        {t('nav.signIn')}
       </Link>
     </Button>
   );

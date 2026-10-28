@@ -25,6 +25,7 @@ import { viewport } from '@mapbox/geo-viewport';
 
 import PlacesSearch from '../components/PlacesSearch';
 import { DuplicateHint } from './Duplicates';
+import PrefillFromLink from './PrefillFromLink';
 import usePlaceholder from '../hooks/usePlaceholder';
 import useMergeRefs from '../hooks/useMergeRefs';
 import { ORG_STATUSES, ORG_TYPES, orgTypeColor } from '../utils/orgTypes';
@@ -208,6 +209,17 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
             Closed organisations are hidden from the map unless asked for.
           </Field.HelperText>
         </Field.Root>
+        {/* #338: from its website or Bluesky profile. */}
+        {!id && (
+          <PrefillFromLink
+            kind="organization"
+            onFields={(fields) => {
+              for (const field of ['name', 'about', 'site', 'bsky_handle']) {
+                if (fields[field]) setValue(field, fields[field], { shouldValidate: true });
+              }
+            }}
+          />
+        )}
         <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
           <Field.Label>Name<Field.RequiredIndicator /></Field.Label>
           <Input

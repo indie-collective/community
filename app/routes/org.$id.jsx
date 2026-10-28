@@ -36,10 +36,13 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import ShareMenu from '../components/ShareMenu';
+import EmbedCode from '../components/EmbedCode';
 import OpportunityList from '../components/OpportunityList';
 import { listOpportunities } from '../data/opportunities.server';
 import { isFollowing } from '../data/notifications.server';
 import FollowButton from '../components/FollowButton';
+import SourceCredit from '../components/SourceCredit';
+import { listRecordSources } from '../data/sources.server';
 import { ReportDuplicate } from '../components/Duplicates';
 import { SubscribeMenu } from '../components/CalendarMenus';
 import { Page, PageHeader, PageSection } from '../components/Page';
@@ -75,6 +78,8 @@ export const loader = async ({ request, params }) => {
     currentUser,
     opportunities: await listOpportunities({ organizationId: id }),
     following: await isFollowing(currentUser?.id, 'organization', id),
+    // #338: where some of it came from.
+    sources: await listRecordSources('organization', id),
   };
 };
 
@@ -98,7 +103,7 @@ export const meta = ({ data, matches }) => {
 
 const Org = () => {
   const placeholder = usePlaceholder('square');
-  const { org, currentUser, opportunities, following } = useLoaderData();
+  const { org, currentUser, opportunities, following, sources } = useLoaderData();
 
   const deleteModal = useDisclosure();
   // #346
@@ -245,6 +250,7 @@ const Org = () => {
       {about && (
         <Box mb={{ base: 8, md: 10 }} maxW="2xl">
           <Markdown value={about} />
+          <SourceCredit sources={sources} field="about" value={about} />
         </Box>
       )}
       {[
@@ -389,6 +395,8 @@ const Org = () => {
           )}
         </PageSection>
       )}
+      {/* #349: its games or events on its own site. */}
+      {(games.length > 0 || events.length > 0) && <EmbedCode org={org} hasGames={games.length > 0} hasEvents={events.length > 0} />}
       {currentUser && (
         <ReportDuplicate kind="organization" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />
       )}

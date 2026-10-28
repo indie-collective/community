@@ -5,10 +5,14 @@
 // to signed-out visitors within that minute.
 //
 // The Cache API only works on a custom domain, not on *.workers.dev.
+import { languageOf } from '../app/i18n/language.js';
+
 export const CACHE_SECONDS = 60;
 
 // Pages that are per-person, or part of signing in, even without a session.
-const PRIVATE = /^\/(auth|oauth|signin|logout|welcome|profile|admin|check-username-availability|healthcheck)(\/|\.data$|$)/;
+// Private calendars and feeds (#342, #343) are behind secret addresses:
+// still not for a shared cache.
+const PRIVATE = /^\/(auth|oauth|signin|logout|welcome|profile|admin|check-username-availability|healthcheck|my-calendar|my-feed|notifications|follow|sources|feedback)(\/|\.data$|$)/;
 
 /** Whether a request may be answered from, and stored in, the cache. */
 export function isCacheable(request) {
@@ -34,7 +38,10 @@ const forBrowser = (response, status) => {
 export async function withEdgeCache(request, ctx, handle, cache) {
   if (!cache || !isCacheable(request)) return handle(request);
 
-  const key = new Request(request.url, { method: 'GET' });
+  // Pages differ by language too (#344): one cached copy for each.
+  const keyUrl = new URL(request.url);
+  keyUrl.searchParams.set('__lang', languageOf(request));
+  const key = new Request(keyUrl, { method: 'GET' });
   const cached = await cache.match(key);
   if (cached) return forBrowser(cached, 'HIT');
 

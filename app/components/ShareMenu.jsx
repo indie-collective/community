@@ -6,6 +6,7 @@ import { useRouteLoaderData } from 'react-router';
 
 import { toaster } from './ui/toaster';
 import { shareLinks } from '../utils/share';
+import { useT } from '../i18n';
 
 const MASTODON_INSTANCE = 'mastodon-instance';
 
@@ -46,6 +47,7 @@ function mastodonInstance() {
  */
 const ShareMenu = ({ title, path }) => {
   const root = useRouteLoaderData('root');
+  const t = useT();
   const [canShare, setCanShare] = useState(false);
   // Only known in the browser, after hydration.
   useEffect(() => setCanShare(typeof navigator.share === 'function'), []);
@@ -66,7 +68,7 @@ const ShareMenu = ({ title, path }) => {
     } else if (value === 'copy') {
       try {
         await navigator.clipboard.writeText(url);
-        toaster.create({ title: 'Link copied', type: 'success' });
+        toaster.create({ title: t('share.copied'), type: 'success' });
       } catch {
         toaster.create({ title: "Couldn't copy the link", description: url, type: 'error' });
       }
@@ -83,7 +85,7 @@ const ShareMenu = ({ title, path }) => {
       <Menu.Trigger asChild>
         <Button size="sm" variant="outline">
           <LuShare2 />
-          Share
+          {t('share.share')}
         </Button>
       </Menu.Trigger>
       <Portal>
@@ -93,7 +95,7 @@ const ShareMenu = ({ title, path }) => {
               <>
                 <Menu.Item value="native">
                   <LuShare2 />
-                  Share via…
+                  {t('share.via')}
                 </Menu.Item>
                 <Menu.Separator />
               </>
@@ -116,7 +118,7 @@ const ShareMenu = ({ title, path }) => {
             <Menu.Separator />
             <Menu.Item value="copy">
               <LuLink />
-              Copy link
+              {t('share.copy')}
             </Menu.Item>
           </Menu.Content>
         </Menu.Positioner>

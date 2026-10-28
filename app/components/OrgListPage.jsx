@@ -6,39 +6,24 @@ import Link from './Link';
 import Filters from './Filters';
 import OrgList from './OrgList';
 import { Page, PageHeader } from './Page';
+import { useT } from '../i18n';
 
-const COPY = {
-  studio: {
-    title: 'Studios',
-    description: 'Indie game studios around the world',
-    add: 'Add a studio',
-  },
-  association: {
-    title: 'Associations',
-    description:
-      'Associations and collectives that bring indie game makers together',
-    add: 'Add an association',
-  },
-  // #331: no "add" button: an organisation is a publisher once it has
-  // published a game.
-  publisher: {
-    title: 'Publishers',
-    description:
-      'Studios and associations that published indie games, most games first',
-  },
-};
+// What each list is called (#344: in the interface's language).
+const HAS_ADD = { studio: true, association: true, publisher: false };
 
 /** The studios, associations or publishers list (design pass: one page for all). */
 const OrgListPage = ({ type, data }) => {
   const { search } = useLocation();
   const { currentUser } = useRouteLoaderData('root') ?? {};
-  const { title, description, add } = COPY[type];
+  const t = useT();
+  const title = t(`lists.${type}.title`);
+  const add = HAS_ADD[type] && t(`lists.${type}.add`);
 
   return (
     <Page>
       <PageHeader
         title={title}
-        description={`${description}: ${data.total.toLocaleString('en')} so far.`}
+        description={t(`lists.${type}.description`, { count: data.total })}
         actions={
           currentUser &&
           add && (

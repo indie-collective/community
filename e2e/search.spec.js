@@ -290,7 +290,8 @@ test('the header box suggests matches, and Enter shows every result', async ({
     ).toBeVisible();
     await box.press('Enter');
     await expect(page).toHaveURL(`/search?q=${word}`);
-    await expect(page.getByRole('option')).toHaveCount(0);
+    // No suggestions left open (the footer's language select has options too).
+    await expect(page.getByRole('listbox').getByRole('option')).toHaveCount(0);
   } finally {
     await db.delete(games).where(eq(games.id, game.id));
   }
