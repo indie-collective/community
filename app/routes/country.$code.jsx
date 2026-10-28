@@ -25,6 +25,8 @@ import countryMaps from '../assets/countryMaps.json';
 import CountryMap from '../components/CountryMap';
 import CityList from '../components/CityList';
 import { SubscribeMenu } from '../components/CalendarMenus';
+import FollowButton from '../components/FollowButton';
+import { isFollowing } from '../data/notifications.server';
 import { orgPath } from '../utils/slug';
 
 // A country page is the overview of its indie scene, for newcomers and
@@ -76,6 +78,8 @@ export const loader = async ({ request, params }) => {
       upcomingEvents,
     },
     currentUser,
+    // #343
+    following: await isFollowing(currentUser?.id, 'country', countryCode),
   };
 };
 
@@ -135,7 +139,7 @@ const AssociationGroups = ({ groups }) => (
 );
 
 const CountryPage = () => {
-  const { country, currentUser } = useLoaderData();
+  const { country, currentUser, following } = useLoaderData();
   const {
     code,
     name,
@@ -170,11 +174,14 @@ const CountryPage = () => {
         eyebrow="Country"
         title={`${name}'s indie game scene`}
         actions={
-          // #342: its events in a calendar app, and what's new there.
-          <SubscribeMenu
-            calendarPath={`/country/${code.toLowerCase()}/calendar.ics`}
-            feedPath={`/feed.xml?country=${code}`}
-          />
+          <>
+            {currentUser && <FollowButton type="country" id={code} following={following} />}
+            {/* #342: its events in a calendar app, and what's new there. */}
+            <SubscribeMenu
+              calendarPath={`/country/${code.toLowerCase()}/calendar.ics`}
+              feedPath={`/feed.xml?country=${code}`}
+            />
+          </>
         }
       />
 

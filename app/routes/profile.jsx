@@ -21,6 +21,8 @@ import Link from '../components/Link';
 import { getProfile } from '../data/people.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { calendarToken } from '../utils/calendarToken.server';
+import { listFollowing } from '../data/notifications.server';
+import FollowButton from '../components/FollowButton';
 import { SubscribeMenu } from '../components/CalendarMenus';
 import { useColorMode } from '../components/ui/color-mode';
 import { PageHeader } from '../components/Page';
@@ -32,6 +34,9 @@ export const loader = async ({ request }) => {
     currentUser: await getProfile(currentUser.id),
     // #342: the private address of their events calendar.
     calendarPath: `/my-calendar/${await calendarToken(currentUser.id)}`,
+    // #343: what they follow, and their notifications as a private feed.
+    following: await listFollowing(currentUser.id),
+    feedPath: `/my-feed/${await calendarToken(currentUser.id)}`,
   };
 };
 
@@ -45,7 +50,7 @@ const Profile = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   const [searchParams] = useSearchParams();
 
-  const { currentUser, calendarPath } = useLoaderData();
+  const { currentUser, calendarPath, following, feedPath } = useLoaderData();
   const {
     username,
     first_name,
@@ -162,6 +167,36 @@ const Profile = () => {
               </Field.Root>
             </Form>
           )}
+        </Stack>
+
+        <Stack as="section" alignSelf="stretch" gap={2} aria-labelledby="following">
+          <Heading as="h4" size="sm" id="following">
+            Following
+          </Heading>
+          {following.length === 0 ? (
+            <Text fontSize="sm" color="muted">
+              Follow games, studios, associations, events and countries from their pages: what happens there
+              shows in your notifications.
+            </Text>
+          ) : (
+            <Stack gap={2}>
+              {following.map((item) => (
+                <HStack key={`${item.type}:${item.id}`} justify="space-between">
+                  <ChakraLink asChild>
+                    <Link to={item.path}>{item.name}</Link>
+                  </ChakraLink>
+                  <FollowButton type={item.type} id={item.id} following />
+                </HStack>
+              ))}
+            </Stack>
+          )}
+          <Text fontSize="sm" color="muted">
+            Your notifications in a feed reader:{' '}
+            <ChakraLink href={feedPath} type="application/atom+xml">
+              private feed
+            </ChakraLink>
+            .
+          </Text>
         </Stack>
 
         <Stack as="section" alignSelf="stretch" gap={2} aria-labelledby="my-calendar">

@@ -38,6 +38,8 @@ import ActionMenu from '../components/ActionMenu';
 import ShareMenu from '../components/ShareMenu';
 import OpportunityList from '../components/OpportunityList';
 import { listOpportunities } from '../data/opportunities.server';
+import { isFollowing } from '../data/notifications.server';
+import FollowButton from '../components/FollowButton';
 import { ReportDuplicate } from '../components/Duplicates';
 import { SubscribeMenu } from '../components/CalendarMenus';
 import { Page, PageHeader, PageSection } from '../components/Page';
@@ -72,6 +74,7 @@ export const loader = async ({ request, params }) => {
     org,
     currentUser,
     opportunities: await listOpportunities({ organizationId: id }),
+    following: await isFollowing(currentUser?.id, 'organization', id),
   };
 };
 
@@ -95,7 +98,7 @@ export const meta = ({ data, matches }) => {
 
 const Org = () => {
   const placeholder = usePlaceholder('square');
-  const { org, currentUser, opportunities } = useLoaderData();
+  const { org, currentUser, opportunities, following } = useLoaderData();
 
   const deleteModal = useDisclosure();
   // #346
@@ -167,6 +170,7 @@ const Org = () => {
           actions={
             <>
               <ShareMenu title={name} path={orgPath(org)} />
+              {currentUser && <FollowButton type="organization" id={id} following={following} />}
               {/* #342: its events in a calendar app. */}
               {entity_event.length > 0 && (
                 <SubscribeMenu label="Events calendar" calendarPath={`${orgPath(org)}/calendar.ics`} />
