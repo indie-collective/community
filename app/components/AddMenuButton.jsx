@@ -10,7 +10,10 @@ import { useLocation } from 'react-router';
 import { useT } from '../i18n';
 
 // On a studios or associations list, a new organisation starts as that type (#86).
-const ORG_TYPE_BY_PATH = { '/studios': 'studio', '/associations': 'association' };
+const ORG_TYPE_BY_PATH = {
+  '/studios': 'studio',
+  '/associations': 'association',
+};
 
 const AddMenuButton = () => {
   const { pathname } = useLocation();
@@ -22,12 +25,21 @@ const AddMenuButton = () => {
       <Menu.Trigger asChild>
         <IconButton
           borderRadius="full"
-          size="lg"
-          colorPalette="green"
+          size="md"
           variant="solid"
+          bg="sun"
+          color="onPop"
+          borderWidth="2px"
+          borderColor="ink"
+          transition="transform 120ms ease-out, box-shadow 120ms ease-out"
+          _hover={{
+            transform: 'translate(-2px, -2px) rotate(90deg)',
+            shadow: 'pop',
+          }}
+          _expanded={{ transform: 'rotate(45deg)' }}
           aria-label={t('nav.addNew')}
         >
-          <Icon as={LuPlus} w={6} h={6} />
+          <Icon as={LuPlus} w={5} h={5} />
         </IconButton>
       </Menu.Trigger>
       <Portal>
@@ -40,7 +52,11 @@ const AddMenuButton = () => {
               <ChakraLink href="/events/create">{t('add.event')}</ChakraLink>
             </Menu.Item>
             <Menu.Item _hover={{ textDecor: 'none' }} value="item-2" asChild>
-              <ChakraLink href={orgType ? `/orgs/create?type=${orgType}` : '/orgs/create'}>{t('add.organization')}</ChakraLink>
+              <ChakraLink
+                href={orgType ? `/orgs/create?type=${orgType}` : '/orgs/create'}
+              >
+                {t('add.organization')}
+              </ChakraLink>
             </Menu.Item>
             <Menu.Separator />
             {/* #339: or fill in what's missing. */}

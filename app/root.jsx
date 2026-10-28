@@ -49,10 +49,10 @@ export function links() {
       href: 'https://fonts.gstatic.com',
       crossOrigin: 'anonymous',
     },
-    // Poppins for titles (two weights), Inter for text (variable).
+    // Poppins for titles (three weights: 800 for the homepage cover), Inter for text (variable).
     {
       rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Poppins:wght@600;700&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Poppins:wght@600;700;800&display=swap',
     },
     // Feeds, for readers that find them from any page (#342).
     { rel: 'alternate', type: 'application/atom+xml', title: 'New on Indie Collective', href: '/feed.xml' },

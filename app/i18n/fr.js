@@ -8,6 +8,7 @@ export default {
   'nav.opportunities': 'Opportunités',
   'nav.countries': 'Pays',
   'nav.map': 'Carte',
+  'nav.menu': 'Menu',
   'nav.main': 'Principal',
   'nav.signIn': 'Se connecter',
   'nav.addNew': 'Ajouter',

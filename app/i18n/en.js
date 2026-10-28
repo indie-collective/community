@@ -9,6 +9,7 @@ export default {
   'nav.opportunities': 'Opportunities',
   'nav.countries': 'Countries',
   'nav.map': 'Map',
+  'nav.menu': 'Menu',
   'nav.main': 'Main',
   'nav.signIn': 'Sign in',
   'nav.addNew': 'Add new',

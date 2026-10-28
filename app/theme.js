@@ -24,11 +24,8 @@ const config = defineConfig({
     },
     // One page background (the canvas), with panels (surface) on it.
     body: {
-      color: 'gray.800',
+      color: 'ink',
       bg: 'canvas',
-      _dark: {
-        color: 'whiteAlpha.900',
-      },
     },
 
     // Page transitions (design pass): the page fades out quickly and the
@@ -82,6 +79,16 @@ const config = defineConfig({
         from: { opacity: 0, transform: 'translateY(10px)' },
         to: { opacity: 1, transform: 'none' },
       },
+      // The homepage cover (magazine pass): the cover card settles into its
+      // tilt, and its sticker lands on it.
+      settle: {
+        from: { transform: 'rotate(9deg) translateY(16px)' },
+      },
+      'sticker-land': {
+        '0%': { transform: 'scale(1.5) rotate(-30deg)', opacity: 0 },
+        '70%': { transform: 'scale(0.94) rotate(var(--sticker-rotate))' },
+        '100%': { transform: 'rotate(var(--sticker-rotate))' },
+      },
       highlight: {
         '0%, 100%': {
           transform: 'scale(1)',
@@ -97,23 +104,58 @@ const config = defineConfig({
     // loaded in root.jsx.
     semanticTokens: {
       colors: {
-        // The page background, and the panels and cards on it.
+        // The magazine pass: paper and ink with a green bias from the logo,
+        // the logo's two greens, and three pops for stickers and filters.
+        // The page background (paper), and the panels and cards on it.
         canvas: {
-          value: { base: '{colors.gray.100}', _dark: '{colors.gray.950}' },
+          value: { base: '#f3f6f2', _dark: '#0d1715' },
         },
         surface: {
-          value: { base: '{colors.white}', _dark: '{colors.gray.900}' },
+          value: { base: '{colors.white}', _dark: '#15221f' },
+        },
+        // Text, rules around pressable things and the hard shadows.
+        ink: {
+          value: { base: '#10201d', _dark: '#e8f1ee' },
         },
         // Secondary text: dates, places, counts, hints. Readable on both
         // (WCAG AA on canvas and surface).
         muted: {
-          value: { base: '{colors.gray.600}', _dark: '{colors.gray.400}' },
+          value: { base: '#4f625d', _dark: '#9db2ac' },
         },
+        // Hairlines: dashed ticket perforations, list separators.
+        rule: {
+          value: { base: '#cdd8d3', _dark: '#2a3c38' },
+        },
+        // The logo's C and I.
+        brand: {
+          value: { base: '#149c88', _dark: '#2cc4ac' },
+        },
+        brandDeep: {
+          value: { base: '#054f45', _dark: '#8fe3d4' },
+        },
+        // Pops, only for stickers, highlights and selected filters: they
+        // carry status, never decoration. Text on them is always onPop.
+        sun: { value: '#ffd23f' },
+        coral: { value: { base: '#ff6b5b', _dark: '#ff8475' } },
+        lilac: { value: { base: '#b9a7ff', _dark: '#c4b5ff' } },
+        onPop: { value: '#10201d' },
         // Solid green (buttons, badges) a shade darker, so its white text
         // reads (#350: green.600 was 3.3:1, under WCAG AA's 4.5:1; green.700
         // is 5:1).
         green: {
           solid: { value: '{colors.green.700}' },
+        },
+      },
+      shadows: {
+        // A hard offset shadow means "you can press this" (magazine pass).
+        pop: { value: '4px 4px 0 var(--chakra-colors-ink)' },
+        popHover: { value: '5px 5px 0 var(--chakra-colors-brand)' },
+        // Cards lifted off the paper: covers, tickets.
+        lift: {
+          value: {
+            base: '0 1px 0 rgba(16,32,29,.08), 0 10px 24px -12px rgba(16,32,29,.35)',
+            _dark: '0 1px 0 rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.8)',
+          },
         },
       },
     },
@@ -162,6 +204,37 @@ const config = defineConfig({
     // `subtle` fills with bg.muted, the same gray as the page background, so
     // fields were invisible; fill them with a colour that contrasts instead.
     recipes: {
+      // The magazine's pressable button: ink, outlined, with a hard shadow
+      // it rises onto under the pointer.
+      button: {
+        variants: {
+          variant: {
+            pop: {
+              bg: 'ink',
+              color: 'canvas',
+              borderWidth: '2px',
+              borderColor: 'ink',
+              fontWeight: 'semibold',
+              transition: 'transform 120ms ease-out, box-shadow 120ms ease-out',
+              _hover: {
+                transform: 'translate(-2px, -2px)',
+                shadow: 'popHover',
+              },
+              _active: { transform: 'none', shadow: 'none' },
+            },
+            popOutline: {
+              bg: 'transparent',
+              color: 'ink',
+              borderWidth: '2px',
+              borderColor: 'ink',
+              fontWeight: 'semibold',
+              transition: 'transform 120ms ease-out, box-shadow 120ms ease-out',
+              _hover: { transform: 'translate(-2px, -2px)', shadow: 'pop' },
+              _active: { transform: 'none', shadow: 'none' },
+            },
+          },
+        },
+      },
       // v2's Link inherited the text colour; v3's plain variant uses
       // colorPalette.fg, which the app-wide green palette made green.
       link: {
@@ -183,6 +256,13 @@ const config = defineConfig({
             '2xl': { fontSize: { base: '3xl', md: '4xl' }, lineHeight: '1.15' },
             '3xl': { fontSize: { base: '4xl', md: '5xl' }, lineHeight: '1.1' },
             '4xl': { fontSize: { base: '5xl', md: '6xl' }, lineHeight: '1.05' },
+            // The homepage cover (magazine pass): heavy and tight.
+            cover: {
+              fontSize: { base: '2.6rem', sm: '3.4rem', md: '4.2rem' },
+              lineHeight: '0.98',
+              fontWeight: '800',
+              letterSpacing: '-0.035em',
+            },
           },
         },
       },
