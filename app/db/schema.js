@@ -318,6 +318,8 @@ export const gameImages = sqliteTable(
     height: integer('height'),
     // The order they're shown in, from 0.
     position: integer('position').notNull().default(0),
+    // What it shows, for those who can't see it (#350).
+    alt: text('alt'),
     createdAt: time('created_at')
       .notNull()
       .$defaultFn(() => new Date()),

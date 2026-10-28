@@ -159,6 +159,7 @@ export function gameImage(row) {
   return {
     game_id: row.gameId,
     image_id: row.id,
+    alt: row.alt ?? null,
     created_at: row.createdAt,
     image: image(row.key, row.id, row),
   };

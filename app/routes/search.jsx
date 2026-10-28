@@ -85,7 +85,9 @@ const Tabs = ({ q, kind, counts }) => {
             borderRadius="full"
             variant={current ? 'solid' : 'outline'}
             colorPalette={current ? 'green' : 'gray'}
-            opacity={tab.count === 0 && !current ? 0.6 : 1}
+            // Kinds without results look quieter, still readable (#350: was
+            // 60% opacity, under WCAG AA contrast).
+            color={tab.count === 0 && !current ? 'muted' : undefined}
           >
             <Link
               to={searchHref({ q, kind: tab.kind })}
