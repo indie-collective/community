@@ -1,5 +1,5 @@
 import { NativeSelect } from '@chakra-ui/react';
-import { Form, useLocation, useSubmit } from 'react-router';
+import { Form, useLocation, useRouteLoaderData, useSubmit } from 'react-router';
 
 import { LANGUAGES, useLanguage, useT } from '../i18n';
 
@@ -9,6 +9,9 @@ const LanguageSwitcher = () => {
   const t = useT();
   const { pathname, search } = useLocation();
   const submit = useSubmit();
+  // Breton is offered only while its flag is on for them (#373).
+  const { features } = useRouteLoaderData('root') ?? {};
+  const offered = LANGUAGES.filter(([code]) => code !== 'br' || features?.breton);
   return (
     <Form method="post" action="/language">
       <input type="hidden" name="back" value={`${pathname}${search}`} />
@@ -19,7 +22,7 @@ const LanguageSwitcher = () => {
           value={language}
           onChange={(event) => submit(event.currentTarget.form)}
         >
-          {LANGUAGES.map(([code, name]) => (
+          {offered.map(([code, name]) => (
             <option key={code} value={code} lang={code}>
               {name}
             </option>

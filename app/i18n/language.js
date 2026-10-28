@@ -1,6 +1,6 @@
-// Which language a request is in (#344), apart from the messages, so the
+// Which language a request is in (#344, Breton #373), apart from the messages, so the
 // Worker's edge cache can key on it.
-const CODES = ['en', 'fr'];
+export const CODES = ['en', 'fr', 'br'];
 const supported = (code) => (CODES.includes(code) ? code : null);
 
 export const DEFAULT_LANGUAGE = 'en';

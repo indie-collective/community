@@ -1,4 +1,4 @@
-import { expect, test, watchErrors, waitForHydration } from './helpers';
+import { expect, test, watchErrors, waitForHydration, ADMIN, signIn } from './helpers';
 
 // #344: the interface in English or French, on the same URLs.
 
@@ -33,4 +33,25 @@ test('the language chosen in the footer is remembered', async ({ page }) => {
   await waitForHydration(page);
   await page.getByLabel('Langue').selectOption('en');
   await expect(page.getByText(/Indie game studios around the world/)).toBeVisible();
+});
+
+// #373: Breton is a draft until reviewed, so its flag shows it to admins only.
+test.describe('a Breton browser', () => {
+  test.use({ locale: 'br-FR' });
+
+  test('gets English and no Breton option, until an admin', async ({ page }) => {
+    await page.goto('/events');
+    expect(await page.locator('html').getAttribute('lang')).toBe('en');
+    await expect(page.getByRole('heading', { name: 'Events', level: 1 })).toBeVisible();
+    await expect(page.getByLabel('Language').locator('option[value="br"]')).toHaveCount(0);
+
+    await signIn(page, ADMIN);
+    await page.goto('/events');
+    await waitForHydration(page);
+    expect(await page.locator('html').getAttribute('lang')).toBe('br');
+    await expect(page.getByRole('heading', { name: 'Darvoudoù', level: 1 })).toBeVisible();
+    await expect(page.getByLabel('Yezh').locator('option[value="br"]')).toHaveText('Brezhoneg');
+    await page.getByLabel('Yezh').selectOption('en');
+    await expect(page.getByRole('heading', { name: 'Events', level: 1 })).toBeVisible();
+  });
 });

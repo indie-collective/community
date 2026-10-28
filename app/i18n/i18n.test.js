@@ -22,6 +22,9 @@ describe('languageOf', () => {
     expect(languageOf(request({ 'accept-language': 'de-DE, fr;q=0.8, en;q=0.5' }))).toBe('fr');
     expect(languageOf(request({ 'accept-language': 'de-DE' }))).toBe('en');
     expect(languageOf(request({ cookie: 'lang=xx' }))).toBe('en');
+    // #373: Breton too (the root loader keeps it behind its flag).
+    expect(languageOf(request({ cookie: 'lang=br' }))).toBe('br');
+    expect(languageOf(request({ 'accept-language': 'br-FR, fr;q=0.8' }))).toBe('br');
   });
 });
 
