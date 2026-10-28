@@ -184,15 +184,19 @@ export function ErrorBoundary({ error }) {
 export const loader = async ({ request }) => {
   const currentUser = await isAuthenticated(request);
 
+  const features = await enabledFeatures(currentUser);
+  const language = languageOf(request);
+
   return {
     currentUser,
     origin: getOrigin(request),
-    // #344: the interface's language.
-    language: languageOf(request),
+    // #344: the interface's language; Breton (#373) only while its flag
+    // is on for them, English otherwise.
+    language: language === 'br' && !features.breton ? 'en' : language,
     // #343: the bell in the header.
     unreadNotifications: currentUser ? await countUnread(currentUser.id) : 0,
     // Feature flags on for them (/admin/flags).
-    features: await enabledFeatures(currentUser),
+    features,
   };
 };
 

@@ -18,6 +18,13 @@ export const FEATURE_FLAGS = [
       'The opportunities list, posting from studios’, games’ and events’ pages, and the “Open to pitches” filter on publishers (#345).',
     default: 'off',
   },
+  {
+    key: 'breton',
+    label: 'Breton',
+    description:
+      'The interface in Breton, a draft until a Breton speaker reviews it (#373): offered in the language menu, and chosen from a browser’s languages.',
+    default: 'admins',
+  },
 ];
 
 const isState = (state) => FLAG_STATES.some(([value]) => value === state);
