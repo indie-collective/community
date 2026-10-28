@@ -31,13 +31,24 @@ import { getOrganization } from '../data/organizations.server';
 import GameCard from '../components/GameCard';
 import { gameRoleLabel } from '../utils/gameRoles';
 import EventCard from '../components/EventCard';
+import PlaceMap from '../components/PlaceMap';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
-import { Page, PageHeader } from '../components/Page';
+import ShareMenu from '../components/ShareMenu';
+import OpportunityList from '../components/OpportunityList';
+import { listOpportunities } from '../data/opportunities.server';
+import { ReportDuplicate } from '../components/Duplicates';
+import { SubscribeMenu } from '../components/CalendarMenus';
+import { Page, PageHeader, PageSection } from '../components/Page';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
-import { ORG_STATUSES, orgStatusLabel, orgTypeLabel } from '../utils/orgTypes';
+import {
+  ORG_STATUSES,
+  orgStatusLabel,
+  orgTypeLabel,
+  pinColor,
+} from '../utils/orgTypes';
 import EmptyHint from '../components/EmptyHint';
 import { FaBluesky } from 'react-icons/fa6';
 import { pageRecordId } from '../utils/pageRecord.server';
@@ -60,6 +71,7 @@ export const loader = async ({ request, params }) => {
   return {
     org,
     currentUser,
+    opportunities: await listOpportunities({ organizationId: id }),
   };
 };
 
@@ -83,9 +95,11 @@ export const meta = ({ data, matches }) => {
 
 const Org = () => {
   const placeholder = usePlaceholder('square');
-  const { org, currentUser } = useLoaderData();
+  const { org, currentUser, opportunities } = useLoaderData();
 
   const deleteModal = useDisclosure();
+  // #346
+  const reportModal = useDisclosure();
 
   const {
     id,
@@ -107,11 +121,16 @@ const Org = () => {
     ...links
       .reduce((all, { game, role }) => {
         const roles = all.get(game.id)?.roles ?? [];
-        return all.set(game.id, { game, roles: [...roles, role ?? 'developer'] });
+        return all.set(game.id, {
+          game,
+          roles: [...roles, role ?? 'developer'],
+        });
       }, new Map())
       .values(),
   ];
-  const published = byGame(game_entity.filter(({ role }) => role === 'publisher'));
+  const published = byGame(
+    game_entity.filter(({ role }) => role === 'publisher')
+  );
   const made = byGame(game_entity.filter(({ role }) => role !== 'publisher'));
   const events = entity_event.map(({ event }) => event);
 
@@ -146,13 +165,20 @@ const Org = () => {
             .join(' · ')}
           title={name}
           actions={
-            currentUser && (
-              <ActionMenu
-                editLink={`/org/${id}/edit`}
-                changesLink={`/org/${id}/changes`}
-                onDelete={deleteModal.onOpen}
-              />
-            )
+            <>
+              <ShareMenu title={name} path={orgPath(org)} />
+              {/* #342: its events in a calendar app. */}
+              {entity_event.length > 0 && (
+                <SubscribeMenu label="Events calendar" calendarPath={`${orgPath(org)}/calendar.ics`} />
+              )}
+              {currentUser && (
+                <ActionMenu
+                  editLink={`/org/${id}/edit`}
+                  onDelete={currentUser.isAdmin ? deleteModal.onOpen : undefined}
+                onReportDuplicate={reportModal.onOpen}
+                />
+              )}
+            </>
           }
         >
           <HStack gap={4} wrap="wrap" fontSize="sm" color="muted">
@@ -197,6 +223,21 @@ const Org = () => {
         </PageHeader>
       </Flex>
 
+      {/* #337: where it is, at city level. */}
+      {location?.latitude && location?.longitude && (
+        <PlaceMap
+          location={location}
+          id={id}
+          color={pinColor(type)}
+          logo={logo}
+          label={
+            [location.city, countryNames[location.country_code]]
+              .filter(Boolean)
+              .join(', ') || name
+          }
+        />
+      )}
+
       {about && (
         <Box mb={{ base: 8, md: 10 }} maxW="2xl">
           <Markdown value={about} />
@@ -226,7 +267,9 @@ const Org = () => {
                   <Box minW={0} key={game.id}>
                     <GameCard {...game} />
                     {/* #40: how this organisation took part, when not only as the developer. */}
-                    {roles.some((role) => role !== 'developer' && role !== 'publisher') && (
+                    {roles.some(
+                      (role) => role !== 'developer' && role !== 'publisher'
+                    ) && (
                       <Text fontSize="sm" color="muted" mt={1}>
                         {roles.map(gameRoleLabel).join(', ')}
                       </Text>
@@ -322,6 +365,28 @@ const Org = () => {
             </Portal>
           </Dialog.Root>
         </Box>
+      )}
+      {/* #345: what it's looking for. */}
+      {(opportunities.length > 0 || currentUser) && (
+        <PageSection
+          title="Opportunities"
+          aside={
+            currentUser && (
+              <Button asChild size="sm" variant="outline">
+                <Link to={`/opportunities/new?for=organization:${id}`}>Post an opportunity</Link>
+              </Button>
+            )
+          }
+        >
+          {opportunities.length > 0 ? (
+            <OpportunityList opportunities={opportunities} currentUser={currentUser} showFor={false} />
+          ) : (
+            <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
+          )}
+        </PageSection>
+      )}
+      {currentUser && (
+        <ReportDuplicate kind="organization" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />
       )}
     </Page>
   );

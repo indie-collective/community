@@ -1,17 +1,17 @@
 import { Button, HStack, IconButton, Menu, Portal } from '@chakra-ui/react';
-import { LuEllipsis, LuPencil, LuTimer, LuTrash2 } from 'react-icons/lu';
+import { LuCopy, LuEllipsis, LuPencil, LuTrash2 } from 'react-icons/lu';
 import Link from './Link';
 
 /**
  * A record page's actions for members (design pass): Edit, in plain sight,
- * and the rarer ones (History, Delete) in a "More actions" menu. The same on
- * game, organisation and event pages.
+ * and in a "More actions" menu, Report a duplicate (#346) and Delete, for
+ * admins only (#309). The same on game, organisation and event pages.
  *
  * v3 idioms: asChild on the trigger (without it the IconButton was a
  * <button> nested in the trigger's <button>), items rendered as router
  * links through asChild, and icons as children.
  */
-const ActionMenu = ({ editLink, changesLink, onDelete, ...props }) => (
+const ActionMenu = ({ editLink, onDelete, onReportDuplicate, ...props }) => (
   <HStack gap={1} {...props}>
     {editLink && (
       <Button asChild size="sm" variant="outline">
@@ -21,7 +21,7 @@ const ActionMenu = ({ editLink, changesLink, onDelete, ...props }) => (
         </Link>
       </Button>
     )}
-    {(changesLink || onDelete) && (
+    {(onDelete || onReportDuplicate) && (
       <Menu.Root positioning={{ placement: 'bottom-end' }}>
         <Menu.Trigger asChild>
           <IconButton
@@ -36,15 +36,13 @@ const ActionMenu = ({ editLink, changesLink, onDelete, ...props }) => (
         <Portal>
           <Menu.Positioner>
             <Menu.Content>
-              {changesLink && (
-                <Menu.Item value="history" asChild>
-                  <Link to={changesLink}>
-                    <LuTimer />
-                    History
-                  </Link>
+              {onReportDuplicate && (
+                <Menu.Item value="duplicate" onSelect={onReportDuplicate}>
+                  <LuCopy />
+                  Report a duplicate
                 </Menu.Item>
               )}
-              {changesLink && onDelete && <Menu.Separator />}
+              {onReportDuplicate && onDelete && <Menu.Separator />}
               {onDelete && (
                 <Menu.Item value="delete" color="fg.error" onSelect={onDelete}>
                   <LuTrash2 />

@@ -60,20 +60,23 @@ export function renameSlugStatements(kind, recordId, oldSlug, newSlug) {
 
 /**
  * The record a URL segment points to: by UUID, current slug, or old slug.
- * `{ id, slug }` (the current slug, null until backfilled), or null.
+ * `{ id, slug }` (the current slug, null until backfilled), or null. A
+ * record merged into another (#346) leads to that one: its slug and ID are
+ * aliases of it.
  */
 export async function findBySlugOrId(kind, value) {
   const table = TABLES[kind];
   const [row] = await db
-    .select({ id: table.id, slug: table.slug })
+    .select({ id: table.id, slug: table.slug, deletedAt: table.deletedAt })
     .from(table)
     .where(isUuid(value) ? eq(table.id, value) : eq(table.slug, value));
-  if (row) return row;
-  if (isUuid(value)) return null;
+  if (row && !row.deletedAt) return { id: row.id, slug: row.slug };
   const [alias] = await db
     .select({ id: table.id, slug: table.slug })
     .from(slugAliases)
     .innerJoin(table, eq(table.id, slugAliases.recordId))
     .where(and(eq(slugAliases.kind, kind), eq(slugAliases.slug, value)));
-  return alias ?? null;
+  if (alias) return alias;
+  // Deleted, not merged: its pages say it's gone.
+  return row ? { id: row.id, slug: row.slug } : null;
 }

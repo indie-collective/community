@@ -8,7 +8,6 @@ import {
   Button,
   useDisclosure,
   IconButton,
-  List,
   Dialog,
   Portal,
   Link as ChakraLink,
@@ -33,14 +32,18 @@ import { SearchOrgModal } from './search-org';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
+import ShareMenu from '../components/ShareMenu';
+import OpportunityList from '../components/OpportunityList';
+import { listOpportunities } from '../data/opportunities.server';
+import { ReportDuplicate } from '../components/Duplicates';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import TagList from '../components/TagList';
-import { formatEventRange } from '../utils/eventTime';
 import { GAME_ROLES } from '../utils/gameRoles';
 import { gameShareImage, pageMeta, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
+import GameTimeline from '../components/GameTimeline';
 import { pageRecordId } from '../utils/pageRecord.server';
-import { eventPath, gamePath } from '../utils/slug';
+import { gamePath } from '../utils/slug';
 
 export const loader = async ({ request, params, context }) => {
   // By slug, an old slug or UUID; those redirect to the slug (#209).
@@ -57,6 +60,7 @@ export const loader = async ({ request, params, context }) => {
   const data = {
     game,
     currentUser: await isAuthenticated(request),
+    opportunities: await listOpportunities({ gameId: id }),
   };
 
   return data;
@@ -91,7 +95,7 @@ export const meta = ({ data, matches }) => {
 };
 
 const Game = () => {
-  const { game, currentUser } = useLoaderData();
+  const { game, currentUser, opportunities } = useLoaderData();
   const fetcher = useFetcher();
 
   const {
@@ -101,6 +105,8 @@ const Game = () => {
   } = useDisclosure();
 
   const deleteModal = useDisclosure();
+  // #346
+  const reportModal = useDisclosure();
 
   const {
     id,
@@ -111,6 +117,7 @@ const Game = () => {
     game_entity,
     game_tag,
     game_event,
+    game_milestone,
     igdb_game,
   } = game;
   const images = game_image.map(({ image }) => image);
@@ -149,13 +156,16 @@ const Game = () => {
         eyebrow={eyebrow}
         title={name}
         actions={
-          currentUser && (
-            <ActionMenu
-              editLink={`/game/${id}/edit`}
-              changesLink={`/game/${id}/changes`}
-              onDelete={deleteModal.onOpen}
-            />
-          )
+          <>
+            <ShareMenu title={name} path={gamePath(game)} />
+            {currentUser && (
+              <ActionMenu
+                editLink={`/game/${id}/edit`}
+                onDelete={currentUser.isAdmin ? deleteModal.onOpen : undefined}
+                onReportDuplicate={reportModal.onOpen}
+              />
+            )}
+          </>
         }
       />
       <Box mb={{ base: 8, md: 10 }}>
@@ -216,7 +226,9 @@ const Game = () => {
                 {...author}
                 involvement={role ?? 'developer'}
                 // #335: its other roles on this game, which it can't take twice.
-                takenRoles={rolesOf(author.id).filter((other) => other !== role)}
+                takenRoles={rolesOf(author.id).filter(
+                  (other) => other !== role
+                )}
                 onInvolvementChange={
                   currentUser
                     ? (newRole) =>
@@ -266,7 +278,9 @@ const Game = () => {
                   // only those with every role are left out.
                   excludedIds={entities
                     .map((entity) => entity.id)
-                    .filter((orgId) => rolesOf(orgId).length === GAME_ROLES.length)}
+                    .filter(
+                      (orgId) => rolesOf(orgId).length === GAME_ROLES.length
+                    )}
                   onSelect={(author) => {
                     fetcher.submit(
                       { id: author.id },
@@ -279,31 +293,13 @@ const Game = () => {
           </Grid>
         </PageSection>
       )}
-      {events.length > 0 && (
-        <PageSection title="Events">
-          <List.Root>
-            {events.map((event) => (
-              <List.Item key={event.id}>
-                <ChakraLink asChild>
-                  <Link to={eventPath(event)}>
-                    <time
-                      dateTime={`${new Date(event.starts_at).toISOString()}/${new Date(event.ends_at).toISOString()}`}
-                    >
-                      {formatEventRange(
-                        event.starts_at,
-                        event.ends_at,
-                        event.time_zone,
-                        { time: false }
-                      )}
-                    </time>
-                    . {event.name}
-                  </Link>
-                </ChakraLink>
-              </List.Item>
-            ))}
-          </List.Root>
-        </PageSection>
-      )}
+      <GameTimeline
+        gameId={id}
+        milestones={game_milestone}
+        events={events}
+        igdbReleaseDate={igdb_game?.first_release_date}
+        currentUser={currentUser}
+      />
       {igdb_game?.videos.length > 0 && (
         <PageSection title="Videos">
           <Grid
@@ -374,6 +370,28 @@ const Game = () => {
             </Portal>
           </Dialog.Root>
         </Box>
+      )}
+      {/* #345: what it's looking for. */}
+      {(opportunities.length > 0 || currentUser) && (
+        <PageSection
+          title="Opportunities"
+          aside={
+            currentUser && (
+              <Button asChild size="sm" variant="outline">
+                <Link to={`/opportunities/new?for=game:${id}`}>Post an opportunity</Link>
+              </Button>
+            )
+          }
+        >
+          {opportunities.length > 0 ? (
+            <OpportunityList opportunities={opportunities} currentUser={currentUser} showFor={false} />
+          ) : (
+            <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
+          )}
+        </PageSection>
+      )}
+      {currentUser && (
+        <ReportDuplicate kind="game" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />
       )}
     </Page>
   );

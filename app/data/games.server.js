@@ -18,6 +18,7 @@ import { db } from '../db/index.server.js';
 import {
   GAME_ORGANIZATION_ROLES,
   gameImages,
+  gameMilestones,
   gameOrganizations,
   games,
   gameTags,
@@ -27,7 +28,8 @@ import {
 import { matchesSearch } from '../db/search.js';
 import computeGame from '../models/game';
 import { refreshIfStale } from '../utils/igdbData.server';
-import { logChange } from './changes.server';
+import { recordChange } from './changes.server';
+import { assertSiteIsFree } from './duplicates.server';
 import { getUploads } from './images.server';
 import { searchIndex } from './search.server';
 import * as shape from './shapes.server';
@@ -95,6 +97,7 @@ export function gameWithRelations(row) {
         event: shape.event(link.event),
       }));
   }
+  if (row.milestones) game.game_milestone = row.milestones.map(shape.gameMilestone);
   if ('igdb' in row) game.igdb = shape.igdb(row.igdb);
   return game;
 }
@@ -198,7 +201,11 @@ export async function listGames({
 export async function getGame(id, { context } = {}) {
   const row = await db.query.games.findFirst({
     where: and(eq(games.id, id), notDeleted),
-    with: { ...CARD_WITH, events: { with: { event: true } } },
+    with: {
+      ...CARD_WITH,
+      events: { with: { event: true } },
+      milestones: { orderBy: [asc(gameMilestones.date)] },
+    },
   });
   if (!row) return null;
   const game = gameWithRelations(row);
@@ -280,25 +287,32 @@ export async function createGame({
   tagNames,
   authorId,
 }) {
+  // #346: one record per website.
+  await assertSiteIsFree('game', site);
   const id = crypto.randomUUID();
   const now = new Date();
   const slug = await freeSlug('game', slugify(name));
-  await db.batch([
-    db.insert(games).values({
-      id,
-      name,
-      slug,
-      about,
-      site,
-      igdbSlug: igdbSlug ?? null,
-      searchText: shape.searchTextOf({ name, about }),
-      lastModifiedById: authorId,
-      createdAt: now,
-      updatedAt: now,
-    }),
-    ...setTagsStatements(id, tagNames, now),
-    logChange('create', 'game', id, authorId),
-  ]);
+  await recordChange({
+    operation: 'create',
+    kind: 'game',
+    recordId: id,
+    authorId,
+    statements: [
+      db.insert(games).values({
+        id,
+        name,
+        slug,
+        about,
+        site,
+        igdbSlug: igdbSlug ?? null,
+        searchText: shape.searchTextOf({ name, about }),
+        lastModifiedById: authorId,
+        createdAt: now,
+        updatedAt: now,
+      }),
+      ...setTagsStatements(id, tagNames, now),
+    ],
+  });
   return { id, slug };
 }
 
@@ -312,39 +326,50 @@ export async function updateGame(
 ) {
   const now = new Date();
   const [current] = await db
-    .select({ slug: games.slug })
+    .select({ slug: games.slug, site: games.site })
     .from(games)
     .where(eq(games.id, id));
+  if (site && site !== current?.site) await assertSiteIsFree('game', site, { excludeId: id });
   const slug = await freeSlug('game', slugify(name), { recordId: id });
-  await db.batch([
-    db
-      .update(games)
-      .set({
-        name,
-        about,
-        site,
-        igdbSlug: igdbSlug ?? null,
-        searchText: shape.searchTextOf({ name, about }),
-        lastModifiedById: authorId,
-        updatedAt: now,
-      })
-      .where(eq(games.id, id)),
-    ...setTagsStatements(id, tagNames, now),
-    ...renameSlugStatements('game', id, current?.slug, slug),
-    logChange('update', 'game', id, authorId),
-  ]);
+  await recordChange({
+    operation: 'update',
+    kind: 'game',
+    recordId: id,
+    authorId,
+    statements: [
+      db
+        .update(games)
+        .set({
+          name,
+          about,
+          site,
+          igdbSlug: igdbSlug ?? null,
+          searchText: shape.searchTextOf({ name, about }),
+          lastModifiedById: authorId,
+          updatedAt: now,
+        })
+        .where(eq(games.id, id)),
+      ...setTagsStatements(id, tagNames, now),
+      ...renameSlugStatements('game', id, current?.slug, slug),
+    ],
+  });
   return { id, slug };
 }
 
 /** Deletes a game: it's only hidden, and its history stays (ADR 0003). */
 export async function deleteGame(id, { authorId = null } = {}) {
-  await db.batch([
-    db
-      .update(games)
-      .set({ deletedAt: new Date() })
-      .where(and(eq(games.id, id), notDeleted)),
-    logChange('delete', 'game', id, authorId),
-  ]);
+  await recordChange({
+    operation: 'delete',
+    kind: 'game',
+    recordId: id,
+    authorId,
+    statements: [
+      db
+        .update(games)
+        .set({ deletedAt: new Date() })
+        .where(and(eq(games.id, id), notDeleted)),
+    ],
+  });
 }
 
 /**
@@ -353,7 +378,7 @@ export async function deleteGame(id, { authorId = null } = {}) {
  * else in the first role it doesn't have yet (publisher next). Already
  * credited in that role is fine.
  */
-export async function addGameOrganization(gameId, organizationId, role) {
+export async function addGameOrganization(gameId, organizationId, role, { authorId = null } = {}) {
   if (!role) {
     const taken = (
       await db
@@ -371,10 +396,13 @@ export async function addGameOrganization(gameId, organizationId, role) {
     );
     if (!role) return;
   }
-  await db
-    .insert(gameOrganizations)
-    .values({ gameId, organizationId, role })
-    .onConflictDoNothing();
+  // A change to the game, in its history (#309).
+  await changeGame(gameId, authorId, [
+    db
+      .insert(gameOrganizations)
+      .values({ gameId, organizationId, role })
+      .onConflictDoNothing(),
+  ]);
 }
 
 const gameOrganizationLink = (gameId, organizationId, role) =>
@@ -389,9 +417,9 @@ const gameOrganizationLink = (gameId, organizationId, role) =>
  * GAME_ORGANIZATION_ROLES to another. If it already has the new role too,
  * the two become one.
  */
-export async function setGameOrganizationRole(gameId, organizationId, from, to) {
+export async function setGameOrganizationRole(gameId, organizationId, from, to, { authorId = null } = {}) {
   if (from === to) return;
-  await db.batch([
+  await changeGame(gameId, authorId, [
     db
       .insert(gameOrganizations)
       .values({ gameId, organizationId, role: to })
@@ -403,14 +431,50 @@ export async function setGameOrganizationRole(gameId, organizationId, from, to) 
 }
 
 /** Removes one of an organisation's roles from a game's credits. */
-export async function removeGameOrganization(gameId, organizationId, role) {
-  await db
-    .delete(gameOrganizations)
-    .where(gameOrganizationLink(gameId, organizationId, role));
+export async function removeGameOrganization(gameId, organizationId, role, { authorId = null } = {}) {
+  await changeGame(gameId, authorId, [
+    db
+      .delete(gameOrganizations)
+      .where(gameOrganizationLink(gameId, organizationId, role)),
+  ]);
 }
 
+/**
+ * Adds a step to a game's timeline (#332): `kind` one of
+ * GAME_MILESTONE_KINDS, `date` and `precision` as utils/gameTimeline's
+ * milestoneDate makes them. It's a change to the game, in its history.
+ */
+export async function addGameMilestone(gameId, { kind, date, precision, note, authorId = null }) {
+  await changeGame(gameId, authorId, [
+    db.insert(gameMilestones).values({ gameId, kind, date, datePrecision: precision, note: note || null }),
+  ]);
+}
+
+/** Removes a step from a game's timeline, in the game's history too. */
+export async function removeGameMilestone(gameId, milestoneId, { authorId = null } = {}) {
+  await changeGame(gameId, authorId, [
+    db
+      .delete(gameMilestones)
+      .where(and(eq(gameMilestones.gameId, gameId), eq(gameMilestones.id, milestoneId))),
+  ]);
+}
+
+// A change to a game's links (studios, images, timeline): marks the game as
+// just changed by `authorId`, and records it in its history (#309).
+const changeGame = (gameId, authorId, statements) =>
+  recordChange({
+    operation: 'update',
+    kind: 'game',
+    recordId: gameId,
+    authorId,
+    statements: [
+      ...statements,
+      db.update(games).set({ lastModifiedById: authorId, updatedAt: new Date() }).where(eq(games.id, gameId)),
+    ],
+  });
+
 /** Adds uploaded images (their upload IDs) to a game, after its others. */
-export async function addGameImages(gameId, imageIds) {
+export async function addGameImages(gameId, imageIds, { authorId = null } = {}) {
   const uploads = await getUploads(imageIds);
   if (uploads.length === 0) return;
   const [{ last }] = await db
@@ -418,25 +482,30 @@ export async function addGameImages(gameId, imageIds) {
     .from(gameImages)
     .where(eq(gameImages.gameId, gameId));
   const start = last == null ? 0 : last + 1;
-  await db.insert(gameImages).values(
-    uploads.map(({ key, width, height }, i) => ({
-      gameId,
-      key,
-      width,
-      height,
-      position: start + i,
-    }))
-  );
+  await changeGame(gameId, authorId, [
+    db.insert(gameImages).values(
+      uploads.map(({ key, width, height }, i) => ({
+        gameId,
+        key,
+        width,
+        height,
+        position: start + i,
+      }))
+    ),
+  ]);
 }
 
 /** Removes images (their IDs, as `game_image[].image_id`) from a game. */
-export async function removeGameImages(gameId, imageIds) {
+export async function removeGameImages(gameId, imageIds, { authorId = null } = {}) {
   if (imageIds.length === 0) return;
-  await db
-    .delete(gameImages)
-    .where(
-      and(eq(gameImages.gameId, gameId), inArray(gameImages.id, imageIds))
-    );
+  // The files stay in the bucket, so an undo can bring the images back.
+  await changeGame(gameId, authorId, [
+    db
+      .delete(gameImages)
+      .where(
+        and(eq(gameImages.gameId, gameId), inArray(gameImages.id, imageIds))
+      ),
+  ]);
 }
 
 /**

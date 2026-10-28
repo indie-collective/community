@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
+import { actionErrorMessage } from '../utils/actionError.server';
 import { useEffect } from 'react';
 
 import {
@@ -14,6 +15,7 @@ import { toaster } from '../components/ui/toaster';
 import EventForm from '../components/EventForm';
 import { zonedInputToDate } from '../utils/eventTime';
 import { timeZoneAt } from '../utils/timeZone.server';
+import { isTimeZone, parseAttendance } from '../utils/eventAttendance';
 import { webUrl } from '../utils/url';
 import { eventPath } from '../utils/slug';
 import { routeRecordId } from '../utils/pageRecord.server';
@@ -69,10 +71,14 @@ export async function action(args) {
 
     // Times are entered as wall-clock time where the event happens (#204):
     // a new location brings its zone, otherwise the event keeps its own.
+    const attendance = parseAttendance(data.get('attendance'));
+    // Online, in the zone chosen on the form (#347).
     const timeZone =
-      location.latitude !== null && location.longitude !== null
-        ? timeZoneAt(location.latitude, location.longitude)
-        : await getEventTimeZone(id);
+      attendance === 'online' && isTimeZone(data.get('time_zone'))
+        ? data.get('time_zone')
+        : location.latitude !== null && location.longitude !== null
+          ? timeZoneAt(location.latitude, location.longitude)
+          : await getEventTimeZone(id);
 
     const event = await updateEvent(id, {
       name: data.get('name') || undefined,
@@ -88,6 +94,8 @@ export async function action(args) {
       // Fields the form sends: empty clears them (#203).
       site: data.has('site') ? webUrl(data.get('site')) : undefined,
       ticketUrl: data.has('ticket_url') ? webUrl(data.get('ticket_url')) : undefined,
+      attendance: data.has('attendance') ? attendance : undefined,
+      onlineUrl: data.has('online_url') ? webUrl(data.get('online_url')) : undefined,
       previousEditionId: data.has('previous_edition_id')
         ? data.get('previous_edition_id') || null
         : undefined,
@@ -101,7 +109,7 @@ export async function action(args) {
     console.log(err);
 
     const values = data ? Object.fromEntries(data) : {};
-    return { error: 'Updating the event failed', values };
+    return { error: await actionErrorMessage(err, 'Updating the event failed'), values };
   }
 }
 

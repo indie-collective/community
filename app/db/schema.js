@@ -16,6 +16,8 @@ import {
 export const ORGANIZATION_TYPES = ['studio', 'association'];
 export const ORGANIZATION_STATUSES = ['active', 'closed', 'hiatus'];
 export const EVENT_STATUSES = ['ongoing', 'canceled'];
+// Where people take part (#347): at a place, online, or both.
+export const EVENT_ATTENDANCES = ['in_person', 'online', 'hybrid'];
 export const GAME_ORGANIZATION_ROLES = [
   'developer',
   'co_developer',
@@ -23,6 +25,23 @@ export const GAME_ORGANIZATION_ROLES = [
   'porting',
   'support',
 ];
+// A step in a game's life (#332), as shown on its timeline.
+export const GAME_MILESTONE_KINDS = [
+  'announced',
+  'prototype',
+  'alpha',
+  'beta',
+  'demo',
+  'early_access',
+  'funded',
+  'signed',
+  'released',
+  'ported',
+  'update',
+  'other',
+];
+// How much of a milestone's date is known: the year, the month or the day.
+export const DATE_PRECISIONS = ['year', 'month', 'day'];
 export const PERSON_ROLES = ['admin', 'member', 'restricted'];
 export const CHANGE_OPERATIONS = ['create', 'update', 'delete'];
 
@@ -86,6 +105,8 @@ export const people = sqliteTable(
     bskyHandle: text('bsky_handle'),
     // Until the cutover to Bluesky sign-in (ADR 0002).
     discordId: text('discord_id').unique(),
+    // #341: profiles are public unless the member hides theirs.
+    profileHidden: integer('profile_hidden', { mode: 'boolean' }).notNull().default(false),
     ...timestamps(),
   },
   (t) => [
@@ -172,6 +193,13 @@ export const events = sqliteTable(
     ...image('cover'),
     // #203: where to buy tickets, beside `site`.
     ticketUrl: text('ticket_url'),
+    // No CHECK: adding one would rebuild the table, and drop its links
+    // with it. The actions only accept EVENT_ATTENDANCES.
+    attendance: text('attendance', { enum: EVENT_ATTENDANCES })
+      .notNull()
+      .default('in_person'),
+    // #347: where to join online (a stream, a Discord, a jam page).
+    onlineUrl: text('online_url'),
     // #203: the edition before this one, linking a series (Stunfest 2025 →
     // Stunfest 2026).
     previousEditionId: text('previous_edition_id').references(
@@ -337,6 +365,32 @@ export const gameTags = sqliteTable(
   ]
 );
 
+// The steps of a game's life (#332): announced, in beta, released… with
+// when, as precisely as it's known. `date` is the start of that period
+// (UTC), so they sort; `note` says more ("on Switch", "with Raw Fury").
+export const gameMilestones = sqliteTable(
+  'game_milestones',
+  {
+    id: id(),
+    gameId: text('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    kind: text('kind', { enum: GAME_MILESTONE_KINDS }).notNull(),
+    date: time('date').notNull(),
+    datePrecision: text('date_precision', { enum: DATE_PRECISIONS })
+      .notNull()
+      .default('month'),
+    note: text('note'),
+    ...timestamps(),
+  },
+  (t) => [
+    index('game_milestones_game_id').on(t.gameId, t.date),
+    check('game_milestones_kind', oneOf(t.kind, GAME_MILESTONE_KINDS)),
+    check('game_milestones_date_precision', oneOf(t.datePrecision, DATE_PRECISIONS)),
+    check('game_milestones_note_length', sql`length(${t.note}) <= 140`),
+  ]
+);
+
 // The change log: one row per create, update or delete of a game,
 // organisation or event, written by the app with the change (#150).
 export const changes = sqliteTable(
@@ -363,6 +417,61 @@ export const changes = sqliteTable(
 
 // #254: a game's stored IGDB data, out of `games` so a refresh doesn't
 // bump the game's updated_at or add to its history.
+// What organisations, games and events are looking for (#345): a job, a
+// playtest, pitches… attached to one of them, until its end date.
+export const OPPORTUNITY_KINDS = ['job', 'freelance', 'playtest', 'team_up', 'pitches', 'submissions'];
+export const opportunities = sqliteTable(
+  'opportunities',
+  {
+    id: id(),
+    kind: text('kind', { enum: OPPORTUNITY_KINDS }).notNull(),
+    title: text('title').notNull(),
+    about: text('about'),
+    // Where to apply or sign up.
+    link: text('link'),
+    remote: integer('remote', { mode: 'boolean' }).notNull().default(false),
+    city: text('city'),
+    countryCode: text('country_code'),
+    organizationId: text('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+    gameId: text('game_id').references(() => games.id, { onDelete: 'cascade' }),
+    eventId: text('event_id').references(() => events.id, { onDelete: 'cascade' }),
+    endsAt: time('ends_at').notNull(),
+    authorId: text('author_id').references(() => people.id, { onDelete: 'set null' }),
+    deletedAt: time('deleted_at'),
+    lastModifiedById: text('last_modified_by_id').references(() => people.id, { onDelete: 'set null' }),
+    ...timestamps(),
+  },
+  (t) => [
+    check('opportunities_kind', oneOf(t.kind, OPPORTUNITY_KINDS)),
+    check('opportunities_title_length', sql`length(${t.title}) <= 120`),
+    index('opportunities_ends_at').on(t.endsAt),
+    index('opportunities_organization_id').on(t.organizationId),
+    index('opportunities_game_id').on(t.gameId),
+  ]
+);
+
+// Pairs of records a member flagged as duplicates, or an admin said aren't
+// (#346), so the admin view doesn't suggest them again. Kind is "game",
+// "organization" or "event"; the two IDs are in order.
+export const DUPLICATE_STATUSES = ['flagged', 'dismissed'];
+export const duplicatePairs = sqliteTable(
+  'duplicate_pairs',
+  {
+    kind: text('kind').notNull(),
+    firstId: text('first_id').notNull(),
+    secondId: text('second_id').notNull(),
+    status: text('status', { enum: DUPLICATE_STATUSES }).notNull(),
+    personId: text('person_id').references(() => people.id, { onDelete: 'set null' }),
+    createdAt: time('created_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [
+    primaryKey({ columns: [t.kind, t.firstId, t.secondId] }),
+    check('duplicate_pairs_status', oneOf(t.status, DUPLICATE_STATUSES)),
+  ]
+);
+
 export const gameIgdb = sqliteTable(
   'game_igdb',
   {
@@ -422,6 +531,7 @@ export const gamesRelations = relations(games, ({ many, one }) => ({
   events: many(gameEvents),
   images: many(gameImages),
   tags: many(gameTags),
+  milestones: many(gameMilestones),
   igdb: one(gameIgdb),
 }));
 
@@ -498,6 +608,10 @@ export const gameTagsRelations = relations(gameTags, ({ one }) => ({
 
 export const changesRelations = relations(changes, ({ one }) => ({
   author: one(people, { fields: [changes.authorId], references: [people.id] }),
+}));
+
+export const gameMilestonesRelations = relations(gameMilestones, ({ one }) => ({
+  game: one(games, { fields: [gameMilestones.gameId], references: [games.id] }),
 }));
 
 export const gameIgdbRelations = relations(gameIgdb, ({ one }) => ({

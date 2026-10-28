@@ -103,6 +103,7 @@ const NAV = [
   ['/associations', 'Associations'],
   ['/publishers', 'Publishers'],
   ['/events', 'Events'],
+  ['/opportunities', 'Opportunities'],
   ['/countries', 'Countries'],
   ['/places', 'Map'],
 ];
@@ -138,13 +139,16 @@ const Navigation = ({ search }) => {
               <Link to="/admin/users">Users</Link>
             </Menu.Item>
             <Menu.Item value="item-1" asChild cursor="pointer">
-              <Link to="/admin/changes">Changes</Link>
+              <Link to="/admin/changes">Moderation</Link>
             </Menu.Item>
             <Menu.Item value="item-2" asChild cursor="pointer">
               <Link to="/admin/missing">Missing</Link>
             </Menu.Item>
             <Menu.Item value="item-3" asChild cursor="pointer">
               <Link to="/admin/tags">Tags</Link>
+            </Menu.Item>
+            <Menu.Item value="item-4" asChild cursor="pointer">
+              <Link to="/admin/duplicates">Duplicates</Link>
             </Menu.Item>
           </Menu.Content>
         </Menu.Positioner>

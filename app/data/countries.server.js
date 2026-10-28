@@ -140,28 +140,6 @@ export async function getCountryOverview(countryCode) {
 }
 
 /**
- * Every place (a country, city and region) with how many organisations and
- * events are there: `{ country_code, city, region, _count: { entity,
- * event } }`.
- */
-export async function listPlaces() {
-  const places = new Map();
-  for (const { country_code, city, region, kind } of await placedRecords()) {
-    const key = [country_code, city, region].join('\n');
-    if (!places.has(key)) {
-      places.set(key, {
-        country_code,
-        city,
-        region,
-        _count: { entity: 0, event: 0 },
-      });
-    }
-    places.get(key)._count[kind] += 1;
-  }
-  return [...places.values()];
-}
-
-/**
  * The places that gained an organisation or event between `from` and
  * `to`, with every organisation and event there: `{ city, country_code,
  * total }`.

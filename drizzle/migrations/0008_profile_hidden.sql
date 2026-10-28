@@ -1,0 +1,1 @@
+ALTER TABLE `people` ADD `profile_hidden` integer DEFAULT false NOT NULL;

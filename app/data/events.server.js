@@ -28,7 +28,8 @@ import {
 import { matchesSearch } from '../db/search.js';
 import computeEvent from '../models/event';
 import getImageLinks from '../utils/imageLinks.server';
-import { logChange } from './changes.server';
+import { distanceKm } from '../utils/mapFocus';
+import { recordChange } from './changes.server';
 import { gameWithRelations } from './games.server';
 import { imageColumns } from './images.server';
 import { searchIndex } from './search.server';
@@ -79,9 +80,32 @@ const computeCard = (row) =>
  *   covers as `{ url, thumbnail_url }`; countries as `{ country_code,
  *   _count }`; years as `{ year: string }`
  */
-export async function listEvents({ country = null, period = 'upcoming' }) {
+export async function listEvents({
+  country = null,
+  period = 'upcoming',
+  where = null,
+  near = null,
+  km = 50,
+}) {
   const now = new Date();
   const inCountry = country ? eq(events.countryCode, country) : undefined;
+  // #347: hybrid events are both in person and online.
+  const attended =
+    where === 'online'
+      ? inArray(events.attendance, ['online', 'hybrid'])
+      : where === 'in_person'
+        ? inArray(events.attendance, ['in_person', 'hybrid'])
+        : undefined;
+  // Near a place: those with coordinates within `km` of it.
+  const close = (rows) =>
+    near
+      ? rows.filter(
+          (row) =>
+            row.latitude != null &&
+            row.longitude != null &&
+            distanceKm(near, row) <= km
+        )
+      : rows;
   let when;
   if (period === 'upcoming') {
     when = gte(events.endsAt, now);
@@ -97,16 +121,17 @@ export async function listEvents({ country = null, period = 'upcoming' }) {
 
   const [rows, pastRows, countries, years] = await Promise.all([
     db.query.events.findMany({
-      where: and(notDeleted, inCountry, when),
+      where: and(notDeleted, inCountry, attended, when),
       with: CARD_WITH,
       orderBy:
         period === 'upcoming' ? asc(events.startsAt) : desc(events.startsAt),
     }),
     period === 'upcoming'
       ? db.query.events.findMany({
-          where: and(notDeleted, inCountry, lt(events.endsAt, now)),
+          where: and(notDeleted, inCountry, attended, lt(events.endsAt, now)),
           orderBy: desc(events.startsAt),
-          limit: 10,
+          // More when some are left out for being too far.
+          limit: near ? 200 : 10,
         })
       : [],
     db
@@ -125,8 +150,8 @@ export async function listEvents({ country = null, period = 'upcoming' }) {
   ]);
 
   return {
-    events: rows.map(withCoverLinks),
-    pastEvents: pastRows.map(withCoverLinks),
+    events: close(rows).map(withCoverLinks),
+    pastEvents: close(pastRows).slice(0, 10).map(withCoverLinks),
     countries,
     years: years.map(({ year }) => ({ year: String(year) })),
   };
@@ -303,6 +328,12 @@ export async function getEventTimeZone(id) {
   return row?.timeZone;
 }
 
+// Its place: none for an online-only event (#347), else the given one
+// (an empty location keeps the current one).
+const NO_PLACE = { countryCode: null, region: null, city: null, street: null, latitude: null, longitude: null };
+const placeColumns = (attendance, location) =>
+  attendance === 'online' ? NO_PLACE : shape.locationColumns(location);
+
 /**
  * Creates an event. `location` holds street, city, region, country_code,
  * latitude, longitude; `coverId` is an upload's ID.
@@ -319,12 +350,19 @@ export async function createEvent({
   coverId,
   location,
   ticketUrl = null,
+  attendance = 'in_person',
+  onlineUrl = null,
   previousEditionId = null,
   authorId = null,
 }) {
   const id = crypto.randomUUID();
   const slug = await freeSlug('event', eventSlug(name, startsAt));
-  await db.batch([
+  await recordChange({
+    operation: 'create',
+    kind: 'event',
+    recordId: id,
+    authorId,
+    statements: [
     db.insert(events).values({
       id,
       name,
@@ -336,14 +374,16 @@ export async function createEvent({
       about,
       site,
       ticketUrl,
+      attendance,
+      onlineUrl: attendance === 'in_person' ? null : onlineUrl,
       previousEditionId,
-      ...shape.locationColumns(location),
+      ...placeColumns(attendance, location),
       ...(await imageColumns('cover', coverId)),
       searchText: shape.searchTextOf({ name, about }),
       lastModifiedById: authorId,
     }),
-    logChange('create', 'event', id, authorId),
-  ]);
+    ],
+  });
   return { id, slug };
 }
 
@@ -365,6 +405,8 @@ export async function updateEvent(
     coverId,
     location,
     ticketUrl,
+    attendance,
+    onlineUrl,
     previousEditionId,
     authorId,
   }
@@ -383,7 +425,12 @@ export async function updateEvent(
     eventSlug(name ?? current?.name, startsAt ?? current?.startsAt),
     { recordId: id }
   );
-  await db.batch([
+  await recordChange({
+    operation: 'update',
+    kind: 'event',
+    recordId: id,
+    authorId,
+    statements: [
     db
       .update(events)
       .set({
@@ -396,9 +443,11 @@ export async function updateEvent(
         about,
         site,
         ticketUrl,
+        attendance,
+        onlineUrl: attendance === 'in_person' ? null : onlineUrl,
         // Never itself.
         previousEditionId: previousEditionId === id ? null : previousEditionId,
-        ...shape.locationColumns(location),
+        ...placeColumns(attendance, location),
         ...(await imageColumns('cover', coverId)),
         searchText: shape.searchTextOf({
           name: name ?? current?.name,
@@ -407,20 +456,25 @@ export async function updateEvent(
       })
       .where(eq(events.id, id)),
     ...renameSlugStatements('event', id, current?.slug, slug),
-    logChange('update', 'event', id, authorId),
-  ]);
+    ],
+  });
   return { id, slug };
 }
 
 /** Deletes an event: it's only hidden, and its history stays. */
 export async function deleteEvent(id, { authorId = null } = {}) {
-  await db.batch([
+  await recordChange({
+    operation: 'delete',
+    kind: 'event',
+    recordId: id,
+    authorId,
+    statements: [
     db
       .update(events)
       .set({ deletedAt: new Date() })
       .where(and(eq(events.id, id), notDeleted)),
-    logChange('delete', 'event', id, authorId),
-  ]);
+    ],
+  });
 }
 
 /** Marks someone as attending; already attending is fine. */
@@ -444,36 +498,57 @@ export async function leaveEvent(eventId, personId) {
 }
 
 /** Lists a game as shown at an event; already listed is fine. */
-export async function addEventGame(eventId, gameId) {
-  await db.insert(gameEvents).values({ gameId, eventId }).onConflictDoNothing();
+export async function addEventGame(eventId, gameId, { authorId = null } = {}) {
+  await changeEvent(eventId, authorId, [
+    db.insert(gameEvents).values({ gameId, eventId }).onConflictDoNothing(),
+  ]);
 }
 
 /** Removes a game from an event. */
-export async function removeEventGame(eventId, gameId) {
-  await db
-    .delete(gameEvents)
-    .where(and(eq(gameEvents.eventId, eventId), eq(gameEvents.gameId, gameId)));
+export async function removeEventGame(eventId, gameId, { authorId = null } = {}) {
+  await changeEvent(eventId, authorId, [
+    db
+      .delete(gameEvents)
+      .where(and(eq(gameEvents.eventId, eventId), eq(gameEvents.gameId, gameId))),
+  ]);
 }
 
 /** Adds an organisation as a host; already hosting is fine. */
-export async function addEventOrganization(eventId, organizationId) {
-  await db
-    .insert(organizationEvents)
-    .values({ organizationId, eventId })
-    .onConflictDoNothing();
+export async function addEventOrganization(eventId, organizationId, { authorId = null } = {}) {
+  await changeEvent(eventId, authorId, [
+    db
+      .insert(organizationEvents)
+      .values({ organizationId, eventId })
+      .onConflictDoNothing(),
+  ]);
 }
 
 /** Removes an organisation from an event's hosts. */
-export async function removeEventOrganization(eventId, organizationId) {
-  await db
-    .delete(organizationEvents)
-    .where(
-      and(
-        eq(organizationEvents.eventId, eventId),
-        eq(organizationEvents.organizationId, organizationId)
-      )
-    );
+export async function removeEventOrganization(eventId, organizationId, { authorId = null } = {}) {
+  await changeEvent(eventId, authorId, [
+    db
+      .delete(organizationEvents)
+      .where(
+        and(
+          eq(organizationEvents.eventId, eventId),
+          eq(organizationEvents.organizationId, organizationId)
+        )
+      ),
+  ]);
 }
+
+// A change to an event's games or hosts, in its history (#309).
+const changeEvent = (eventId, authorId, statements) =>
+  recordChange({
+    operation: 'update',
+    kind: 'event',
+    recordId: eventId,
+    authorId,
+    statements: [
+      ...statements,
+      db.update(events).set({ lastModifiedById: authorId, updatedAt: new Date() }).where(eq(events.id, eventId)),
+    ],
+  });
 
 /**
  * Events matching `q` (see data/search), best first (upcoming ones before

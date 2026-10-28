@@ -46,3 +46,26 @@ export function zoomToFit(
   );
   return Math.max(1, Math.min(max, zoom - margin));
 }
+
+/** The place in a `lat,lng` parameter, as { latitude, longitude }, or null. */
+export function placeAt(param) {
+  const [latitude, longitude] = (param ?? '').split(',').map(Number);
+  return param &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    Math.abs(latitude) <= 90 &&
+    Math.abs(longitude) <= 180
+    ? { latitude, longitude }
+    : null;
+}
+
+/** The distance in km between two places ({ latitude, longitude }). */
+export function distanceKm(a, b) {
+  const rad = (deg) => (deg * Math.PI) / 180;
+  const dLat = rad(b.latitude - a.latitude);
+  const dLng = rad(b.longitude - a.longitude);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(rad(a.latitude)) * Math.cos(rad(b.latitude)) * Math.sin(dLng / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+}

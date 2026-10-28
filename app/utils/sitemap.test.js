@@ -53,3 +53,14 @@ describe('buildRobots', () => {
     expect(robots).not.toMatch(/^Disallow: \/$/m);
   });
 });
+
+describe('public profiles in the sitemap (#341)', () => {
+  it('lists them by username', () => {
+    const xml = buildSitemap('https://community.indieco.xyz', { people: ['jam'] });
+    expect(xml).toContain('<loc>https://community.indieco.xyz/people/jam</loc>');
+  });
+
+  it('keeps crawlers out of private calendars', () => {
+    expect(buildRobots('https://community.indieco.xyz')).toContain('Disallow: /my-calendar/');
+  });
+});

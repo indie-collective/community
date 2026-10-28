@@ -78,6 +78,7 @@ export function person(row) {
     avatar_oauth: row.avatarUrl,
     avatar_id: row.avatarKey,
     avatar: image(row.avatarKey),
+    profile_hidden: row.profileHidden,
     ...times(row),
   };
 }
@@ -131,6 +132,8 @@ export function event(row) {
     time_zone: row.timeZone,
     status: row.status,
     ticket_url: row.ticketUrl,
+    attendance: row.attendance,
+    online_url: row.onlineUrl,
     previous_edition_id: row.previousEditionId,
     lastModifiedById: row.lastModifiedById,
     location: location(row),
@@ -158,6 +161,18 @@ export function gameImage(row) {
     image_id: row.id,
     created_at: row.createdAt,
     image: image(row.key, row.id, row),
+  };
+}
+
+/** A game's milestone (#332), with snake_case fields like the rest. */
+export function gameMilestone(row) {
+  return {
+    id: row.id,
+    game_id: row.gameId,
+    kind: row.kind,
+    date: row.date,
+    date_precision: row.datePrecision,
+    note: row.note,
   };
 }
 

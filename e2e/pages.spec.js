@@ -1,7 +1,7 @@
 import { expect, test, watchErrors } from './helpers';
 
 // Site-wide checks: every public page renders, the 404 page, phone width.
-const pages = ['/', '/games', '/events', '/studios', '/associations', '/publishers', '/about', '/countries', '/places', '/places2', '/rewind', '/search?q=Conference', '/search', '/search?q=%20', '/signin'];
+const pages = ['/', '/games', '/events', '/studios', '/associations', '/publishers', '/about', '/countries', '/places', '/rewind', '/search?q=Conference', '/search', '/search?q=%20', '/signin'];
 
 for (const path of pages) {
   test(`${path} renders and hydrates cleanly`, async ({ page }) => {
@@ -12,6 +12,26 @@ for (const path of pages) {
     expect(errors).toEqual([]);
   });
 }
+
+// #348: leftover pages.
+test('/places2 redirects to /places', async ({ page }) => {
+  await page.goto('/places2');
+  await expect(page).toHaveURL(/\/places$/);
+});
+
+test('/rewind opens the latest year, which links to the one before', async ({ page }) => {
+  const { latestRewindYear } = await import('../app/utils/rewind.js');
+  const year = latestRewindYear();
+  await page.goto('/rewind');
+  await expect(page).toHaveURL(new RegExp(`/rewind/${year}$`));
+  await expect(page).toHaveTitle(`Rewind ${year}`);
+  await page.getByRole('link', { name: `← ${year - 1}` }).click();
+  await expect(page).toHaveURL(new RegExp(`/rewind/${year - 1}$`));
+  await expect(page.getByRole('link', { name: `${year} →` })).toBeVisible();
+
+  const future = await page.goto(`/rewind/${year + 1}`);
+  expect(future.status()).toBe(404);
+});
 
 test('unknown pages show the 404 inside the site layout', async ({ page }) => {
   const response = await page.goto('/this-page-does-not-exist');

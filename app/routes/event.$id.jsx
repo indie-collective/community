@@ -25,6 +25,7 @@ import {
   LuExternalLink,
   LuTicket,
   LuCalendar,
+  LuGlobe,
 } from 'react-icons/lu';
 import {
   Form,
@@ -35,7 +36,14 @@ import {
 } from 'react-router';
 import Link from '../components/Link';
 
-import TileMap from '../components/TileMap';
+import PlaceMap from '../components/PlaceMap';
+import ShareMenu from '../components/ShareMenu';
+import OpportunityList from '../components/OpportunityList';
+import { listOpportunities } from '../data/opportunities.server';
+import { ReportDuplicate } from '../components/Duplicates';
+import { AddToCalendar } from '../components/CalendarMenus';
+import VisitorTime from '../components/VisitorTime';
+import { pinColor } from '../utils/orgTypes';
 
 import {
   getEvent,
@@ -56,7 +64,7 @@ import { SearchGameModal } from './search-game';
 import { SearchOrgModal } from './search-org';
 import SectionHeading from '../components/SectionHeading';
 import ActionMenu from '../components/ActionMenu';
-import { Page, PageHeader } from '../components/Page';
+import { Page, PageHeader, PageSection } from '../components/Page';
 import countryNames from '../assets/countries.json';
 import { formatEventDate, formatEventRange } from '../utils/eventTime';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
@@ -86,6 +94,7 @@ export const loader = async ({ request, params }) => {
       excludeIds: editions.map((edition) => edition.id),
     }),
     currentUser,
+    opportunities: await listOpportunities({ eventId: id }),
   };
 
   return data;
@@ -116,7 +125,7 @@ export const meta = ({ data, matches }) => {
 };
 
 const Event = () => {
-  const { event, editions, relatedEvents, currentUser } = useLoaderData();
+  const { event, editions, relatedEvents, currentUser, opportunities } = useLoaderData();
   const fetcher = useFetcher();
   const placeholder = usePlaceholder();
   const {
@@ -131,6 +140,8 @@ const Event = () => {
   } = useDisclosure();
 
   const deleteModal = useDisclosure();
+  // #346
+  const reportModal = useDisclosure();
 
   const {
     id,
@@ -139,6 +150,8 @@ const Event = () => {
     about,
     site,
     ticket_url: ticketUrl,
+    attendance,
+    online_url: onlineUrl,
     starts_at: startsAt,
     time_zone: timeZone,
     ends_at: endsAt,
@@ -194,7 +207,7 @@ const Event = () => {
         eyebrow={[
           'Event',
           status === 'canceled' ? 'Canceled' : isPast ? 'Past' : 'Upcoming',
-          place,
+          place ?? (attendance === 'online' ? 'Online' : null),
         ]
           .filter(Boolean)
           .join(' · ')}
@@ -207,31 +220,41 @@ const Event = () => {
           </Text>
         }
         actions={
-          currentUser && (
-            <>
-              {status !== 'canceled' && (
-                <JoinEventButton
-                  size="sm"
-                  minWidth={100}
-                  eventId={id}
-                  isGoing={isGoing}
-                >
-                  {isPast
-                    ? isGoing
-                      ? 'Went'
-                      : 'I went!'
-                    : isGoing
-                      ? 'Going'
-                      : "Let's go!"}
-                </JoinEventButton>
-              )}
-              <ActionMenu
-                editLink={`/event/${id}/edit`}
-                changesLink={`/event/${id}/changes`}
-                onDelete={deleteModal.onOpen}
+          <>
+            <ShareMenu title={name} path={eventPath(event)} />
+            {!isPast && status !== 'canceled' && (
+              <AddToCalendar
+                event={event}
+                path={eventPath(event)}
+                place={location ? [location.street, location.city].filter(Boolean).join(', ') : null}
               />
-            </>
-          )
+            )}
+            {currentUser && (
+              <>
+                {status !== 'canceled' && (
+                  <JoinEventButton
+                    size="sm"
+                    minWidth={100}
+                    eventId={id}
+                    isGoing={isGoing}
+                  >
+                    {isPast
+                      ? isGoing
+                        ? 'Went'
+                        : 'I went!'
+                      : isGoing
+                        ? 'Going'
+                        : "Let's go!"}
+                  </JoinEventButton>
+                )}
+                <ActionMenu
+                  editLink={`/event/${id}/edit`}
+                  onDelete={currentUser.isAdmin ? deleteModal.onOpen : undefined}
+                onReportDuplicate={reportModal.onOpen}
+                />
+              </>
+            )}
+          </>
         }
       >
         <Stack gap={1} color="muted">
@@ -246,6 +269,26 @@ const Event = () => {
               </time>
             </Text>
           </HStack>
+          <Box ps={6}>
+            <VisitorTime startsAt={startsAt} endsAt={endsAt} timeZone={timeZone} />
+          </Box>
+          {attendance !== 'in_person' && (
+            <HStack gap={2}>
+              <LuGlobe />
+              <Text>
+                {attendance === 'online' ? 'Online' : 'Also online'}
+                {onlineUrl && (
+                  <>
+                    {' · '}
+                    <ChakraLink href={onlineUrl} target="_blank" rel="noopener noreferrer">
+                      Join online
+                      <LuExternalLink />
+                    </ChakraLink>
+                  </>
+                )}
+              </Text>
+            </HStack>
+          )}
           {location && (
             <HStack gap={2} align="flex-start">
               <Box as="span" mt="3px">
@@ -289,28 +332,19 @@ const Event = () => {
         {participants.length > 0 && (
           <HStack gap={3} mt={2}>
             <AvatarGroup size="sm">
-              {participants.map(({ id, username, avatar, bsky_handle }) => {
+              {participants.map(({ id, username, avatar }) => {
                 const picture = (
                   <>
                     <Avatar.Fallback name={username} />
                     <Avatar.Image src={avatar && avatar.thumbnail_url} />
                   </>
                 );
-                // #161: to their Bluesky profile, when they have one.
-                return bsky_handle ? (
+                // #341: to their profile, which links their Bluesky (#161).
+                return (
                   <Avatar.Root key={id} title={`@${username}`} asChild>
-                    <a
-                      href={`https://bsky.app/profile/${bsky_handle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`@${username} on Bluesky`}
-                    >
+                    <Link to={`/people/${username}`} aria-label={`@${username}`}>
                       {picture}
-                    </a>
-                  </Avatar.Root>
-                ) : (
-                  <Avatar.Root key={id} title={`@${username}`}>
-                    {picture}
+                    </Link>
                   </Avatar.Root>
                 );
               })}
@@ -343,21 +377,13 @@ const Event = () => {
       )}
 
       {location && location.longitude && location.latitude && (
-        <Box
-          height={['120px', '180px']}
-          overflow="hidden"
-          borderRadius="xl"
-          mb={{ base: 8, md: 10 }}
-        >
-          <TileMap
-            defaultWidth={1200}
-            defaultHeight={180}
-            center={[location.latitude, location.longitude]}
-            zoom={location.street ? 16 : 11}
-            mouseEvents={false}
-            touchEvents={false}
-          />
-        </Box>
+        <PlaceMap
+          location={location}
+          id={id}
+          color={pinColor('event')}
+          label={place || name}
+          address={[location.street, location.city].filter(Boolean).join(', ')}
+        />
       )}
 
       {about && (
@@ -580,6 +606,28 @@ const Event = () => {
             </Portal>
           </Dialog.Root>
         </Box>
+      )}
+      {/* #345: what it's looking for. */}
+      {(opportunities.length > 0 || currentUser) && (
+        <PageSection
+          title="Opportunities"
+          aside={
+            currentUser && (
+              <Button asChild size="sm" variant="outline">
+                <Link to={`/opportunities/new?for=event:${id}`}>Post an opportunity</Link>
+              </Button>
+            )
+          }
+        >
+          {opportunities.length > 0 ? (
+            <OpportunityList opportunities={opportunities} currentUser={currentUser} showFor={false} />
+          ) : (
+            <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
+          )}
+        </PageSection>
+      )}
+      {currentUser && (
+        <ReportDuplicate kind="event" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />
       )}
     </Page>
   );

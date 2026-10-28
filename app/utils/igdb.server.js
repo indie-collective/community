@@ -18,6 +18,8 @@ const TOKEN_MARGIN_MS = 10 * 60 * 1000;
 const FIELDS = [
   'name',
   'status',
+  // Unix seconds; on the game's timeline (#332).
+  'first_release_date',
   'genres.*',
   'themes.*',
   'screenshots.*',

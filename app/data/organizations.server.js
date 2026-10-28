@@ -26,7 +26,9 @@ import {
 } from '../db/schema.js';
 import computeOrg from '../models/org';
 import getImageLinks from '../utils/imageLinks.server';
-import { logChange } from './changes.server';
+import { recordChange } from './changes.server';
+import { assertSiteIsFree } from './duplicates.server';
+import { openToPitches } from './opportunities.server';
 import { imageColumns } from './images.server';
 import { searchIndex } from './search.server';
 import * as shape from './shapes.server';
@@ -175,6 +177,7 @@ export async function listPublishers({
   country = null,
   city = null,
   tag = null,
+  pitches = false,
 } = {}) {
   const published = publishedCounts(tag);
   const all = publishedCounts(null);
@@ -189,7 +192,9 @@ export async function listPublishers({
         and(
           notDeleted,
           country ? eq(organizations.countryCode, country) : undefined,
-          city ? sql`lower(${organizations.city}) = lower(${city})` : undefined
+          city ? sql`lower(${organizations.city}) = lower(${city})` : undefined,
+          // #345: taking pitches now.
+          pitches ? openToPitches(organizations.id) : undefined
         )
       )
       // id last, so pages don't overlap when counts and names tie.
@@ -345,9 +350,16 @@ export async function createOrganization({
   status,
   authorId = null,
 }) {
+  // #346: one record per website.
+  await assertSiteIsFree('organization', site);
   const id = crypto.randomUUID();
   const slug = await freeSlug('organization', slugify(name));
-  await db.batch([
+  await recordChange({
+    operation: 'create',
+    kind: 'organization',
+    recordId: id,
+    authorId,
+    statements: [
     db.insert(organizations).values({
       id,
       name,
@@ -362,8 +374,8 @@ export async function createOrganization({
       searchText: shape.searchTextOf({ name, about }),
       lastModifiedById: authorId,
     }),
-    logChange('create', 'organization', id, authorId),
-  ]);
+    ],
+  });
   return { id, slug };
 }
 
@@ -377,11 +389,17 @@ export async function updateOrganization(
   { name, type, status, site, bskyHandle, about, location, logoId, authorId }
 ) {
   const [current] = await db
-    .select({ slug: organizations.slug })
+    .select({ slug: organizations.slug, site: organizations.site })
     .from(organizations)
     .where(eq(organizations.id, id));
+  if (site && site !== current?.site) await assertSiteIsFree('organization', site, { excludeId: id });
   const slug = await freeSlug('organization', slugify(name), { recordId: id });
-  await db.batch([
+  await recordChange({
+    operation: 'update',
+    kind: 'organization',
+    recordId: id,
+    authorId,
+    statements: [
     db
       .update(organizations)
       .set({
@@ -398,20 +416,25 @@ export async function updateOrganization(
       })
       .where(eq(organizations.id, id)),
     ...renameSlugStatements('organization', id, current?.slug, slug),
-    logChange('update', 'organization', id, authorId),
-  ]);
+    ],
+  });
   return { id, slug };
 }
 
 /** Deletes an organisation: it's only hidden, and its history stays. */
 export async function deleteOrganization(id, { authorId = null } = {}) {
-  await db.batch([
+  await recordChange({
+    operation: 'delete',
+    kind: 'organization',
+    recordId: id,
+    authorId,
+    statements: [
     db
       .update(organizations)
       .set({ deletedAt: new Date() })
       .where(and(eq(organizations.id, id), notDeleted)),
-    logChange('delete', 'organization', id, authorId),
-  ]);
+    ],
+  });
 }
 
 /**

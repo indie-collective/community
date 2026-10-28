@@ -5,6 +5,7 @@ import {
   useLoaderData,
   useNavigation,
 } from 'react-router';
+import { actionErrorMessage } from '../utils/actionError.server';
 import { useEffect } from 'react';
 
 import isAuthenticated from '../utils/isAuthenticated.server';
@@ -68,7 +69,7 @@ export async function action(args) {
   } catch (err) {
     const values = Object.fromEntries(data);
     values.tags = tagsList.map((t) => ({ name: t }));
-    return { error: err.message, values };
+    return { error: await actionErrorMessage(err), values };
   }
 }
 

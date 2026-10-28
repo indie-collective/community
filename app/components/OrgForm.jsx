@@ -24,7 +24,7 @@ import TileMap from './TileMap';
 import { viewport } from '@mapbox/geo-viewport';
 
 import PlacesSearch from '../components/PlacesSearch';
-import PossibleOrgDuplicates from '../components/PossibleOrgDuplicates';
+import { DuplicateHint } from './Duplicates';
 import usePlaceholder from '../hooks/usePlaceholder';
 import useMergeRefs from '../hooks/useMergeRefs';
 import { ORG_STATUSES, ORG_TYPES, orgTypeColor } from '../utils/orgTypes';
@@ -214,7 +214,8 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
             {...register('name')}
             placeholder="Indie Collective, Electronic Darts..."
           />
-          <PossibleOrgDuplicates value={newOrgName} ignoredId={id} />
+          {/* #346: before a second one is added. */}
+          {!id && <DuplicateHint kind="organization" name={newOrgName} site={watch('site')} />}
           <Field.ErrorText>
             {errors.name && errors.name.message}
           </Field.ErrorText>

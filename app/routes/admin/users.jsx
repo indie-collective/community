@@ -12,6 +12,7 @@ import {
   Box,
   Text,
 } from '@chakra-ui/react';
+import PersonLink from '../../components/PersonLink';
 import { formatDistanceToNow } from 'date-fns';
 import { FaBluesky } from 'react-icons/fa6';
 import { LuCircleHelp } from 'react-icons/lu';
@@ -170,7 +171,7 @@ const Profile = () => {
                       {last_name}
                     </b>{' '}
                     <Text as="span" color={isAdmin && 'blue.500'}>
-                      {username}
+                      <PersonLink username={username} color="inherit" />
                     </Text>
                   </Table.Cell>
                   <Table.Cell>{email}</Table.Cell>
