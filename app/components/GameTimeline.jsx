@@ -58,7 +58,59 @@ const EntryTitle = ({ entry }) => {
   return <Text fontWeight="semibold">{entry.type === 'release' ? 'Released' : milestoneLabel(entry.kind)}</Text>;
 };
 
-/** The form members add a milestone with: what, when (year, month, day), and a note. */
+/**
+ * A milestone's fields: what, when (year, month, day), and a note. Also on
+ * missions (#378), in their own form.
+ */
+export const MilestoneFields = ({ children }) => {
+  const thisYear = new Date().getUTCFullYear();
+  return (
+    <Flex gap={2} wrap="wrap" align="flex-end">
+      <Field.Root width="auto">
+        <Field.Label fontSize="sm">Step</Field.Label>
+        <NativeSelect.Root size="sm" width="12rem">
+          <NativeSelect.Field name="kind" defaultValue="announced">
+            {MILESTONE_KINDS.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      </Field.Root>
+      <Field.Root width="6rem" required>
+        <Field.Label fontSize="sm">Year</Field.Label>
+        <Input size="sm" name="year" type="number" min={1970} max={thisYear + 10} required />
+      </Field.Root>
+      <Field.Root width="auto">
+        <Field.Label fontSize="sm">Month</Field.Label>
+        <NativeSelect.Root size="sm" width="6rem">
+          <NativeSelect.Field name="month" defaultValue="">
+            <option value="">—</option>
+            {MONTHS.map((month, i) => (
+              <option key={month} value={i + 1}>
+                {month}
+              </option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      </Field.Root>
+      <Field.Root width="5rem">
+        <Field.Label fontSize="sm">Day</Field.Label>
+        <Input size="sm" name="day" type="number" min={1} max={31} />
+      </Field.Root>
+      <Field.Root flex="1" minW="12rem">
+        <Field.Label fontSize="sm">Note</Field.Label>
+        <Input size="sm" name="note" maxLength={MAX_NOTE_LENGTH} placeholder="On Switch, with Raw Fury…" />
+      </Field.Root>
+      {children}
+    </Flex>
+  );
+};
+
+/** The form members add a milestone with. */
 const AddMilestone = ({ gameId }) => {
   const fetcher = useFetcher();
   const form = useRef(null);
@@ -66,54 +118,16 @@ const AddMilestone = ({ gameId }) => {
   useEffect(() => {
     if (fetcher.state === 'loading') form.current?.reset();
   }, [fetcher.state]);
-  const thisYear = new Date().getUTCFullYear();
   return (
     <fetcher.Form ref={form} method="post" action={`/game/${gameId}/milestones/add`}>
-      <Flex gap={2} wrap="wrap" align="flex-end" mt={4}>
-        <Field.Root width="auto">
-          <Field.Label fontSize="sm">Step</Field.Label>
-          <NativeSelect.Root size="sm" width="12rem">
-            <NativeSelect.Field name="kind" defaultValue="announced">
-              {MILESTONE_KINDS.map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
-        </Field.Root>
-        <Field.Root width="6rem" required>
-          <Field.Label fontSize="sm">Year</Field.Label>
-          <Input size="sm" name="year" type="number" min={1970} max={thisYear + 10} required />
-        </Field.Root>
-        <Field.Root width="auto">
-          <Field.Label fontSize="sm">Month</Field.Label>
-          <NativeSelect.Root size="sm" width="6rem">
-            <NativeSelect.Field name="month" defaultValue="">
-              <option value="">—</option>
-              {MONTHS.map((month, i) => (
-                <option key={month} value={i + 1}>
-                  {month}
-                </option>
-              ))}
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
-        </Field.Root>
-        <Field.Root width="5rem">
-          <Field.Label fontSize="sm">Day</Field.Label>
-          <Input size="sm" name="day" type="number" min={1} max={31} />
-        </Field.Root>
-        <Field.Root flex="1" minW="12rem">
-          <Field.Label fontSize="sm">Note</Field.Label>
-          <Input size="sm" name="note" maxLength={MAX_NOTE_LENGTH} placeholder="On Switch, with Raw Fury…" />
-        </Field.Root>
-        <Button type="submit" size="sm" colorPalette="green" loading={fetcher.state !== 'idle'}>
-          <LuPlus />
-          Add to timeline
-        </Button>
-      </Flex>
+      <Box mt={4}>
+        <MilestoneFields>
+          <Button type="submit" size="sm" colorPalette="green" loading={fetcher.state !== 'idle'}>
+            <LuPlus />
+            Add to timeline
+          </Button>
+        </MilestoneFields>
+      </Box>
     </fetcher.Form>
   );
 };

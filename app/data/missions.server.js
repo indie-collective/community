@@ -7,6 +7,8 @@ import { db } from '../db/index.server.js';
 import {
   changes,
   events,
+  GAME_MILESTONE_KINDS,
+  GAME_ORGANIZATION_ROLES,
   gameImages,
   gameMilestones,
   gameOrganizations,
@@ -18,14 +20,17 @@ import {
   people,
 } from '../db/schema.js';
 import { checkBlueskyHandle } from '../utils/bluesky.server';
+import { MAX_NOTE_LENGTH, milestoneDate } from '../utils/gameTimeline';
 import { FLAG_REASONS, GAPS, achievementProgress, achievementsOf, gapOf, tally } from '../utils/missions';
 
 export { FLAG_REASONS, MISSION_KINDS } from '../utils/missions';
 import { eventPath, gamePath, orgPath } from '../utils/slug';
 import { webUrl } from '../utils/url';
 import { recordChange } from './changes.server';
-import { setTagsStatements } from './games.server';
-import { searchTextOf } from './shapes.server';
+import { addEventOrganization } from './events.server';
+import { addGameImages, addGameMilestone, addGameOrganization, setTagsStatements } from './games.server';
+import { imageColumns } from './images.server';
+import { locationColumns, searchTextOf } from './shapes.server';
 import { resolveTagNames } from './tags.server';
 
 const RECORDS = {
@@ -181,17 +186,57 @@ function setClaim(personId, recordType, recordId, gap, status, reason = null, no
 
 /**
  * Fills a gap in place, as the member's change (the usual change log, and
- * its limits): `value` as typed. Throws an Error with a message for the form
- * when it isn't valid.
+ * its limits), from the mission's form data: `value` as typed, or for the
+ * other inputs (#378) `organization` (an ID) and `role`, `upload` (an
+ * upload's ID), the place's fields, or the milestone's. Throws an Error
+ * with a message for the form when it isn't valid.
  */
-export async function fillGap(personId, kind, recordId, key, value) {
+export async function fillGap(personId, kind, recordId, key, data) {
   const gap = gapOf(kind, key);
   if (!gap?.input) throw new Error('This one is added on its page.');
   const { table } = RECORDS[kind];
   const [record] = await db.select().from(table).where(and(eq(table.id, recordId), live(kind)));
   if (!record) throw new Error('It was deleted.');
-  const text = String(value ?? '').trim();
-  if (!text) throw new Error('Fill it in, or skip it.');
+  const authorId = personId;
+  // Links, images and steps are added as on the record's page.
+  if (gap.input === 'organization') {
+    const organizationId = data.get('organization');
+    if (!organizationId) throw new Error('Pick one, or skip it.');
+    if (kind === 'game') {
+      const role = data.get('role') || undefined;
+      if (role && !GAME_ORGANIZATION_ROLES.includes(role)) throw new Error('Pick its role.');
+      await addGameOrganization(recordId, organizationId, role, { authorId });
+    } else {
+      await addEventOrganization(recordId, organizationId, { authorId });
+    }
+  } else if (gap.input === 'image' && kind === 'game') {
+    const upload = data.get('upload');
+    if (!upload) throw new Error('Choose an image, or skip it.');
+    await addGameImages(recordId, [upload], { authorId });
+  } else if (gap.input === 'milestone') {
+    const step = data.get('kind');
+    const when = milestoneDate(data.get('year'), data.get('month'), data.get('day'));
+    const note = String(data.get('note') ?? '').trim();
+    if (!GAME_MILESTONE_KINDS.includes(step)) throw new Error('Pick what happened.');
+    if (!when) throw new Error('Give it a year, at least.');
+    if (note.length > MAX_NOTE_LENGTH) throw new Error(`Keep the note under ${MAX_NOTE_LENGTH} characters.`);
+    await addGameMilestone(recordId, { kind: step, date: when.date, precision: when.precision, note, authorId });
+  } else {
+    await recordChange({
+      operation: 'update',
+      kind,
+      recordId,
+      authorId,
+      statements: await fillStatements(kind, record, gap, data, personId),
+      note: { mission: key },
+    });
+  }
+  await setClaim(personId, kind, recordId, key, 'done');
+}
+
+// The statements that fill a gap on the record's own row (and its tags).
+async function fillStatements(kind, record, gap, data, personId) {
+  const { table } = RECORDS[kind];
   const now = new Date();
   const statements = [];
   const set = (values) =>
@@ -199,13 +244,35 @@ export async function fillGap(personId, kind, recordId, key, value) {
       db
         .update(table)
         .set({ ...values, searchText: searchTextOf({ name: record.name, about: values.about ?? record.about }), lastModifiedById: personId, updatedAt: now })
-        .where(eq(table.id, recordId))
+        .where(eq(table.id, record.id))
     );
+  if (gap.input === 'image') {
+    const columns = await imageColumns(kind === 'event' ? 'cover' : 'logo', data.get('upload'));
+    if (Object.keys(columns).length === 0) throw new Error('Choose an image, or skip it.');
+    set(columns);
+    return statements;
+  }
+  if (gap.input === 'place') {
+    const number = (name) => (Number.isFinite(parseFloat(data.get(name))) ? parseFloat(data.get(name)) : null);
+    const place = {
+      street: data.get('street') || null,
+      city: data.get('city') || null,
+      region: data.get('region') || null,
+      country_code: /^[A-Z]{2}$/.test(data.get('country_code') ?? '') ? data.get('country_code') : null,
+      latitude: number('latitude'),
+      longitude: number('longitude'),
+    };
+    if (!place.country_code) throw new Error('Pick a place from the list, or skip it.');
+    set(locationColumns(place));
+    return statements;
+  }
+  const text = String(data.get('value') ?? '').trim();
+  if (!text) throw new Error('Fill it in, or skip it.');
   if (gap.input === 'text') set({ about: text });
   if (gap.input === 'url') {
     const url = webUrl(text);
     if (!url) throw new Error("That isn't a web address.");
-    set(key === 'tickets' ? { ticketUrl: url } : { site: url });
+    set(gap.key === 'tickets' ? { ticketUrl: url } : { site: url });
   }
   if (gap.input === 'bluesky') set({ bskyHandle: await checkBlueskyHandle(text) });
   if (gap.input === 'igdb') {
@@ -216,18 +283,14 @@ export async function fillGap(personId, kind, recordId, key, value) {
   if (gap.input === 'tags') {
     const names = await resolveTagNames(text);
     if (names.length === 0) throw new Error('Give it at least one tag.');
-    statements.push(...setTagsStatements(recordId, names, now));
+    statements.push(...setTagsStatements(record.id, names, now));
     set({});
   }
-  await recordChange({ operation: 'update', kind, recordId, authorId: personId, statements, note: { mission: key } });
-  await setClaim(personId, kind, recordId, key, 'done');
+  return statements;
 }
 
 /** The member doesn't know: it isn't given to them again for a month. */
 export const skipRecord = (personId, kind, recordId, key) => setClaim(personId, kind, recordId, key, 'skipped');
-
-/** Worked on from its page (a gap without an input): done for this mission. */
-export const completeRecord = (personId, kind, recordId, key) => setClaim(personId, kind, recordId, key, 'done');
 
 /** The member says something's off with it: for admins to check. */
 export const flagRecord = (personId, kind, recordId, key, reason) =>

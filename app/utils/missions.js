@@ -16,31 +16,32 @@ export const FLAG_REASONS = [
 
 /**
  * Each kind's gaps: `{ key, label, weight, input }`. `input` is how a mission
- * fills it in place (text, url, tags, igdb, bluesky); without one, the
- * mission links to the record's page to add it there. `fields` are the
- * change log fields that fill it.
+ * fills it in place: text, url, tags, igdb, bluesky, an organisation picked
+ * or added (organization), an uploaded image (image), a place (place) or a
+ * timeline step (milestone) (#378). `fields` are the change log fields that
+ * fill it.
  */
 export const GAPS = {
   game: [
     { key: 'about', label: 'Description', weight: 3, input: 'text', fields: ['about'] },
-    { key: 'studio', label: 'Studio', weight: 3, fields: ['organizations'] },
-    { key: 'images', label: 'Images', weight: 2, fields: ['images'] },
+    { key: 'studio', label: 'Studio', weight: 3, input: 'organization', fields: ['organizations'] },
+    { key: 'images', label: 'Images', weight: 2, input: 'image', fields: ['images'] },
     { key: 'tags', label: 'Tags', weight: 2, input: 'tags', fields: ['tag_ids'] },
     { key: 'site', label: 'Website', weight: 2, input: 'url', fields: ['site'] },
     { key: 'igdb', label: 'IGDB link', weight: 1, input: 'igdb', fields: ['igdb_slug'] },
-    { key: 'timeline', label: 'Timeline', weight: 1, fields: ['milestones'] },
+    { key: 'timeline', label: 'Timeline', weight: 1, input: 'milestone', fields: ['milestones'] },
   ],
   organization: [
-    { key: 'place', label: 'Location', weight: 3, fields: ['country_code'] },
+    { key: 'place', label: 'Location', weight: 3, input: 'place', fields: ['country_code'] },
     { key: 'about', label: 'Description', weight: 3, input: 'text', fields: ['about'] },
-    { key: 'logo', label: 'Logo', weight: 2, fields: ['logo_key'] },
+    { key: 'logo', label: 'Logo', weight: 2, input: 'image', fields: ['logo_key'] },
     { key: 'site', label: 'Website', weight: 2, input: 'url', fields: ['site'] },
     { key: 'bluesky', label: 'Bluesky', weight: 1, input: 'bluesky', fields: ['bsky_handle'] },
   ],
   event: [
     { key: 'about', label: 'Description', weight: 3, input: 'text', fields: ['about'] },
-    { key: 'hosts', label: 'Organisers', weight: 2, fields: ['organization_ids'] },
-    { key: 'cover', label: 'Cover', weight: 2, fields: ['cover_key'] },
+    { key: 'hosts', label: 'Organisers', weight: 2, input: 'organization', fields: ['organization_ids'] },
+    { key: 'cover', label: 'Cover', weight: 2, input: 'image', fields: ['cover_key'] },
     { key: 'site', label: 'Website', weight: 2, input: 'url', fields: ['site'] },
     { key: 'tickets', label: 'Tickets', weight: 1, input: 'url', fields: ['ticket_url'] },
   ],
