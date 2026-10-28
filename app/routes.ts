@@ -61,6 +61,9 @@ export default [
   route('opportunities/new', 'routes/opportunities.new.jsx'),
   route('opportunities/:id/delete', 'routes/opportunities.$id.delete.js'),
 
+  // Outside sources (#338)
+  route('sources/prefill', 'routes/sources/prefill.js'),
+
   // Duplicates (#346)
   route('duplicates', 'routes/duplicates/likely.js'),
   route('duplicates/flag', 'routes/duplicates/flag.js'),
@@ -122,6 +125,7 @@ export default [
   route('admin/missing', 'routes/admin/missing.jsx'),
   route('admin/duplicates', 'routes/admin/duplicates.jsx'),
   route('admin/bluesky', 'routes/admin/bluesky.jsx'),
+  route('admin/sources', 'routes/admin/sources.jsx'),
   route('admin/duplicates/merge', 'routes/admin/duplicates.merge.jsx'),
   route('admin/tags', 'routes/admin/tags.jsx'),
   route('admin/users', 'routes/admin/users.jsx'),

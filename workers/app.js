@@ -35,6 +35,9 @@ export default {
     const { sendEventReminders } = await import('../app/data/notifications.server.js');
     const now = new Date(controller.scheduledTime);
     ctx.waitUntil(sendEventReminders(now));
+    // #338: read records' pages elsewhere, and fill in what's empty.
+    const { refreshSources } = await import('../app/data/sources.server.js');
+    ctx.waitUntil(refreshSources({ limit: 10, now }));
     // #319: Monday morning's Bluesky summary of the week.
     const { isWeeklySlot } = await import('../app/utils/weeklySummary.js');
     if (isWeeklySlot(now)) {

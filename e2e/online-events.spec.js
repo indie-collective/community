@@ -38,8 +38,8 @@ test.describe('in another time zone', () => {
     await page.getByLabel('Online link').fill('itch.io/jam/online-jam');
     await expect(page.getByLabel('Time zone')).toHaveValue('America/New_York');
     await page.getByLabel('Time zone').selectOption('Asia/Tokyo');
-    await page.getByLabel(/^start/i).fill('2027-03-06T20:00');
-    await page.getByLabel(/^end/i).fill('2027-03-06T23:00');
+    await page.getByLabel(/^start\*?$/i).fill('2027-03-06T20:00');
+    await page.getByLabel(/^end\*?$/i).fill('2027-03-06T23:00');
     await page.getByRole('button', { name: /submit/i }).click();
     await expect(page.getByRole('heading', { name })).toBeVisible();
 

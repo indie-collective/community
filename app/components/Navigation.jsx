@@ -135,6 +135,9 @@ const Navigation = ({ search }) => {
             <Menu.Item value="item-5" asChild cursor="pointer">
               <Link to="/admin/bluesky">Bluesky summary</Link>
             </Menu.Item>
+            <Menu.Item value="item-6" asChild cursor="pointer">
+              <Link to="/admin/sources">Sources</Link>
+            </Menu.Item>
           </Menu.Content>
         </Menu.Positioner>
       </Portal>

@@ -28,6 +28,7 @@ import { dateToZonedInput } from '../utils/eventTime';
 import ThumbnailFields from './ThumbnailFields';
 import PreviousEditionPicker from './PreviousEditionPicker';
 import { DuplicateHint } from './Duplicates';
+import PrefillFromLink from './PrefillFromLink';
 import { ATTENDANCES } from '../utils/eventAttendance';
 
 const validationSchema = yup.object().shape({
@@ -164,6 +165,30 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
           });
         })}
       >
+        {/* #338: from its page or ticketing page. */}
+        {!eventId && (
+          <PrefillFromLink
+            kind="event"
+            onFields={(fields) => {
+              for (const field of ['name', 'about']) {
+                if (fields[field]) setValue(field, fields[field], { shouldValidate: true });
+              }
+              if (fields.starts_at) setValue('start', fields.starts_at.local);
+              if (fields.ends_at) setValue('end', fields.ends_at.local);
+              if (fields.attendance) setAttendance(fields.attendance);
+              // Fields the form doesn't control, once shown.
+              setTimeout(() => {
+                const set = (name, value) => {
+                  const input = document.querySelector(`[name="${name}"]`);
+                  if (input && value) input.value = value;
+                };
+                set('site', fields.site);
+                set('ticket_url', fields.ticket_url);
+                set('online_url', fields.online_url);
+              });
+            }}
+          />
+        )}
         <Field.Root gridColumn="1 / 3" invalid={errors.name} required>
           <Field.Label htmlFor="name">
             Name
