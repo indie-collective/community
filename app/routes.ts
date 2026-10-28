@@ -51,6 +51,8 @@ export default [
   route('profile/edit', 'routes/profile.edit.jsx'),
   route('profile/bluesky', 'routes/profile.bluesky.jsx'),
   route('people/:username', 'routes/people.$username.jsx'),
+  // The interface's language (#344).
+  route('language', 'routes/language.js'),
   // The feedback widget (#320).
   route('feedback', 'routes/feedback.js'),
   // Follows and notifications (#343).

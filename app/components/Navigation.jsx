@@ -26,6 +26,7 @@ import Logo from '../components/Logo';
 import AvatarButton from './AvatarButton';
 import SearchInput from './SearchInput';
 import AddMenuButton from './AddMenuButton';
+import { useT } from '../i18n';
 
 function NavLink(props) {
   const { href, children, ...rest } = props;
@@ -66,6 +67,7 @@ const Navigation = ({ search }) => {
   // Root data, not this route's: this also renders inside the error boundary,
   // where the root loader may not have produced data.
   const { currentUser, unreadNotifications = 0 } = useRouteLoaderData('root') ?? {};
+  const t = useT();
 
   // #343: what happened to what they follow.
   const Bell = () => (
@@ -73,7 +75,9 @@ const Navigation = ({ search }) => {
       <IconButton
         asChild
         variant="ghost"
-        aria-label={unreadNotifications > 0 ? `Notifications, ${unreadNotifications} unread` : 'Notifications'}
+        aria-label={
+          unreadNotifications > 0 ? t('nav.notificationsUnread', { count: unreadNotifications }) : t('nav.notifications')
+        }
       >
         <Link to="/notifications">
           <LuBell />
@@ -184,15 +188,15 @@ const Navigation = ({ search }) => {
               borderTop="1px solid"
               borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
             >
-              <VStack as="nav" aria-label="Main" gap={2} px={4} align="stretch">
-                <NavLink href="/games">Games</NavLink>
-                <NavLink href="/studios">Studios</NavLink>
-                <NavLink href="/associations">Associations</NavLink>
-                <NavLink href="/publishers">Publishers</NavLink>
-                <NavLink href="/events">Events</NavLink>
-                <NavLink href="/opportunities">Opportunities</NavLink>
-                <NavLink href="/countries">Countries</NavLink>
-                <NavLink href="/places">Map</NavLink>
+              <VStack as="nav" aria-label={t('nav.main')} gap={2} px={4} align="stretch">
+                <NavLink href="/games">{t('nav.games')}</NavLink>
+                <NavLink href="/studios">{t('nav.studios')}</NavLink>
+                <NavLink href="/associations">{t('nav.associations')}</NavLink>
+                <NavLink href="/publishers">{t('nav.publishers')}</NavLink>
+                <NavLink href="/events">{t('nav.events')}</NavLink>
+                <NavLink href="/opportunities">{t('nav.opportunities')}</NavLink>
+                <NavLink href="/countries">{t('nav.countries')}</NavLink>
+                <NavLink href="/places">{t('nav.map')}</NavLink>
 
                 {currentUser?.isAdmin && <AdminDropdown isMobile />}
 
@@ -245,15 +249,15 @@ const Navigation = ({ search }) => {
       </Box>
       {/* Second Level */}
       <Box w="100%" mt={2} py={2} px={2} bg="surface" borderRadius="full">
-        <HStack as="nav" aria-label="Main" gap={4} width="100%">
-          <NavLink href="/games">Games</NavLink>
-          <NavLink href="/studios">Studios</NavLink>
-          <NavLink href="/associations">Associations</NavLink>
-          <NavLink href="/publishers">Publishers</NavLink>
-          <NavLink href="/events">Events</NavLink>
-          <NavLink href="/opportunities">Opportunities</NavLink>
-          <NavLink href="/countries">Countries</NavLink>
-          <NavLink href="/places">Map</NavLink>
+        <HStack as="nav" aria-label={t('nav.main')} gap={4} width="100%">
+          <NavLink href="/games">{t('nav.games')}</NavLink>
+          <NavLink href="/studios">{t('nav.studios')}</NavLink>
+          <NavLink href="/associations">{t('nav.associations')}</NavLink>
+          <NavLink href="/publishers">{t('nav.publishers')}</NavLink>
+          <NavLink href="/events">{t('nav.events')}</NavLink>
+          <NavLink href="/opportunities">{t('nav.opportunities')}</NavLink>
+          <NavLink href="/countries">{t('nav.countries')}</NavLink>
+          <NavLink href="/places">{t('nav.map')}</NavLink>
           <Spacer />
           {currentUser?.isAdmin && <AdminDropdown />}
         </HStack>

@@ -56,15 +56,16 @@ function offset(date, timeZone) {
 
 /**
  * "Oct 23, 14:00", with the year when it isn't `now`'s ("May 22, 2025, 10:00").
- * `time: false` leaves out the time.
+ * `time: false` leaves out the time; `locale` writes it in another language
+ * (#344: "23 oct., 14:00").
  */
-export function formatEventDate(date, timeZone, { now = new Date(), time = true } = {}) {
+export function formatEventDate(date, timeZone, { now = new Date(), time = true, locale = LOCALE } = {}) {
   if (!date) return '';
   const zone = validZone(timeZone);
   const value = new Date(date);
   const showYear = parts(value, zone).year !== parts(new Date(now), zone).year;
   return plain(
-    new Intl.DateTimeFormat(LOCALE, {
+    new Intl.DateTimeFormat(locale, {
       timeZone: zone,
       month: 'short',
       day: 'numeric',
@@ -75,12 +76,12 @@ export function formatEventDate(date, timeZone, { now = new Date(), time = true 
 }
 
 /** The month ("Oct") and day of month (23) of `date` in `timeZone`. */
-export function formatEventDay(date, timeZone) {
+export function formatEventDay(date, timeZone, { locale = LOCALE } = {}) {
   if (!date) return null;
   const zone = validZone(timeZone);
   const value = new Date(date);
   return {
-    month: new Intl.DateTimeFormat(LOCALE, { timeZone: zone, month: 'short' }).format(value),
+    month: new Intl.DateTimeFormat(locale, { timeZone: zone, month: 'short' }).format(value),
     day: parts(value, zone).day,
   };
 }

@@ -1,6 +1,7 @@
 import { Button, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { LuHouse, LuSearch } from 'react-icons/lu';
 import Link from './Link';
+import { useT } from '../i18n';
 
 const statusCodes = {
   400: 'Bad Request',
@@ -16,6 +17,7 @@ const explanations = {
 
 // An error page in the site's type (design pass), with ways onward.
 function Error({ statusCode }) {
+  const t = useT();
   return (
     <Stack
       align="center"
@@ -37,7 +39,7 @@ function Error({ statusCode }) {
         </Text>
       )}
       <Heading as="h1" size="2xl">
-        {(statusCode && statusCodes[statusCode]) || 'Something went wrong'}
+        {statusCode === 404 ? t('notFound.title') : (statusCode && statusCodes[statusCode]) || 'Something went wrong'}
       </Heading>
       <Text color="muted" fontSize="lg" maxW="md">
         {explanations[statusCode] ??

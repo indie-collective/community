@@ -1,6 +1,7 @@
 import { Button, HStack, IconButton, Menu, Portal } from '@chakra-ui/react';
 import { LuCopy, LuEllipsis, LuPencil, LuTrash2 } from 'react-icons/lu';
 import Link from './Link';
+import { useT } from '../i18n';
 
 /**
  * A record page's actions for members (design pass): Edit, in plain sight,
@@ -11,13 +12,15 @@ import Link from './Link';
  * <button> nested in the trigger's <button>), items rendered as router
  * links through asChild, and icons as children.
  */
-const ActionMenu = ({ editLink, onDelete, onReportDuplicate, ...props }) => (
+const ActionMenu = ({ editLink, onDelete, onReportDuplicate, ...props }) => {
+  const t = useT();
+  return (
   <HStack gap={1} {...props}>
     {editLink && (
       <Button asChild size="sm" variant="outline">
         <Link to={editLink}>
           <LuPencil />
-          Edit
+          {t('actions.edit')}
         </Link>
       </Button>
     )}
@@ -25,7 +28,7 @@ const ActionMenu = ({ editLink, onDelete, onReportDuplicate, ...props }) => (
       <Menu.Root positioning={{ placement: 'bottom-end' }}>
         <Menu.Trigger asChild>
           <IconButton
-            aria-label="More actions"
+            aria-label={t('actions.more')}
             size="sm"
             variant="ghost"
             colorPalette="gray"
@@ -39,14 +42,14 @@ const ActionMenu = ({ editLink, onDelete, onReportDuplicate, ...props }) => (
               {onReportDuplicate && (
                 <Menu.Item value="duplicate" onSelect={onReportDuplicate}>
                   <LuCopy />
-                  Report a duplicate
+                  {t('actions.duplicate')}
                 </Menu.Item>
               )}
               {onReportDuplicate && onDelete && <Menu.Separator />}
               {onDelete && (
                 <Menu.Item value="delete" color="fg.error" onSelect={onDelete}>
                   <LuTrash2 />
-                  Delete
+                  {t('actions.delete')}
                 </Menu.Item>
               )}
             </Menu.Content>
@@ -55,6 +58,7 @@ const ActionMenu = ({ editLink, onDelete, onReportDuplicate, ...props }) => (
       </Menu.Root>
     )}
   </HStack>
-);
+  );
+};
 
 export default ActionMenu;

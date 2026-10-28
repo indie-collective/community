@@ -25,16 +25,18 @@ test('the studios country filter is searchable', async ({ page }) => {
   await page.goto('/studios');
   const country = page.getByRole('combobox', { name: 'Country' });
   await country.click();
-  const first = page.getByRole('option').first();
+  // The combobox's options, not the footer's language select (#344).
+  const options = page.getByRole('listbox').getByRole('option');
+  const first = options.first();
   const label = (await first.innerText()).trim();
   const name = label.replace(/^\S+\s/, '').replace(/\s*\(\d+\)$/, '');
-  const total = await page.getByRole('option').count();
+  const total = await options.count();
 
   await country.fill(name.slice(0, 4));
-  await expect(page.getByRole('option', { name: label })).toBeVisible();
-  expect(await page.getByRole('option').count()).toBeLessThanOrEqual(total);
+  await expect(options.filter({ hasText: label }).first()).toBeVisible();
+  expect(await options.count()).toBeLessThanOrEqual(total);
 
-  await page.getByRole('option', { name: label }).click();
+  await page.getByRole('listbox').getByRole('option', { name: label }).click();
   await expect(page).toHaveURL(/[?&]country=[A-Z]{2}\b/);
   const code = new URL(page.url()).searchParams.get('country');
 

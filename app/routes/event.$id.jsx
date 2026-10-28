@@ -75,6 +75,7 @@ import { pageMeta, shareImage, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { eventPath } from '../utils/slug';
+import { useLanguage } from '../i18n';
 
 export const loader = async ({ request, params }) => {
   // By slug, an old slug or UUID; those redirect to the slug (#209).
@@ -135,6 +136,7 @@ const Event = () => {
   const { event, editions, relatedEvents, currentUser, opportunities, following, sources } = useLoaderData();
   const fetcher = useFetcher();
   const placeholder = usePlaceholder();
+  const language = useLanguage();
   const {
     open: linkGameIsOpen,
     onOpen: onOpenLinkGame,
@@ -273,7 +275,7 @@ const Event = () => {
                 dateTime={`${new Date(startsAt).toISOString()}/${new Date(endsAt).toISOString()}`}
               >
                 {/* In the event's own time zone, identical on server and browser (#204). */}
-                {formatEventRange(startsAt, endsAt, timeZone)}
+                {formatEventRange(startsAt, endsAt, timeZone, { locale: language })}
               </time>
             </Text>
           </HStack>
@@ -558,7 +560,7 @@ const Event = () => {
                     edition.starts_at,
                     edition.ends_at,
                     edition.time_zone,
-                    { time: false }
+                    { time: false, locale: language }
                   )}
                 </Text>
               </List.Item>

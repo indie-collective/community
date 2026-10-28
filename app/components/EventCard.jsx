@@ -16,6 +16,7 @@ import Card from './Card';
 import CardLink from './CardLink';
 import { formatEventDate } from '../utils/eventTime';
 import { eventPath } from '../utils/slug';
+import { useLanguage } from '../i18n';
 
 function EventCard({
   ref,
@@ -32,9 +33,10 @@ function EventCard({
   time_zone: timeZone,
 }) {
   const placeholder = usePlaceholder();
+  const language = useLanguage();
 
   // In the event's own time zone, identical on server and browser (#204).
-  const startsAtText = formatEventDate(startsAt, timeZone);
+  const startsAtText = formatEventDate(startsAt, timeZone, { locale: language });
 
   return (
     <Card

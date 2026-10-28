@@ -5,6 +5,7 @@ import { useRouteLoaderData } from 'react-router';
 
 import { toaster } from './ui/toaster';
 import { googleCalendarUrl, outlookCalendarUrl } from '../utils/ical';
+import { useT } from '../i18n';
 
 // The site's origin, for absolute calendar and feed addresses.
 const useOrigin = () => useRouteLoaderData('root')?.origin ?? 'https://community.indieco.xyz';
@@ -21,6 +22,7 @@ const copy = async (text, title) => {
 /** "Add to calendar" for one event (#342): an .ics file, Google or Outlook. */
 export const AddToCalendar = ({ event, path, place }) => {
   const origin = useOrigin();
+  const t = useT();
   const details = {
     name: event.name,
     startsAt: event.starts_at,
@@ -34,7 +36,7 @@ export const AddToCalendar = ({ event, path, place }) => {
       <Menu.Trigger asChild>
         <Button size="sm" variant="outline">
           <LuCalendarPlus />
-          Add to calendar
+          {t('calendar.add')}
         </Button>
       </Menu.Trigger>
       <Portal>
@@ -69,8 +71,9 @@ export const AddToCalendar = ({ event, path, place }) => {
  * Subscribe to a list's events and news (#342): its calendar in a calendar
  * app (kept up to date), or its Atom feed.
  */
-export const SubscribeMenu = ({ calendarPath, feedPath, label = 'Subscribe' }) => {
+export const SubscribeMenu = ({ calendarPath, feedPath, label }) => {
   const origin = useOrigin();
+  const t = useT();
   const calendar = calendarPath && `${origin}${calendarPath}`;
   const webcal = calendar?.replace(/^https?:/, 'webcal:');
   return (
@@ -78,7 +81,7 @@ export const SubscribeMenu = ({ calendarPath, feedPath, label = 'Subscribe' }) =
       <Menu.Trigger asChild>
         <Button size="sm" variant="outline">
           <LuCalendarPlus />
-          {label}
+          {label ?? t('calendar.subscribe')}
         </Button>
       </Menu.Trigger>
       <Portal>
@@ -89,7 +92,7 @@ export const SubscribeMenu = ({ calendarPath, feedPath, label = 'Subscribe' }) =
                 <Menu.Item value="apple" asChild>
                   <a href={webcal}>
                     <FaApple />
-                    Calendar app (Apple, Outlook…)
+                    {t('calendar.app')}
                   </a>
                 </Menu.Item>
                 <Menu.Item value="google" asChild>
@@ -104,7 +107,7 @@ export const SubscribeMenu = ({ calendarPath, feedPath, label = 'Subscribe' }) =
                 </Menu.Item>
                 <Menu.Item value="copy" onSelect={() => copy(calendar, 'Calendar address copied')}>
                   <LuLink />
-                  Copy calendar address
+                  {t('calendar.copy')}
                 </Menu.Item>
               </>
             )}
@@ -113,7 +116,7 @@ export const SubscribeMenu = ({ calendarPath, feedPath, label = 'Subscribe' }) =
               <Menu.Item value="feed" asChild>
                 <a href={feedPath} type="application/atom+xml">
                   <LuRss />
-                  News feed (RSS/Atom)
+                  {t('calendar.feed')}
                 </a>
               </Menu.Item>
             )}
