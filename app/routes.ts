@@ -112,6 +112,7 @@ export default [
   route('admin/changes', 'routes/admin/changes.jsx'),
   route('admin/missing', 'routes/admin/missing.jsx'),
   route('admin/duplicates', 'routes/admin/duplicates.jsx'),
+  route('admin/bluesky', 'routes/admin/bluesky.jsx'),
   route('admin/duplicates/merge', 'routes/admin/duplicates.merge.jsx'),
   route('admin/tags', 'routes/admin/tags.jsx'),
   route('admin/users', 'routes/admin/users.jsx'),
