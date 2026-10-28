@@ -43,6 +43,10 @@ export default [
   route('profile/bluesky', 'routes/profile.bluesky.jsx'),
   route('people/:username', 'routes/people.$username.jsx'),
 
+  // Duplicates (#346)
+  route('duplicates', 'routes/duplicates/likely.js'),
+  route('duplicates/flag', 'routes/duplicates/flag.js'),
+
   // Search
   route('search', 'routes/search.jsx'),
   route('search-event', 'routes/search-event.jsx'),
@@ -98,6 +102,8 @@ export default [
   // Admin
   route('admin/changes', 'routes/admin/changes.jsx'),
   route('admin/missing', 'routes/admin/missing.jsx'),
+  route('admin/duplicates', 'routes/admin/duplicates.jsx'),
+  route('admin/duplicates/merge', 'routes/admin/duplicates.merge.jsx'),
   route('admin/tags', 'routes/admin/tags.jsx'),
   route('admin/users', 'routes/admin/users.jsx'),
 

@@ -27,6 +27,7 @@ import { Form, useSubmit } from 'react-router';
 import { dateToZonedInput } from '../utils/eventTime';
 import ThumbnailFields from './ThumbnailFields';
 import PreviousEditionPicker from './PreviousEditionPicker';
+import { DuplicateHint } from './Duplicates';
 import { ATTENDANCES } from '../utils/eventAttendance';
 
 const validationSchema = yup.object().shape({
@@ -141,6 +142,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
   });
 
   const location = watch('location');
+  const newEventName = watch('name');
 
   const coverProps = register('cover');
 
@@ -172,6 +174,8 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
             id="name"
             placeholder="Stunfest 2042, Global Game Jam Bamako, Indie Online Fest..."
           />
+          {/* #346: before a second one is added. */}
+          {!eventId && <DuplicateHint kind="event" name={newEventName} />}
           <Field.ErrorText>
             {errors.name && errors.name.message}
           </Field.ErrorText>

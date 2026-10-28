@@ -33,6 +33,7 @@ import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
 import ShareMenu from '../components/ShareMenu';
+import { ReportDuplicate } from '../components/Duplicates';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import TagList from '../components/TagList';
 import { GAME_ROLES } from '../utils/gameRoles';
@@ -101,6 +102,8 @@ const Game = () => {
   } = useDisclosure();
 
   const deleteModal = useDisclosure();
+  // #346
+  const reportModal = useDisclosure();
 
   const {
     id,
@@ -156,6 +159,7 @@ const Game = () => {
               <ActionMenu
                 editLink={`/game/${id}/edit`}
                 onDelete={currentUser.isAdmin ? deleteModal.onOpen : undefined}
+                onReportDuplicate={reportModal.onOpen}
               />
             )}
           </>
@@ -363,6 +367,9 @@ const Game = () => {
             </Portal>
           </Dialog.Root>
         </Box>
+      )}
+      {currentUser && (
+        <ReportDuplicate kind="game" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />
       )}
     </Page>
   );

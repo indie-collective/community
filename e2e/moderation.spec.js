@@ -95,7 +95,9 @@ test("a member can't delete, and doesn't see Delete", async ({ page }) => {
     await page.goto(`/game/${game.id}`);
     await waitForHydration(page);
     await expect(page.getByRole('link', { name: 'Edit' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'More actions' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'More actions' }).click();
+    await expect(page.getByRole('menuitem', { name: 'Report a duplicate' })).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: /delete/i })).toHaveCount(0);
     const response = await page.request.post(`/game/${game.id}/delete`, { maxRedirects: 0 });
     expect(response.status()).not.toBe(302);
     expect((await retryBusy(() => db.select().from(games).where(eq(games.id, game.id))))[0].deletedAt).toBeNull();

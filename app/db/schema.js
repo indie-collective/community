@@ -417,6 +417,28 @@ export const changes = sqliteTable(
 
 // #254: a game's stored IGDB data, out of `games` so a refresh doesn't
 // bump the game's updated_at or add to its history.
+// Pairs of records a member flagged as duplicates, or an admin said aren't
+// (#346), so the admin view doesn't suggest them again. Kind is "game",
+// "organization" or "event"; the two IDs are in order.
+export const DUPLICATE_STATUSES = ['flagged', 'dismissed'];
+export const duplicatePairs = sqliteTable(
+  'duplicate_pairs',
+  {
+    kind: text('kind').notNull(),
+    firstId: text('first_id').notNull(),
+    secondId: text('second_id').notNull(),
+    status: text('status', { enum: DUPLICATE_STATUSES }).notNull(),
+    personId: text('person_id').references(() => people.id, { onDelete: 'set null' }),
+    createdAt: time('created_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [
+    primaryKey({ columns: [t.kind, t.firstId, t.secondId] }),
+    check('duplicate_pairs_status', oneOf(t.status, DUPLICATE_STATUSES)),
+  ]
+);
+
 export const gameIgdb = sqliteTable(
   'game_igdb',
   {

@@ -38,6 +38,7 @@ import Link from '../components/Link';
 
 import PlaceMap from '../components/PlaceMap';
 import ShareMenu from '../components/ShareMenu';
+import { ReportDuplicate } from '../components/Duplicates';
 import { AddToCalendar } from '../components/CalendarMenus';
 import VisitorTime from '../components/VisitorTime';
 import { pinColor } from '../utils/orgTypes';
@@ -136,6 +137,8 @@ const Event = () => {
   } = useDisclosure();
 
   const deleteModal = useDisclosure();
+  // #346
+  const reportModal = useDisclosure();
 
   const {
     id,
@@ -244,6 +247,7 @@ const Event = () => {
                 <ActionMenu
                   editLink={`/event/${id}/edit`}
                   onDelete={currentUser.isAdmin ? deleteModal.onOpen : undefined}
+                onReportDuplicate={reportModal.onOpen}
                 />
               </>
             )}
@@ -599,6 +603,9 @@ const Event = () => {
             </Portal>
           </Dialog.Root>
         </Box>
+      )}
+      {currentUser && (
+        <ReportDuplicate kind="event" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />
       )}
     </Page>
   );

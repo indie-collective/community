@@ -36,6 +36,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import ShareMenu from '../components/ShareMenu';
+import { ReportDuplicate } from '../components/Duplicates';
 import { SubscribeMenu } from '../components/CalendarMenus';
 import { Page, PageHeader } from '../components/Page';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
@@ -94,6 +95,8 @@ const Org = () => {
   const { org, currentUser } = useLoaderData();
 
   const deleteModal = useDisclosure();
+  // #346
+  const reportModal = useDisclosure();
 
   const {
     id,
@@ -169,6 +172,7 @@ const Org = () => {
                 <ActionMenu
                   editLink={`/org/${id}/edit`}
                   onDelete={currentUser.isAdmin ? deleteModal.onOpen : undefined}
+                onReportDuplicate={reportModal.onOpen}
                 />
               )}
             </>
@@ -358,6 +362,9 @@ const Org = () => {
             </Portal>
           </Dialog.Root>
         </Box>
+      )}
+      {currentUser && (
+        <ReportDuplicate kind="organization" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />
       )}
     </Page>
   );
