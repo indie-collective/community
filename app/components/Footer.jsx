@@ -52,6 +52,9 @@ const Footer = () => {
           <ChakraLink asChild>
             <Link to="/data">Open data</Link>
           </ChakraLink>
+          <ChakraLink asChild>
+            <Link to="/api">API</Link>
+          </ChakraLink>
           <ChakraLink
             href="https://indieco.xyz/"
             target="_blank"

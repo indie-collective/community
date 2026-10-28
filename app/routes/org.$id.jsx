@@ -36,6 +36,7 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import ShareMenu from '../components/ShareMenu';
+import EmbedCode from '../components/EmbedCode';
 import OpportunityList from '../components/OpportunityList';
 import { listOpportunities } from '../data/opportunities.server';
 import { isFollowing } from '../data/notifications.server';
@@ -389,6 +390,8 @@ const Org = () => {
           )}
         </PageSection>
       )}
+      {/* #349: its games or events on its own site. */}
+      {(games.length > 0 || events.length > 0) && <EmbedCode org={org} hasGames={games.length > 0} hasEvents={events.length > 0} />}
       {currentUser && (
         <ReportDuplicate kind="organization" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />
       )}

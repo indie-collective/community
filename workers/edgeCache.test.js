@@ -16,7 +16,7 @@ describe('isCacheable', () => {
     expect(isCacheable(get('/games', 'not_session=abc'))).toBe(true);
   });
 
-  it.each(['/signin', '/signin.data', '/auth/bluesky/callback', '/oauth/client-metadata.json', '/profile', '/admin/users', '/welcome', '/logout'])(
+  it.each(['/signin', '/signin.data', '/auth/bluesky/callback', '/oauth/client-metadata.json', '/profile', '/admin/users', '/welcome', '/logout', '/my-calendar/p1.sig', '/my-feed/p1.sig', '/notifications'])(
     'never caches %s',
     (path) => {
       expect(isCacheable(get(path))).toBe(false);
