@@ -6,7 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Input, Button, Textarea, Grid, Field, Link as ChakraLink } from '@chakra-ui/react';
 
-import PossibleGameDuplicates from '../components/PossibleGameDuplicates';
+import { DuplicateHint } from './Duplicates';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required(),
@@ -68,7 +68,8 @@ const GameForm = ({ defaultData = {}, loading = false, ...rest }) => {
             {...register('name')}
             placeholder="Super Tractor Simulator 2042, Assassin's Greed..."
           />
-          <PossibleGameDuplicates value={newGameName} ignoredId={id} />
+          {/* #346: before a second one is added. */}
+          {!id && <DuplicateHint kind="game" name={newGameName} site={watch('site')} />}
           <Field.ErrorText>
             {errors.name && errors.name.message}
           </Field.ErrorText>

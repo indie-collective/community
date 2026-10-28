@@ -15,7 +15,8 @@ for (const [list, label, short] of [['/studios', 'Studio', 'Studio'], ['/associa
     await expect(page.locator('main').getByText(short, { exact: true }).first()).toBeVisible();
 
     await page.locator('main a[href^="/org/"]').first().click();
-    await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
+    // The eyebrow says what it is, and where when known: "Association · Lyon, France".
+    await expect(page.getByText(new RegExp(`^${label}( · |$)`)).first()).toBeVisible();
   });
 }
 

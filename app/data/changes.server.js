@@ -211,10 +211,12 @@ async function announce({ operation, kind, recordId, authorId, fields, undoOf })
  * record of `kind` with ID `recordId` (for a create, they insert it). Refuses
  * with a 429 Response over a member's hourly limit.
  *
+ * `note` adds fields to the row's data, such as `{ merged_into }`.
+ *
  * @returns {Promise<{ id: string, fields: string[] } | null>} the change, or
  *   null when nothing changed (no row is kept)
  */
-export async function recordChange({ operation, kind, recordId, authorId = null, statements, undoOf = null }) {
+export async function recordChange({ operation, kind, recordId, authorId = null, statements, undoOf = null, note = null }) {
   await checkRateLimit(authorId);
   const id = crypto.randomUUID();
   const creating = operation === 'create';
@@ -227,10 +229,12 @@ export async function recordChange({ operation, kind, recordId, authorId = null,
 
   const [row] = await db.select({ data: changes.data }).from(changes).where(eq(changes.id, id));
   if (!row) return null;
+  // What the change was for, beside its fields: an undo, a merge (#346).
+  const notes = { ...(undoOf ? { undo_of: undoOf } : {}), ...(note ?? {}) };
   let fields;
   if (creating) {
     fields = [];
-    if (undoOf) await db.update(changes).set({ data: { ...row.data, undo_of: undoOf } }).where(eq(changes.id, id));
+    if (Object.keys(notes).length > 0) await db.update(changes).set({ data: { ...row.data, ...notes } }).where(eq(changes.id, id));
   } else {
     const { before, after } = changedFields(row.data.before, await snapshot(kind, recordId));
     fields = Object.keys(before);
@@ -240,7 +244,7 @@ export async function recordChange({ operation, kind, recordId, authorId = null,
     }
     await db
       .update(changes)
-      .set({ data: { v: 2, before, after, ...(undoOf ? { undo_of: undoOf } : {}) } })
+      .set({ data: { v: 2, before, after, ...notes } })
       .where(eq(changes.id, id));
   }
   await announce({ operation, kind, recordId, authorId, fields, undoOf });

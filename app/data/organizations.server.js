@@ -27,6 +27,7 @@ import {
 import computeOrg from '../models/org';
 import getImageLinks from '../utils/imageLinks.server';
 import { recordChange } from './changes.server';
+import { assertSiteIsFree } from './duplicates.server';
 import { imageColumns } from './images.server';
 import { searchIndex } from './search.server';
 import * as shape from './shapes.server';
@@ -345,6 +346,8 @@ export async function createOrganization({
   status,
   authorId = null,
 }) {
+  // #346: one record per website.
+  await assertSiteIsFree('organization', site);
   const id = crypto.randomUUID();
   const slug = await freeSlug('organization', slugify(name));
   await recordChange({
@@ -382,9 +385,10 @@ export async function updateOrganization(
   { name, type, status, site, bskyHandle, about, location, logoId, authorId }
 ) {
   const [current] = await db
-    .select({ slug: organizations.slug })
+    .select({ slug: organizations.slug, site: organizations.site })
     .from(organizations)
     .where(eq(organizations.id, id));
+  if (site && site !== current?.site) await assertSiteIsFree('organization', site, { excludeId: id });
   const slug = await freeSlug('organization', slugify(name), { recordId: id });
   await recordChange({
     operation: 'update',

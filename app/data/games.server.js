@@ -29,6 +29,7 @@ import { matchesSearch } from '../db/search.js';
 import computeGame from '../models/game';
 import { refreshIfStale } from '../utils/igdbData.server';
 import { recordChange } from './changes.server';
+import { assertSiteIsFree } from './duplicates.server';
 import { getUploads } from './images.server';
 import { searchIndex } from './search.server';
 import * as shape from './shapes.server';
@@ -286,6 +287,8 @@ export async function createGame({
   tagNames,
   authorId,
 }) {
+  // #346: one record per website.
+  await assertSiteIsFree('game', site);
   const id = crypto.randomUUID();
   const now = new Date();
   const slug = await freeSlug('game', slugify(name));
@@ -323,9 +326,10 @@ export async function updateGame(
 ) {
   const now = new Date();
   const [current] = await db
-    .select({ slug: games.slug })
+    .select({ slug: games.slug, site: games.site })
     .from(games)
     .where(eq(games.id, id));
+  if (site && site !== current?.site) await assertSiteIsFree('game', site, { excludeId: id });
   const slug = await freeSlug('game', slugify(name), { recordId: id });
   await recordChange({
     operation: 'update',
