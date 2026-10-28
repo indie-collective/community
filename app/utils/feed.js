@@ -9,8 +9,9 @@ const escapeXml = (value) =>
     .replace(/"/g, '&quot;');
 
 /**
- * An Atom feed. `entries` are `{ id, title, url, summary, published,
- * updated, image }`, newest first; `self` is the feed's own URL.
+ * An Atom feed. `entries` are `{ title, url, summary, published, updated,
+ * image, id }` (`id` defaults to `url`), newest first; `self` is the feed's
+ * own URL.
  */
 export function atomFeed({ title, self, site, entries }) {
   const updated = entries[0]?.updated ?? entries[0]?.published ?? new Date(0);
@@ -26,7 +27,7 @@ ${entries
   .map(
     (entry) => `  <entry>
     <title>${escapeXml(entry.title)}</title>
-    <id>${escapeXml(entry.url)}</id>
+    <id>${escapeXml(entry.id ?? entry.url)}</id>
     <link rel="alternate" type="text/html" href="${escapeXml(entry.url)}"/>
     <published>${new Date(entry.published).toISOString()}</published>
     <updated>${new Date(entry.updated ?? entry.published).toISOString()}</updated>

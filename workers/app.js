@@ -1,5 +1,6 @@
 // The Worker (ADR 0002): React Router renders every page; the Cron Trigger
-// refreshes the stalest stored IGDB data, for games nobody visits (#254).
+// refreshes the stalest stored IGDB data, for games nobody visits (#254),
+// and reminds followers of events coming up (#343).
 import { createRequestHandler } from 'react-router';
 
 import { requestScope } from '../app/utils/background.server.js';
@@ -30,5 +31,15 @@ export default {
       '../app/utils/igdbRefresh.server.js'
     );
     ctx.waitUntil(refreshStalestIGDBData());
+    // #343: events starting in a week, or tomorrow.
+    const { sendEventReminders } = await import('../app/data/notifications.server.js');
+    const now = new Date(controller.scheduledTime);
+    ctx.waitUntil(sendEventReminders(now));
+    // #319: Monday morning's Bluesky summary of the week.
+    const { isWeeklySlot } = await import('../app/utils/weeklySummary.js');
+    if (isWeeklySlot(now)) {
+      const { postWeeklySummary } = await import('../app/data/weeklySummary.server.js');
+      ctx.waitUntil(postWeeklySummary({ now }));
+    }
   },
 };

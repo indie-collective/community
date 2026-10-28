@@ -450,6 +450,47 @@ export const opportunities = sqliteTable(
   ]
 );
 
+// What members follow (#343): a game, an organisation, an event, or a
+// country (its code as the ID), to hear what happens there.
+export const FOLLOW_TYPES = ['game', 'organization', 'event', 'country'];
+export const follows = sqliteTable(
+  'follows',
+  {
+    personId: text('person_id')
+      .notNull()
+      .references(() => people.id, { onDelete: 'cascade' }),
+    recordType: text('record_type', { enum: FOLLOW_TYPES }).notNull(),
+    recordId: text('record_id').notNull(),
+    createdAt: time('created_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [
+    primaryKey({ columns: [t.personId, t.recordType, t.recordId] }),
+    check('follows_record_type', oneOf(t.recordType, FOLLOW_TYPES)),
+    index('follows_record').on(t.recordType, t.recordId),
+  ]
+);
+
+// What a member is told about what they follow (#343), shown on the site.
+// `data` holds what the message needs (names, addresses), as it was then.
+export const notifications = sqliteTable(
+  'notifications',
+  {
+    id: id(),
+    personId: text('person_id')
+      .notNull()
+      .references(() => people.id, { onDelete: 'cascade' }),
+    kind: text('kind').notNull(),
+    data: text('data', { mode: 'json' }).notNull(),
+    createdAt: time('created_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+    readAt: time('read_at'),
+  },
+  (t) => [index('notifications_person').on(t.personId, t.createdAt)]
+);
+
 // Pairs of records a member flagged as duplicates, or an admin said aren't
 // (#346), so the admin view doesn't suggest them again. Kind is "game",
 // "organization" or "event"; the two IDs are in order.

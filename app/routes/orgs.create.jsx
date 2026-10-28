@@ -19,9 +19,6 @@ import { checkBlueskyHandle } from '../utils/bluesky.server';
 import getOrigin from '../utils/origin.server';
 import { ORGANIZATION_STATUSES } from '../db/schema.js';
 import { orgPath } from '../utils/slug';
-import { announceOnBluesky } from '../utils/blueskyPost.server';
-import { afterResponse } from '../utils/igdbData.server';
-import { summarize } from '../utils/meta';
 import { PageHeader } from '../components/Page';
 
 export async function action(args) {
@@ -60,19 +57,6 @@ export async function action(args) {
     });
 
     const BASE_URL = getOrigin(request);
-
-    // #160: and on Bluesky, from the IC account, after the response.
-    const name = data.get('name');
-    afterResponse(args.context, () =>
-      announceOnBluesky({
-        text: `New ${data.get('type')?.toLowerCase() === 'association' ? 'association' : 'studio'} on Community: ${name}${location.city ? ` (${location.city})` : ''}`,
-        url: `${BASE_URL}${orgPath(org)}`,
-        title: name,
-        description:
-          summarize(data.get('about')) ||
-          "On Indie Collective's community database.",
-      })
-    );
 
     await notifyDiscord(
       `${currentUser.username} added ${data

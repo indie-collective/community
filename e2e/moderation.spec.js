@@ -82,9 +82,9 @@ test('a change keeps only what changed, a save without change keeps nothing, and
     await expect.poll(() => posts.some((post) => post.content.includes(`changed the game “Logged ${id} renamed” (organizations)`))).toBe(true);
     expect(posts.every((post) => post.allowed_mentions?.parse?.length === 0)).toBe(true);
   } finally {
-    await db.delete(changes).where(eq(changes.recordId, game.id));
-    await db.delete(games).where(eq(games.id, game.id));
-    await db.delete(organizations).where(eq(organizations.id, studio.id));
+    await retryBusy(() => db.delete(changes).where(eq(changes.recordId, game.id)));
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.id, studio.id)));
   }
 });
 
@@ -102,7 +102,7 @@ test("a member can't delete, and doesn't see Delete", async ({ page }) => {
     expect(response.status()).not.toBe(302);
     expect((await retryBusy(() => db.select().from(games).where(eq(games.id, game.id))))[0].deletedAt).toBeNull();
   } finally {
-    await db.delete(games).where(eq(games.id, game.id));
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
   }
 });
 
@@ -124,9 +124,9 @@ test("a member's changes beyond the hourly limit are refused", async ({ page }) 
     expect((await retryBusy(() => db.select().from(games).where(eq(games.id, game.id))))[0].name).toBe(game.name);
     await expect.poll(() => posts.some((post) => post.content.includes(`@${person.username} reached 100 changes in an hour`))).toBe(true);
   } finally {
-    await db.delete(changes).where(eq(changes.authorId, person.id));
-    await db.delete(games).where(eq(games.id, game.id));
-    await db.delete(people).where(eq(people.id, person.id));
+    await retryBusy(() => db.delete(changes).where(eq(changes.authorId, person.id)));
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+    await retryBusy(() => db.delete(people).where(eq(people.id, person.id)));
   }
 });
 
@@ -180,10 +180,10 @@ test('an admin undoes an update, a create and a delete, each in the log', async 
   } finally {
     await member.close();
     await admin.close();
-    await db.delete(changes).where(inArray(changes.recordId, [game.id, event.id, ...(orgId ? [orgId] : [])]));
-    await db.delete(games).where(eq(games.id, game.id));
-    await db.delete(events).where(eq(events.id, event.id));
-    if (orgId) await db.delete(organizations).where(eq(organizations.id, orgId));
+    await retryBusy(() => db.delete(changes).where(inArray(changes.recordId, [game.id, event.id, ...(orgId ? [orgId] : [])])));
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+    await retryBusy(() => db.delete(events).where(eq(events.id, event.id)));
+    if (orgId) await retryBusy(() => db.delete(organizations).where(eq(organizations.id, orgId)));
   }
 });
 
@@ -237,10 +237,10 @@ test('"Undo all since" restores a vandalised record and skips one edited since b
     await vandal.close();
     await other.close();
     await admin.close();
-    await db.delete(changes).where(inArray(changes.recordId, [kept.id, contested.id]));
-    await db.delete(games).where(inArray(games.id, [kept.id, contested.id]));
-    await db.delete(organizations).where(eq(organizations.id, studio.id));
-    await db.delete(people).where(and(eq(people.email, email)));
+    await retryBusy(() => db.delete(changes).where(inArray(changes.recordId, [kept.id, contested.id])));
+    await retryBusy(() => db.delete(games).where(inArray(games.id, [kept.id, contested.id])));
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.id, studio.id)));
+    await retryBusy(() => db.delete(people).where(and(eq(people.email, email))));
   }
 });
 

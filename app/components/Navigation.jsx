@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Flex,
   HStack,
@@ -17,7 +18,7 @@ import {
   Menu,
   Portal,
 } from '@chakra-ui/react';
-import { LuMenu, LuChevronDown } from 'react-icons/lu';
+import { LuBell, LuMenu, LuChevronDown } from 'react-icons/lu';
 import { useLocation, useNavigation, useRouteLoaderData } from 'react-router';
 import Link from './Link';
 
@@ -115,7 +116,45 @@ const Navigation = ({ search }) => {
 
   // Root data, not this route's: this also renders inside the error boundary,
   // where the root loader may not have produced data.
-  const { currentUser } = useRouteLoaderData('root') ?? {};
+  const { currentUser, unreadNotifications = 0 } =
+    useRouteLoaderData('root') ?? {};
+
+  // #343: what happened to what they follow.
+  const Bell = () => (
+    <Box position="relative">
+      <IconButton
+        asChild
+        variant="popOutline"
+        rounded="full"
+        aria-label={
+          unreadNotifications > 0
+            ? `Notifications, ${unreadNotifications} unread`
+            : 'Notifications'
+        }
+      >
+        <Link to="/notifications">
+          <LuBell />
+        </Link>
+      </IconButton>
+      {unreadNotifications > 0 && (
+        <Badge
+          position="absolute"
+          top="0"
+          right="0"
+          size="xs"
+          bg="coral"
+          color="onPop"
+          borderWidth="2px"
+          borderColor="ink"
+          borderRadius="full"
+          pointerEvents="none"
+          aria-hidden
+        >
+          {unreadNotifications > 99 ? '99+' : unreadNotifications}
+        </Badge>
+      )}
+    </Box>
+  );
 
   const AdminDropdown = ({ isMobile = false }) => (
     <Menu.Root>
@@ -150,6 +189,9 @@ const Navigation = ({ search }) => {
             <Menu.Item value="item-4" asChild cursor="pointer">
               <Link to="/admin/duplicates">Duplicates</Link>
             </Menu.Item>
+            <Menu.Item value="item-5" asChild cursor="pointer">
+              <Link to="/admin/bluesky">Bluesky summary</Link>
+            </Menu.Item>
           </Menu.Content>
         </Menu.Positioner>
       </Portal>
@@ -179,6 +221,7 @@ const Navigation = ({ search }) => {
           <HStack gap={2} flex="1" justifyContent="flex-end">
             <SearchInput />
             {currentUser && <AddMenuButton />}
+            {currentUser && <Bell />}
             <IconButton
               variant="popOutline"
               size="md"
@@ -241,6 +284,7 @@ const Navigation = ({ search }) => {
 
         <HStack gap={3} flexShrink={0}>
           {currentUser && <AddMenuButton />}
+          {currentUser && <Bell />}
           <AvatarButton />
         </HStack>
       </HStack>

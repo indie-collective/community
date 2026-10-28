@@ -192,44 +192,34 @@ test.describe('announcements on Bluesky', () => {
   });
   test.afterAll(() => new Promise((resolve) => server.close(resolve)));
 
-  test('a new game is posted from the IC account, with a link card', async ({
-    page,
-  }) => {
+  // #319: not one post per addition, but a summary of the week.
+  test('a new game is not posted on its own, but in the weekly summary, with a link card', async ({ page }) => {
     const name = `Announced ${Date.now() % 100000}`;
     await signIn(page, MEMBER);
     const created = await page.request.post('/games/create', {
-      form: {
-        name,
-        about: 'A *bold* little game.',
-        site: '',
-        igdb_url: '',
-        tags: '',
-      },
+      form: { name, about: 'A *bold* little game.', site: '', igdb_url: '', tags: '' },
       maxRedirects: 0,
     });
-    const path = created.headers().location;
+    expect(created.status()).toBe(302);
+    await page.waitForTimeout(500);
+    expect(records.filter((r) => r.record.text.includes(name))).toHaveLength(0);
 
-    await expect
-      .poll(() => records.filter((r) => r.record.text.includes(name)).length)
-      .toBe(1);
+    // An admin posts the week's summary from the admin page (as the Monday
+    // morning Cron Trigger does).
+    await signIn(page, ADMIN);
+    await page.goto('/admin/bluesky');
+    await expect(page.getByTestId('summary-preview')).toContainText(name);
+    await page.getByRole('button', { name: 'Post it now' }).click();
+    await expect(page.getByText('Posted.')).toBeVisible();
+
+    await expect.poll(() => records.filter((r) => r.record.text.includes(name)).length).toBe(1);
     const posted = records.find((r) => r.record.text.includes(name));
-    expect(sessions.at(-1)).toEqual({
-      identifier: 'indieco.test',
-      password: 'e2e-app-password',
-    });
+    expect(sessions.at(-1)).toEqual({ identifier: 'indieco.test', password: 'e2e-app-password' });
     expect(posted.auth).toBe('Bearer e2e-token');
-    expect(posted).toMatchObject({
-      repo: 'did:plc:indieco',
-      collection: 'app.bsky.feed.post',
-    });
-    expect(posted.record.text).toBe(
-      `New game on Community: ${name}\n\nhttp://localhost:3100${path}`
-    );
-    expect(posted.record.embed.external).toEqual({
-      uri: `http://localhost:3100${path}`,
-      title: name,
-      description: 'A bold little game.',
-    });
+    expect(posted).toMatchObject({ repo: 'did:plc:indieco', collection: 'app.bsky.feed.post' });
+    expect(posted.record.text).toMatch(/^New on Indie Collective this week: \d+ games?/);
+    expect(posted.record.text).toMatch(/\n\nhttp:\/\/localhost:3100\/\w+$/);
+    expect(posted.record.embed.external.title).toMatch(/on Indie Collective$/);
 
     const { db, games } = await import('./db.js');
     const { eq } = await import('drizzle-orm');

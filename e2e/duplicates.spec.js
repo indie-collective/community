@@ -45,7 +45,7 @@ test('adding an organisation asks whether it is one already listed, and refuses 
     const made = await retryBusy(() => db.select().from(organizations).where(eq(organizations.name, `Lanterne${id} Games`)));
     expect(made).toHaveLength(0);
   } finally {
-    await db.delete(organizations).where(eq(organizations.id, existing.id));
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.id, existing.id)));
   }
 });
 
@@ -82,8 +82,8 @@ test('a member reports a duplicate, and an admin sees it, or says they differ', 
   } finally {
     await member.close();
     await admin.close();
-    await db.delete(duplicatePairs).where(inArray(duplicatePairs.firstId, [one.id, two.id]));
-    await db.delete(organizations).where(inArray(organizations.id, [one.id, two.id]));
+    await retryBusy(() => db.delete(duplicatePairs).where(inArray(duplicatePairs.firstId, [one.id, two.id])));
+    await retryBusy(() => db.delete(organizations).where(inArray(organizations.id, [one.id, two.id])));
   }
 });
 
@@ -146,9 +146,9 @@ test('an admin merges two games: links move, fields are chosen, and the old addr
     );
     expect(update.data.merged_from).toBe(other.id);
   } finally {
-    await db.delete(changes).where(inArray(changes.recordId, [kept.id, other.id]));
-    await db.delete(games).where(inArray(games.id, [kept.id, other.id]));
-    await db.delete(organizations).where(inArray(organizations.id, [s1.id, s2.id]));
-    await db.delete(tags).where(inArray(tags.id, [t1.id, t2.id]));
+    await retryBusy(() => db.delete(changes).where(inArray(changes.recordId, [kept.id, other.id])));
+    await retryBusy(() => db.delete(games).where(inArray(games.id, [kept.id, other.id])));
+    await retryBusy(() => db.delete(organizations).where(inArray(organizations.id, [s1.id, s2.id])));
+    await retryBusy(() => db.delete(tags).where(inArray(tags.id, [t1.id, t2.id])));
   }
 });

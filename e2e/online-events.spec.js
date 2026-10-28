@@ -1,6 +1,6 @@
 import { eq, inArray } from 'drizzle-orm';
 
-import { db, events, idFromPath, searchText } from './db.js';
+import { db, events, idFromPath, searchText, retryBusy } from './db.js';
 import { expect, test, MEMBER, signIn } from './helpers';
 import { eventSlug } from '../app/utils/slug.js';
 
@@ -62,7 +62,7 @@ test.describe('in another time zone', () => {
       await expect(page.locator('main time').first()).toHaveText(/^MAR 6, 2027, 20:00 – 23:00$/i);
       await expect(page.getByTestId('visitor-time')).toHaveText('Your time (America/New York): Mar 6, 2027, 06:00 – 09:00');
     } finally {
-      await db.delete(events).where(eq(events.id, id));
+      await retryBusy(() => db.delete(events).where(eq(events.id, id)));
     }
   });
 });
@@ -86,7 +86,7 @@ test('the events list filters in person or online events', async ({ page }) => {
     await expect(page.getByText(hybrid.name)).toBeVisible();
     await expect(page.getByText(online.name)).toHaveCount(0);
   } finally {
-    await db.delete(events).where(inArray(events.id, [online.id, hybrid.id, inPerson.id]));
+    await retryBusy(() => db.delete(events).where(inArray(events.id, [online.id, hybrid.id, inPerson.id])));
   }
 });
 
@@ -117,7 +117,7 @@ test.describe('near the visitor', () => {
       await expect(page).not.toHaveURL(/near=/);
       await expect(page.getByText(tokyo.name)).toBeVisible();
     } finally {
-      await db.delete(events).where(inArray(events.id, [villeurbanne.id, grenoble.id, tokyo.id]));
+      await retryBusy(() => db.delete(events).where(inArray(events.id, [villeurbanne.id, grenoble.id, tokyo.id])));
     }
   });
 });

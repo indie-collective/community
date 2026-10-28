@@ -1,6 +1,6 @@
 import { eq, inArray } from 'drizzle-orm';
 
-import { changes, db, eventParticipants, events, games, people, searchText } from './db.js';
+import { changes, db, eventParticipants, events, games, people, searchText, retryBusy } from './db.js';
 import { expect, test, MEMBER, signIn } from './helpers';
 import { eventSlug } from '../app/utils/slug.js';
 
@@ -46,10 +46,10 @@ test('a member’s public page shows who they are, their events and what they ad
     await page.getByRole('link', { name: `@${person.username}`, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`/people/${person.username}$`));
   } finally {
-    await db.delete(changes).where(eq(changes.authorId, person.id));
-    await db.delete(events).where(eq(events.id, event.id));
-    await db.delete(games).where(eq(games.id, game.id));
-    await db.delete(people).where(eq(people.id, person.id));
+    await retryBusy(() => db.delete(changes).where(eq(changes.authorId, person.id)));
+    await retryBusy(() => db.delete(events).where(eq(events.id, event.id)));
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+    await retryBusy(() => db.delete(people).where(eq(people.id, person.id)));
   }
 });
 
@@ -63,7 +63,7 @@ test('hidden and restricted profiles are not found', async ({ request }) => {
     const sitemap = await (await request.get('/sitemap.xml')).text();
     expect(sitemap).not.toContain(hidden.username);
   } finally {
-    await db.delete(people).where(inArray(people.id, [hidden.id, restricted.id]));
+    await retryBusy(() => db.delete(people).where(inArray(people.id, [hidden.id, restricted.id])));
   }
 });
 
