@@ -31,6 +31,7 @@ import { ClientStyleContext, ServerStyleContext } from './context';
 import isAuthenticated from './utils/isAuthenticated.server';
 import getOrigin from './utils/origin.server';
 import { countUnread } from './data/notifications.server';
+import { enabledFeatures } from './data/featureFlags.server';
 import { languageOf } from './i18n/language';
 import { useLanguage, useT } from './i18n';
 import { Provider as ChakraProvider } from './components/ui/provider';
@@ -190,6 +191,8 @@ export const loader = async ({ request }) => {
     language: languageOf(request),
     // #343: the bell in the header.
     unreadNotifications: currentUser ? await countUnread(currentUser.id) : 0,
+    // Feature flags on for them (/admin/flags).
+    features: await enabledFeatures(currentUser),
   };
 };
 

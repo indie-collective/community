@@ -27,6 +27,7 @@ import AvatarButton from './AvatarButton';
 import SearchInput from './SearchInput';
 import AddMenuButton from './AddMenuButton';
 import { useT } from '../i18n';
+import useFeature from '../hooks/useFeature';
 
 function NavLink(props) {
   const { href, children, ...rest } = props;
@@ -68,6 +69,7 @@ const Navigation = ({ search }) => {
   // where the root loader may not have produced data.
   const { currentUser, unreadNotifications = 0 } = useRouteLoaderData('root') ?? {};
   const t = useT();
+  const opportunities = useFeature('opportunities');
 
   // #343: what happened to what they follow.
   const Bell = () => (
@@ -142,6 +144,9 @@ const Navigation = ({ search }) => {
             <Menu.Item value="item-6" asChild cursor="pointer">
               <Link to="/admin/sources">Sources</Link>
             </Menu.Item>
+            <Menu.Item value="item-7" asChild cursor="pointer">
+              <Link to="/admin/flags">Feature flags</Link>
+            </Menu.Item>
           </Menu.Content>
         </Menu.Positioner>
       </Portal>
@@ -194,7 +199,7 @@ const Navigation = ({ search }) => {
                 <NavLink href="/associations">{t('nav.associations')}</NavLink>
                 <NavLink href="/publishers">{t('nav.publishers')}</NavLink>
                 <NavLink href="/events">{t('nav.events')}</NavLink>
-                <NavLink href="/opportunities">{t('nav.opportunities')}</NavLink>
+                {opportunities && <NavLink href="/opportunities">{t('nav.opportunities')}</NavLink>}
                 <NavLink href="/countries">{t('nav.countries')}</NavLink>
                 <NavLink href="/places">{t('nav.map')}</NavLink>
 
@@ -255,7 +260,7 @@ const Navigation = ({ search }) => {
           <NavLink href="/associations">{t('nav.associations')}</NavLink>
           <NavLink href="/publishers">{t('nav.publishers')}</NavLink>
           <NavLink href="/events">{t('nav.events')}</NavLink>
-          <NavLink href="/opportunities">{t('nav.opportunities')}</NavLink>
+          {opportunities && <NavLink href="/opportunities">{t('nav.opportunities')}</NavLink>}
           <NavLink href="/countries">{t('nav.countries')}</NavLink>
           <NavLink href="/places">{t('nav.map')}</NavLink>
           <Spacer />

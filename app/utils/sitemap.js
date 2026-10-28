@@ -43,10 +43,11 @@ const entry = (origin, path, updated) =>
  */
 export function buildSitemap(
   origin,
-  { countries = [], games = [], orgs = [], events = [], people = [] }
+  { countries = [], games = [], orgs = [], events = [], people = [], hidden = [] }
 ) {
   const urls = [
-    ...PAGES.map((path) => entry(origin, path)),
+    // But pages behind a feature flag that's off (`hidden`).
+    ...PAGES.filter((path) => !hidden.includes(path)).map((path) => entry(origin, path)),
     ...countries.map((code) => entry(origin, `/country/${code.toLowerCase()}`)),
     // By slug (#209), or ID until there's one.
     ...games.map((game) => entry(origin, gamePath(game), game.updated_at)),

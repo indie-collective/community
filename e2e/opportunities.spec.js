@@ -1,9 +1,13 @@
 import { eq, inArray } from 'drizzle-orm';
 
-import { changes, db, opportunities, organizations, retryBusy, searchText } from './db.js';
+import { changes, db, opportunities, organizations, retryBusy, searchText, setFlag } from './db.js';
 import { expect, test, MEMBER, signIn, waitForHydration } from './helpers';
 
-// #345: opportunities posted by organisations, games and events.
+// #345: opportunities posted by organisations, games and events, behind
+// their feature flag.
+
+test.beforeAll(() => setFlag('opportunities', 'on'));
+test.afterAll(() => setFlag('opportunities', null));
 
 const suffix = () => `${Date.now() % 100000}${Math.floor(Math.random() * 100)}`;
 const inDays = (days) => new Date(Date.now() + days * 86400000);
