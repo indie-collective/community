@@ -8,7 +8,9 @@
 export const CACHE_SECONDS = 60;
 
 // Pages that are per-person, or part of signing in, even without a session.
-const PRIVATE = /^\/(auth|oauth|signin|logout|welcome|profile|admin|check-username-availability|healthcheck)(\/|\.data$|$)/;
+// Private calendars and feeds (#342, #343) are behind secret addresses:
+// still not for a shared cache.
+const PRIVATE = /^\/(auth|oauth|signin|logout|welcome|profile|admin|check-username-availability|healthcheck|my-calendar|my-feed|notifications|follow)(\/|\.data$|$)/;
 
 /** Whether a request may be answered from, and stored in, the cache. */
 export function isCacheable(request) {

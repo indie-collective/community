@@ -12,6 +12,12 @@ export default [
   index('routes/index.jsx'),
 
   route('about', 'routes/about.jsx'),
+  // The public API and widgets (#349).
+  route('api', 'routes/api/docs.jsx'),
+  route('api/v1/openapi.json', 'routes/api/openapi.js'),
+  route('api/v1/:collection/:id?', 'routes/api/v1.js'),
+  route('embed/org/:id/:widget', 'routes/embed.js'),
+
   // Open data (#304).
   route('data', 'routes/data.jsx'),
   route('data/:file', 'routes/data.$file.js'),
