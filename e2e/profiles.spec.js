@@ -30,7 +30,8 @@ test('a member’s public page shows who they are, their events and what they ad
   ]);
   try {
     await page.goto(`/people/${person.username}`);
-    await expect(page.getByRole('heading', { name: 'Ada Jam', level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Ada', level: 1, exact: true })).toBeVisible();
+    await expect(page.locator('body')).not.toContainText('Jam');
     await expect(page.getByText(`@${person.username}`)).toBeVisible();
     await expect(page.getByRole('link', { name: '@ada.bsky.social' })).toHaveAttribute('href', 'https://bsky.app/profile/ada.bsky.social');
     await expect(page.getByText('Makes tiny games.')).toBeVisible();

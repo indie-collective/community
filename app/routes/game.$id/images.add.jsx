@@ -9,13 +9,13 @@ export async function action(args) {
   const { params, request } = args;
   const id = await routeRecordId('game', params.id);
 
-  await authorizer.authorize(args, {
+  const currentUser = await authorizer.authorize(args, {
     rules: [canWrite],
   });
 
   const data = await parseFormWithUploads(request, ['images']);
 
-  await addGameImages(id, data.getAll('images'));
+  await addGameImages(id, data.getAll('images'), { authorId: currentUser.id });
 
   return redirect(`/game/${id}`);
 }

@@ -26,7 +26,7 @@ import {
 } from '../db/schema.js';
 import computeOrg from '../models/org';
 import getImageLinks from '../utils/imageLinks.server';
-import { logChange } from './changes.server';
+import { recordChange } from './changes.server';
 import { imageColumns } from './images.server';
 import { searchIndex } from './search.server';
 import * as shape from './shapes.server';
@@ -347,7 +347,12 @@ export async function createOrganization({
 }) {
   const id = crypto.randomUUID();
   const slug = await freeSlug('organization', slugify(name));
-  await db.batch([
+  await recordChange({
+    operation: 'create',
+    kind: 'organization',
+    recordId: id,
+    authorId,
+    statements: [
     db.insert(organizations).values({
       id,
       name,
@@ -362,8 +367,8 @@ export async function createOrganization({
       searchText: shape.searchTextOf({ name, about }),
       lastModifiedById: authorId,
     }),
-    logChange('create', 'organization', id, authorId),
-  ]);
+    ],
+  });
   return { id, slug };
 }
 
@@ -381,7 +386,12 @@ export async function updateOrganization(
     .from(organizations)
     .where(eq(organizations.id, id));
   const slug = await freeSlug('organization', slugify(name), { recordId: id });
-  await db.batch([
+  await recordChange({
+    operation: 'update',
+    kind: 'organization',
+    recordId: id,
+    authorId,
+    statements: [
     db
       .update(organizations)
       .set({
@@ -398,20 +408,25 @@ export async function updateOrganization(
       })
       .where(eq(organizations.id, id)),
     ...renameSlugStatements('organization', id, current?.slug, slug),
-    logChange('update', 'organization', id, authorId),
-  ]);
+    ],
+  });
   return { id, slug };
 }
 
 /** Deletes an organisation: it's only hidden, and its history stays. */
 export async function deleteOrganization(id, { authorId = null } = {}) {
-  await db.batch([
+  await recordChange({
+    operation: 'delete',
+    kind: 'organization',
+    recordId: id,
+    authorId,
+    statements: [
     db
       .update(organizations)
       .set({ deletedAt: new Date() })
       .where(and(eq(organizations.id, id), notDeleted)),
-    logChange('delete', 'organization', id, authorId),
-  ]);
+    ],
+  });
 }
 
 /**

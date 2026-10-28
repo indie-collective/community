@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react';
 // import differenceWith from 'lodash.differencewith';
 import { redirect } from 'react-router';
+import { actionErrorMessage } from '../utils/actionError.server';
 import { useActionData, useLoaderData, useNavigation } from 'react-router';
 import { useEffect } from 'react';
 
@@ -63,7 +64,7 @@ export async function action(args) {
     console.log(err);
 
     const values = Object.fromEntries(data);
-    return { error: 'Updating the game failed', values };
+    return { error: await actionErrorMessage(err, 'Updating the game failed'), values };
   }
 }
 

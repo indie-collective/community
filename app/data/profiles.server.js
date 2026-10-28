@@ -101,8 +101,8 @@ export async function getPublicProfile(username, { viewerId } = {}) {
   const [attending, contributed] = await Promise.all([attendedEvents(row.id), contributions(row.id)]);
   return {
     username: row.username,
+    // First name only: the last name stays private, as everywhere.
     first_name: row.firstName,
-    last_name: row.lastName,
     about: row.about,
     bsky_handle: row.bskyHandle,
     avatar: row.avatarKey

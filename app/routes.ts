@@ -69,10 +69,6 @@ export default [
   route('event/:id/edit', 'routes/event.$id.edit.jsx'),
   route('event/:id/join', 'routes/event.$id.join.jsx'),
   route('event/:id/leave', 'routes/event.$id.leave.jsx'),
-  route('event/:id/changes', 'routes/event.$id.changes.jsx', [
-    index('routes/event.$id.changes/index.jsx'),
-    route(':revisionId', 'routes/event.$id.changes/$revisionId.jsx'),
-  ]),
 
   // Games
   route('games', 'routes/games.jsx'),
@@ -88,10 +84,6 @@ export default [
     route('milestones/delete', 'routes/game.$id/milestones.delete.jsx'),
   ]),
   route('game/:id/edit', 'routes/game.$id.edit.jsx'),
-  route('game/:id/changes', 'routes/game.$id.changes.jsx', [
-    index('routes/game.$id.changes/index.jsx'),
-    route(':revisionId', 'routes/game.$id.changes/$revisionId.jsx'),
-  ]),
 
   // Organizations
   route('orgs', 'routes/orgs.jsx'),
@@ -102,10 +94,6 @@ export default [
   route('org/:id', 'routes/org.$id.jsx'),
   route('org/:id/edit', 'routes/org.$id.edit.jsx'),
   route('org/:id/delete', 'routes/org.$id.delete.jsx'),
-  route('org/:id/changes', 'routes/org.$id.changes.jsx', [
-    index('routes/org.$id.changes/index.jsx'),
-    route(':revisionId', 'routes/org.$id.changes/$revisionId.jsx'),
-  ]),
 
   // Admin
   route('admin/changes', 'routes/admin/changes.jsx'),

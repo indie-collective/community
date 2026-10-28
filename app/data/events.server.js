@@ -29,7 +29,7 @@ import { matchesSearch } from '../db/search.js';
 import computeEvent from '../models/event';
 import getImageLinks from '../utils/imageLinks.server';
 import { distanceKm } from '../utils/mapFocus';
-import { logChange } from './changes.server';
+import { recordChange } from './changes.server';
 import { gameWithRelations } from './games.server';
 import { imageColumns } from './images.server';
 import { searchIndex } from './search.server';
@@ -357,7 +357,12 @@ export async function createEvent({
 }) {
   const id = crypto.randomUUID();
   const slug = await freeSlug('event', eventSlug(name, startsAt));
-  await db.batch([
+  await recordChange({
+    operation: 'create',
+    kind: 'event',
+    recordId: id,
+    authorId,
+    statements: [
     db.insert(events).values({
       id,
       name,
@@ -377,8 +382,8 @@ export async function createEvent({
       searchText: shape.searchTextOf({ name, about }),
       lastModifiedById: authorId,
     }),
-    logChange('create', 'event', id, authorId),
-  ]);
+    ],
+  });
   return { id, slug };
 }
 
@@ -420,7 +425,12 @@ export async function updateEvent(
     eventSlug(name ?? current?.name, startsAt ?? current?.startsAt),
     { recordId: id }
   );
-  await db.batch([
+  await recordChange({
+    operation: 'update',
+    kind: 'event',
+    recordId: id,
+    authorId,
+    statements: [
     db
       .update(events)
       .set({
@@ -446,20 +456,25 @@ export async function updateEvent(
       })
       .where(eq(events.id, id)),
     ...renameSlugStatements('event', id, current?.slug, slug),
-    logChange('update', 'event', id, authorId),
-  ]);
+    ],
+  });
   return { id, slug };
 }
 
 /** Deletes an event: it's only hidden, and its history stays. */
 export async function deleteEvent(id, { authorId = null } = {}) {
-  await db.batch([
+  await recordChange({
+    operation: 'delete',
+    kind: 'event',
+    recordId: id,
+    authorId,
+    statements: [
     db
       .update(events)
       .set({ deletedAt: new Date() })
       .where(and(eq(events.id, id), notDeleted)),
-    logChange('delete', 'event', id, authorId),
-  ]);
+    ],
+  });
 }
 
 /** Marks someone as attending; already attending is fine. */
@@ -483,36 +498,57 @@ export async function leaveEvent(eventId, personId) {
 }
 
 /** Lists a game as shown at an event; already listed is fine. */
-export async function addEventGame(eventId, gameId) {
-  await db.insert(gameEvents).values({ gameId, eventId }).onConflictDoNothing();
+export async function addEventGame(eventId, gameId, { authorId = null } = {}) {
+  await changeEvent(eventId, authorId, [
+    db.insert(gameEvents).values({ gameId, eventId }).onConflictDoNothing(),
+  ]);
 }
 
 /** Removes a game from an event. */
-export async function removeEventGame(eventId, gameId) {
-  await db
-    .delete(gameEvents)
-    .where(and(eq(gameEvents.eventId, eventId), eq(gameEvents.gameId, gameId)));
+export async function removeEventGame(eventId, gameId, { authorId = null } = {}) {
+  await changeEvent(eventId, authorId, [
+    db
+      .delete(gameEvents)
+      .where(and(eq(gameEvents.eventId, eventId), eq(gameEvents.gameId, gameId))),
+  ]);
 }
 
 /** Adds an organisation as a host; already hosting is fine. */
-export async function addEventOrganization(eventId, organizationId) {
-  await db
-    .insert(organizationEvents)
-    .values({ organizationId, eventId })
-    .onConflictDoNothing();
+export async function addEventOrganization(eventId, organizationId, { authorId = null } = {}) {
+  await changeEvent(eventId, authorId, [
+    db
+      .insert(organizationEvents)
+      .values({ organizationId, eventId })
+      .onConflictDoNothing(),
+  ]);
 }
 
 /** Removes an organisation from an event's hosts. */
-export async function removeEventOrganization(eventId, organizationId) {
-  await db
-    .delete(organizationEvents)
-    .where(
-      and(
-        eq(organizationEvents.eventId, eventId),
-        eq(organizationEvents.organizationId, organizationId)
-      )
-    );
+export async function removeEventOrganization(eventId, organizationId, { authorId = null } = {}) {
+  await changeEvent(eventId, authorId, [
+    db
+      .delete(organizationEvents)
+      .where(
+        and(
+          eq(organizationEvents.eventId, eventId),
+          eq(organizationEvents.organizationId, organizationId)
+        )
+      ),
+  ]);
 }
+
+// A change to an event's games or hosts, in its history (#309).
+const changeEvent = (eventId, authorId, statements) =>
+  recordChange({
+    operation: 'update',
+    kind: 'event',
+    recordId: eventId,
+    authorId,
+    statements: [
+      ...statements,
+      db.update(events).set({ lastModifiedById: authorId, updatedAt: new Date() }).where(eq(events.id, eventId)),
+    ],
+  });
 
 /**
  * Events matching `q` (see data/search), best first (upcoming ones before

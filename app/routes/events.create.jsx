@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { redirect, useActionData, useNavigation } from 'react-router';
+import { actionErrorMessage } from '../utils/actionError.server';
 import { useEffect } from 'react';
 
 import { createEvent } from '../data/events.server';
@@ -87,7 +88,7 @@ export async function action(args) {
     return redirect(eventPath(event));
   } catch (err) {
     const values = Object.fromEntries(data);
-    return { error: err.message, values };
+    return { error: await actionErrorMessage(err), values };
   }
 }
 

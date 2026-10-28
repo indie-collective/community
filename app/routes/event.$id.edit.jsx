@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
+import { actionErrorMessage } from '../utils/actionError.server';
 import { useEffect } from 'react';
 
 import {
@@ -108,7 +109,7 @@ export async function action(args) {
     console.log(err);
 
     const values = data ? Object.fromEntries(data) : {};
-    return { error: 'Updating the event failed', values };
+    return { error: await actionErrorMessage(err, 'Updating the event failed'), values };
   }
 }
 

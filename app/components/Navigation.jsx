@@ -90,7 +90,7 @@ const Navigation = ({ search }) => {
               <Link to="/admin/users">Users</Link>
             </Menu.Item>
             <Menu.Item value="item-1" asChild cursor="pointer">
-              <Link to="/admin/changes">Changes</Link>
+              <Link to="/admin/changes">Moderation</Link>
             </Menu.Item>
             <Menu.Item value="item-2" asChild cursor="pointer">
               <Link to="/admin/missing">Missing</Link>

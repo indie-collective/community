@@ -243,8 +243,7 @@ const Event = () => {
                 )}
                 <ActionMenu
                   editLink={`/event/${id}/edit`}
-                  changesLink={`/event/${id}/changes`}
-                  onDelete={deleteModal.onOpen}
+                  onDelete={currentUser.isAdmin ? deleteModal.onOpen : undefined}
                 />
               </>
             )}
