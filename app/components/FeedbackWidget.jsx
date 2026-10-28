@@ -1,15 +1,26 @@
 import { Alert, Box, Button, Dialog, Field, Image, Input, Link as ChakraLink, Portal, RadioGroup, Stack, Text, Textarea } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { LuMessageSquareWarning } from 'react-icons/lu';
+import { LuCamera, LuMessageSquareWarning } from 'react-icons/lu';
 import { useFetcher, useRouteLoaderData } from 'react-router';
 
 import Link from './Link';
 
-// The page as a PNG, taken before the dialog opens; null when it can't be.
+// Marks the widget's own parts (its button, the dialog and its backdrop),
+// which the screenshot leaves out.
+const OWN = 'data-feedback-widget';
+
+// The page as a PNG, only when asked for (#376), without the widget in it:
+// the dialog stays open, so what's typed stays too. Null when it can't be.
 async function capture() {
   try {
     const { domToBlob } = await import('modern-screenshot');
-    return await domToBlob(document.body, { type: 'image/png', scale: Math.min(1, 1600 / window.innerWidth) });
+    return await domToBlob(document.body, {
+      type: 'image/png',
+      scale: Math.min(1, 1600 / window.innerWidth),
+      // The page's own background, not a transparent one.
+      backgroundColor: getComputedStyle(document.body).backgroundColor,
+      filter: (node) => !(node instanceof Element && node.closest(`[${OWN}]`)),
+    });
   } catch {
     return null;
   }
@@ -34,9 +45,16 @@ const FeedbackWidget = () => {
     return () => URL.revokeObjectURL(url);
   }, [screenshot]);
 
-  const start = async () => {
-    if (currentUser) setScreenshot(await capture());
-    setOpen(true);
+  // Opens at once (#376): the screenshot is taken only when asked for.
+  const [capturing, setCapturing] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const takeScreenshot = async () => {
+    setCapturing(true);
+    setFailed(false);
+    const blob = await capture();
+    setScreenshot(blob);
+    setFailed(!blob);
+    setCapturing(false);
   };
 
   const send = (event) => {
@@ -52,14 +70,25 @@ const FeedbackWidget = () => {
   const issue = fetcher.data?.issue;
   return (
     <>
-      <Button size="xs" variant="ghost" onClick={start}>
+      <Button size="xs" variant="ghost" onClick={() => setOpen(true)} {...{ [OWN]: '' }}>
         <LuMessageSquareWarning />
         Feedback
       </Button>
-      <Dialog.Root open={open} onOpenChange={({ open: next }) => setOpen(next)} size="md">
+      <Dialog.Root
+        open={open}
+        onOpenChange={({ open: next }) => {
+          setOpen(next);
+          // A screenshot is of the page it was taken on: not kept for the next.
+          if (!next) {
+            setScreenshot(null);
+            setFailed(false);
+          }
+        }}
+        size="md"
+      >
         <Portal>
-          <Dialog.Backdrop />
-          <Dialog.Positioner>
+          <Dialog.Backdrop {...{ [OWN]: '' }} />
+          <Dialog.Positioner {...{ [OWN]: '' }}>
             <Dialog.Content>
               <Dialog.Header>
                 <Dialog.Title>Report a bug or suggest a feature</Dialog.Title>
@@ -115,13 +144,27 @@ const FeedbackWidget = () => {
                         <Box>
                           <Image src={preview} alt="Screenshot of this page" borderWidth="1px" borderRadius="md" maxH="10rem" />
                           <Button size="xs" variant="ghost" mt={1} onClick={() => setScreenshot(null)}>
-                            Don&apos;t send the screenshot
+                            Remove the screenshot
                           </Button>
                         </Box>
                       ) : (
-                        <Text fontSize="sm" color="muted">
-                          No screenshot.
-                        </Text>
+                        <Box>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={takeScreenshot}
+                            loading={capturing}
+                            loadingText="Taking the screenshot…"
+                          >
+                            <LuCamera />
+                            Add a screenshot of this page
+                          </Button>
+                          <Text fontSize="xs" color="muted" mt={1}>
+                            {failed
+                              ? 'The screenshot couldn’t be taken in this browser. Send it without one.'
+                              : 'Optional: it helps us see what you see.'}
+                          </Text>
+                        </Box>
                       )}
                       <Text fontSize="xs" color="muted">
                         It becomes a public issue on GitHub, with this page&apos;s address, your browser and your username.

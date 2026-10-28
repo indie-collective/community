@@ -33,8 +33,26 @@ test('a member reports a bug from any page, with a screenshot, as a labelled Git
   await waitForHydration(page);
   await page.getByRole('button', { name: 'Feedback' }).click();
   const dialog = page.getByRole('dialog', { name: 'Report a bug or suggest a feature' });
-  await expect(dialog.getByRole('img', { name: 'Screenshot of this page' })).toBeVisible();
+  // #376: no screenshot until asked for; what's typed stays while it's taken.
+  await expect(dialog.getByRole('img', { name: 'Screenshot of this page' })).toHaveCount(0);
   await dialog.getByLabel('Title').fill(title);
+  await dialog.getByRole('button', { name: 'Add a screenshot of this page' }).click();
+  const preview = dialog.getByRole('img', { name: 'Screenshot of this page' });
+  await expect(preview).toBeVisible();
+  await expect(dialog.getByLabel('Title')).toHaveValue(title);
+  // Without the widget: the dialog's backdrop, which darkens the whole page,
+  // would make the image's corners dark; the page there is light.
+  const corner = await preview.evaluate(async (img) => {
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const context = canvas.getContext('2d');
+    context.drawImage(img, 0, 0);
+    const [r, g, b, a] = context.getImageData(2, 2, 1, 1).data;
+    return a === 255 ? (r + g + b) / 3 : -a;
+  });
+  expect(corner).toBeGreaterThan(200);
   await dialog.getByLabel('What happened, and what you expected').fill('Nothing shows on /places.');
   await dialog.getByRole('button', { name: 'Send', exact: true }).click();
   await expect(dialog.getByRole('link', { name: /^issue #\d+$/ })).toHaveAttribute('href', /github\.com\/indie-collective\/community\/issues\/\d+/);
@@ -66,7 +84,10 @@ test('a feature request can leave the screenshot out; visitors are asked to sign
   await dialog.getByText('Feature request').click();
   await dialog.getByLabel('Title').fill(title);
   await dialog.getByLabel('What you’d like, and why').fill('Maps that follow dark mode.');
-  await dialog.getByRole('button', { name: "Don't send the screenshot" }).click();
+  // Taken, then removed: sent without one.
+  await dialog.getByRole('button', { name: 'Add a screenshot of this page' }).click();
+  await dialog.getByRole('button', { name: 'Remove the screenshot' }).click();
+  await expect(dialog.getByRole('img', { name: 'Screenshot of this page' })).toHaveCount(0);
   await dialog.getByRole('button', { name: 'Send', exact: true }).click();
   await expect(dialog.getByText(/^Thanks!/)).toBeVisible();
   const issue = issues.find((candidate) => candidate.title === title);
