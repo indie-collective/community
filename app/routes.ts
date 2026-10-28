@@ -56,6 +56,10 @@ export default [
   route('notifications', 'routes/notifications.jsx'),
   route('my-feed/:token', 'routes/feeds/notifications.js'),
 
+  // Fact-finding missions (#339)
+  route('missions', 'routes/missions.jsx'),
+  route('missions/:kind/:gap', 'routes/missions.$kind.$gap.jsx'),
+
   // Opportunities (#345)
   route('opportunities', 'routes/opportunities.jsx'),
   route('opportunities/new', 'routes/opportunities.new.jsx'),
