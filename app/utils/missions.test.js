@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { achievementsOf, tally } from './missions';
+import { ACHIEVEMENTS, achievementProgress, achievementsOf, tally } from './missions';
 
 const update = (id, kind, before, after, extra = {}) => ({ id, operation: 'update', kind, record_id: `${kind}-${id}`, data: { v: 2, before, after, ...extra } });
 
@@ -34,4 +34,18 @@ describe('tally', () => {
 it('unlocks achievements from a tally', () => {
   const totals = { points: 0, filled: 12, records: 10, added: 0, byGap: { 'game:about': 6, 'event:about': 4 }, publishers: 0, milestones: 0, missions: 1 };
   expect(achievementsOf(totals).map((a) => a.name)).toEqual(['First find', 'First mission', 'Fact finder', 'Archivist']);
+});
+
+// #377: locked badges show how far there is to go.
+it('measures progress towards every achievement, capped at its target', () => {
+  const totals = { points: 0, filled: 12, records: 7, added: 0, byGap: { 'organization:place': 3 }, publishers: 0, milestones: 0, missions: 60 };
+  const progress = achievementProgress(totals);
+  expect(progress).toHaveLength(ACHIEVEMENTS.length);
+  const of = (key) => progress.find((a) => a.key === key);
+  expect(of('records-10')).toMatchObject({ value: 7, target: 10, earned: false, tier: 'silver' });
+  expect(of('missions-50')).toMatchObject({ value: 50, target: 50, earned: true });
+  expect(of('cartographer')).toMatchObject({ value: 3, earned: false });
+  expect(of('records-1000').tier).toBe('platinum');
+  // The same verdicts as achievementsOf.
+  expect(progress.filter((a) => a.earned).map((a) => a.key)).toEqual(achievementsOf(totals).map((a) => a.key));
 });

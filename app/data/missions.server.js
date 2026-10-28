@@ -18,7 +18,7 @@ import {
   people,
 } from '../db/schema.js';
 import { checkBlueskyHandle } from '../utils/bluesky.server';
-import { FLAG_REASONS, GAPS, achievementsOf, gapOf, tally } from '../utils/missions';
+import { FLAG_REASONS, GAPS, achievementProgress, achievementsOf, gapOf, tally } from '../utils/missions';
 
 export { FLAG_REASONS, MISSION_KINDS } from '../utils/missions';
 import { eventPath, gamePath, orgPath } from '../utils/slug';
@@ -295,5 +295,5 @@ export async function memberStats(personId, { since, before } = {}) {
     rows.map((row) => ({ id: row.id, operation: row.operation, kind: KIND_OF[row.tableName], record_id: row.recordId, data: row.data })),
     { undone: new Set(undone.map((row) => row.id)), missions }
   );
-  return { ...totals, achievements: achievementsOf(totals) };
+  return { ...totals, achievements: achievementsOf(totals), progress: achievementProgress(totals) };
 }

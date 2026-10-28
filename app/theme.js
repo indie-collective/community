@@ -71,6 +71,12 @@ const config = defineConfig({
     keyframes: {
       'vt-fade-out': { to: { opacity: 0 } },
       'vt-fade-in': { from: { opacity: 0, transform: 'translateY(8px)' } },
+      // A badge just earned (#377): it pops in, overshoots and settles.
+      'badge-pop': {
+        '0%': { opacity: 0, transform: 'scale(0.4) rotate(-20deg)' },
+        '60%': { opacity: 1, transform: 'scale(1.15) rotate(6deg)' },
+        '100%': { opacity: 1, transform: 'scale(1) rotate(0)' },
+      },
       // Lists appearing (Reveal).
       rise: {
         from: { opacity: 0, transform: 'translateY(10px)' },

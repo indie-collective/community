@@ -89,23 +89,45 @@ export function tally(changes, { undone = new Set(), missions = 0 } = {}) {
 
 const sum = (byGap, ...keys) => keys.reduce((total, key) => total + (byGap[key] ?? 0), 0);
 
-/** Every achievement: `[key, name, what it takes, unlocked(tally)]`. */
+const eventGaps = (byGap) =>
+  Object.entries(byGap)
+    .filter(([key]) => key.startsWith('event:'))
+    .reduce((n, [, v]) => n + v, 0);
+
+/**
+ * Every achievement (#377): `{ key, name, description, tier, measure, target }`.
+ * `measure(tally)` counts towards it, and it's earned at `target`. The tier
+ * sets its medal: bronze for firsts, silver for tens, gold for hundreds,
+ * platinum beyond. Their icons are in components/AchievementBadge.
+ */
 export const ACHIEVEMENTS = [
-  ['first-find', 'First find', 'Fill in something missing', (t) => t.filled >= 1],
-  ['first-mission', 'First mission', 'Complete a record on a mission', (t) => t.missions >= 1],
-  ['missions-50', 'Mission regular', 'Complete 50 records on missions', (t) => t.missions >= 50],
-  ['records-10', 'Fact finder', 'Complete 10 records', (t) => t.records >= 10],
-  ['records-100', 'Researcher', 'Complete 100 records', (t) => t.records >= 100],
-  ['records-1000', 'Encyclopedist', 'Complete 1,000 records', (t) => t.records >= 1000],
-  ['archivist', 'Archivist', 'Write 10 missing descriptions', (t) => sum(t.byGap, 'game:about', 'organization:about', 'event:about') >= 10],
-  ['cartographer', 'Cartographer', 'Place 10 organisations on the map', (t) => sum(t.byGap, 'organization:place') >= 10],
-  ['photographer', 'Photographer', 'Add 10 missing images, logos or covers', (t) => sum(t.byGap, 'game:images', 'organization:logo', 'event:cover') >= 10],
-  ['talent-scout', 'Talent scout', 'Credit 5 publishers', (t) => t.publishers >= 5],
-  ['historian', 'Historian', 'Add 10 steps to games’ timelines', (t) => t.milestones >= 10],
-  ['event-planner', 'Event planner', 'Fill in 10 things missing from events', (t) => Object.entries(t.byGap).filter(([key]) => key.startsWith('event:')).reduce((n, [, v]) => n + v, 0) >= 10],
-  ['founder', 'Founder', 'Add 10 games, organisations or events', (t) => t.added >= 10],
+  { key: 'first-find', name: 'First find', description: 'Fill in something missing', tier: 'bronze', measure: (t) => t.filled, target: 1 },
+  { key: 'first-mission', name: 'First mission', description: 'Complete a record on a mission', tier: 'bronze', measure: (t) => t.missions, target: 1 },
+  { key: 'missions-50', name: 'Mission regular', description: 'Complete 50 records on missions', tier: 'silver', measure: (t) => t.missions, target: 50 },
+  { key: 'records-10', name: 'Fact finder', description: 'Complete 10 records', tier: 'silver', measure: (t) => t.records, target: 10 },
+  { key: 'records-100', name: 'Researcher', description: 'Complete 100 records', tier: 'gold', measure: (t) => t.records, target: 100 },
+  { key: 'records-1000', name: 'Encyclopedist', description: 'Complete 1,000 records', tier: 'platinum', measure: (t) => t.records, target: 1000 },
+  { key: 'archivist', name: 'Archivist', description: 'Write 10 missing descriptions', tier: 'silver', measure: (t) => sum(t.byGap, 'game:about', 'organization:about', 'event:about'), target: 10 },
+  { key: 'cartographer', name: 'Cartographer', description: 'Place 10 organisations on the map', tier: 'silver', measure: (t) => sum(t.byGap, 'organization:place'), target: 10 },
+  { key: 'photographer', name: 'Photographer', description: 'Add 10 missing images, logos or covers', tier: 'silver', measure: (t) => sum(t.byGap, 'game:images', 'organization:logo', 'event:cover'), target: 10 },
+  { key: 'talent-scout', name: 'Talent scout', description: 'Credit 5 publishers', tier: 'silver', measure: (t) => t.publishers, target: 5 },
+  { key: 'historian', name: 'Historian', description: 'Add 10 steps to games’ timelines', tier: 'silver', measure: (t) => t.milestones, target: 10 },
+  { key: 'event-planner', name: 'Event planner', description: 'Fill in 10 things missing from events', tier: 'silver', measure: (t) => eventGaps(t.byGap), target: 10 },
+  { key: 'founder', name: 'Founder', description: 'Add 10 games, organisations or events', tier: 'silver', measure: (t) => t.added, target: 10 },
 ];
 
-/** The achievements a tally unlocks: `{ key, name, description }`. */
+const plain = ({ key, name, description, tier, target }) => ({ key, name, description, tier, target });
+
+/**
+ * Every achievement and how far a tally is towards it: `{ key, name,
+ * description, tier, target, value, earned }`, `value` capped at `target`.
+ */
+export const achievementProgress = (totals) =>
+  ACHIEVEMENTS.map((achievement) => {
+    const value = Math.min(achievement.measure(totals) || 0, achievement.target);
+    return { ...plain(achievement), value, earned: value >= achievement.target };
+  });
+
+/** The achievements a tally unlocks: `{ key, name, description, tier, target }`. */
 export const achievementsOf = (totals) =>
-  ACHIEVEMENTS.filter(([, , , unlocked]) => unlocked(totals)).map(([key, name, description]) => ({ key, name, description }));
+  ACHIEVEMENTS.filter((achievement) => achievement.measure(totals) >= achievement.target).map(plain);

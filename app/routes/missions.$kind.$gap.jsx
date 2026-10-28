@@ -1,5 +1,6 @@
-import { Alert, Badge, Box, Button, Field, HStack, Input, Link as ChakraLink, NativeSelect, Stack, Text, Textarea } from '@chakra-ui/react';
+import { Alert, Box, Button, Field, HStack, Input, Link as ChakraLink, NativeSelect, Stack, Text, Textarea } from '@chakra-ui/react';
 import { Form, redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
+import AchievementShelf from '../components/AchievementBadge';
 import { LuExternalLink } from 'react-icons/lu';
 
 import Link from '../components/Link';
@@ -105,14 +106,13 @@ const Summary = ({ kind, gap, summary }) => (
       {summary.points === 1 ? 'point' : 'points'}.
     </Text>
     {summary.unlocked.length > 0 && (
-      <HStack gap={2} wrap="wrap">
-        <Text>New badges:</Text>
-        {summary.unlocked.map((achievement) => (
-          <Badge key={achievement.key} colorPalette="yellow" size="lg" title={achievement.description}>
-            {achievement.name}
-          </Badge>
-        ))}
-      </HStack>
+      // Just earned: they pop in (#377).
+      <Box bg="surface" borderRadius="xl" shadow="xs" p={5}>
+        <Text fontWeight="semibold" mb={4}>
+          {summary.unlocked.length === 1 ? 'New badge!' : `${summary.unlocked.length} new badges!`}
+        </Text>
+        <AchievementShelf achievements={summary.unlocked} size="lg" celebrate />
+      </Box>
     )}
     <HStack>
       {!summary.ranOut && (
