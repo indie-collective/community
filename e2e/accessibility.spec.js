@@ -1,10 +1,14 @@
 import AxeBuilder from '@axe-core/playwright';
 import { eq } from 'drizzle-orm';
 
-import { db, gameImages, games, retryBusy } from './db.js';
+import { db, gameImages, games, retryBusy, setFlag } from './db.js';
 import { expect, test, MEMBER, signIn, waitForHydration } from './helpers';
 
 // #350: WCAG 2.2 AA on the main pages, in light and dark, with the keyboard.
+
+// Pages behind feature flags too.
+test.beforeAll(() => setFlag('opportunities', 'on'));
+test.afterAll(() => setFlag('opportunities', null));
 
 const STATIC = ['/', '/games', '/studios', '/associations', '/publishers', '/events', '/opportunities', '/places', '/countries', '/search?q=game', '/about', '/signin', '/missions', '/data', '/api'];
 

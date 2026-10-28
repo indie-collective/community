@@ -5,6 +5,7 @@ import { LuLocateFixed } from 'react-icons/lu';
 import { Form, useNavigate, useSearchParams, useSubmit } from 'react-router';
 import CountryCombobox from './CountryCombobox';
 import { FilterBar } from './Page';
+import useFeature from '../hooks/useFeature';
 
 // Radii for "near me" on the events list (#347), in km.
 export const NEAR_RADII = [25, 50, 100, 250];
@@ -90,6 +91,7 @@ const Filters = ({ facets, selected, type }) => {
   const submit = useSubmit();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const opportunities = useFeature('opportunities');
 
   // Lists filtered to a city (from a country page, #258) keep the city
   // across the other filters, until it's removed or the country changes.
@@ -200,19 +202,22 @@ const Filters = ({ facets, selected, type }) => {
               </NativeSelect.Field>
               <NativeSelect.Indicator />
             </NativeSelect.Root>
-            <Checkbox.Root
-              name="pitches"
-              value="on"
-              defaultChecked={selected.pitches === 'on'}
-              colorPalette="green"
-            >
-              {/* #345: publishers with an "Open to pitches" opportunity now. */}
-              <Checkbox.HiddenInput onChange={handleChange} />
-              <Checkbox.Control>
-                <Checkbox.Indicator />
-              </Checkbox.Control>
-              <Checkbox.Label>Open to pitches</Checkbox.Label>
-            </Checkbox.Root>
+            {/* Behind the opportunities feature flag (/admin/flags). */}
+            {opportunities && (
+              <Checkbox.Root
+                name="pitches"
+                value="on"
+                defaultChecked={selected.pitches === 'on'}
+                colorPalette="green"
+              >
+                {/* #345: publishers with an "Open to pitches" opportunity now. */}
+                <Checkbox.HiddenInput onChange={handleChange} />
+                <Checkbox.Control>
+                  <Checkbox.Indicator />
+                </Checkbox.Control>
+                <Checkbox.Label>Open to pitches</Checkbox.Label>
+              </Checkbox.Root>
+            )}
           </>
         ) : (
           <>

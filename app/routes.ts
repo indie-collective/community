@@ -64,7 +64,7 @@ export default [
   route('missions', 'routes/missions.jsx'),
   route('missions/:kind/:gap', 'routes/missions.$kind.$gap.jsx'),
 
-  // Opportunities (#345)
+  // Opportunities (#345), behind their feature flag
   route('opportunities', 'routes/opportunities.jsx'),
   route('opportunities/new', 'routes/opportunities.new.jsx'),
   route('opportunities/:id/delete', 'routes/opportunities.$id.delete.js'),
@@ -138,6 +138,7 @@ export default [
   route('admin/duplicates/merge', 'routes/admin/duplicates.merge.jsx'),
   route('admin/tags', 'routes/admin/tags.jsx'),
   route('admin/users', 'routes/admin/users.jsx'),
+  route('admin/flags', 'routes/admin/flags.jsx'),
 
   route('*', 'routes/$.jsx'),
 ] satisfies RouteConfig;
