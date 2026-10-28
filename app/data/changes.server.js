@@ -21,6 +21,7 @@ import {
   gameOrganizations,
   games,
   gameTags,
+  opportunities,
   organizationEvents,
   organizations,
   people,
@@ -95,6 +96,19 @@ const KINDS = {
     ],
   },
 };
+KINDS.opportunity = {
+  table: opportunities,
+  name: 'opportunities',
+  path: (record) => `/opportunities#${record.id}`,
+  label: 'opportunity',
+  links: [],
+};
+// A record's name and address columns for the log's lists and alerts.
+const nameColumns = (table) => ({
+  id: table.id,
+  slug: table.slug ?? sql`null`,
+  name: table.name ?? table.title,
+});
 const KIND_OF_TABLE = Object.fromEntries(Object.entries(KINDS).map(([kind, { name }]) => [name, kind]));
 
 /** The SQL for a record's snapshot: its recorded columns and links, as JSON. */
@@ -193,7 +207,7 @@ async function announce({ operation, kind, recordId, authorId, fields, undoOf })
     ? await db.select({ username: people.username }).from(people).where(eq(people.id, authorId))
     : [];
   const { table, path, label } = KINDS[kind];
-  const [record] = await db.select({ id: table.id, slug: table.slug, name: table.name }).from(table).where(eq(table.id, recordId));
+  const [record] = await db.select(nameColumns(table)).from(table).where(eq(table.id, recordId));
   const base = toOrigin(process.env.BASE_URL) ?? '';
   const who = author ? `@${author.username}` : 'Someone';
   const what = undoOf ? 'undid a change to' : VERBS[operation];
@@ -451,7 +465,7 @@ async function describe(rows) {
       const ids = rows.filter((row) => row.tableName === name).map((row) => row.recordId);
       if (ids.length === 0) return;
       const records = await db
-        .select({ id: table.id, slug: table.slug, name: table.name, deletedAt: table.deletedAt })
+        .select({ ...nameColumns(table), deletedAt: table.deletedAt })
         .from(table)
         .where(inArray(table.id, ids));
       for (const record of records) names.set(record.id, { name: record.name, path: path(record), deleted: !!record.deletedAt, kind });

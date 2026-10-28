@@ -17,7 +17,8 @@ export const RECORDED_LINKS = {
   organization: ['organization_events'],
   event: ['game_events', 'organization_events'],
 };
-export const UNRECORDED_LINKS = ['event_participants', 'game_igdb'];
+// Opportunities are records of their own, with their own changes (#345).
+export const UNRECORDED_LINKS = ['event_participants', 'game_igdb', 'opportunities'];
 
 // Empty text and nothing are the same: forms send one for the other.
 const comparable = (value) => JSON.stringify(value === '' || value === undefined ? null : value);

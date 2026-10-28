@@ -36,9 +36,11 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
 import ActionMenu from '../components/ActionMenu';
 import ShareMenu from '../components/ShareMenu';
+import OpportunityList from '../components/OpportunityList';
+import { listOpportunities } from '../data/opportunities.server';
 import { ReportDuplicate } from '../components/Duplicates';
 import { SubscribeMenu } from '../components/CalendarMenus';
-import { Page, PageHeader } from '../components/Page';
+import { Page, PageHeader, PageSection } from '../components/Page';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
 import SectionHeading from '../components/SectionHeading';
 import {
@@ -69,6 +71,7 @@ export const loader = async ({ request, params }) => {
   return {
     org,
     currentUser,
+    opportunities: await listOpportunities({ organizationId: id }),
   };
 };
 
@@ -92,7 +95,7 @@ export const meta = ({ data, matches }) => {
 
 const Org = () => {
   const placeholder = usePlaceholder('square');
-  const { org, currentUser } = useLoaderData();
+  const { org, currentUser, opportunities } = useLoaderData();
 
   const deleteModal = useDisclosure();
   // #346
@@ -362,6 +365,25 @@ const Org = () => {
             </Portal>
           </Dialog.Root>
         </Box>
+      )}
+      {/* #345: what it's looking for. */}
+      {(opportunities.length > 0 || currentUser) && (
+        <PageSection
+          title="Opportunities"
+          aside={
+            currentUser && (
+              <Button asChild size="sm" variant="outline">
+                <Link to={`/opportunities/new?for=organization:${id}`}>Post an opportunity</Link>
+              </Button>
+            )
+          }
+        >
+          {opportunities.length > 0 ? (
+            <OpportunityList opportunities={opportunities} currentUser={currentUser} showFor={false} />
+          ) : (
+            <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
+          )}
+        </PageSection>
       )}
       {currentUser && (
         <ReportDuplicate kind="organization" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />

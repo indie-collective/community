@@ -417,6 +417,39 @@ export const changes = sqliteTable(
 
 // #254: a game's stored IGDB data, out of `games` so a refresh doesn't
 // bump the game's updated_at or add to its history.
+// What organisations, games and events are looking for (#345): a job, a
+// playtest, pitches… attached to one of them, until its end date.
+export const OPPORTUNITY_KINDS = ['job', 'freelance', 'playtest', 'team_up', 'pitches', 'submissions'];
+export const opportunities = sqliteTable(
+  'opportunities',
+  {
+    id: id(),
+    kind: text('kind', { enum: OPPORTUNITY_KINDS }).notNull(),
+    title: text('title').notNull(),
+    about: text('about'),
+    // Where to apply or sign up.
+    link: text('link'),
+    remote: integer('remote', { mode: 'boolean' }).notNull().default(false),
+    city: text('city'),
+    countryCode: text('country_code'),
+    organizationId: text('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+    gameId: text('game_id').references(() => games.id, { onDelete: 'cascade' }),
+    eventId: text('event_id').references(() => events.id, { onDelete: 'cascade' }),
+    endsAt: time('ends_at').notNull(),
+    authorId: text('author_id').references(() => people.id, { onDelete: 'set null' }),
+    deletedAt: time('deleted_at'),
+    lastModifiedById: text('last_modified_by_id').references(() => people.id, { onDelete: 'set null' }),
+    ...timestamps(),
+  },
+  (t) => [
+    check('opportunities_kind', oneOf(t.kind, OPPORTUNITY_KINDS)),
+    check('opportunities_title_length', sql`length(${t.title}) <= 120`),
+    index('opportunities_ends_at').on(t.endsAt),
+    index('opportunities_organization_id').on(t.organizationId),
+    index('opportunities_game_id').on(t.gameId),
+  ]
+);
+
 // Pairs of records a member flagged as duplicates, or an admin said aren't
 // (#346), so the admin view doesn't suggest them again. Kind is "game",
 // "organization" or "event"; the two IDs are in order.

@@ -181,24 +181,39 @@ const Filters = ({ facets, selected, type }) => {
           </>
         ) : type === 'publisher' ? (
           // #331: publishers of games like yours.
-          <NativeSelect.Root size="sm" width="auto">
-            <NativeSelect.Field
-              name="tag"
-              aria-label="Published games tagged"
-              defaultValue={selected.tag ?? ''}
-              onChange={handleChange}
-              borderRadius="md"
-              width="auto"
+          <>
+            <NativeSelect.Root size="sm" width="auto">
+              <NativeSelect.Field
+                name="tag"
+                aria-label="Published games tagged"
+                defaultValue={selected.tag ?? ''}
+                onChange={handleChange}
+                borderRadius="md"
+                width="auto"
+              >
+                <option value="">Any kind of game</option>
+                {facets.tags?.map((tag) => (
+                  <option key={tag.id} value={tag.name}>
+                    {tag.name} ({tag._count})
+                  </option>
+                ))}
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+            <Checkbox.Root
+              name="pitches"
+              value="on"
+              defaultChecked={selected.pitches === 'on'}
+              colorPalette="green"
             >
-              <option value="">Any kind of game</option>
-              {facets.tags?.map((tag) => (
-                <option key={tag.id} value={tag.name}>
-                  {tag.name} ({tag._count})
-                </option>
-              ))}
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
+              {/* #345: publishers with an "Open to pitches" opportunity now. */}
+              <Checkbox.HiddenInput onChange={handleChange} />
+              <Checkbox.Control>
+                <Checkbox.Indicator />
+              </Checkbox.Control>
+              <Checkbox.Label>Open to pitches</Checkbox.Label>
+            </Checkbox.Root>
+          </>
         ) : (
           <>
             <Checkbox.Root

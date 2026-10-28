@@ -38,6 +38,8 @@ import Link from '../components/Link';
 
 import PlaceMap from '../components/PlaceMap';
 import ShareMenu from '../components/ShareMenu';
+import OpportunityList from '../components/OpportunityList';
+import { listOpportunities } from '../data/opportunities.server';
 import { ReportDuplicate } from '../components/Duplicates';
 import { AddToCalendar } from '../components/CalendarMenus';
 import VisitorTime from '../components/VisitorTime';
@@ -62,7 +64,7 @@ import { SearchGameModal } from './search-game';
 import { SearchOrgModal } from './search-org';
 import SectionHeading from '../components/SectionHeading';
 import ActionMenu from '../components/ActionMenu';
-import { Page, PageHeader } from '../components/Page';
+import { Page, PageHeader, PageSection } from '../components/Page';
 import countryNames from '../assets/countries.json';
 import { formatEventDate, formatEventRange } from '../utils/eventTime';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
@@ -92,6 +94,7 @@ export const loader = async ({ request, params }) => {
       excludeIds: editions.map((edition) => edition.id),
     }),
     currentUser,
+    opportunities: await listOpportunities({ eventId: id }),
   };
 
   return data;
@@ -122,7 +125,7 @@ export const meta = ({ data, matches }) => {
 };
 
 const Event = () => {
-  const { event, editions, relatedEvents, currentUser } = useLoaderData();
+  const { event, editions, relatedEvents, currentUser, opportunities } = useLoaderData();
   const fetcher = useFetcher();
   const placeholder = usePlaceholder();
   const {
@@ -603,6 +606,25 @@ const Event = () => {
             </Portal>
           </Dialog.Root>
         </Box>
+      )}
+      {/* #345: what it's looking for. */}
+      {(opportunities.length > 0 || currentUser) && (
+        <PageSection
+          title="Opportunities"
+          aside={
+            currentUser && (
+              <Button asChild size="sm" variant="outline">
+                <Link to={`/opportunities/new?for=event:${id}`}>Post an opportunity</Link>
+              </Button>
+            )
+          }
+        >
+          {opportunities.length > 0 ? (
+            <OpportunityList opportunities={opportunities} currentUser={currentUser} showFor={false} />
+          ) : (
+            <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
+          )}
+        </PageSection>
       )}
       {currentUser && (
         <ReportDuplicate kind="event" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />
