@@ -35,6 +35,8 @@ import ActionMenu from '../components/ActionMenu';
 import ShareMenu from '../components/ShareMenu';
 import OpportunityList from '../components/OpportunityList';
 import { listOpportunities } from '../data/opportunities.server';
+import { isFollowing } from '../data/notifications.server';
+import FollowButton from '../components/FollowButton';
 import { ReportDuplicate } from '../components/Duplicates';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import TagList from '../components/TagList';
@@ -57,10 +59,12 @@ export const loader = async ({ request, params, context }) => {
       status: 404,
     });
 
+  const currentUser = await isAuthenticated(request);
   const data = {
     game,
-    currentUser: await isAuthenticated(request),
+    currentUser,
     opportunities: await listOpportunities({ gameId: id }),
+    following: await isFollowing(currentUser?.id, 'game', id),
   };
 
   return data;
@@ -95,7 +99,7 @@ export const meta = ({ data, matches }) => {
 };
 
 const Game = () => {
-  const { game, currentUser, opportunities } = useLoaderData();
+  const { game, currentUser, opportunities, following } = useLoaderData();
   const fetcher = useFetcher();
 
   const {
@@ -158,6 +162,7 @@ const Game = () => {
         actions={
           <>
             <ShareMenu title={name} path={gamePath(game)} />
+            {currentUser && <FollowButton type="game" id={id} following={following} />}
             {currentUser && (
               <ActionMenu
                 editLink={`/game/${id}/edit`}

@@ -27,6 +27,7 @@ import {
   people,
 } from '../db/schema.js';
 import { inBackground } from '../utils/background.server';
+import { notifyFollowers } from './notifications.server';
 import { changedFields, recordedColumns } from '../utils/changeLog';
 import { toOrigin } from '../utils/origin.server';
 import { eventPath, gamePath, orgPath } from '../utils/slug';
@@ -246,22 +247,26 @@ export async function recordChange({ operation, kind, recordId, authorId = null,
   // What the change was for, beside its fields: an undo, a merge (#346).
   const notes = { ...(undoOf ? { undo_of: undoOf } : {}), ...(note ?? {}) };
   let fields;
+  let diff;
   if (creating) {
     fields = [];
+    diff = { before: {}, after: row.data.after };
     if (Object.keys(notes).length > 0) await db.update(changes).set({ data: { ...row.data, ...notes } }).where(eq(changes.id, id));
   } else {
-    const { before, after } = changedFields(row.data.before, await snapshot(kind, recordId));
-    fields = Object.keys(before);
+    diff = changedFields(row.data.before, await snapshot(kind, recordId));
+    fields = Object.keys(diff.before);
     if (fields.length === 0) {
       await db.delete(changes).where(eq(changes.id, id));
       return null;
     }
     await db
       .update(changes)
-      .set({ data: { v: 2, before, after, ...notes } })
+      .set({ data: { v: 2, ...diff, ...notes } })
       .where(eq(changes.id, id));
   }
   await announce({ operation, kind, recordId, authorId, fields, undoOf });
+  // Followers hear of it after the response (#343).
+  inBackground(() => notifyFollowers({ operation, kind, recordId, authorId, ...diff }));
   return { id, fields };
 }
 

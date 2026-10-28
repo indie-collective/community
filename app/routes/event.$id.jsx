@@ -40,6 +40,8 @@ import PlaceMap from '../components/PlaceMap';
 import ShareMenu from '../components/ShareMenu';
 import OpportunityList from '../components/OpportunityList';
 import { listOpportunities } from '../data/opportunities.server';
+import { isFollowing } from '../data/notifications.server';
+import FollowButton from '../components/FollowButton';
 import { ReportDuplicate } from '../components/Duplicates';
 import { AddToCalendar } from '../components/CalendarMenus';
 import VisitorTime from '../components/VisitorTime';
@@ -95,6 +97,7 @@ export const loader = async ({ request, params }) => {
     }),
     currentUser,
     opportunities: await listOpportunities({ eventId: id }),
+    following: await isFollowing(currentUser?.id, 'event', id),
   };
 
   return data;
@@ -125,7 +128,7 @@ export const meta = ({ data, matches }) => {
 };
 
 const Event = () => {
-  const { event, editions, relatedEvents, currentUser, opportunities } = useLoaderData();
+  const { event, editions, relatedEvents, currentUser, opportunities, following } = useLoaderData();
   const fetcher = useFetcher();
   const placeholder = usePlaceholder();
   const {
@@ -222,6 +225,7 @@ const Event = () => {
         actions={
           <>
             <ShareMenu title={name} path={eventPath(event)} />
+            {currentUser && <FollowButton type="event" id={id} following={following} />}
             {!isPast && status !== 'canceled' && (
               <AddToCalendar
                 event={event}

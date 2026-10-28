@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 
-import { db, eventParticipants, events, organizationEvents, organizations, people, searchText } from './db.js';
+import { db, eventParticipants, events, organizationEvents, organizations, people, searchText, retryBusy } from './db.js';
 import { expect, test, MEMBER, signIn } from './helpers';
 import { eventSlug } from '../app/utils/slug.js';
 
@@ -55,9 +55,9 @@ test('the events calendar, a country one and an organisation one list their even
 
     expect((await request.get('/country/zz/calendar.ics')).status()).toBe(404);
   } finally {
-    await db.delete(events).where(eq(events.id, lyon.id));
-    await db.delete(events).where(eq(events.id, tokyo.id));
-    await db.delete(organizations).where(eq(organizations.id, host.id));
+    await retryBusy(() => db.delete(events).where(eq(events.id, lyon.id)));
+    await retryBusy(() => db.delete(events).where(eq(events.id, tokyo.id)));
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.id, host.id)));
   }
 });
 
@@ -75,7 +75,7 @@ test('an upcoming event can be added to a calendar', async ({ page }) => {
     expect(response.headers()['content-disposition']).toBe(`attachment; filename="${event.slug}.ics"`);
     expect(unfold(await response.text())).toContain(`SUMMARY:${event.name}`);
   } finally {
-    await db.delete(events).where(eq(events.id, event.id));
+    await retryBusy(() => db.delete(events).where(eq(events.id, event.id)));
   }
 });
 
@@ -100,8 +100,8 @@ test("a member's private calendar has the events they're going to", async ({ pag
     const [, sig] = path.split('/').pop().split('.');
     expect((await page.request.get(`/my-calendar/${other.id}.${sig}`)).status()).toBe(404);
   } finally {
-    await db.delete(events).where(eq(events.id, event.id));
-    await db.delete(events).where(eq(events.id, other.id));
+    await retryBusy(() => db.delete(events).where(eq(events.id, event.id)));
+    await retryBusy(() => db.delete(events).where(eq(events.id, other.id)));
   }
 });
 
@@ -123,6 +123,6 @@ test('Atom feeds list what was added, newest first, and by country', async ({ pa
     await page.goto('/about');
     await expect(page.locator('link[rel="alternate"][type="application/atom+xml"][href="/feed.xml"]')).toHaveCount(1);
   } finally {
-    await db.delete(events).where(eq(events.id, event.id));
+    await retryBusy(() => db.delete(events).where(eq(events.id, event.id)));
   }
 });

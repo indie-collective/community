@@ -42,6 +42,10 @@ export default [
   route('profile/edit', 'routes/profile.edit.jsx'),
   route('profile/bluesky', 'routes/profile.bluesky.jsx'),
   route('people/:username', 'routes/people.$username.jsx'),
+  // Follows and notifications (#343).
+  route('follow', 'routes/follow.js'),
+  route('notifications', 'routes/notifications.jsx'),
+  route('my-feed/:token', 'routes/feeds/notifications.js'),
 
   // Opportunities (#345)
   route('opportunities', 'routes/opportunities.jsx'),

@@ -46,7 +46,7 @@ test('a member posts a job for a studio; it shows on the studio and the list, an
     await removed;
     await expect(page.getByText(`Junior dev ${id}`)).toHaveCount(0);
   } finally {
-    await db.delete(organizations).where(eq(organizations.id, studio.id));
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.id, studio.id)));
   }
 });
 
@@ -68,7 +68,7 @@ test('opportunities expire at their end date, and the form refuses more than thr
     });
     expect(await response.text()).toContain('It can stay up for 92 days at most.');
   } finally {
-    await db.delete(organizations).where(eq(organizations.id, studio.id));
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.id, studio.id)));
   }
 });
 
@@ -95,7 +95,7 @@ test('the publishers list keeps those taking pitches now', async ({ page }) => {
     await expect(page.locator('main').getByRole('link', { name: open.name })).toBeVisible();
     await expect(page.locator('main').getByRole('link', { name: closed.name })).toHaveCount(0);
   } finally {
-    await db.delete(games).where(eq(games.id, game.id));
-    await db.delete(organizations).where(inArray(organizations.id, [open.id, closed.id]));
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+    await retryBusy(() => db.delete(organizations).where(inArray(organizations.id, [open.id, closed.id])));
   }
 });
