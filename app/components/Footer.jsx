@@ -9,6 +9,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import FeedbackWidget from './FeedbackWidget';
 import * as React from 'react';
 import { FaBluesky, FaGithub, FaInstagram, FaDiscord } from 'react-icons/fa6';
 import Link from './Link';
@@ -55,6 +56,8 @@ const Footer = () => {
           <ChakraLink asChild>
             <Link to="/api">API</Link>
           </ChakraLink>
+          {/* #320 */}
+          <FeedbackWidget />
           <ChakraLink
             href="https://indieco.xyz/"
             target="_blank"
