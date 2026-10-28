@@ -40,6 +40,11 @@ export default {
     if (isWeeklySlot(now)) {
       const { postWeeklySummary } = await import('../app/data/weeklySummary.server.js');
       ctx.waitUntil(postWeeklySummary({ now }));
+      // #304: and the week's open data export.
+      const { publishExport } = await import('../app/data/openData.server.js');
+      const { toOrigin } = await import('../app/utils/origin.server.js');
+      const origin = toOrigin(env.BASE_URL) || 'https://community.indieco.xyz';
+      ctx.waitUntil(publishExport({ origin, now }));
     }
   },
 };
