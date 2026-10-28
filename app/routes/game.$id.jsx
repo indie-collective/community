@@ -300,6 +300,10 @@ const Game = () => {
                       { method: 'post', action: `/game/${id}/companies/add` }
                     );
                   }}
+                  // Not found: added, linked, then opened to fill in (#374).
+                  onCreate={(record) =>
+                    fetcher.submit(record, { method: 'post', action: `/game/${id}/companies/add` })
+                  }
                 />
               </>
             )}

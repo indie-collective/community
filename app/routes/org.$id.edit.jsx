@@ -15,6 +15,7 @@ import OrgForm from '../components/OrgForm';
 import { checkBlueskyHandle } from '../utils/bluesky.server';
 import { ORGANIZATION_STATUSES } from '../db/schema.js';
 import { orgPath } from '../utils/slug';
+import { safeRedirectPath } from '../utils/safeRedirect';
 import { routeRecordId } from '../utils/pageRecord.server';
 import { PageHeader } from '../components/Page';
 
@@ -88,7 +89,10 @@ export async function action(args) {
       authorId: currentUser.id,
     });
 
-    return redirect(orgPath(org));
+    // Back to the page that added it from a picker (#374), else its own.
+    return redirect(
+      safeRedirectPath(new URL(request.url).searchParams.get('return'), orgPath(org))
+    );
   } catch (err) {
     console.log(err);
 

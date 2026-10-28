@@ -368,3 +368,48 @@ test('a timeline refuses dates that do not exist', async ({ page, request }) => 
     await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
   }
 });
+
+// #374: a studio that isn't found is added from the picker, linked, and
+// opened to fill in; saving it comes back to the game.
+test('a studio not found is added from the picker, then filled in', async ({ page }) => {
+  const { db, games, gameOrganizations, organizations, retryBusy } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const tag = Date.now() % 100000;
+  const [game] = await retryBusy(() => db.insert(games).values({ name: `Quillwind ${tag}` }).returning());
+  const name = `Brambleforge Studio ${tag}`;
+  try {
+    await signIn(page, MEMBER);
+    await page.goto(`/game/${game.id}`);
+    await page.getByRole('button', { name: 'Add an author to the game' }).click();
+
+    const picker = page.getByRole('dialog');
+    await picker.getByPlaceholder('Search...').fill(name);
+    const addStudio = picker.getByRole('button', { name: `Add studio “${name}”` });
+    await expect(addStudio).toBeVisible();
+    await expect(picker.getByRole('button', { name: `Add association “${name}”` })).toBeVisible();
+
+    await addStudio.click();
+    await expect(page).toHaveURL(/\/org\/[a-z0-9-]+\/edit\?return=/);
+    const [org] = await retryBusy(() => db.select().from(organizations).where(eq(organizations.name, name)));
+    expect(org.type).toBe('studio');
+    const [link] = await retryBusy(() =>
+      db.select().from(gameOrganizations).where(eq(gameOrganizations.gameId, game.id))
+    );
+    expect(link.organizationId).toBe(org.id);
+
+    // Saved, it's back on the game, which credits it.
+    await page.getByRole('button', { name: /submit|save/i }).click();
+    await expect(page).toHaveURL(new RegExp(`/game/(${game.id}|quillwind-${tag})$`));
+    await expect(page.getByRole('main').getByText(name).first()).toBeVisible();
+
+    // Now it exists, searching it again, in capitals, finds it and offers no "Add".
+    await page.getByRole('button', { name: 'Add an author to the game' }).click();
+    const again = page.getByRole('dialog');
+    await again.getByPlaceholder('Search...').fill(name.toUpperCase());
+    await expect(again.getByRole('listitem').filter({ hasText: name })).toBeVisible();
+    await expect(again.getByRole('button', { name: /^Add studio/ })).toHaveCount(0);
+  } finally {
+    await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.name, name)));
+  }
+});

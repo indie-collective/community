@@ -11,6 +11,7 @@ import { toaster } from '../components/ui/toaster';
 import GameForm from '../components/GameForm';
 import { getGameForEdit, resolveGameTags, updateGame } from '../data/games.server';
 import { gamePath } from '../utils/slug';
+import { safeRedirectPath } from '../utils/safeRedirect';
 import { routeRecordId } from '../utils/pageRecord.server';
 import { PageHeader } from '../components/Page';
 
@@ -59,7 +60,10 @@ export async function action(args) {
       authorId: currentUser.id,
     });
 
-    return redirect(gamePath(game));
+    // Back to the page that added it from a picker (#374), else its own.
+    return redirect(
+      safeRedirectPath(new URL(request.url).searchParams.get('return'), gamePath(game))
+    );
   } catch (err) {
     console.log(err);
 

@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 
 import { searchGames } from '../data/games.server';
 import useDebounce from '../hooks/useDebounce';
+import PickerCreate from '../components/PickerCreate';
 
 export async function loader({ request }) {
   const { searchParams } = new URL(request.url);
@@ -23,7 +24,7 @@ export async function loader({ request }) {
 }
 
 // Defaults as parameters: React 19 ignores defaultProps on function components.
-export const SearchGameModal = ({ isOpen = true, excludedIds = [], onClose = () => {}, onSelect = () => {} }) => {
+export const SearchGameModal = ({ isOpen = true, excludedIds = [], onClose = () => {}, onSelect = () => {}, onCreate }) => {
   const [value, setValue] = useState('');
   const games = useFetcher();
   const debouncedValue = useDebounce(value, 300);
@@ -69,6 +70,20 @@ export const SearchGameModal = ({ isOpen = true, excludedIds = [], onClose = () 
                   onChange={(e) => setValue(e.target.value)}
                   mb={2}
                 />
+                {/* Not there? Add it, link it, then fill it in (#374). */}
+                <PickerCreate
+                  query={value}
+                  fetcher={games}
+                  options={[{ label: (name) => `Add game “${name}”` }]}
+                  onCreate={
+                    onCreate &&
+                    ((record) => {
+                      onCreate(record);
+                      setValue('');
+                      onClose();
+                    })
+                  }
+                />
                 {games.data && (
                   <Box>
                     {games.data.error ? (
@@ -104,7 +119,7 @@ export const SearchGameModal = ({ isOpen = true, excludedIds = [], onClose = () 
                         ))}
                       </List.Root>
                     ) : (
-                      <Text>No results has been found.</Text>
+                      <Text>No results found.</Text>
                     )}
                   </Box>
                 )}
@@ -124,4 +139,5 @@ SearchGameModal.propTypes = {
   excludedIds: PropTypes.arrayOf(PropTypes.string),
   onClose: PropTypes.func,
   onSelect: PropTypes.func,
+  onCreate: PropTypes.func,
 };
