@@ -61,7 +61,7 @@ test('a member reports a bug from any page, with a screenshot, as a labelled Git
   expect(issue.auth).toBe('Bearer e2e-github-token');
   expect(issue.labels).toEqual(['bug', 'needs-triage']);
   expect(issue.body).toContain('Nothing shows on /places.');
-  expect(issue.body).toMatch(/- Page: http:\/\/localhost:3100\/about/);
+  expect(issue.body).toMatch(/- Page: http:\/\/localhost:\d+\/about/);
   expect(issue.body).toContain('- Sent by: @harness-member');
   // The screenshot is stored and linked.
   const screenshot = /!\[Screenshot\]\((\S+)\)/.exec(issue.body)[1];

@@ -218,7 +218,7 @@ test.describe('announcements on Bluesky', () => {
     expect(posted.auth).toBe('Bearer e2e-token');
     expect(posted).toMatchObject({ repo: 'did:plc:indieco', collection: 'app.bsky.feed.post' });
     expect(posted.record.text).toMatch(/^New on Indie Collective this week: \d+ games?/);
-    expect(posted.record.text).toMatch(/\n\nhttp:\/\/localhost:3100\/\w+$/);
+    expect(posted.record.text).toMatch(/\n\nhttp:\/\/localhost:\d+\/\w+$/);
     expect(posted.record.embed.external.title).toMatch(/on Indie Collective$/);
 
     const { db, games } = await import('./db.js');
