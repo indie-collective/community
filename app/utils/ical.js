@@ -38,9 +38,9 @@ export function fold(line) {
 export const icsDate = (date) =>
   new Date(date).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 
-/** Where an event happens, as a line of text. */
+/** Where an event happens, as a line of text: its venue's name first (#390). */
 export const eventPlace = (event) =>
-  [event.street, event.city, event.region, countryNames[event.countryCode] ?? event.countryCode]
+  [event.venue?.name, event.street, event.city, event.region, countryNames[event.countryCode] ?? event.countryCode]
     .filter(Boolean)
     .join(', ');
 

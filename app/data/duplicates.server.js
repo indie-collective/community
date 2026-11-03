@@ -57,7 +57,7 @@ export const MERGE_FIELDS = {
     ['about', 'About', ['about']],
     ['site', 'Website', ['site']],
     ['tickets', 'Tickets', ['ticketUrl']],
-    ['place', 'Place', ['attendance', 'onlineUrl', 'countryCode', 'region', 'city', 'street', 'latitude', 'longitude']],
+    ['place', 'Place', ['attendance', 'onlineUrl', 'venueId', 'countryCode', 'region', 'city', 'street', 'latitude', 'longitude']],
     ['cover', 'Cover', ['coverKey', 'coverWidth', 'coverHeight']],
     ['previous', 'Previous edition', ['previousEditionId']],
   ],

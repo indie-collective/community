@@ -9,7 +9,7 @@ import countryNames from '../assets/countries.json';
 // For search engines (#258). Cached for an hour: it only changes as fast as
 // people add things.
 export const loader = async ({ request }) => {
-  const [countries, { games, orgs, events }, people, opportunities, api] = await Promise.all([
+  const [countries, { games, orgs, events, venues }, people, opportunities, api] = await Promise.all([
     listCountryCodes(),
     listSitemapRecords(),
     listPublicUsernames(),
@@ -22,6 +22,7 @@ export const loader = async ({ request }) => {
     games,
     orgs,
     events,
+    venues,
     people,
     hidden: [!opportunities && '/opportunities', !api && '/api'].filter(Boolean),
   });

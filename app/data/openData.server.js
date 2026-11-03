@@ -1,5 +1,5 @@
 // The open data exports (#304): every week, the current games,
-// organisations, events and tags as CSV (zipped) and nested JSON, in the
+// organisations, events, venues and tags as CSV (zipped) and nested JSON, in the
 // bucket under exports/, dated and as latest. See utils/openData for what's
 // in them.
 import { env } from 'cloudflare:workers';
@@ -16,10 +16,11 @@ import {
   organizationEvents,
   organizations,
   tags,
+  venues,
 } from '../db/schema.js';
 import getImageLinks from '../utils/imageLinks.server';
 import { FILES, LICENCE, csv, readme } from '../utils/openData';
-import { eventPath, gamePath, orgPath } from '../utils/slug';
+import { eventPath, gamePath, orgPath, venuePath } from '../utils/slug';
 import { zip } from '../utils/zip';
 import { image } from './shapes.server';
 
@@ -31,10 +32,11 @@ const imageUrl = (key, origin) => (key ? new URL(getImageLinks(image(key)).url, 
 /** The export's records, as rows for the CSV files and nested for the JSON. */
 async function records(origin) {
   const live = (table) => db.select().from(table).where(isNull(table.deletedAt)).orderBy(asc(table.createdAt));
-  const [gameRows, orgRows, eventRows, tagRows, credits, tagged, shown, hosted, milestones] = await Promise.all([
+  const [gameRows, orgRows, eventRows, venueRows, tagRows, credits, tagged, shown, hosted, milestones] = await Promise.all([
     live(games),
     live(organizations),
     live(events),
+    live(venues),
     db.select().from(tags).orderBy(asc(tags.name)),
     db.select().from(gameOrganizations),
     db.select().from(gameTags),
@@ -44,6 +46,7 @@ async function records(origin) {
   ]);
   const ids = (rows) => new Set(rows.map((row) => row.id));
   const [gameIds, orgIds, eventIds] = [ids(gameRows), ids(orgRows), ids(eventRows)];
+  const venueOf = new Map(venueRows.map((row) => [row.id, row]));
   // Links only between records that are in the export.
   const links = {
     game_organizations: credits.filter((l) => gameIds.has(l.gameId) && orgIds.has(l.organizationId)),
@@ -99,10 +102,23 @@ async function records(origin) {
       status: row.status,
       attendance: row.attendance,
       online_url: row.onlineUrl,
+      venue_id: venueOf.get(row.venueId)?.id ?? null,
+      venue: venueOf.get(row.venueId)?.name ?? null,
       street: row.street,
       ...place(row),
       cover_url: imageUrl(row.coverKey, origin),
       previous_edition_id: eventIds.has(row.previousEditionId) ? row.previousEditionId : null,
+      ...times(row),
+    })),
+    'venues.csv': venueRows.map((row) => ({
+      id: row.id,
+      slug: row.slug,
+      url: `${origin}${venuePath(row)}`,
+      name: row.name,
+      about: row.about,
+      site: row.site,
+      street: row.street,
+      ...place(row),
       ...times(row),
     })),
     'tags.csv': tagRows.map((row) => ({ id: row.id, name: row.name })),
@@ -146,6 +162,7 @@ function nested(rows, date) {
       organizations: (hostsBy.get(event.id) ?? []).map(({ organization_id: id }) => id),
       games: (gamesAt.get(event.id) ?? []).map(({ game_id: id }) => id),
     })),
+    venues: rows['venues.csv'],
   };
 }
 

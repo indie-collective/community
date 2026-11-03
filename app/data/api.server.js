@@ -16,10 +16,11 @@ import {
   tags,
 } from '../db/schema.js';
 import getImageLinks from '../utils/imageLinks.server';
-import { eventPath, gamePath, orgPath } from '../utils/slug';
+import { eventPath, gamePath, orgPath, venuePath } from '../utils/slug';
 import { madeIn } from './games.server';
 import { image } from './shapes.server';
 import { findBySlugOrId } from './slugs.server';
+import { withVenues } from './venueLinks.server';
 
 export const MAX_LIMIT = 100;
 
@@ -98,6 +99,7 @@ const eventShape = (row, origin) => ({
   attendance: row.attendance,
   online_url: row.onlineUrl,
   place: placeOf(row) && { ...placeOf(row), street: row.street },
+  venue: row.venue ? brief(row.venue, origin, venuePath) : null,
   cover_url: imageUrl(row.coverKey, origin),
   previous_edition_id: row.previousEditionId,
   created_at: iso(row.createdAt),
@@ -202,7 +204,7 @@ export async function listApiEvents({ origin, country, organization, upcoming = 
     .orderBy(order(events.startsAt), order(events.id))
     .limit(limit + 1);
   const { shown, next } = page(rows, limit, (row) => row.startsAt.getTime());
-  return { data: shown.map((row) => eventShape(row, origin)), next };
+  return { data: (await withVenues(shown)).map((row) => eventShape(row, origin)), next };
 }
 
 // ---------------------------------------------------------------------------
@@ -276,7 +278,8 @@ export async function getApiOrganization(idOrSlug, { origin }) {
 export async function getApiEvent(idOrSlug, { origin }) {
   const row = await findLive('event', events, idOrSlug);
   if (!row) return null;
-  const [hosts, shown] = await Promise.all([
+  const [[event], hosts, shown] = await Promise.all([
+    withVenues([row]),
     db
       .select({ organization: organizations })
       .from(organizationEvents)
@@ -289,7 +292,7 @@ export async function getApiEvent(idOrSlug, { origin }) {
       .where(and(eq(gameEvents.eventId, row.id), isNull(games.deletedAt))),
   ]);
   return {
-    ...eventShape(row, origin),
+    ...eventShape(event, origin),
     organizations: hosts.map(({ organization }) => brief(organization, origin, orgPath)),
     games: shown.map(({ game }) => brief(game, origin, gamePath)),
   };

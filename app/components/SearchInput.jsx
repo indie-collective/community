@@ -17,6 +17,7 @@ const KIND_LABELS = {
   studio: 'Studio',
   association: 'Association',
   event: 'Event',
+  venue: 'Venue',
 };
 
 // The last item: every result, on the search page.

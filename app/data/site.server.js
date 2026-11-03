@@ -3,22 +3,23 @@
 import { isNull, sql } from 'drizzle-orm';
 
 import { db } from '../db/index.server.js';
-import { events, games, organizations } from '../db/schema.js';
+import { events, games, organizations, venues } from '../db/schema.js';
 import { listEventCards } from './events.server';
 import { listGameCards } from './games.server';
 import { listOrganizationCards } from './organizations.server';
+import { listVenueCards } from './venues.server';
 import { SEARCH_KINDS, countSearch, searchIndex } from './search.server';
-import { eventPath, gamePath, orgPath } from '../utils/slug';
+import { eventPath, gamePath, orgPath, venuePath } from '../utils/slug';
 
 /**
- * Site search (#306): games, studios, associations and events matching `q`,
+ * Site search (#306): games, studios, associations, events and venues matching `q`,
  * best first, as cards, each with `search_match` (why it matched, see
  * data/search). Every kind, or only `kind`; `limit` per kind, from
  * `offset`. Null for an empty query.
  *
  * @returns {Promise<{ counts: object, results: object } | null>} counts
  *   of every kind, and results by kind (`game`, `studio`, `association`,
- *   `event`)
+ *   `event`, `venue`)
  */
 export async function searchSite(
   q,
@@ -30,13 +31,14 @@ export async function searchSite(
 
   const ids = (...of) =>
     found.hits.filter((hit) => of.includes(hit.kind)).map((hit) => hit.id);
-  const [games, orgs, events] = await Promise.all([
+  const [games, orgs, events, venues] = await Promise.all([
     listGameCards(ids('game')),
     listOrganizationCards(ids('studio', 'association')),
     listEventCards(ids('event')),
+    listVenueCards(ids('venue')),
   ]);
   const cards = new Map(
-    [...games, ...orgs, ...events].map((card) => [card.id, card])
+    [...games, ...orgs, ...events, ...venues].map((card) => [card.id, card])
   );
 
   const results = Object.fromEntries(kinds.map((k) => [k, []]));
@@ -59,10 +61,11 @@ export async function suggestSearch(q, { limit = 6 } = {}) {
   if (!found) return [];
   const ids = (...of) =>
     found.hits.filter((hit) => of.includes(hit.kind)).map((hit) => hit.id);
-  const [games, orgs, events] = await Promise.all([
+  const [games, orgs, events, venues] = await Promise.all([
     listGameCards(ids('game')),
     listOrganizationCards(ids('studio', 'association')),
     listEventCards(ids('event')),
+    listVenueCards(ids('venue')),
   ]);
   const suggestion = {
     game: (game) => ({
@@ -85,9 +88,10 @@ export async function suggestSearch(q, { limit = 6 } = {}) {
       href: eventPath(event),
       image: event.cover?.thumbnail_url ?? null,
     }),
+    venue: (venue) => ({ href: venuePath(venue), image: null }),
   };
   const cards = new Map(
-    [...games, ...orgs, ...events].map((card) => [card.id, card])
+    [...games, ...orgs, ...events, ...venues].map((card) => [card.id, card])
   );
   return found.hits
     .filter((hit) => cards.has(hit.id))
@@ -103,7 +107,7 @@ export async function suggestSearch(q, { limit = 6 } = {}) {
 }
 
 /**
- * What the sitemap lists: games, organisations and events (deleted ones
+ * What the sitemap lists: games, organisations, events and venues (deleted ones
  * left out), each `{ id, updated_at }`.
  */
 export async function listSitemapRecords() {
@@ -112,12 +116,13 @@ export async function listSitemapRecords() {
       .select({ id: table.id, slug: table.slug, updated_at: table.updatedAt })
       .from(table)
       .where(isNull(table.deletedAt));
-  const [gameRows, orgs, eventRows] = await Promise.all([
+  const [gameRows, orgs, eventRows, venueRows] = await Promise.all([
     list(games),
     list(organizations),
     list(events),
+    list(venues),
   ]);
-  return { games: gameRows, orgs, events: eventRows };
+  return { games: gameRows, orgs, events: eventRows, venues: venueRows };
 }
 
 /** Rejects when the database can't be queried. */

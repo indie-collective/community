@@ -1,5 +1,5 @@
 // The change log (#151, #309, #340): one row per create, update or delete of
-// a game, organisation or event, so admins can see who changed what and
+// a game, organisation, event or venue, so admins can see who changed what and
 // undo it. Written by the app with the change (ADR 0003).
 //
 // A row records the record's state *before* the change (after it, for a
@@ -25,13 +25,15 @@ import {
   organizationEvents,
   organizations,
   people,
+  venues,
 } from '../db/schema.js';
 import { inBackground } from '../utils/background.server';
 import { notifyFollowers } from './notifications.server';
 import { changedFields, recordedColumns } from '../utils/changeLog';
 import { toOrigin } from '../utils/origin.server';
-import { eventPath, gamePath, orgPath } from '../utils/slug';
+import { eventPath, gamePath, orgPath, venuePath } from '../utils/slug';
 import * as shape from './shapes.server';
+import { upcomingEventStatements } from './venueLinks.server';
 
 // A record's links, as JSON in its snapshot, in a stable order so equal
 // links compare equal. Explicit table names: subqueries refer to the outer row.
@@ -102,6 +104,13 @@ KINDS.opportunity = {
   name: 'opportunities',
   path: (record) => `/opportunities#${record.id}`,
   label: 'opportunity',
+  links: [],
+};
+KINDS.venue = {
+  table: venues,
+  name: 'venues',
+  path: venuePath,
+  label: 'venue',
   links: [],
 };
 // A record's name and address columns for the log's lists and alerts.
@@ -419,6 +428,8 @@ export async function undoChange(changeId, { adminId, force = false, ignore = []
         })
         .where(eq(table.id, change.recordId)),
       ...linkStatements(kind, change.recordId, before),
+      // Its upcoming events follow it back (#390).
+      ...(kind === 'venue' ? await upcomingEventStatements(change.recordId, current, merged, { authorId: adminId }) : []),
     ];
   }
   const undo = await recordChange({

@@ -3,9 +3,10 @@
 import { and, count, desc, eq, gte, inArray, isNull, lt, ne } from 'drizzle-orm';
 
 import { db } from '../db/index.server.js';
-import { changes, eventParticipants, events, games, organizations, people } from '../db/schema.js';
+import { changes, eventParticipants, events, games, organizations, people, venues } from '../db/schema.js';
 import getImageLinks from '../utils/imageLinks.server';
-import { eventPath, gamePath, orgPath } from '../utils/slug';
+import { eventPath, gamePath, orgPath, venuePath } from '../utils/slug';
+import { withVenues } from './venueLinks.server';
 import * as shape from './shapes.server';
 import { memberStats } from './missions.server';
 
@@ -13,6 +14,7 @@ const RECORDS = {
   games: { table: games, path: gamePath, kind: 'game' },
   organizations: { table: organizations, path: orgPath, kind: 'organization' },
   events: { table: events, path: eventPath, kind: 'event' },
+  venues: { table: venues, path: venuePath, kind: 'venue' },
 };
 
 /** A member's events, upcoming soonest first, then past ones latest first. */
@@ -30,11 +32,12 @@ async function attendedEvents(personId) {
     going(gte(events.endsAt, now), events.startsAt),
     going(lt(events.endsAt, now), desc(events.startsAt)),
   ]);
-  const card = ({ events: row }) => {
+  const card = (row) => {
     const event = shape.event(row);
     return { ...event, cover: event.cover ? getImageLinks(event.cover) : null };
   };
-  return { upcoming: upcoming.map(card), past: past.map(card) };
+  const cards = async (rows) => (await withVenues(rows.map(({ events: row }) => row))).map(card);
+  return { upcoming: await cards(upcoming), past: await cards(past) };
 }
 
 /** How many records a member added and edited, and their latest changes. */

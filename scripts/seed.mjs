@@ -19,6 +19,7 @@ import {
   gameTags,
   organizationEvents,
   organizations,
+  venues,
   people,
   tags,
 } from '../app/db/schema.js';
@@ -160,6 +161,21 @@ const eventRows = Array.from({ length: 50 }, (_, i) => {
     createdAt: recent ? startsAt : faker.date.past(),
   };
 });
+// A few of them at a venue (#390), in its place.
+const venueRows = ['La Halle', 'The Old Arcade', 'Campus Numérique'].map((name) => ({
+  id: crypto.randomUUID(),
+  name,
+  ...faker.helpers.arrayElement(places),
+  searchText: searchText(name),
+}));
+const venueSlugs = assignSlugs(venueRows);
+for (const venue of venueRows) venue.slug = venueSlugs.get(venue.id);
+await insertAll(venues, venueRows);
+eventRows.slice(0, 15).forEach((event, i) => {
+  const { id, slug: _slug, name: _name, searchText: _text, ...place } = venueRows[i % venueRows.length];
+  Object.assign(event, place, { venueId: id });
+});
+
 const eventSlugs = assignSlugs(eventRows, { event: true });
 for (const event of eventRows) event.slug = eventSlugs.get(event.id);
 await insertAll(events, eventRows);

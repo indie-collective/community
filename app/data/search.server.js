@@ -1,4 +1,4 @@
-// Full-text search (#306): games, studios, associations and events, in the
+// Full-text search (#306): games, studios, associations, events and venues, in the
 // search_index FTS5 table (migration 0004), which triggers keep current.
 // People aren't searched.
 import { sql } from 'drizzle-orm';
@@ -7,7 +7,7 @@ import { db } from '../db/index.server.js';
 import { matchQuery } from '../db/search.js';
 import { normalizeSearch } from '../db/searchText.js';
 
-export const SEARCH_KINDS = ['game', 'studio', 'association', 'event'];
+export const SEARCH_KINDS = ['game', 'studio', 'association', 'event', 'venue'];
 
 // Where a match starts and ends in `match.text`: control characters, which
 // stored text doesn't hold, so the UI can split on them safely.
@@ -120,7 +120,7 @@ export async function searchIndex(
 
 /**
  * How many records of each kind match `q`: `{ game, studio, association,
- * event }`. Null for an empty query.
+ * event, venue }`. Null for an empty query.
  */
 export async function countSearch(q) {
   const match = matchQuery(q);

@@ -17,6 +17,7 @@ import countryNames from '../assets/countries.json';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import { Page, PageHeader, PageSection } from '../components/Page';
 import EventCard from '../components/EventCard';
+import VenueCard from '../components/VenueCard';
 import GameCard from '../components/GameCard';
 import EmptyHint from '../components/EmptyHint';
 import { pageMeta } from '../utils/meta';
@@ -45,7 +46,7 @@ export const loader = async ({ request, params }) => {
   }
 
   const [
-    { orgs, gameCount, recentGames, eventCount, upcomingEvents },
+    { orgs, gameCount, recentGames, eventCount, upcomingEvents, venues },
     currentUser,
   ] = await Promise.all([
     getCountryOverview(countryCode),
@@ -76,6 +77,7 @@ export const loader = async ({ request, params }) => {
       ),
       recentGames,
       upcomingEvents,
+      venues,
     },
     currentUser,
     // #343
@@ -149,6 +151,7 @@ const CountryPage = () => {
     associations,
     recentGames,
     upcomingEvents,
+    venues,
   } = country;
 
   const stats = [
@@ -336,6 +339,21 @@ const CountryPage = () => {
           </Flex>
         )}
       </Section>
+
+      {venues.length > 0 && (
+        <Section title="Venues">
+          <Grid
+            gap={3}
+            templateColumns={['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
+          >
+            {venues.map((venue) => (
+              <Box minW={0} key={venue.id}>
+                <VenueCard {...venue} />
+              </Box>
+            ))}
+          </Grid>
+        </Section>
+      )}
     </Page>
   );
 };

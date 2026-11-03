@@ -10,6 +10,7 @@ import { detectSource, fillsFor } from '../utils/sources';
 import { recordChange } from './changes.server';
 import { botAccountId } from './people.server';
 import { searchTextOf } from './shapes.server';
+import { findVenueNamed } from './venues.server';
 
 const RECORDS = {
   game: { table: games, name: 'games' },
@@ -30,7 +31,16 @@ const RUNNING = 10 * 60000;
 export async function prefillFrom(kind, link) {
   const detected = detectSource(link);
   if (!detected) throw new Error("That isn't a link.");
-  return { source: detected.source, url: detected.url, fields: await readSource(kind, detected) };
+  const fields = await readSource(kind, detected);
+  // #390: the venue we already know by that name.
+  if (kind === 'event' && fields?.place?.name) {
+    const venue = await findVenueNamed(fields.place.name, {
+      city: fields.place.city,
+      countryCode: fields.place.country_code,
+    });
+    if (venue) fields.venue = venue;
+  }
+  return { source: detected.source, url: detected.url, fields };
 }
 
 /** Links a record to one of its pages elsewhere (already linked is fine). */

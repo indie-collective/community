@@ -47,6 +47,7 @@ const path = (kind) => (record) => `/${kind}/${record?.slug || record?.id}`;
 export const gamePath = path('game');
 export const orgPath = path('org');
 export const eventPath = path('event');
+export const venuePath = path('venue');
 
 /**
  * Slugs for records that have none yet (seeding, the copy from Postgres,

@@ -1,6 +1,6 @@
 import { and, desc, eq } from 'drizzle-orm';
 
-import { changes, db, events, games, organizations, people, retryBusy, searchText, sources } from './db.js';
+import { changes, db, events, games, idFromPath, organizations, people, retryBusy, searchText, sources, venues } from './db.js';
 import { expect, test, ADMIN, MEMBER, signIn, waitForHydration } from './helpers';
 
 // #338: filling records in from their pages elsewhere. A local stand-in
@@ -89,6 +89,40 @@ test('an event form is filled in from its page: name, times where it happens, ti
   await expect(page.getByLabel(/^start\*?$/i)).toHaveValue('2031-04-04T18:00');
   await expect(page.getByLabel(/^end\*?$/i)).toHaveValue('2031-04-06T20:00');
   await expect(page.getByLabel('Tickets')).toHaveValue(`${BASE}/tickets`);
+});
+
+// #390: the page names the venue: kept, then recognised the next time.
+test('an event filled in from its page keeps its venue, and the next one finds it', async ({ page }) => {
+  await signIn(page, MEMBER);
+  const add = async () => {
+    await page.goto('/events/create');
+    await waitForHydration(page);
+    await page.getByLabel('Start from a link').fill(`${BASE}/event`);
+    await page.getByRole('button', { name: 'Fill in' }).click();
+    await expect(page.getByTestId('prefilled')).toContainText('La Fabrique');
+    await page.getByRole('button', { name: /submit/i }).click();
+    await expect(page.getByRole('heading', { name: 'Lanterne Jam 2031', level: 1 })).toBeVisible();
+    return (await db.select().from(events).where(eq(events.id, await idFromPath(new URL(page.url()).pathname))))[0];
+  };
+  const made = [];
+  let venue;
+  try {
+    made.push(await add());
+    [venue] = await db.select().from(venues).where(eq(venues.name, 'La Fabrique'));
+    expect(venue).toMatchObject({ city: 'Nantes', countryCode: 'FR' });
+    expect(made[0]).toMatchObject({ venueId: venue.id, city: 'Nantes', countryCode: 'FR' });
+    await expect(page.getByRole('link', { name: 'La Fabrique', exact: true })).toBeVisible();
+
+    made.push(await add());
+    expect(made[1].venueId).toBe(venue.id);
+    expect(await db.select().from(venues).where(eq(venues.name, 'La Fabrique'))).toHaveLength(1);
+  } finally {
+    for (const event of made) {
+      await retryBusy(() => db.delete(sources).where(eq(sources.recordId, event.id)));
+      await retryBusy(() => db.delete(events).where(eq(events.id, event.id)));
+    }
+    if (venue) await retryBusy(() => db.delete(venues).where(eq(venues.id, venue.id)));
+  }
 });
 
 test('the hourly fill writes empty descriptions from websites, as the bot, never over what people did', async ({ page }) => {

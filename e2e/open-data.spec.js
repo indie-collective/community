@@ -30,6 +30,9 @@ test('an export has every record as CSV and JSON, under the licence, and no memb
     expect(json.licence.name).toBe('Open Database License (ODbL) 1.0');
     expect(json.games.find((g) => g.id === game.id)).toMatchObject({ name, url: expect.stringMatching(new RegExp(`/game/${game.id}$`)) });
     expect(json.games.some((g) => g.id === deleted.id)).toBe(false);
+    // #390: every export has its venues, and events name theirs.
+    expect(Array.isArray(json.venues)).toBe(true);
+    expect(json.events.every((e) => 'venue_id' in e && 'venue' in e)).toBe(true);
 
     const zipResponse = await page.request.get('/data/latest.zip');
     expect(zipResponse.headers()['content-type']).toBe('application/zip');
@@ -38,6 +41,7 @@ test('an export has every record as CSV and JSON, under the licence, and no memb
     writeFileSync(join(dir, 'latest.zip'), archive);
     const read = (file) => execFileSync('unzip', ['-p', join(dir, 'latest.zip'), file], { encoding: 'utf8' });
     expect(read('games.csv')).toContain(`"${name.replace(/"/g, '""')}"`);
+    expect(read('venues.csv')).toContain('id,slug,url,name');
     expect(read('README.txt')).toContain('Licence: Open Database License (ODbL) 1.0');
 
     // No member, by email or username, anywhere in it.

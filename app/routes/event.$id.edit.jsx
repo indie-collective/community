@@ -8,6 +8,7 @@ import {
   getEventTimeZone,
   updateEvent,
 } from '../data/events.server';
+import { resolveEventVenue } from '../data/venues.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import { parseFormWithUploads } from '../utils/createUploadHandler.server';
@@ -60,7 +61,7 @@ export async function action(args) {
   try {
     data = await parseFormWithUploads(request, ['cover']);
 
-    const location = {
+    const submitted = {
       street: data.get('street'),
       city: data.get('city'),
       region: data.get('region'),
@@ -69,9 +70,19 @@ export async function action(args) {
       longitude: parseFloat(data.get('longitude')) || null,
     };
 
+    const attendance = parseAttendance(data.get('attendance'));
+    // #390: a venue newly picked or named brings its place.
+    const { venueId, location } = await resolveEventVenue({
+      venueId: data.has('venue_id') ? data.get('venue_id') : undefined,
+      venueName: data.get('venue_name'),
+      location: submitted,
+      attendance,
+      event: await getEventForEdit(id),
+      authorId: currentUser.id,
+    });
+
     // Times are entered as wall-clock time where the event happens (#204):
     // a new location brings its zone, otherwise the event keeps its own.
-    const attendance = parseAttendance(data.get('attendance'));
     // Online, in the zone chosen on the form (#347).
     const timeZone =
       attendance === 'online' && isTimeZone(data.get('time_zone'))
@@ -101,6 +112,7 @@ export async function action(args) {
         : undefined,
       coverId: data.get('cover'),
       location,
+      venueId,
       authorId: currentUser.id,
     });
 

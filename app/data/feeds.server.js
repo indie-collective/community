@@ -10,6 +10,7 @@ import {
   organizations,
 } from '../db/schema.js';
 import { madeIn } from './games.server';
+import { withVenues } from './venueLinks.server';
 
 // Calendars keep a month of past events, so recent ones don't vanish.
 const KEEP_PAST = 30 * 86400000;
@@ -27,7 +28,7 @@ const linkedTo = (table, column, value) =>
  * on, in a country, hosted by an organisation, or attended by a person.
  */
 export async function listCalendarEvents({ countryCode, organizationId, attendeeId } = {}) {
-  return db
+  const rows = await db
     .select()
     .from(events)
     .where(
@@ -43,6 +44,7 @@ export async function listCalendarEvents({ countryCode, organizationId, attendee
     )
     .orderBy(events.startsAt)
     .limit(1000);
+  return withVenues(rows);
 }
 
 /** An organisation's name, or undefined when it's gone. */
@@ -60,7 +62,7 @@ export async function getCalendarEvent(id) {
     .select()
     .from(events)
     .where(and(eq(events.id, id), isNull(events.deletedAt)));
-  return row;
+  return row && (await withVenues([row]))[0];
 }
 
 /**

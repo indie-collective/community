@@ -14,7 +14,9 @@ import {
   Grid,
   Switch,
   Field,
+  HStack,
   NativeSelect,
+  Text,
 } from '@chakra-ui/react';
 import { LuPencil } from 'react-icons/lu';
 import TileMap from './TileMap';
@@ -95,6 +97,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
     ends_at: endsAt,
     time_zone: timeZone,
     location: l,
+    venue: savedVenue,
     about,
     id: eventId,
     site,
@@ -105,6 +108,12 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
   } = defaultData;
   // #347: online events have no place, but a link and a time zone.
   const [attendance, setAttendance] = useState(savedAttendance ?? 'in_person');
+  // #390: the name for a new venue: from a prefilled event's page, the place
+  // of interest picked, or typed.
+  const [venueName, setVenueName] = useState(defaultData.venue_name ?? '');
+  // An address known without the picker, until one is picked: from a link
+  // (no point on the map), or from a venue set aside.
+  const [prefilledPlace, setPrefilledPlace] = useState(null);
   const [zones, setZones] = useState([]);
   const [browserZone, setBrowserZone] = useState(null);
   useEffect(() => {
@@ -132,11 +141,12 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
       end: endsAt ? dateToZonedInput(endsAt, timeZone) : undefined,
       location: {
         label: l
-          ? `${l.street ? l.street + ', ' : ''}${l.city}, ${l.region}, ${
-              l.country_code
-            }`
+          ? [savedVenue?.name, l.street, l.city, l.region, l.country_code]
+              .filter(Boolean)
+              .join(', ')
           : '',
         value: l || null,
+        venue: savedVenue ?? undefined,
       },
       about,
     },
@@ -176,6 +186,19 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
               if (fields.starts_at) setValue('start', fields.starts_at.local);
               if (fields.ends_at) setValue('end', fields.ends_at.local);
               if (fields.attendance) setAttendance(fields.attendance);
+              // #390: the venue we know by that name, or one to add.
+              if (fields.venue) {
+                setValue('location', {
+                  label: fields.venue.name,
+                  value: fields.venue.location,
+                  venue: { id: fields.venue.id, name: fields.venue.name },
+                });
+                setVenueName('');
+                setPrefilledPlace(null);
+              } else if (fields.place?.name) {
+                setVenueName(fields.place.name);
+                setPrefilledPlace(fields.place.country_code ? fields.place : null);
+              }
               // Fields the form doesn't control, once shown.
               setTimeout(() => {
                 const set = (name, value) => {
@@ -330,10 +353,18 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
                 <PlacesSearch
                   inputProps={{ id: 'location' }}
                   {...field}
-                  placeholder="Where is the party?"
-                  onClear={() =>
-                    setValue('location', { label: '', value: null })
-                  }
+                  venues
+                  placeholder="A venue, a place or an address"
+                  onChange={(next) => {
+                    field.onChange(next);
+                    setVenueName(next.venueName ?? '');
+                    setPrefilledPlace(null);
+                  }}
+                  onClear={() => {
+                    setValue('location', { label: '', value: null });
+                    setVenueName('');
+                    setPrefilledPlace(null);
+                  }}
                   onError={() => {
                     setError('location', {
                       type: 'custom',
@@ -344,7 +375,62 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
               )}
             />
 
-            {location.value && (
+            <input type="hidden" name="venue_id" value={location.venue?.id ?? ''} />
+            {prefilledPlace &&
+              ['street', 'city', 'region', 'country_code', 'latitude', 'longitude'].map(
+                (key) =>
+                  prefilledPlace[key] && (
+                    <input key={key} type="hidden" name={key} value={prefilledPlace[key]} />
+                  )
+              )}
+            {location.venue ? (
+              <HStack mt={2} gap={2} data-testid="event-venue">
+                <Text fontSize="sm">
+                  At the venue <b>{location.venue.name}</b>
+                </Text>
+                <Button
+                  type="button"
+                  size="xs"
+                  variant="ghost"
+                  colorPalette="gray"
+                  onClick={() => {
+                    // The address stays, without the venue's name.
+                    const v = location.value;
+                    setPrefilledPlace(
+                      v && {
+                        street: v.street,
+                        city: v.city,
+                        region: v.region,
+                        country_code: v.country_code ?? v.countryCode,
+                        latitude: v.latitude,
+                        longitude: v.longitude,
+                      }
+                    );
+                    setValue('location', { label: location.label, value: v });
+                  }}
+                >
+                  Not a venue
+                </Button>
+              </HStack>
+            ) : (
+              (location.value || venueName || prefilledPlace) && (
+                <Box width="100%" mt={2}>
+                  <Field.Label htmlFor="venue_name">Venue name</Field.Label>
+                  <Input
+                    id="venue_name"
+                    name="venue_name"
+                    value={venueName}
+                    onChange={(event) => setVenueName(event.target.value)}
+                    placeholder="Optional: the hall, bar or campus people know it by"
+                  />
+                  <Field.HelperText>
+                    Named, it gets a page and can be reused for other events.
+                  </Field.HelperText>
+                </Box>
+              )
+            )}
+
+            {location.value?.latitude != null && location.value?.longitude != null && (
               <Box
                 width="100%"
                 height="100px"

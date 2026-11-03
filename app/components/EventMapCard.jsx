@@ -13,7 +13,7 @@ import { useLanguage } from '../i18n';
  * cover, name, dates (in its own time zone) and city.
  */
 // eslint-disable-next-line no-unused-vars -- `type` and `logo` are the map's, not the card's.
-const EventMapCard = ({ id, slug, name, cover, starts_at, ends_at, time_zone, location, type, logo, ...rest }) => {
+const EventMapCard = ({ id, slug, name, cover, starts_at, ends_at, time_zone, location, venue, type, logo, ...rest }) => {
   const language = useLanguage();
   const placeholder = usePlaceholder('square');
   return (
@@ -48,7 +48,7 @@ const EventMapCard = ({ id, slug, name, cover, starts_at, ends_at, time_zone, lo
           </Text>
           {location?.city && (
             <Text fontSize="xs" color="muted" textTransform="uppercase" lineClamp={1}>
-              {location.city}, {location.country_code}
+              {venue && `${venue.name} · `}{location.city}, {location.country_code}
             </Text>
           )}
         </Box>

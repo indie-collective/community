@@ -67,7 +67,7 @@ const PrefillFromLink = ({ kind, onFields }) => {
         <Text fontSize="sm" color="muted" mt={1} data-testid="prefilled">
           Filled in from {SOURCES[used.source]}. Check it before saving.
           {used.fields.place &&
-            ` Place: ${[used.fields.place.name, used.fields.place.street, used.fields.place.city].filter(Boolean).join(', ')}. Choose it under Location.`}
+            ` Place: ${[used.fields.place.name, used.fields.place.street, used.fields.place.city].filter(Boolean).join(', ')}. ${used.fields.venue ? `Set as the venue.` : 'Choose it under Location.'}`}
         </Text>
       )}
     </Field.Root>
