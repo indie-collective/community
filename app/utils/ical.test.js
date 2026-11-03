@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { calendar, escapeText, fold, googleCalendarUrl, icsDate } from './ical';
+import { calendar, escapeText, eventPlace, fold, googleCalendarUrl, icsDate } from './ical';
 
 const event = {
   id: 'e1',
@@ -68,4 +68,13 @@ it('builds a Google Calendar link', () => {
   const url = new URL(googleCalendarUrl({ ...event, url: 'https://x/event/e1', place: 'Rennes' }));
   expect(url.searchParams.get('dates')).toBe('20261120T130000Z/20261122T183000Z');
   expect(url.searchParams.get('text')).toBe(event.name);
+});
+
+describe('eventPlace', () => {
+  const event = { street: '1 Rue', city: 'Lyon', countryCode: 'FR' };
+  // #390
+  it('leads with the venue, when there is one', () => {
+    expect(eventPlace({ ...event, venue: { name: 'La Halle' } })).toBe('La Halle, 1 Rue, Lyon, France');
+    expect(eventPlace({ ...event, venue: null })).toBe('1 Rue, Lyon, France');
+  });
 });

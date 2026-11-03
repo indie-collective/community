@@ -130,6 +130,7 @@ export const openApi = (origin) => ({
           attendance: { enum: ['in_person', 'online', 'hybrid'] },
           online_url: text,
           place,
+          venue: { ...link, type: ['object', 'null'] },
           cover_url: text,
           previous_edition_id: text,
           organizations: { type: 'array', items: link },

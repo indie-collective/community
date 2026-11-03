@@ -34,7 +34,7 @@ export const meta = ({ data, matches }) =>
       })
     : [{ title: 'Not found' }];
 
-const KIND_LABELS = { game: 'game', organization: 'studio or association', event: 'event' };
+const KIND_LABELS = { game: 'game', organization: 'studio or association', event: 'event', venue: 'venue' };
 
 const EventGrid = ({ events }) => (
   <Grid gap={4} templateColumns={['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}>

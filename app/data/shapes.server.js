@@ -118,7 +118,27 @@ export function game(row) {
   };
 }
 
-/** An event as the old `event` row, with `location` and `cover`. */
+/** A venue (#390), with `location`. */
+export function venue(row) {
+  if (!row) return row;
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    about: row.about,
+    site: row.site,
+    location: location(row),
+    ...times(row),
+  };
+}
+
+// What an event's `venue` relation reads, for shape.event below.
+export const VENUE_WITH = { columns: { id: true, slug: true, name: true, deletedAt: true } };
+
+/**
+ * An event as the old `event` row, with `location` and `cover`, and `venue`
+ * (`{ id, slug, name }`) when the row was read with it.
+ */
 export function event(row) {
   if (!row) return row;
   return {
@@ -137,6 +157,7 @@ export function event(row) {
     previous_edition_id: row.previousEditionId,
     lastModifiedById: row.lastModifiedById,
     location: location(row),
+    venue: row.venue && !row.venue.deletedAt ? { id: row.venue.id, slug: row.venue.slug, name: row.venue.name } : null,
     cover: image(row.coverKey, row.coverKey, { width: row.coverWidth, height: row.coverHeight }),
     ...times(row),
   };

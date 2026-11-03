@@ -43,6 +43,8 @@ const MapboxAutocomplete = ({
   onError = () => {},
   defaultQuery = '',
   types = null,
+  // Other results for the text, listed first (async).
+  searchExtra = null,
   placeholder,
   inputProps: inputPropsFull,
 }) => {
@@ -62,6 +64,7 @@ const MapboxAutocomplete = ({
       const path = geocodingUrl(query, { token, types });
 
       if (query.length > 2) {
+        const extra = searchExtra ? searchExtra(query).catch(() => []) : Promise.resolve([]);
         try {
           setIsLoading(true);
           const res = await fetch(path, { headers: header });
@@ -71,7 +74,7 @@ const MapboxAutocomplete = ({
 
           setIsLoading(false);
           setError(false);
-          setQueryResults(json.features);
+          setQueryResults([...(await extra), ...json.features]);
 
           if (isFirstQuery) {
             setValue(json.features[0]);
@@ -81,7 +84,7 @@ const MapboxAutocomplete = ({
           setIsLoading(false);
           setError(true);
           onError(err);
-          setQueryResults([]);
+          setQueryResults(await extra);
         }
       } else {
         setIsLoading(false);

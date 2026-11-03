@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { LuMapPin } from 'react-icons/lu';
 
 import MapboxAutocomplete from './MapboxAutocomplete';
+import { placeFromFeature } from '../utils/geocoding';
 
 const propTypes = {
   onChange: PropTypes.func,
@@ -21,6 +22,30 @@ const propTypes = {
 };
 
 
+// A venue as the picker's value, in the shape a place has.
+const venueValue = ({ location }) =>
+  location && {
+    street: location.street,
+    city: location.city,
+    region: location.region,
+    countryCode: location.country_code,
+    longitude: location.longitude,
+    latitude: location.latitude,
+  };
+
+// Venues matching the text (#390), as suggestions above Mapbox's.
+const searchVenues = async (q) => {
+  const res = await fetch(`/search-venue?${new URLSearchParams({ q })}`);
+  if (!res.ok) return [];
+  const venues = await res.json();
+  return venues.map((venue) => ({
+    venue,
+    place_name: [venue.name, venue.location?.street, venue.location?.city, venue.location?.country_code]
+      .filter(Boolean)
+      .join(', '),
+  }));
+};
+
 // Defaults as parameters: React 19 ignores defaultProps on function components.
 const PlacesSearch = ({
   onChange = () => {},
@@ -28,10 +53,10 @@ const PlacesSearch = ({
   onError = () => {},
   options,
   value = { label: '', value: null },
+  // Also find venues and places of interest by name (#390).
+  venues = false,
   ...rest
 }) => {
-  const l = value.value;
-
   const [hiddenValues, setHiddenValues] = useState({});
 
   return (
@@ -43,75 +68,43 @@ const PlacesSearch = ({
       <MapboxAutocomplete
         defaultQuery={value.label}
         token="pk.eyJ1IjoiaW5kaWVjb2xsZSIsImEiOiJja21qN2dzd2kwb2d3MndxNGs4eGFyeXhnIn0.4kAFQx69wEpXRGPcsGE--Q"
-        types={['country', 'region', 'place', 'address' /*, 'poi'*/]}
+        types={
+          venues
+            ? ['country', 'region', 'place', 'address', 'poi']
+            : ['country', 'region', 'place', 'address']
+        }
+        searchExtra={venues ? searchVenues : undefined}
         onSuggestionSelect={(place) => {
-          if (!place) return onClear();
-
-          let countryCode, region, city, street;
-
-          place.place_type.forEach((type) => {
-            switch (type) {
-              case 'country':
-                countryCode = place.properties.short_code;
-                break;
-              case 'region':
-                region = place.text;
-                break;
-              case 'place':
-                city = place.text;
-                break;
-              case 'address':
-                if (place.address) street = place.address + ' ' + place.text;
-                else street = place.text;
-                break;
-              default:
-                break;
-            }
-          });
-
-          place.context?.forEach((context) => {
-            if (context.id.includes('country'))
-              countryCode = context.short_code;
-
-            if (context.id.includes('region')) region = context.text;
-
-            if (context.id.includes('place')) city = context.text;
-
-            // `address` was never defined here: an address in the context
-            // threw a ReferenceError.
-            if (context.id.includes('address')) street = context.text;
-          });
-
-          // there are some territories with short codes on region instead, e.g RE for Reunion Island
-          if (
-            place.context &&
-            !place.context.find((c) => c.id.includes('country'))
-          ) {
-            const region = place.context.find((c) => c.id.includes('region'));
-
-            countryCode = region.short_code;
+          if (!place) {
+            setHiddenValues({});
+            return onClear();
           }
 
+          // A venue brings its own place: the server reads it from there.
+          if (place.venue) {
+            setHiddenValues({});
+            return onChange({
+              label: place.place_name,
+              value: venueValue(place.venue),
+              venue: { id: place.venue.id, name: place.venue.name },
+            });
+          }
+
+          const { venueName, ...found } = placeFromFeature(place);
+
           setHiddenValues({
-            street,
-            city,
-            region: region || city,
-            country_code: countryCode.toUpperCase(),
-            longitude: place.geometry.coordinates[0],
-            latitude: place.geometry.coordinates[1],
+            street: found.street,
+            city: found.city,
+            region: found.region,
+            country_code: found.countryCode,
+            longitude: found.longitude,
+            latitude: found.latitude,
           });
 
           onChange({
             label: place.place_name,
-            value: {
-              street,
-              city,
-              region: region || city,
-              countryCode: countryCode.toUpperCase(),
-              longitude: place.geometry.coordinates[0],
-              latitude: place.geometry.coordinates[1],
-              bbox: place.bbox,
-            },
+            value: { ...found, bbox: place.bbox },
+            venueName,
           });
         }}
         onError={onError}

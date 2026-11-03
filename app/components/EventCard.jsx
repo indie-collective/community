@@ -26,6 +26,7 @@ function EventCard({
   status,
   cover,
   location,
+  venue,
   game_event,
   event_participant,
   starts_at: startsAt,
@@ -37,6 +38,17 @@ function EventCard({
 
   // In the event's own time zone, identical on server and browser (#204).
   const startsAtText = formatEventDate(startsAt, timeZone, { locale: language });
+  // Its venue first (#390), then where that is.
+  const placeText =
+    location &&
+    [
+      venue?.name,
+      location.city
+        ? `${location.city}, ${location.country_code}`
+        : countryNames[location.country_code?.toUpperCase()],
+    ]
+      .filter(Boolean)
+      .join(' · ');
 
   return (
     <Card
@@ -91,11 +103,7 @@ function EventCard({
         {location && (
           <Flex
             as={Text}
-            title={
-              location.city
-                ? `${location.city}, ${location.country_code}`
-                : countryNames[location.country_code.toUpperCase()]
-            }
+            title={placeText}
             color="muted"
             fontWeight="semibold"
             letterSpacing="wide"
@@ -107,9 +115,7 @@ function EventCard({
               <LuMapPin />
             </Icon>
             <Box as="span" lineClamp={1} flex="1" ml={1}>
-              {location.city
-                ? `${location.city}, ${location.country_code}`
-                : countryNames[location.country_code.toUpperCase()]}
+              {placeText}
             </Box>
           </Flex>
         )}

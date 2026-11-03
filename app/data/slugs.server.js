@@ -4,10 +4,10 @@
 import { and, eq, like, or } from 'drizzle-orm';
 
 import { db } from '../db/index.server.js';
-import { events, games, organizations, slugAliases } from '../db/schema.js';
+import { events, games, organizations, slugAliases, venues } from '../db/schema.js';
 import { firstFreeSlug, isUuid } from '../utils/slug';
 
-const TABLES = { game: games, organization: organizations, event: events };
+const TABLES = { game: games, organization: organizations, event: events, venue: venues };
 
 /**
  * A free slug for a record of `kind` from `base` (a slugified name):

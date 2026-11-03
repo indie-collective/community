@@ -12,6 +12,7 @@ import {
 import { listUpcomingEventsIn } from './events.server';
 import { listGamesMadeIn } from './games.server';
 import { listOrganizationsIn } from './organizations.server';
+import { listVenuesIn } from './venues.server';
 
 const orgLive = isNull(organizations.deletedAt);
 const eventLive = isNull(events.deletedAt);
@@ -125,10 +126,11 @@ export async function countPlaces(countryCode) {
  * and the next three (covers as `{ url, thumbnail_url }`).
  */
 export async function getCountryOverview(countryCode) {
-  const [orgs, made, upcoming] = await Promise.all([
+  const [orgs, made, upcoming, venues] = await Promise.all([
     listOrganizationsIn(countryCode),
     listGamesMadeIn(countryCode, { limit: 8 }),
     listUpcomingEventsIn(countryCode, { limit: 3 }),
+    listVenuesIn(countryCode),
   ]);
   return {
     orgs,
@@ -136,6 +138,7 @@ export async function getCountryOverview(countryCode) {
     recentGames: made.games,
     eventCount: upcoming.count,
     upcomingEvents: upcoming.events,
+    venues,
   };
 }
 

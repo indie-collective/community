@@ -75,7 +75,7 @@ import { formatEventDate, formatEventRange } from '../utils/eventTime';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
 import EmptyHint from '../components/EmptyHint';
 import { pageRecordId } from '../utils/pageRecord.server';
-import { eventPath } from '../utils/slug';
+import { eventPath, venuePath } from '../utils/slug';
 import { useLanguage } from '../i18n';
 
 export const loader = async ({ request, params }) => {
@@ -121,9 +121,9 @@ export const meta = ({ data, matches }) => {
   let description = `Event on ${formatEventDate(event.starts_at, event.time_zone)}`;
   if (event.location) {
     const l = event.location;
-    description += ` in ${l.street ? l.street + ', ' : ''}${l.city}, ${
-      l.region
-    }, ${l.country_code}`;
+    description += ` at ${[event.venue?.name, l.street, l.city, l.region, l.country_code]
+      .filter(Boolean)
+      .join(', ')}`;
   }
   return pageMeta(matches, {
     title: `${event.name} | Events`,
@@ -167,6 +167,7 @@ const Event = () => {
     time_zone: timeZone,
     ends_at: endsAt,
     location,
+    venue,
     game_event,
     entity_event,
     event_participant,
@@ -238,7 +239,7 @@ const Event = () => {
               <AddToCalendar
                 event={event}
                 path={eventPath(event)}
-                place={location ? [location.street, location.city].filter(Boolean).join(', ') : null}
+                place={location ? [venue?.name, location.street, location.city].filter(Boolean).join(', ') : null}
               />
             )}
             {currentUser && (
@@ -307,6 +308,14 @@ const Event = () => {
                 <LuMapPin />
               </Box>
               <Text>
+                {venue && (
+                  <>
+                    <ChakraLink asChild fontWeight="semibold">
+                      <Link to={venuePath(venue)}>{venue.name}</Link>
+                    </ChakraLink>
+                    {', '}
+                  </>
+                )}
                 {[location.street, location.city, location.region]
                   .filter(Boolean)
                   .join(', ')}
@@ -393,7 +402,7 @@ const Event = () => {
           location={location}
           id={id}
           color={pinColor('event')}
-          label={place || name}
+          label={venue?.name || place || name}
           address={[location.street, location.city].filter(Boolean).join(', ')}
         />
       )}

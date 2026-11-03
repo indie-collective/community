@@ -41,6 +41,11 @@ export default [
   route('rewind/:year', 'routes/rewind.$year.jsx'),
   route('welcome', 'routes/welcome.jsx'),
 
+  // Venues (#390).
+  route('venue/:id', 'routes/venue.$id.jsx'),
+  route('venue/:id/edit', 'routes/venue.$id.edit.jsx'),
+  route('search-venue', 'routes/search-venue.js'),
+
   // Auth & account
   route('signin', 'routes/signin.jsx'),
   route('logout', 'routes/logout.jsx'),

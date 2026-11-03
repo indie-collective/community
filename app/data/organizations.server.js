@@ -279,7 +279,7 @@ export async function getOrganization(id) {
       events: {
         with: {
           event: {
-            with: { games: { with: { game: true } }, participants: true },
+            with: { venue: shape.VENUE_WITH, games: { with: { game: true } }, participants: true },
           },
         },
       },

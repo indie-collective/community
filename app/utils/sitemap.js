@@ -1,4 +1,4 @@
-import { eventPath, gamePath, orgPath } from './slug.js';
+import { eventPath, gamePath, orgPath, venuePath } from './slug.js';
 
 // sitemap.xml and robots.txt, so search engines find every page (#258).
 
@@ -39,11 +39,11 @@ const entry = (origin, path, updated) =>
 
 /**
  * The sitemap: the main pages, every country with something placed in it,
- * and every game, organisation and event, with when each last changed.
+ * and every game, organisation, event and venue, with when each last changed.
  */
 export function buildSitemap(
   origin,
-  { countries = [], games = [], orgs = [], events = [], people = [], hidden = [] }
+  { countries = [], games = [], orgs = [], events = [], venues = [], people = [], hidden = [] }
 ) {
   const urls = [
     // But pages behind a feature flag that's off (`hidden`).
@@ -53,6 +53,7 @@ export function buildSitemap(
     ...games.map((game) => entry(origin, gamePath(game), game.updated_at)),
     ...orgs.map((org) => entry(origin, orgPath(org), org.updated_at)),
     ...events.map((event) => entry(origin, eventPath(event), event.updated_at)),
+    ...venues.map((venue) => entry(origin, venuePath(venue), venue.updated_at)),
     // Public profiles (#341).
     ...people.map((username) => entry(origin, `/people/${username}`)),
   ];

@@ -35,6 +35,7 @@ import { imageColumns } from './images.server';
 import { searchIndex } from './search.server';
 import * as shape from './shapes.server';
 import { freeSlug, renameSlugStatements } from './slugs.server';
+import { withVenues } from './venueLinks.server';
 import { eventSlug } from '../utils/slug';
 
 const notDeleted = isNull(events.deletedAt);
@@ -45,8 +46,9 @@ const inOrder = (ids, rows) => {
   return ids.map((id) => byId.get(id)).filter(Boolean);
 };
 
-// What event cards show: attendance and games (deleted ones left out).
+// What event cards show: its venue, attendance and games (deleted ones left out).
 const CARD_WITH = {
+  venue: shape.VENUE_WITH,
   participants: true,
   games: { with: { game: { columns: { deletedAt: true } } } },
 };
@@ -167,6 +169,7 @@ export async function getEvent(id) {
   const row = await db.query.events.findFirst({
     where: and(eq(events.id, id), notDeleted),
     with: {
+      venue: shape.VENUE_WITH,
       organizations: { with: { organization: true } },
       games: {
         with: {
@@ -245,10 +248,10 @@ export async function getRelatedEvents(event, { excludeIds = [] } = {}) {
  * `{ url, thumbnail_url }`.
  */
 export async function getEventForEdit(id) {
-  const [row] = await db
-    .select()
-    .from(events)
-    .where(and(eq(events.id, id), notDeleted));
+  const row = await db.query.events.findFirst({
+    where: and(eq(events.id, id), notDeleted),
+    with: { venue: shape.VENUE_WITH },
+  });
   if (!row) return null;
   const event = shape.event(row);
   const [previous] = row.previousEditionId
@@ -349,6 +352,7 @@ export async function createEvent({
   site,
   coverId,
   location,
+  venueId = null,
   ticketUrl = null,
   attendance = 'in_person',
   onlineUrl = null,
@@ -377,6 +381,7 @@ export async function createEvent({
       attendance,
       onlineUrl: attendance === 'in_person' ? null : onlineUrl,
       previousEditionId,
+      venueId: attendance === 'online' ? null : venueId,
       ...placeColumns(attendance, location),
       ...(await imageColumns('cover', coverId)),
       searchText: shape.searchTextOf({ name, about }),
@@ -404,6 +409,7 @@ export async function updateEvent(
     site,
     coverId,
     location,
+    venueId,
     ticketUrl,
     attendance,
     onlineUrl,
@@ -447,6 +453,7 @@ export async function updateEvent(
         onlineUrl: attendance === 'in_person' ? null : onlineUrl,
         // Never itself.
         previousEditionId: previousEditionId === id ? null : previousEditionId,
+        venueId: attendance === 'online' ? null : venueId,
         ...placeColumns(attendance, location),
         ...(await imageColumns('cover', coverId)),
         searchText: shape.searchTextOf({
@@ -652,8 +659,8 @@ export async function listMappedUpcomingEvents() {
       )
     )
     .orderBy(asc(events.startsAt));
-  return rows.map((row) => {
-    const { id, name, starts_at, ends_at, time_zone, cover, location } =
+  return (await withVenues(rows)).map((row) => {
+    const { id, name, starts_at, ends_at, time_zone, cover, location, venue } =
       shape.event(row);
     return {
       id,
@@ -663,6 +670,26 @@ export async function listMappedUpcomingEvents() {
       time_zone,
       cover: cover ? getImageLinks(cover) : null,
       location,
+      venue,
     };
   });
+}
+
+/**
+ * A venue's events (#390), as cards: those not over yet, soonest first, and
+ * past ones, latest first.
+ */
+export async function listVenueEvents(venueId) {
+  const now = new Date();
+  const list = (when, order) =>
+    db.query.events.findMany({
+      where: and(notDeleted, eq(events.venueId, venueId), when),
+      with: CARD_WITH,
+      orderBy: order,
+    });
+  const [upcomingRows, pastRows] = await Promise.all([
+    list(gte(events.endsAt, now), asc(events.startsAt)),
+    list(lt(events.endsAt, now), desc(events.startsAt)),
+  ]);
+  return { upcoming: upcomingRows.map(withCoverLinks), past: pastRows.map(withCoverLinks) };
 }

@@ -203,7 +203,7 @@ export async function getGame(id, { context } = {}) {
     where: and(eq(games.id, id), notDeleted),
     with: {
       ...CARD_WITH,
-      events: { with: { event: true } },
+      events: { with: { event: { with: { venue: shape.VENUE_WITH } } } },
       milestones: { orderBy: [asc(gameMilestones.date)] },
     },
   });

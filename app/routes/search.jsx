@@ -7,6 +7,7 @@ import { searchSite } from '../data/site.server';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
+import VenueCard from '../components/VenueCard';
 import SearchMatch from '../components/SearchMatch';
 import { Page, PageHeader } from '../components/Page';
 
@@ -21,6 +22,7 @@ const KINDS = [
     Card: OrgCard,
   },
   { kind: 'event', label: 'Events', one: 'event', Card: EventCard },
+  { kind: 'venue', label: 'Venues', one: 'venue', Card: VenueCard },
 ];
 const PREVIEW_SIZE = 6;
 const PAGE_SIZE = 24;

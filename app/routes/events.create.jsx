@@ -5,6 +5,7 @@ import { addSource } from '../data/sources.server';
 import { useEffect } from 'react';
 
 import { createEvent } from '../data/events.server';
+import { resolveEventVenue } from '../data/venues.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { authorizer, canWrite } from '../utils/auth.server';
 import { notifyDiscord } from '../utils/discordNotification.server';
@@ -28,7 +29,7 @@ export async function action(args) {
 
   const data = await parseFormWithUploads(request, ['cover']);
 
-  const location = {
+  const submitted = {
     street: data.get('street'),
     city: data.get('city'),
     region: data.get('region'),
@@ -37,14 +38,23 @@ export async function action(args) {
     longitude: parseFloat(data.get('longitude')) || null,
   };
   const attendance = parseAttendance(data.get('attendance'));
-  // Times are entered as wall-clock time where the event happens (#204);
-  // online, in the zone chosen on the form (#347).
-  const timeZone =
-    attendance === 'online' && isTimeZone(data.get('time_zone'))
-      ? data.get('time_zone')
-      : timeZoneAt(location.latitude, location.longitude);
 
   try {
+    // #390: the venue picked or named brings its place.
+    const { venueId, location } = await resolveEventVenue({
+      venueId: data.get('venue_id') || null,
+      venueName: data.get('venue_name'),
+      location: submitted,
+      attendance,
+      authorId: currentUser.id,
+    });
+    // Times are entered as wall-clock time where the event happens (#204);
+    // online, in the zone chosen on the form (#347).
+    const timeZone =
+      attendance === 'online' && isTimeZone(data.get('time_zone'))
+        ? data.get('time_zone')
+        : timeZoneAt(location.latitude, location.longitude);
+
     const event = await createEvent({
       name: data.get('name'),
       status: data.get('canceled') ? 'canceled' : 'ongoing',
@@ -59,6 +69,7 @@ export async function action(args) {
       previousEditionId: data.get('previous_edition_id') || null,
       coverId: data.get('cover'),
       location,
+      venueId,
       authorId: currentUser.id,
     });
 

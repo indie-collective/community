@@ -173,6 +173,30 @@ export const games = sqliteTable(
   ]
 );
 
+// A named place events are held at (#390), reused from one event to the next.
+export const venues = sqliteTable(
+  'venues',
+  {
+    id: id(),
+    name: text('name').notNull(),
+    slug: text('slug'),
+    about: text('about'),
+    site: text('site'),
+    ...location(),
+    searchText: text('search_text').notNull().default(''),
+    deletedAt: time('deleted_at'),
+    lastModifiedById: text('last_modified_by_id').references(() => people.id, {
+      onDelete: 'set null',
+    }),
+    ...timestamps(),
+  },
+  (t) => [
+    uniqueIndex('venues_slug').on(t.slug),
+    index('venues_country_code').on(t.countryCode),
+    index('venues_deleted_at').on(t.deletedAt),
+  ]
+);
+
 export const events = sqliteTable(
   'events',
   {
@@ -189,6 +213,11 @@ export const events = sqliteTable(
     status: text('status', { enum: EVENT_STATUSES })
       .notNull()
       .default('ongoing'),
+    // #390: the venue it's held at, if any. The location columns stay the
+    // event's own, copied from the venue, so past events keep their address.
+    venueId: text('venue_id').references(() => venues.id, {
+      onDelete: 'set null',
+    }),
     ...location(),
     ...image('cover'),
     // #203: where to buy tickets, beside `site`.
@@ -218,6 +247,7 @@ export const events = sqliteTable(
     index('events_previous_edition_id').on(t.previousEditionId),
     uniqueIndex('events_slug').on(t.slug),
     index('events_country_code').on(t.countryCode),
+    index('events_venue_id').on(t.venueId),
     index('events_starts_at').on(t.startsAt),
     index('events_ends_at').on(t.endsAt),
     index('events_deleted_at').on(t.deletedAt),
@@ -591,7 +621,7 @@ export const gameIgdb = sqliteTable(
 export const slugAliases = sqliteTable(
   'slug_aliases',
   {
-    // "game", "organization" or "event".
+    // "game", "organization", "event" or "venue".
     kind: text('kind').notNull(),
     slug: text('slug').notNull(),
     recordId: text('record_id').notNull(),
@@ -633,7 +663,12 @@ export const gamesRelations = relations(games, ({ many, one }) => ({
   igdb: one(gameIgdb),
 }));
 
-export const eventsRelations = relations(events, ({ many }) => ({
+export const venuesRelations = relations(venues, ({ many }) => ({
+  events: many(events),
+}));
+
+export const eventsRelations = relations(events, ({ many, one }) => ({
+  venue: one(venues, { fields: [events.venueId], references: [venues.id] }),
   games: many(gameEvents),
   organizations: many(organizationEvents),
   participants: many(eventParticipants),

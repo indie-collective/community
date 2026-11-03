@@ -10,7 +10,7 @@ export const LICENCE = {
 
 const RECORD = [
   ['id', 'Stable identifier (UUID)'],
-  ['slug', 'Its address on the site: /game/<slug>, /org/<slug>, /event/<slug>'],
+  ['slug', 'Its address on the site: /game/<slug>, /org/<slug>, /event/<slug>, /venue/<slug>'],
   ['url', 'Its page on the site'],
 ];
 const PLACE = [
@@ -63,10 +63,25 @@ export const FILES = [
       ['status', 'ongoing or canceled'],
       ['attendance', 'in_person, online or hybrid'],
       ['online_url', 'Where to join online'],
+      ['venue_id', 'The venues.csv id of where it is held'],
+      ['venue', 'The name of that venue'],
       ['street', 'Street address'],
       ...PLACE,
       ['cover_url', 'Its cover image'],
       ['previous_edition_id', 'The events.csv id of the edition before it'],
+      ...TIMES,
+    ],
+  ],
+  [
+    'venues.csv',
+    'Named places events are held at.',
+    [
+      ...RECORD,
+      ['name', 'Name'],
+      ['about', 'Description (Markdown)'],
+      ['site', 'Website'],
+      ['street', 'Street address'],
+      ...PLACE,
       ...TIMES,
     ],
   ],

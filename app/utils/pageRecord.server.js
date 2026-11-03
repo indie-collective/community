@@ -3,7 +3,7 @@ import { redirect } from 'react-router';
 import { findBySlugOrId } from '../data/slugs.server';
 import { isUuid } from './slug';
 
-const SEGMENTS = { game: 'game', organization: 'org', event: 'event' };
+const SEGMENTS = { game: 'game', organization: 'org', event: 'event', venue: 'venue' };
 
 /**
  * The ID of the record a page's URL names (#209): its slug, an old slug, or
