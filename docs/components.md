@@ -1,7 +1,9 @@
-# Component merges: what was decided
+# Components: what each one is for
 
-Each proposal has a Storybook board under "Proposals" (today, then proposed).
-These are the choices made on them, to apply across the site.
+In November 2026 the site's look-alike components were merged, one family at
+a time, each compared in Storybook before and after. These are the choices
+made, and what the site's components follow since. Storybook shows each one
+(`npm run storybook`).
 
 ## 1. Buttons
 
@@ -112,6 +114,6 @@ dialogs, rewind, country, admin lists).
 - Five radius tokens: `label` 6px, `control` 10px, `card` 14px, `panel` 20px,
   `round`. Every corner on the site is one of them.
 
-## 11. Delete
+## 11. Removed
 
-`MultiSelect`: nothing imports it.
+`MultiSelect`, which nothing imported; `EventMapCard`, the same.
