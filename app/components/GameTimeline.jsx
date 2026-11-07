@@ -122,7 +122,7 @@ const AddMilestone = ({ gameId }) => {
     <fetcher.Form ref={form} method="post" action={`/game/${gameId}/milestones/add`}>
       <Box mt={4}>
         <MilestoneFields>
-          <Button type="submit" size="sm" colorPalette="green" loading={fetcher.state !== 'idle'}>
+          <Button type="submit" size="sm" loading={fetcher.state !== 'idle'}>
             <LuPlus />
             Add to timeline
           </Button>
@@ -176,7 +176,7 @@ const GameTimeline = ({ gameId, milestones, events, igdbReleaseDate, currentUser
               top: '6px',
               boxSize: '12px',
               borderRadius: 'full',
-              bg: entry.type === 'event' ? 'purple.500' : 'green.500',
+              bg: entry.type === 'event' ? 'coral' : 'brand',
             }}
           >
             <Flex gap={2} align="baseline" wrap="wrap">

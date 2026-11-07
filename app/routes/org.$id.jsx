@@ -149,7 +149,7 @@ const Org = () => {
           objectFit="cover"
           src={logo?.thumbnail_url ?? placeholder}
           alt=""
-          borderRadius="lg"
+          borderRadius="card"
           bg="surface"
           // The clicked card's image moves here (view transitions, CardLink).
           data-vt-hero=""

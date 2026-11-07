@@ -435,7 +435,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
                 width="100%"
                 height="100px"
                 overflow="hidden"
-                borderRadius={5}
+                borderRadius="control"
                 mt={2}
               >
                 <TileMap
@@ -464,7 +464,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
                 objectFit="cover"
                 src={cover?.url ?? placeholder}
                 alt="Event cover"
-                borderRadius={5}
+                borderRadius="control"
               />
             </AspectRatio>
 
@@ -473,7 +473,6 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
               right={2}
               bottom={2}
               aria-label="Edit cover"
-              colorPalette="green"
               rounded="full"
               onClick={() => coverRef.current.click()}
             >
@@ -546,7 +545,6 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
         </Field.Root>
         <Button
           gridColumn="1 / 3"
-          colorPalette="green"
           mt={3}
           type="submit"
           loading={loading}

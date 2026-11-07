@@ -3,8 +3,8 @@ import { Box, Flex, List, Text } from '@chakra-ui/react';
 // A country's biggest cities as a ranked list with the studio/association
 // split (#258), for countries the map can't show.
 
-const STUDIO = 'yellow.solid';
-const ASSOCIATION = 'green.solid';
+const STUDIO = 'brand';
+const ASSOCIATION = 'lilac';
 
 const plural = (n, one, many = `${one}s`) =>
   `${n.toLocaleString('en')} ${n === 1 ? one : many}`;

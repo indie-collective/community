@@ -66,8 +66,8 @@ const Bar = ({ bar, tone }) => (
     px={{ base: 0, md: 2 }}
     ml={bar.startsBefore ? 0 : { base: '2px', md: 1 }}
     mr={bar.endsAfter ? 0 : { base: '2px', md: 1 }}
-    borderLeftRadius={bar.startsBefore ? 0 : 'md'}
-    borderRightRadius={bar.endsAfter ? 0 : 'md'}
+    borderLeftRadius={bar.startsBefore ? 0 : 'label'}
+    borderRightRadius={bar.endsAfter ? 0 : 'label'}
     whiteSpace="nowrap"
     overflow="hidden"
     textOverflow="ellipsis"
@@ -146,7 +146,7 @@ const Calendar = ({ month, events, today, selected, onSelect, isGoing }) => {
       bg="surface"
       borderWidth="2px"
       borderColor="ink"
-      borderRadius="2xl"
+      borderRadius="panel"
       overflow="hidden"
     >
       <Grid
@@ -219,7 +219,7 @@ const Calendar = ({ month, events, today, selected, onSelect, isGoing }) => {
 
 const KeyItem = ({ tone, children }) => (
   <HStack as="span" gap={2}>
-    <Box w="22px" h="12px" borderRadius="sm" {...TONES[tone]} />
+    <Box w="22px" h="12px" borderRadius="label" {...TONES[tone]} />
     {children}
   </HStack>
 );

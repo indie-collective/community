@@ -29,7 +29,7 @@ const Footer = () => {
       maxW="100%"
       mx={{ base: 4, md: 10 }}
       mt={3}
-      borderRadius="7px 7px 0 0"
+      borderTopRadius="control"
       // Stays put while the page changes (view transitions).
       css={{ viewTransitionName: 'site-footer' }}
     >

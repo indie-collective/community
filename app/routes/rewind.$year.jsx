@@ -12,7 +12,6 @@ import {
   Separator,
 } from '@chakra-ui/react';
 
-import { useColorModeValue } from "../components/ui/color-mode";
 
 import { useLoaderData } from 'react-router';
 import { pageMeta } from '../utils/meta';
@@ -39,13 +38,13 @@ export const meta = ({ data, matches }) =>
       })
     : [{ title: 'Rewind not found' }];
 
-const StatCard = ({ icon, label, value, color, delay, href }) => {
+const StatCard = ({ icon, label, value, delay, href }) => {
   const bgColor = 'surface';
   const textColor = 'muted';
 
   const content = (
     <VStack gap={4} align="start">
-      <Circle size="40px" bg={`${color}.50`} color={color}>
+      <Circle size="40px" bg="canvas" color="brand">
         <Icon as={icon} />
       </Circle>
       <VStack gap={0} align="start">
@@ -65,10 +64,9 @@ const StatCard = ({ icon, label, value, color, delay, href }) => {
       viewport={{ once: true }}
       bg={bgColor}
       p={6}
-      borderRadius="xl"
-      boxShadow="xl"
-      borderTop="4px solid"
-      borderTopColor={color}
+      borderRadius="card"
+      borderWidth="1px"
+      borderColor="rule"
       {...(href ? {
         as: Link,
         to: href,
@@ -93,11 +91,9 @@ const RewindPage = () => {
     latest,
   } = useLoaderData();
 
-  const titleColor = useColorModeValue('teal.600', 'teal.300');
-  const sectionBg = useColorModeValue('gray.50', 'gray.900');
-  // Called here, before the early return, so every render calls the same hooks.
-  const barTrack = useColorModeValue('gray.100', 'gray.700');
-  const placeHover = useColorModeValue('blue.50', 'gray.700');
+  const sectionBg = 'canvas';
+  const barTrack = 'canvas';
+  const placeHover = 'canvas';
   const cardBg = 'surface';
 
   // The years before and after, when they have a rewind.
@@ -114,7 +110,7 @@ const RewindPage = () => {
     return (
       <Box bg={sectionBg} minH="100vh" display="flex" alignItems="center" justifyContent="center">
         <VStack gap={6} textAlign="center">
-          <Heading size="2xl">Rewind {year}</Heading>
+          <Heading as="h1" size="2xl" fontWeight="600">Rewind {year}</Heading>
           <Text fontSize="xl" color="muted">It looks like the year hasn't been mapped yet!</Text>
           <Text>Be the first to add an event or a studio for {year}.</Text>
           {years}
@@ -134,7 +130,7 @@ const RewindPage = () => {
             transition={{ duration: 0.8 }}
             textAlign="center"
           >
-            <Heading size="4xl" mb={4} bgGradient="to-r" gradientFrom="green.400" gradientVia="blue.500" gradientTo="purple.600" bgClip="text" fontWeight="extrabold">
+            <Heading as="h1" size="4xl" mb={4} fontWeight="600" letterSpacing="-0.03em">
               Rewind {year}
             </Heading>
             <Text fontSize="2xl" color="muted" fontWeight="medium">
@@ -145,10 +141,10 @@ const RewindPage = () => {
 
           {/* Main Stats */}
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={8}>
-            <StatCard icon={FaCalendarAlt} label="Events Happened" value={eventsCount} color="teal" delay={0.1} href="/events" />
-            <StatCard icon={FaGamepad} label="Games Created" value={gamesCount} color="blue" delay={0.2} href="/games" />
-            <StatCard icon={FaBuilding} label="New Studios" value={studiosCount} color="purple" delay={0.3} href="/studios" />
-            <StatCard icon={FaUsers} label="New Associations" value={associationsCount} color="orange" delay={0.4} href="/associations" />
+            <StatCard icon={FaCalendarAlt} label="Events Happened" value={eventsCount} delay={0.1} href="/events" />
+            <StatCard icon={FaGamepad} label="Games Created" value={gamesCount} delay={0.2} href="/games" />
+            <StatCard icon={FaBuilding} label="New Studios" value={studiosCount} delay={0.3} href="/studios" />
+            <StatCard icon={FaUsers} label="New Associations" value={associationsCount} delay={0.4} href="/associations" />
           </SimpleGrid>
 
           {/* Detailed Sections */}
@@ -161,14 +157,15 @@ const RewindPage = () => {
               viewport={{ once: true }}
               bg={cardBg}
               p={8}
-              borderRadius="2xl"
-              boxShadow="2xl"
+              borderRadius="panel"
+              borderWidth="1px"
+              borderColor="rule"
               overflow="hidden"
               position="relative"
             >
               <VStack align="start" gap={6} zIndex={1} position="relative">
                 <HStack>
-                  <Icon color="green.400" w={6} h={6} asChild><FaHashtag /></Icon>
+                  <Icon color="brand" w={6} h={6} asChild><FaHashtag /></Icon>
                   <Heading size="lg">Hottest Trends</Heading>
                 </HStack>
                 <Text color="muted">The most popular tags used by our community this year.</Text>
@@ -176,10 +173,10 @@ const RewindPage = () => {
                 {topTags.length > 0 ? (
                   <VStack align="stretch" w="100%" gap={6}>
                     {topTags.map((tag, idx) => (
-                      <Box key={tag.name} _hover={{ color: 'green.500' }} asChild><Link to={`/games?tags=${encodeURIComponent(tag.name)}`}>
+                      <Box key={tag.name} _hover={{ color: 'primary.fg' }} asChild><Link to={`/games?tags=${encodeURIComponent(tag.name)}`}>
                           <Flex justify="space-between" mb={2}>
                             <Text fontWeight="bold" fontSize="md">{tag.name}</Text>
-                            <Text color="green.500" fontWeight="semibold">{tag.count} games</Text>
+                            <Text color="primary.fg" fontWeight="semibold">{tag.count} games</Text>
                           </Flex>
                           <Box h="10px" bg={barTrack} borderRadius="full">
                             <MotionBox
@@ -188,7 +185,7 @@ const RewindPage = () => {
                               transition={{ duration: 1, delay: idx * 0.1, ease: "easeOut" }}
                               viewport={{ once: true }}
                               h="100%"
-                              bgGradient="to-r" gradientFrom="teal.300" gradientTo="teal.500"
+                              bg="brand"
                               borderRadius="full"
                             />
                           </Box>
@@ -209,12 +206,13 @@ const RewindPage = () => {
               viewport={{ once: true }}
               bg={cardBg}
               p={8}
-              borderRadius="2xl"
-              boxShadow="2xl"
+              borderRadius="panel"
+              borderWidth="1px"
+              borderColor="rule"
             >
               <VStack align="start" gap={6}>
                 <HStack>
-                  <Icon color="blue.400" w={6} h={6} asChild><FaMapMarkerAlt /></Icon>
+                  <Icon color="brand" w={6} h={6} asChild><FaMapMarkerAlt /></Icon>
                   <Heading size="lg">Expanding Horizons</Heading>
                 </HStack>
                 <Text color="muted">Cities where the indie scene was most vibrant in {year}.</Text>
@@ -226,21 +224,21 @@ const RewindPage = () => {
                         key={`${loc.city}-${loc.country}`}
                         justify="space-between"
                         p={3}
-                        borderRadius="lg"
-                        _hover={{ bg: placeHover, color: 'blue.600' }}
+                        borderRadius="control"
+                        _hover={{ bg: placeHover }}
                         transition="0.2s"
                         asChild><Link key={idx} to={`/search?q=${encodeURIComponent(loc.city)}`}>
                           <HStack gap={4}>
-                            <Circle size="36px" bg="blue.500" color="white" fontSize="sm" fontWeight="bold">
+                            <Circle size="36px" bg="ink" color="canvas" fontSize="sm" fontWeight="600">
                               {idx + 1}
                             </Circle>
                             <VStack align="start" gap={0}>
                               <Text fontWeight="bold" fontSize="md">{loc.city}</Text>
-                              <Text fontSize="xs" color="muted" textTransform="uppercase" letterSpacing="wider">{loc.country}</Text>
+                              <Text fontSize="xs" color="muted">{loc.country}</Text>
                             </VStack>
                           </HStack>
                           <Box textAlign="right">
-                            <Text fontWeight="bold" color="blue.500" fontSize="lg">{loc.total}</Text>
+                            <Text fontWeight="600" fontSize="lg">{loc.total}</Text>
                             <Text fontSize="xs" color="muted">Activities</Text>
                           </Box>
                         </Link></HStack>
@@ -263,7 +261,7 @@ const RewindPage = () => {
             textAlign="center"
             py={10}
           >
-            <Heading size="xl" mb={4} bgGradient="to-r" gradientFrom="teal.400" gradientTo="blue.500" bgClip="text" fontWeight="bold">
+            <Heading size="xl" mb={4} fontWeight="600">
               Thank you for being part of {year}!
             </Heading>
             <Text color="muted" fontSize="lg" maxW="2xl" mx="auto">

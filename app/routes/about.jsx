@@ -67,7 +67,7 @@ const AboutPage = () => {
             key={label}
             p={4}
             bg="surface"
-            borderRadius="xl"
+            borderRadius="card"
             shadow="xs"
           >
             <Text

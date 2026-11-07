@@ -147,14 +147,14 @@ const Callout = ({
       >
         {splitText(area)}
       </text>
-      {/* Studios (yellow) and associations (green), as on the city list. */}
+      {/* Studios (green) and associations (lilac), as on the city list and the atlas. */}
       <rect
         x={barX}
         y={y + fs * 1.35}
         width={studiosWidth}
         height={fs * 0.35}
         rx={fs * 0.17}
-        fill={css('yellow.solid')}
+        fill={css('brand')}
       />
       <rect
         x={barX + studiosWidth + gap}
@@ -162,7 +162,7 @@ const Callout = ({
         width={Math.max(0, barWidth - studiosWidth - gap)}
         height={fs * 0.35}
         rx={fs * 0.17}
-        fill={css('green.solid')}
+        fill={css('lilac')}
       />
     </g>
   );
@@ -245,7 +245,7 @@ const MapDrawing = ({
             cx={xy[0]}
             cy={xy[1]}
             r={w * 0.0045}
-            fill={css(on ? 'green.700' : 'green.solid')}
+            fill={css(on ? 'brandDeep' : 'brand')}
             fillOpacity={highlighted == null || on ? 0.7 : 0.25}
             pointerEvents="none"
           />
@@ -262,9 +262,9 @@ const MapDrawing = ({
               cx={points[i][0]}
               cy={points[i][1]}
               r={halo(area.count)}
-              fill={css('green.solid')}
+              fill={css('brand')}
               fillOpacity={on ? 0.3 : 0.12}
-              stroke={css(on ? 'fg' : 'green.solid')}
+              stroke={css(on ? 'fg' : 'brand')}
               strokeWidth={on ? 2 : 1.25}
               vectorEffect="non-scaling-stroke"
               style={{ cursor: 'pointer' }}
@@ -326,7 +326,7 @@ const AreaDetails = ({ area, code, onClose }) => {
     <Box
       ref={ref}
       borderWidth="1px"
-      borderRadius="lg"
+      borderRadius="card"
       p={4}
       bg="bg.panel"
       mt={4}
@@ -411,7 +411,7 @@ const CountryMap = ({ code, name, cities }) => {
           narrow={narrow}
         />
       ) : (
-        <Skeleton aspectRatio={16 / 9} borderRadius="md" />
+        <Skeleton aspectRatio={16 / 9} borderRadius="card" />
       )}
       {narrow && (
         <Stack as="ol" listStyle="none" mt={3} gap={2}>

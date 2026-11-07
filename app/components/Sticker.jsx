@@ -50,7 +50,7 @@ const Sticker = ({
     lineHeight="1.4"
     px={2}
     py={0.5}
-    borderRadius="md"
+    borderRadius="label"
     whiteSpace="nowrap"
     {...(round && {
       ...ROUND,

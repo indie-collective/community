@@ -60,7 +60,7 @@ const SelectInput = ({
             <Icon
               boxSize="25px"
               color={iconColor}
-              borderRadius="0.5em"
+              borderRadius="control"
               padding="4px"
               cursor="pointer"
               _hover={{ backgroundColor: iconHoverColor }}
@@ -104,7 +104,7 @@ const SelectInput = ({
           overflowY="auto"
           marginTop="6px"
           shadow="base"
-          rounded="4px"
+          rounded="label"
           zIndex="dropdown"
           onFocus={() => setFocusedButton(true)}
           onBlur={() => setFocusedButton(false)}

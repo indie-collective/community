@@ -117,7 +117,7 @@ const Merge = () => {
             </Field.Root>
           ))}
           <Box>
-            <Button type="submit" colorPalette="green" loading={navigation.state !== 'idle'}>
+            <Button type="submit" loading={navigation.state !== 'idle'}>
               Merge
             </Button>
           </Box>

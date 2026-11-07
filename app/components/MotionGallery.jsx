@@ -46,14 +46,14 @@ const MotionGallery = ({ gameId, gameName = 'the game', images, currentUser, fet
                 type="button"
                 aria-label={image.alt ? `${image.alt}: open` : `Open image ${index + 1} of ${gameName}`}
                 cursor="pointer"
-                borderRadius="md"
+                borderRadius="control"
                 overflow="hidden"
                 _focusVisible={{ outline: '2px solid', outlineColor: 'colorPalette.focusRing', outlineOffset: '2px' }}
                 onClick={() => setSelectedIndex(index)}
               >
                 <Image
                   src={image.thumbnail_url || image.url}
-                  borderRadius="md"
+                  borderRadius="control"
                   objectFit="cover"
                   size="100%"
                   alt={image.alt ?? ''}

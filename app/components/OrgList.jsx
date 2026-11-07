@@ -62,7 +62,6 @@ const OrgList = ({
           <Button
             onClick={loadMore}
             loading={fetcher.state === 'loading'}
-            colorPalette="green"
             variant="outline"
           >
             Load more

@@ -125,7 +125,7 @@ const CoverStory = ({ games }) => {
       <Card
         isClickable
         aspectRatio={4 / 5}
-        rounded="2xl"
+        rounded="panel"
         overflow="hidden"
         borderWidth="2px"
         borderColor="ink"
@@ -255,7 +255,7 @@ const Cover = ({ counts, games }) => (
           borderWidth="2px"
           borderColor="ink"
           // The button's 10px, plus the 4px between them.
-          borderRadius="14px"
+          borderRadius="card"
           _focusWithin={{
             outline: '2px solid',
             outlineColor: 'brand',
@@ -329,7 +329,7 @@ const Contribute = () => (
     color="onPop"
     borderWidth="2px"
     borderColor="onPop"
-    rounded="3xl"
+    rounded="panel"
     transform="rotate(-0.6deg)"
   >
     <Box minW={0}>
@@ -360,7 +360,7 @@ const Contribute = () => (
           size="sm"
           borderWidth="2px"
           borderColor="onPop"
-          borderRadius="10px"
+          borderRadius="control"
           bg={i === 0 ? 'onPop' : 'transparent'}
           color={i === 0 ? 'sun' : 'onPop'}
           fontWeight="semibold"

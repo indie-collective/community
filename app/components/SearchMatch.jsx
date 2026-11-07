@@ -48,7 +48,7 @@ const SearchMatch = ({ kind, match }) => {
             bg={{ base: 'yellow.100', _dark: 'yellow.800' }}
             color="inherit"
             px="1px"
-            borderRadius="sm"
+            borderRadius="label"
           >
             {text}
           </Text>

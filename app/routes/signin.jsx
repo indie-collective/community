@@ -143,11 +143,11 @@ const SignIn = () => {
       {loaderData?.devSignIn && (
         <Stack gap={5}>
           <HStack>
-            <Separator flex="1" borderColor={{ base: 'gray.300', _dark: 'gray.600' }} />
+            <Separator flex="1" borderColor="rule" />
             <Text fontSize="sm" whiteSpace="nowrap" color="muted">
               or continue with
             </Text>
-            <Separator flex="1" borderColor={{ base: 'gray.300', _dark: 'gray.600' }} />
+            <Separator flex="1" borderColor="rule" />
           </HStack>
           {actionData?.error && (
             <Alert.Root status="error" mb="10px">

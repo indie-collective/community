@@ -22,15 +22,9 @@ import { CONTINENTS } from '../utils/countryTable';
 // associations, games and events as tiny icons; tiles grouped and coloured
 // by continent.
 
-const PALETTES = {
-  EU: 'blue',
-  NA: 'orange',
-  SA: 'green',
-  AS: 'red',
-  OC: 'cyan',
-  AF: 'yellow',
-  AN: 'gray',
-};
+// A continent's tile colour: a soft paper tint from the theme.
+const KNOWN = new Set(CONTINENTS.map(([code]) => code));
+const tint = (continent) => `continent.${KNOWN.has(continent) ? continent : 'AN'}`;
 
 const STATS = [
   ['studios', LuBuilding2, 'studio'],
@@ -47,7 +41,6 @@ const describe = (country) =>
   `${country.code}, ${country.name}: ${STATS.map(([key, , one]) => plural(country[key], one)).join(', ')}`;
 
 const Tile = ({ country }) => {
-  const palette = PALETTES[country.continent] ?? 'gray';
   return (
     <LinkBox
       as="li"
@@ -56,14 +49,14 @@ const Tile = ({ country }) => {
       display="flex"
       flexDirection="column"
       borderWidth="1px"
-      borderRadius="md"
-      bg={`${palette}.subtle`}
-      borderColor={`${palette}.muted`}
+      borderRadius="label"
+      bg={tint(country.continent)}
+      borderColor="rule"
       transition="transform 120ms"
       _hover={{ transform: 'scale(1.06)', zIndex: 1, shadow: 'md' }}
       _focusWithin={{
         outline: '2px solid',
-        outlineColor: `${palette}.solid`,
+        outlineColor: 'ink',
         outlineOffset: '2px',
       }}
     >
@@ -86,10 +79,9 @@ const Tile = ({ country }) => {
         >
           <Text
             fontSize="2xl"
-            fontWeight="800"
+            fontWeight="600"
             lineHeight="1.1"
             mt={1}
-            color={`${palette}.fg`}
           >
             {country.code}
           </Text>
@@ -140,10 +132,10 @@ const CountriesTable = ({ countries }) => (
           <Box
             w="14px"
             h="14px"
-            borderRadius="sm"
+            borderRadius="label"
             borderWidth="1px"
-            bg={`${PALETTES[code]}.subtle`}
-            borderColor={`${PALETTES[code]}.muted`}
+            bg={tint(code)}
+            borderColor="rule"
           />
           {name}
         </Flex>

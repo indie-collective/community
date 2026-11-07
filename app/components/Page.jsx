@@ -101,7 +101,7 @@ export const FilterBar = ({ children, ...rest }) => (
     p={3}
     mb={6}
     bg="surface"
-    borderRadius="xl"
+    borderRadius="panel"
     shadow="xs"
     {...rest}
   >

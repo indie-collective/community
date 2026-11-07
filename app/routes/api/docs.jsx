@@ -23,7 +23,7 @@ export const meta = ({ matches, location }) =>
 
 const Example = ({ children }) => (
   // Focusable: keyboard users can scroll it (#350).
-  <Box as="pre" tabIndex={0} p={3} borderRadius="md" bg={{ base: 'gray.100', _dark: 'gray.800' }} overflowX="auto" fontSize="sm">
+  <Box as="pre" tabIndex={0} p={3} borderRadius="control" bg="canvas" borderWidth="1px" borderColor="rule" overflowX="auto" fontSize="sm">
     <code>{children}</code>
   </Box>
 );

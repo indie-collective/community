@@ -129,7 +129,7 @@ const ImageInput = ({ label }) => {
       <Field.Label htmlFor="upload">{label}</Field.Label>
       <Input id="upload" name="upload" type="file" accept="image/*" pt={1.5} onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
       <ThumbnailFields name="upload" file={file} />
-      {preview && <Image src={preview} alt="" mt={2} maxH="12rem" borderRadius="md" />}
+      {preview && <Image src={preview} alt="" mt={2} maxH="12rem" borderRadius="control" />}
     </Field.Root>
   );
 };

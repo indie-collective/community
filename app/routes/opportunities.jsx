@@ -47,7 +47,7 @@ const Opportunities = () => {
         <FilterBar>
           <CountryCombobox countries={facets.countries} defaultValue={selected.country} onChange={(form) => submit(form)} />
           <NativeSelect.Root size="sm" width="auto">
-            <NativeSelect.Field name="kind" aria-label="Kind" defaultValue={selected.kind ?? ''} onChange={change} borderRadius="md" width="auto">
+            <NativeSelect.Field name="kind" aria-label="Kind" defaultValue={selected.kind ?? ''} onChange={change} borderRadius="control" width="auto">
               <option value="">Every kind</option>
               {OPPORTUNITY_KINDS.map(([value, label]) => (
                 <option key={value} value={value}>
@@ -57,7 +57,7 @@ const Opportunities = () => {
             </NativeSelect.Field>
             <NativeSelect.Indicator />
           </NativeSelect.Root>
-          <Checkbox.Root name="remote" value="on" defaultChecked={selected.remote} colorPalette="green">
+          <Checkbox.Root name="remote" value="on" defaultChecked={selected.remote}>
             <Checkbox.HiddenInput onChange={change} />
             <Checkbox.Control>
               <Checkbox.Indicator />

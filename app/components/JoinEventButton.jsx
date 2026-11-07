@@ -15,7 +15,6 @@ const JoinEventButton = ({
     <Form method='post' action={`/event/${eventId}/${isGoing ? 'leave' : 'join'}`}>
       <Button
         variant={isGoing ? 'solid' : 'outline'}
-        colorPalette="green"
         {...rest}
         type="submit"
         disabled={navigation.state === 'submitting'}>{isGoing ? <LuCheck /> : null}{navigation.state === 'submitting' ? 'Submitting...' : children}</Button>

@@ -36,7 +36,7 @@ export default function MapPin({ color, logo, size = 48 }) {
               loading="lazy"
               backgroundColor="currentColor"
               objectFit="cover"
-              borderRadius="50%"
+              borderRadius="full"
               width="320px"
               height="320px"
             />

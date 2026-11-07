@@ -48,7 +48,7 @@ const Bluesky = () => {
           <Text fontWeight="semibold" mb={2}>
             The past seven days would read:
           </Text>
-          <Box p={4} borderWidth="1px" borderRadius="lg" mb={4} whiteSpace="pre-wrap" data-testid="summary-preview">
+          <Box p={4} borderWidth="1px" borderRadius="card" mb={4} whiteSpace="pre-wrap" data-testid="summary-preview">
             {summary.text}
             {'\n\n'}
             {summary.url}

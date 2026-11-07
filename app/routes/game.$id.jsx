@@ -278,7 +278,6 @@ const Game = () => {
                 <IconButton
                   alignSelf="center"
                   justifySelf="flex-start"
-                  colorPalette="green"
                   aria-label="Add an author to the game"
                   onClick={onOpenLinkAuthor}
                 >

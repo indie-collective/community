@@ -60,7 +60,7 @@ const Missions = () => {
             {gaps
               .filter((gap) => counts[kind][gap.key] > 0)
               .map((gap) => (
-                <Stack key={gap.key} p={4} borderWidth="1px" borderRadius="lg" gap={2}>
+                <Stack key={gap.key} p={4} borderWidth="1px" borderRadius="card" gap={2}>
                   <Heading as="h3" size="sm">
                     Missing: {gap.label.toLowerCase()}
                   </Heading>
@@ -69,7 +69,7 @@ const Missions = () => {
                   </Text>
                   <Box>
                     {signedIn ? (
-                      <Button asChild size="sm" colorPalette="green">
+                      <Button asChild size="sm">
                         <Link to={`/missions/${kind}/${gap.key}?start=${Date.now()}`} aria-label={`Start: ${KIND_LABELS[kind]} missing ${gap.label.toLowerCase()}`}>
                           Start
                         </Link>

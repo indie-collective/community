@@ -27,7 +27,7 @@ const NearMe = ({ selected, onChange, without }) => {
             aria-label="Distance"
             defaultValue={selected.km}
             onChange={onChange}
-            borderRadius="md"
+            borderRadius="control"
             width="auto"
           >
             {NEAR_RADII.map((km) => (
@@ -41,7 +41,6 @@ const NearMe = ({ selected, onChange, without }) => {
         <Tag.Root
           size="lg"
           variant="subtle"
-          colorPalette="green"
           alignSelf="center"
         >
           <Tag.Label>Near you</Tag.Label>
@@ -127,7 +126,6 @@ const Filters = ({ facets, selected, type }) => {
             <Tag.Root
               size="lg"
               variant="subtle"
-              colorPalette="green"
               alignSelf="center"
             >
               <Tag.Label>In {selected.city}</Tag.Label>
@@ -151,7 +149,7 @@ const Filters = ({ facets, selected, type }) => {
                 aria-label="When"
                 defaultValue={selected.period || 'upcoming'}
                 onChange={handleChange}
-                borderRadius="md"
+                borderRadius="control"
                 width="auto"
               >
                 <option value="upcoming">Upcoming</option>
@@ -169,7 +167,7 @@ const Filters = ({ facets, selected, type }) => {
                 aria-label="Where"
                 defaultValue={selected.where ?? ''}
                 onChange={handleChange}
-                borderRadius="md"
+                borderRadius="control"
                 width="auto"
               >
                 <option value="">In person or online</option>
@@ -193,7 +191,7 @@ const Filters = ({ facets, selected, type }) => {
                 aria-label="Published games tagged"
                 defaultValue={selected.tag ?? ''}
                 onChange={handleChange}
-                borderRadius="md"
+                borderRadius="control"
                 width="auto"
               >
                 <option value="">Any kind of game</option>
@@ -211,7 +209,6 @@ const Filters = ({ facets, selected, type }) => {
                 name="pitches"
                 value="on"
                 defaultChecked={selected.pitches === 'on'}
-                colorPalette="green"
               >
                 {/* #345: publishers with an "Open to pitches" opportunity now. */}
                 <Checkbox.HiddenInput onChange={handleChange} />
@@ -228,7 +225,6 @@ const Filters = ({ facets, selected, type }) => {
               name="has_games"
               value="on"
               defaultChecked={selected.has_games === 'on'}
-              colorPalette="green"
             >
               {/* The native input's change event carries its form. */}
               <Checkbox.HiddenInput onChange={handleChange} />
@@ -242,7 +238,6 @@ const Filters = ({ facets, selected, type }) => {
               name="has_events"
               value="on"
               defaultChecked={selected.has_events === 'on'}
-              colorPalette="green"
             >
               <Checkbox.HiddenInput onChange={handleChange} />
               <Checkbox.Control>

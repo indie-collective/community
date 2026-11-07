@@ -218,7 +218,7 @@ const Games = () => {
             <NativeSelect.Indicator />
           </NativeSelect.Root>
           {country && (
-            <Tag.Root size="lg" variant="subtle" colorPalette="green">
+            <Tag.Root size="lg" variant="subtle">
               <Tag.Label>Made in {country.name}</Tag.Label>
               <Tag.EndElement>
                 <Tag.CloseTrigger
