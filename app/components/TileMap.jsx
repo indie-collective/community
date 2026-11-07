@@ -17,8 +17,12 @@ export const tileProvider = (x, y, z) => `https://tile.openstreetmap.org/${z}/${
 const TILES = 'img[src^="https://tile.openstreetmap.org/"]';
 const tileStyle = {
   [`& ${TILES}`]: { filter: 'saturate(0.45) brightness(1.04) contrast(0.92)' },
+  // On the tiles together, over the tiles' own land colour: tiles rest on
+  // fractions of a pixel, and the map's light background showed at their edges.
   _dark: {
-    [`& ${TILES}`]: {
+    [`& ${TILES}`]: { filter: 'none' },
+    '& .pigeon-tiles-box': {
+      background: '#f2efe9',
       filter: 'invert(1) hue-rotate(180deg) saturate(0.4) brightness(0.9) contrast(0.85)',
     },
   },

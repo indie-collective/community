@@ -193,7 +193,7 @@ test.describe('the places drawer on a phone', () => {
 
   test('opens and closes by tap and swipe, keeping its list', async ({ page }) => {
     await page.goto('/places', { waitUntil: 'networkidle' });
-    const drawer = page.getByRole('dialog', { name: 'Locations' });
+    const drawer = page.getByRole('dialog', { name: 'Gazetteer' });
     const header = drawer.locator('header').first();
     const top = async () => (await drawer.boundingBox()).y;
 
@@ -307,6 +307,43 @@ test('the map shows upcoming events, and filters by kind', async ({ page }) => {
   }
 });
 
+// The atlas: plates to open, a gazetteer of what's in view with the square
+// it's in, and contents by country.
+test('the atlas opens plates, and lists places with their squares', async ({ page }) => {
+  const { db, organizations } = await import('./db.js');
+  const { eq } = await import('drizzle-orm');
+  const tag = Date.now() % 100000;
+  const [studio] = await db
+    .insert(organizations)
+    .values({ name: `Atlas Games ${tag}`, type: 'studio', countryCode: 'XQ', city: `Vik ${tag}`, latitude: 64.1466, longitude: -21.9426 })
+    .returning();
+  try {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/places?country=XQ', { waitUntil: 'networkidle' });
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Where the scene is');
+
+    // The place, then what's there; going to it stays on it.
+    const place = page.getByTitle(`Go to Vik ${tag} on the map`);
+    await expect(place).toContainText(/[A-H][1-6]$/);
+    await expect(page.locator(`[id="${studio.id}"]`)).toContainText(studio.name);
+
+    // A plate opens, and moving away leaves it.
+    const europe = page.getByRole('button', { name: /Europe$/ });
+    await expect(europe).toHaveAttribute('aria-pressed', 'false');
+    await europe.click();
+    await expect(europe).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator(`[id="${studio.id}"]`)).toHaveCount(0);
+    await page.locator('.pigeon-zoom-buttons button').first().click();
+    await expect(europe).toHaveAttribute('aria-pressed', 'false');
+
+    const contents = page.getByRole('region', { name: 'Contents, by country' });
+    await expect(contents.locator('a[href^="/country/"]').first()).toBeVisible();
+    await expect(contents.getByRole('link', { name: 'Every country, as a table' })).toHaveAttribute('href', '/countries');
+  } finally {
+    await retryBusy(() => db.delete(organizations).where(eq(organizations.id, studio.id)));
+  }
+});
+
 // #375: on desktop the map's wrapper shrank to nothing beside the list, and
 // the map hung 360px off the left of the screen. It fills its column again.
 test('the places map fills its column beside the list on desktop', async ({ page }) => {
@@ -319,6 +356,6 @@ test('the places map fills its column beside the list on desktop', async ({ page
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(1440);
   // Beside the list, not under it.
-  const list = await page.getByRole('heading', { name: /^Locations/ }).boundingBox();
+  const list = await page.getByRole('heading', { name: /^Gazetteer/ }).boundingBox();
   expect(list.x).toBeGreaterThan(box.x + box.width - 1);
 });
