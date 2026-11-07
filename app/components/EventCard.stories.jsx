@@ -26,3 +26,37 @@ export const Default = {
 };
 
 export const Dark = { ...Default, globals: { colorMode: 'dark' } };
+
+// The homepage's and diary's agenda: the day on a stub, then the name.
+export const Ticket = {
+  decorators: [(Story) => <div style={{ width: 320 }}><Story /></div>],
+  args: { variant: 'ticket', time_zone: 'Europe/Paris' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('25')).toBeVisible();
+    await expect(
+      canvas.getByRole('link', { name: 'Jerde, Padberg and Greenholt Conference' })
+    ).toHaveAttribute('href', '/event/event-1');
+  },
+};
+
+// Their own events carry "You're going"; online and hybrid ones say so.
+export const TicketGoingOnline = {
+  ...Ticket,
+  args: { ...Ticket.args, going: true, attendance: 'hybrid' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/going/i)).toBeVisible();
+    await expect(canvas.getByText(/hybrid/i)).toBeVisible();
+  },
+};
+
+export const TicketCanceled = {
+  ...Ticket,
+  args: { ...Ticket.args, status: 'canceled' },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(/canceled/i)).toBeVisible();
+  },
+};
+
+export const TicketDark = { ...Ticket, globals: { colorMode: 'dark' } };

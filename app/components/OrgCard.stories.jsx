@@ -29,3 +29,19 @@ export const Studio = {
 export const Association = { args: { type: 'association', name: 'Feeney and Sons' } };
 
 export const Dark = { ...Studio, globals: { colorMode: 'dark' } };
+
+// The homepage's studios and associations: a round logo and the name.
+export const Badge = {
+  decorators: [(Story) => <div style={{ width: 140 }}><Story /></div>],
+  args: { variant: 'badge' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('link', { name: 'Frami, Abernathy and Dickens' })).toHaveAttribute('href', '/org/org-1');
+    await expect(canvas.getByText(/Valentinfurt/)).toBeVisible();
+  },
+};
+
+export const BadgeAssociation = {
+  decorators: Badge.decorators,
+  args: { variant: 'badge', type: 'association', name: 'Feeney and Sons' },
+};

@@ -33,3 +33,27 @@ export const Default = {
 };
 
 export const Dark = { ...Default, globals: { colorMode: 'dark' } };
+
+// The homepage's game wall: a full-bleed cover with the name on it, a little
+// off-straight until the pointer is on it.
+export const Cover = {
+  decorators: [(Story) => <div style={{ width: 200, aspectRatio: '3 / 4' }}><Story /></div>],
+  args: {
+    variant: 'cover',
+    tilt: -1.2,
+    entities: [{ id: 's1', name: 'Pixel Moss' }],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('link', { name: 'Handmade Gold Sausages' })).toHaveAttribute('href', '/game/game-1');
+    await expect(canvas.getByText('Pixel Moss')).toBeVisible();
+  },
+};
+
+// The big slot of the wall: the bigger label.
+export const CoverFeatured = {
+  decorators: [(Story) => <div style={{ width: 420, aspectRatio: '1' }}><Story /></div>],
+  args: { ...Cover.args, featured: true, tilt: 1 },
+};
+
+export const Compact = { args: { isCompact: true } };
