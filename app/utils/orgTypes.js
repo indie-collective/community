@@ -1,25 +1,25 @@
 /**
  * How each organisation type (the `entity_type` enum) is labelled and
- * coloured, everywhere: cards, the org page, the form and map markers.
+ * coloured, everywhere: cards, the org page, the form and map markers. The
+ * colours are the atlas's marks: studios green, associations lilac.
  */
 export const ORG_TYPES = {
-  studio: { label: 'Studio', shortLabel: 'Studio', color: 'yellow' },
-  association: { label: 'Association', shortLabel: 'Assoc.', color: 'green' },
+  studio: { label: 'Studio', shortLabel: 'Studio', color: 'brand' },
+  association: { label: 'Association', shortLabel: 'Assoc.', color: 'lilac' },
 };
 
 /** The type's label; `short` for tight spots like card thumbnails. */
 export const orgTypeLabel = (type, { short = false } = {}) =>
   ORG_TYPES[type]?.[short ? 'shortLabel' : 'label'] ?? type;
 
-/** The type's Chakra colour palette. */
-export const orgTypeColor = (type) => ORG_TYPES[type]?.color ?? 'gray';
+/** The type's colour token, as on the atlas. */
+export const orgTypeColor = (type) => ORG_TYPES[type]?.color ?? 'muted';
 
 /**
- * A map pin's colour token: the organisation type's colour (#321), purple
+ * A map pin's colour token: the atlas's colour for its kind (#321), coral
  * for events (#211).
  */
-export const pinColor = (type) =>
-  type === 'event' ? 'purple.500' : `${orgTypeColor(type)}.500`;
+export const pinColor = (type) => (type === 'event' ? 'coral' : orgTypeColor(type));
 
 /**
  * Whether an organisation is still going (#39), labelled everywhere: the

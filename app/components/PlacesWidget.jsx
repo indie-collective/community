@@ -2,6 +2,7 @@ import { Box, Heading, Flex, Button } from '@chakra-ui/react';
 import { LuChevronRight } from 'react-icons/lu';
 import Link from './Link';
 import { Overlay } from 'pigeon-maps';
+import AtlasMark from './AtlasMark';
 import TileMap from './TileMap';
 
 /**
@@ -41,15 +42,9 @@ const PlacesWidget = ({ placesCount, placesPoints }) => (
         touchEvents={false}
         mouseEvents={false}
       >
-        {placesPoints.map((point, i) => (
-          <Overlay key={i} anchor={point} offset={[5, 5]}>
-            <Box
-              w="10px"
-              h="10px"
-              bg="coral"
-              borderRadius="full"
-              border="2px solid #10201d"
-            />
+        {placesPoints.map(([latitude, longitude, type], i) => (
+          <Overlay key={i} anchor={[latitude, longitude]} offset={[6, 6]}>
+            <AtlasMark type={type} size={12} />
           </Overlay>
         ))}
       </TileMap>

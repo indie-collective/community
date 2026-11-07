@@ -476,16 +476,20 @@ export async function listMappedOrganizations() {
   );
 }
 
-/** Where organisations are, as `[latitude, longitude]`, one per located org. */
+/**
+ * Where organisations are, as `[latitude, longitude, type]`, one per located
+ * org: the homepage's map marks each by its kind.
+ */
 export async function listOrganizationPoints() {
   const rows = await db
     .select({
       latitude: organizations.latitude,
       longitude: organizations.longitude,
+      type: organizations.type,
     })
     .from(organizations)
     .where(and(notDeleted, located));
-  return rows.map(({ latitude, longitude }) => [latitude, longitude]);
+  return rows.map(({ latitude, longitude, type }) => [latitude, longitude, type]);
 }
 
 /** How many organisations there are, or of one `type`. */

@@ -147,9 +147,10 @@ export const member = {
   isAdmin: false,
 };
 
-export const mapPoints = [...studios, ...associations].map(({ location }) => [
+export const mapPoints = [...studios, ...associations].map(({ location, type }) => [
   location.latitude,
   location.longitude,
+  type,
 ]);
 
 const country = (code, name, continent, studios, associations, games, events) => ({
