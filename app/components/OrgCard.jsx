@@ -77,7 +77,7 @@ const OrgCard = ({
 
   if (variant === 'badge') {
     return (
-      <Card isClickable textAlign="center" rounded="xl" p={2} {...rest}>
+      <Card isClickable textAlign="center" rounded="card" p={2} {...rest}>
         <Box
           mx="auto"
           w="100%"
@@ -114,7 +114,7 @@ const OrgCard = ({
   }
 
   return (
-    <Card id={id} isClickable padding={2} rounded={10} {...rest}>
+    <Card id={id} isClickable padding={2} rounded="card" {...rest}>
       <Flex position="relative" alignItems="center">
         <Flex
           direction="column"
@@ -129,7 +129,7 @@ const OrgCard = ({
             objectFit="contain"
             src={logo?.thumbnail_url ?? placeholder}
             alt=""
-            rounded={3}
+            rounded="label"
             data-card-image
           />
 
@@ -138,7 +138,7 @@ const OrgCard = ({
               position="absolute"
               bottom="3px"
               right="3px"
-              rounded={3}
+              rounded="label"
               variant="solid"
               colorPalette={orgTypeColor(type)}
               fontSize="0.55em"

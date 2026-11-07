@@ -81,7 +81,7 @@ const Duplicates = () => {
             gap={3}
             p={3}
             borderWidth="1px"
-            borderRadius="md"
+            borderRadius="card"
             align={{ md: 'center' }}
             data-testid="duplicate-pair"
           >
@@ -95,7 +95,7 @@ const Duplicates = () => {
               ))}
             </HStack>
             <HStack>
-              <Button asChild size="sm" colorPalette="green">
+              <Button asChild size="sm">
                 <Link to={`/admin/duplicates/merge?kind=${kind}&a=${a.id}&b=${b.id}`}>Merge…</Link>
               </Button>
               <Form method="post">

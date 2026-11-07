@@ -107,7 +107,7 @@ const NewOpportunity = () => {
               </NativeSelect.Root>
             </Field.Root>
           </Grid>
-          <Checkbox.Root name="remote" value="on" colorPalette="green">
+          <Checkbox.Root name="remote" value="on">
             <Checkbox.HiddenInput />
             <Checkbox.Control>
               <Checkbox.Indicator />
@@ -121,7 +121,7 @@ const NewOpportunity = () => {
           <Text fontSize="sm" color="muted">
             It shows on {target.name}&apos;s page and on the opportunities list.
           </Text>
-          <Button type="submit" colorPalette="green" loading={navigation.state !== 'idle'}>
+          <Button type="submit" loading={navigation.state !== 'idle'}>
             Post it
           </Button>
         </Grid>

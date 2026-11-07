@@ -35,7 +35,7 @@ const PlaceMap = ({ location, id, color, logo, label, address }) => {
         display="block"
         height={['160px', '220px']}
         overflow="hidden"
-        borderRadius="xl"
+        borderRadius="card"
         borderWidth="1px"
         borderColor="border"
         transition="box-shadow 0.2s"

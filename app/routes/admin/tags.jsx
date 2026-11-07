@@ -73,7 +73,7 @@ const TagsAdmin = () => {
       <Box method="post" mb={5} display="flex" gap={2} asChild><Form>
           <Input name="name" placeholder="New tag name" />
           <input type="hidden" name="intent" value="add" />
-          <Button type="submit" colorPalette="green">
+          <Button type="submit">
             Add
           </Button>
         </Form></Box>
@@ -99,7 +99,7 @@ const TagsAdmin = () => {
             <NativeSelect.Indicator />
           </NativeSelect.Root>
           <input type="hidden" name="intent" value="merge" />
-          <Button type="submit" colorPalette="green">
+          <Button type="submit">
             Merge
           </Button>
         </Form></Box>

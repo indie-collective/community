@@ -142,7 +142,7 @@ const FeedbackWidget = () => {
                       </Field.Root>
                       {preview ? (
                         <Box>
-                          <Image src={preview} alt="Screenshot of this page" borderWidth="1px" borderRadius="md" maxH="10rem" />
+                          <Image src={preview} alt="Screenshot of this page" borderWidth="1px" borderRadius="control" maxH="10rem" />
                           <Button size="xs" variant="ghost" mt={1} onClick={() => setScreenshot(null)}>
                             Remove the screenshot
                           </Button>
@@ -175,7 +175,7 @@ const FeedbackWidget = () => {
                           <Alert.Title>{fetcher.data.error}</Alert.Title>
                         </Alert.Root>
                       )}
-                      <Button type="submit" colorPalette="green" loading={fetcher.state !== 'idle'}>
+                      <Button type="submit" loading={fetcher.state !== 'idle'}>
                         Send
                       </Button>
                     </Stack>

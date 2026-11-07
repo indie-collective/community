@@ -202,7 +202,7 @@ const CountryPage = () => {
               display="block"
               h="100%"
               p={4}
-              borderRadius="lg"
+              borderRadius="card"
               borderWidth="1px"
               bg="bg.panel"
               _hover={{

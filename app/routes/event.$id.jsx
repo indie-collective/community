@@ -199,7 +199,7 @@ const Event = () => {
             objectFit="cover"
             src={cover?.url ?? placeholder}
             alt=""
-            borderRadius="xl"
+            borderRadius="card"
             // The clicked card's image moves here (view transitions, CardLink).
             data-vt-hero=""
             css={{ viewTransitionName: 'record-image' }}
@@ -389,7 +389,7 @@ const Event = () => {
           mb={{ base: 8, md: 10 }}
           bg="red.subtle"
           color="red.fg"
-          borderRadius="lg"
+          borderRadius="card"
           role="status"
         >
           <LuTriangleAlert />
@@ -451,7 +451,6 @@ const Event = () => {
             {currentUser && (
               <>
                 <IconButton
-                  colorPalette="green"
                   aria-label="Add a game to the event"
                   onClick={onOpenLinkGame}
                 >
@@ -526,7 +525,6 @@ const Event = () => {
                 <IconButton
                   alignSelf="center"
                   justifySelf="flex-start"
-                  colorPalette="green"
                   aria-label="Add a host to the event"
                   onClick={onOpenLinkHost}
                 >

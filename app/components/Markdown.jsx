@@ -11,7 +11,7 @@ const Blockquote = ({ type, ...props }) => (
     as="blockquote"
     borderLeft="5px solid"
     borderColor={{ base: 'black', _dark: 'whiteAlpha.600' }}
-    backgroundColor={{ base: 'gray.100', _dark: 'gray.800' }}
+    backgroundColor="canvas"
     padding={5}
     pb={3}
     mb={5}

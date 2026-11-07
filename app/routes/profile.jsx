@@ -70,7 +70,7 @@ const Profile = () => {
         borderWidth="1px"
         mb={10}
         p={3}
-        borderRadius={5}
+        borderRadius="card"
         align="center"
         position="relative"
       >
@@ -214,8 +214,8 @@ const Profile = () => {
 
         {about && (
           <Box
-            bg={{ base: 'gray.100', _dark: 'gray.700' }}
-            borderRadius={5}
+            bg="canvas"
+            borderRadius="control"
             alignSelf="stretch"
             padding={5}
           >

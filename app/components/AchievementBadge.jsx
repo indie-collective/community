@@ -134,7 +134,6 @@ const AchievementShelf = ({ achievements, size = 'md', celebrate = false, ...res
                 size="xs"
                 value={achievement.value}
                 max={achievement.target}
-                colorPalette="green"
                 aria-label={`${achievement.name}: ${achievement.value} of ${achievement.target}`}
               >
                 <Progress.Track>

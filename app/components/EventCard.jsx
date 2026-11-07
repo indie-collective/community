@@ -86,7 +86,7 @@ const EventTicket = ({
       display="grid"
       gridTemplateColumns="74px 1fr"
       bg="surface"
-      rounded="xl"
+      rounded="card"
       shadow="lift"
       transition="transform 200ms ease-out"
       _hover={{ transform: 'translateY(-4px) rotate(-0.8deg)' }}
@@ -204,7 +204,7 @@ function EventCard({
     <Card
       isClickable
       padding={2}
-      rounded={10}
+      rounded="card"
       href={eventPath({ id, slug })}
       ref={ref}
     >
@@ -214,7 +214,7 @@ function EventCard({
           objectFit="cover"
           src={cover?.thumbnail_url ?? placeholder}
           alt=""
-          rounded={5}
+          rounded="control"
           data-card-image
         />
       </AspectRatio>

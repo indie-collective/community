@@ -103,7 +103,6 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
             <Float placement="bottom-end" offsetX="1" offsetY="1">
               <IconButton
                 aria-label="Edit avatar"
-                colorPalette="green"
                 rounded="full"
                 onClick={() => avatarRef.current.click()}
               >
@@ -150,7 +149,7 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
             (fetcher.state === 'loading' ? (
               <Spinner />
             ) : fetcher.data.available ? (
-              <LuCheck color="green.500" />
+              <LuCheck color="var(--chakra-colors-brand)" />
             ) : (
               <LuX color="red.500" />
             ))
@@ -202,7 +201,7 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
       </Field.Root>
       {/* #341: profiles are public unless hidden here. */}
       <Field.Root mb={5}>
-        <Checkbox.Root name="profile_hidden" value="on" defaultChecked={!!profileHidden} colorPalette="green">
+        <Checkbox.Root name="profile_hidden" value="on" defaultChecked={!!profileHidden}>
           <Checkbox.HiddenInput />
           <Checkbox.Control>
             <Checkbox.Indicator />
@@ -218,7 +217,6 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
         type="submit"
         w="100%"
         mt={3}
-        colorPalette="green"
         disabled={loading}
         loading={loading}
       >

@@ -13,7 +13,7 @@ const PlacesWidget = ({ placesCount, placesPoints }) => (
     position="relative"
     overflow="hidden"
     height={{ base: '240px', md: '300px' }}
-    borderRadius="2xl"
+    borderRadius="panel"
     borderWidth="2px"
     borderColor="ink"
     bg="#054f45"
@@ -90,7 +90,7 @@ const PlacesWidget = ({ placesCount, placesPoints }) => (
         variant="solid"
         bg="white"
         color="onPop"
-        borderRadius="10px"
+        borderRadius="control"
         fontWeight="semibold"
         _hover={{ bg: '#e8f1ee' }}
         transition="background-color 150ms ease-out"

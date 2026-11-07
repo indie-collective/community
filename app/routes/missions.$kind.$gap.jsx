@@ -103,7 +103,7 @@ const Summary = ({ kind, gap, summary }) => (
     </Text>
     {summary.unlocked.length > 0 && (
       // Just earned: they pop in (#377).
-      <Box bg="surface" borderRadius="xl" shadow="xs" p={5}>
+      <Box bg="surface" borderRadius="card" shadow="xs" p={5}>
         <Text fontWeight="semibold" mb={4}>
           {summary.unlocked.length === 1 ? 'New badge!' : `${summary.unlocked.length} new badges!`}
         </Text>
@@ -112,7 +112,7 @@ const Summary = ({ kind, gap, summary }) => (
     )}
     <HStack>
       {!summary.ranOut && (
-        <Button asChild colorPalette="green">
+        <Button asChild>
           <Link to={`/missions/${kind}/${gap.key}?start=${Date.now()}`}>Start another</Link>
         </Button>
       )}
@@ -142,7 +142,7 @@ const Mission = () => {
     <Page>
       <PageHeader eyebrow={`Mission · ${n} of ${MISSION_SIZE}`} title={title} />
       <Stack gap={5} maxW="2xl">
-        <Box p={4} borderWidth="1px" borderRadius="lg">
+        <Box p={4} borderWidth="1px" borderRadius="card">
           <Text fontWeight="semibold" fontSize="lg">
             <ChakraLink asChild>
               <Link to={record.path} target="_blank" data-testid="mission-record">
@@ -186,7 +186,7 @@ const Mission = () => {
           <input type="hidden" name="record" value={record.id} />
           <MissionInput kind={kind} gap={gap} />
           <HStack mt={4} gap={2} wrap="wrap">
-            <Button type="submit" name="intent" value="fill" colorPalette="green" loading={busy}>
+            <Button type="submit" name="intent" value="fill" loading={busy}>
               Save and next
             </Button>
             <Button type="submit" name="intent" value="skip" variant="outline" disabled={busy}>

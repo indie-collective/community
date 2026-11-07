@@ -21,7 +21,7 @@ const OpportunityList = ({ opportunities, currentUser, showFor = true }) => {
         const place = [opportunity.city, countryNames[opportunity.country_code]].filter(Boolean).join(', ');
         const canRemove = currentUser && (currentUser.isAdmin || currentUser.id === opportunity.author_id);
         return (
-          <Box key={opportunity.id} id={opportunity.id} p={4} borderWidth="1px" borderRadius="lg" data-testid="opportunity">
+          <Box key={opportunity.id} id={opportunity.id} p={4} borderWidth="1px" borderRadius="card" data-testid="opportunity">
             <HStack gap={2} wrap="wrap" mb={1}>
               <Badge colorPalette="purple">{opportunityKindLabel(opportunity.kind)}</Badge>
               <Text fontSize="sm" color="muted">
@@ -57,7 +57,7 @@ const OpportunityList = ({ opportunities, currentUser, showFor = true }) => {
             )}
             <HStack mt={3} gap={2}>
               {opportunity.link && (
-                <Button asChild size="sm" colorPalette="green">
+                <Button asChild size="sm">
                   <a href={opportunity.link} target="_blank" rel="noopener noreferrer">
                     Apply or find out more
                     <LuExternalLink />

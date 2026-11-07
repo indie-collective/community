@@ -10,7 +10,7 @@ import { venuePath } from '../utils/slug';
 const VenueCard = ({ id, slug, name, location }) => {
   const place = [location?.city, countryNames[location?.country_code]].filter(Boolean).join(', ');
   return (
-    <Card isClickable padding={3} rounded={10}>
+    <Card isClickable padding={3} rounded="card">
       <Heading as="h3" size="md" lineClamp={2}>
         <CardLink to={venuePath({ id, slug })}>{name}</CardLink>
       </Heading>

@@ -21,7 +21,7 @@ const EventMapCard = ({ id, slug, name, cover, starts_at, ends_at, time_zone, lo
       id={id}
       isClickable
       padding={2}
-      rounded={10}
+      rounded="card"
       transition="background-color 200ms ease-out"
       cursor="pointer"
       _hover={{ bg: { base: 'gray.200', _dark: 'gray.700' } }}
@@ -36,7 +36,7 @@ const EventMapCard = ({ id, slug, name, cover, starts_at, ends_at, time_zone, lo
           objectFit="cover"
           src={cover?.thumbnail_url ?? placeholder}
           alt=""
-          rounded={3}
+          rounded="label"
         />
         <Box flex="1" minW={0}>
           {/* One line: the dates and city fill the rest of the row. */}

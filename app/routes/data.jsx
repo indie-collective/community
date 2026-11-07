@@ -44,7 +44,7 @@ const OpenData = () => {
       <Stack gap={3} mb={{ base: 8, md: 10 }} maxW="2xl">
         {latest ? (
           <Stack direction={{ base: 'column', sm: 'row' }} gap={3}>
-            <Button asChild colorPalette="green">
+            <Button asChild>
               <a href="/data/latest.zip">Download CSV (zip)</a>
             </Button>
             <Button asChild variant="outline">

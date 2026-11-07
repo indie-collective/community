@@ -1,5 +1,4 @@
 import { Box, AspectRatio, Image, Spinner } from '@chakra-ui/react';
-import { useColorModeValue } from "./ui/color-mode";
 import { LuPlus } from 'react-icons/lu';
 import { useDropzone } from 'react-dropzone';
 import { useCallback } from 'react';
@@ -7,15 +6,17 @@ import { useCallback } from 'react';
 import { makeThumbnail } from '../utils/thumbnail';
 
 const ImageUploader = ({ gameId, currentUser, fetcher }) => {
-  const dzColor = useColorModeValue('gray.200', 'gray.700');
-  const dzHoverColor = useColorModeValue('gray.400', 'gray.50');
-  const dzActiveColor = useColorModeValue('teal.200', 'teal.700');
-  const dzActiveHoverColor = useColorModeValue('teal.600', 'teal.50');
+  // The drop zone: a hairline, ink under the pointer, green while a file
+  // is dragged over it.
+  const dzColor = 'muted';
+  const dzHoverColor = 'ink';
+  const dzActiveColor = 'primary.fg';
+  const dzActiveHoverColor = 'primary.fg';
 
-  const dzBorderColor = useColorModeValue('gray.200', 'gray.700');
-  const dzActiveBorderColor = useColorModeValue('teal.200', 'teal.700');
-  const dzHoverBorderColor = useColorModeValue('gray.200', 'gray.700');
-  const dzActiveHoverBorderColor = useColorModeValue('teal.600', 'teal.700');
+  const dzBorderColor = 'rule';
+  const dzActiveBorderColor = 'brand';
+  const dzHoverBorderColor = 'ink';
+  const dzActiveHoverBorderColor = 'brand';
 
   const onDrop = useCallback(async (acceptedFiles) => {
     const form = new FormData();
@@ -84,7 +85,7 @@ const ImageUploader = ({ gameId, currentUser, fetcher }) => {
                   cursor: 'pointer',
                 }
           }
-          rounded={5}
+          rounded="card"
           borderWidth={5}
           padding={5}
           borderStyle="dashed"

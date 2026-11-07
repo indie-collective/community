@@ -49,7 +49,7 @@ const CountryCombobox = ({ countries, name = 'country', defaultValue, onChange }
     >
       <Combobox.Label srOnly>Country</Combobox.Label>
       <Combobox.Control>
-        <Combobox.Input placeholder="All countries" borderRadius="md" />
+        <Combobox.Input placeholder="All countries" borderRadius="control" />
         <Combobox.IndicatorGroup>
           <Combobox.ClearTrigger aria-label="Clear country" />
           <Combobox.Trigger />

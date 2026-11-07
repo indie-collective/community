@@ -77,7 +77,7 @@ function GameCard({
         ref={ref}
         h="100%"
         minH="150px"
-        rounded="xl"
+        rounded="card"
         overflow="hidden"
         borderWidth="2px"
         borderColor="ink"
@@ -103,7 +103,7 @@ function GameCard({
           right={2.5}
           bottom={2.5}
           bg="surface"
-          rounded="lg"
+          rounded="control"
           px={3}
           py={2}
           shadow="lift"
@@ -131,7 +131,7 @@ function GameCard({
     return (
       <Link to={gamePath({ id, slug })}>
         <Box
-          rounded={5}
+          rounded="card"
           transition="background-color 200ms ease-out"
           ref={ref}
           position="relative"
@@ -140,14 +140,14 @@ function GameCard({
           isolation="isolate"
           overflow="hidden"
           border="1px solid"
-          borderColor={{ base: 'gray.100', _dark: 'gray.700' }}
+          borderColor="rule"
           cursor="pointer"
         >
           {image && (
             <Image
               position="absolute"
               objectFit="cover"
-              rounded="md"
+              rounded="control"
               size="100%"
               src={image ?? placeholder}
               srcSet={imageSrcSet}
@@ -158,7 +158,7 @@ function GameCard({
 
           <Box
             display="flex"
-            rounded="md"
+            rounded="control"
             paddingY={2}
             paddingX={5}
             zIndex={2}
@@ -198,7 +198,7 @@ function GameCard({
   }
 
   return (
-    <Card isClickable ref={ref} padding={2} rounded={10}>
+    <Card isClickable ref={ref} padding={2} rounded="card">
       <AspectRatio ratio={2}>
         <Image
           size="100%"
@@ -206,7 +206,7 @@ function GameCard({
           src={image ?? placeholder}
           srcSet={imageSrcSet}
           alt=""
-          rounded="md"
+          rounded="control"
           data-card-image
         />
       </AspectRatio>

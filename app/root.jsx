@@ -120,7 +120,7 @@ function AppShell({ children }) {
         zIndex="skipLink"
         px={4}
         py={2}
-        borderRadius="md"
+        borderRadius="control"
         bg="surface"
         shadow="md"
         fontWeight="semibold"
@@ -222,7 +222,6 @@ export default function App() {
           left={0}
           right={0}
           zIndex={9999}
-          colorPalette="green"
           // Only when loading takes a moment: a fast page shows no flash.
           animation="fade-in 200ms ease-out 250ms both"
         >

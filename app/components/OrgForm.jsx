@@ -129,7 +129,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
                 objectFit="logo"
                 src={logo?.url ?? placeholder}
                 alt="Event logo"
-                borderRadius={5}
+                borderRadius="control"
               />
             </AspectRatio>
 
@@ -138,7 +138,6 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
               right={2}
               bottom={2}
               aria-label="Edit logo"
-              colorPalette="green"
               rounded="full"
               onClick={() => logoRef.current.click()}
             >
@@ -261,7 +260,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
               width="100%"
               height="100px"
               overflow="hidden"
-              borderRadius={5}
+              borderRadius="control"
               mt={2}
             >
               <TileMap
@@ -310,7 +309,6 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
         </Field.Root>
         <Button
           gridColumn="1 / 3"
-          colorPalette="green"
           mt={3}
           type="submit"
           loading={loading}

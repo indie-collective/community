@@ -131,7 +131,7 @@ const SearchInput = () => {
               bg="surface"
               borderWidth="2px"
               borderColor="ink"
-              borderRadius="10px"
+              borderRadius="control"
               _focusVisible={{
                 outline: '2px solid',
                 outlineColor: 'brand',
@@ -173,9 +173,9 @@ const SearchInput = () => {
                         <Box
                           flexShrink={0}
                           boxSize={8}
-                          borderRadius="md"
+                          borderRadius="label"
                           overflow="hidden"
-                          bg={{ base: 'gray.100', _dark: 'gray.700' }}
+                          bg="canvas"
                         >
                           {item.image && (
                             <Image

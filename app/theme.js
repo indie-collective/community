@@ -2,12 +2,11 @@ import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
 
 const config = defineConfig({
   // v2 `styles.global` via `mode()` → v3 `globalCss` with the `_dark` selector.
-  // The `html` colorPalette replaces v2 `withDefaultColorScheme({ colorScheme:
-  // 'green' })`: in v3 `colorPalette` cascades to every descendant, so setting
-  // it once on the root makes green the app-wide default (overridable per component).
+  // `colorPalette` cascades to every descendant: set once on the root, the
+  // site's own green (`primary`, below) is every Chakra component's colour.
   globalCss: {
     html: {
-      colorPalette: 'green',
+      colorPalette: 'primary',
     },
     // #350: no motion for those who asked for less (transitions, hovers,
     // animations, page cross-fades).
@@ -139,11 +138,28 @@ const config = defineConfig({
         coral: { value: { base: '#ff6b5b', _dark: '#ff8475' } },
         lilac: { value: { base: '#b9a7ff', _dark: '#c4b5ff' } },
         onPop: { value: '#10201d' },
-        // Solid green (buttons, badges) a shade darker, so its white text
-        // reads (#350: green.600 was 3.3:1, under WCAG AA's 4.5:1; green.700
-        // is 5:1).
-        green: {
-          solid: { value: '{colors.green.700}' },
+        // The site's green as a Chakra palette, the root's colorPalette: the
+        // primary button, checkboxes, switches, focus rings. White on the
+        // logo's green is 3.4:1, so the fill is a step darker (5:1).
+        primary: {
+          solid: { value: { base: '#0f7d6d', _dark: '#2cc4ac' } },
+          contrast: { value: { base: '{colors.white}', _dark: '#0d1715' } },
+          fg: { value: { base: '#0f7d6d', _dark: '#8fe3d4' } },
+          muted: { value: { base: '#cfe8e2', _dark: '#16423b' } },
+          subtle: { value: { base: '#e3f2ee', _dark: '#102e29' } },
+          emphasized: { value: { base: '#b5dcd3', _dark: '#1d5a50' } },
+          focusRing: { value: '{colors.brand}' },
+        },
+        // The countries table's continents: soft paper tints, each named on
+        // its tiles too.
+        continent: {
+          EU: { value: { base: '#dfe8f3', _dark: '#1c2a3a' } },
+          NA: { value: { base: '#f6e3d3', _dark: '#3a2a1e' } },
+          SA: { value: { base: '#dcefe4', _dark: '#1b3328' } },
+          AS: { value: { base: '#f4dcdc', _dark: '#3a2021' } },
+          OC: { value: { base: '#d9eef0', _dark: '#183538' } },
+          AF: { value: { base: '#f5ecd0', _dark: '#37301a' } },
+          AN: { value: { base: '#e7e9e8', _dark: '#262b2a' } },
         },
       },
       shadows: {
@@ -157,6 +173,13 @@ const config = defineConfig({
       },
     },
     tokens: {
+      // Corners by the size of the thing; `full` for anything round.
+      radii: {
+        label: { value: '6px' },
+        control: { value: '10px' },
+        card: { value: '14px' },
+        panel: { value: '20px' },
+      },
       fonts: {
         heading: { value: "'Poppins', ui-sans-serif, system-ui, sans-serif" },
         body: {
@@ -211,7 +234,7 @@ const config = defineConfig({
               color: 'canvas',
               borderWidth: '2px',
               borderColor: 'ink',
-              borderRadius: '10px',
+              borderRadius: 'control',
               fontWeight: 'semibold',
               transition:
                 'background-color 150ms ease-out, border-color 150ms ease-out, transform 100ms ease-out',
@@ -223,7 +246,7 @@ const config = defineConfig({
               color: 'ink',
               borderWidth: '2px',
               borderColor: 'ink',
-              borderRadius: '10px',
+              borderRadius: 'control',
               fontWeight: 'semibold',
               transition: 'background-color 150ms ease-out, transform 100ms ease-out',
               _hover: { bg: 'surface' },

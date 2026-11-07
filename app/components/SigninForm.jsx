@@ -53,7 +53,6 @@ const SigninForm = ({ loading }) => {
         display="block"
         ml="auto"
         mt={8}
-        colorPalette="green"
         disabled={loading}
         loading={loading}
         width="100%"
