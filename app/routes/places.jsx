@@ -762,9 +762,6 @@ const Places = () => {
           align="baseline"
           wrap="wrap"
           gap={3}
-          borderBottom="2px solid"
-          borderColor="ink"
-          pb={2}
           mb={3}
         >
           <Heading

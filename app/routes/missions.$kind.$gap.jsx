@@ -103,7 +103,7 @@ const Summary = ({ kind, gap, summary }) => (
     </Text>
     {summary.unlocked.length > 0 && (
       // Just earned: they pop in (#377).
-      <Box bg="surface" borderRadius="card" shadow="xs" p={5}>
+      <Box bg="surface" borderRadius="card" shadow="raised" p={5}>
         <Text fontWeight="semibold" mb={4}>
           {summary.unlocked.length === 1 ? 'New badge!' : `${summary.unlocked.length} new badges!`}
         </Text>

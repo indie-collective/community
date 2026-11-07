@@ -404,9 +404,6 @@ const EventDiary = ({
                 <Text
                   fontSize="sm"
                   fontWeight="semibold"
-                  borderTop="2px solid"
-                  borderColor="ink"
-                  pt={2}
                 >
                   {groupLabel(key)}
                 </Text>

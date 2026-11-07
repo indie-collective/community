@@ -53,7 +53,7 @@ const Tile = ({ country }) => {
       bg={tint(country.continent)}
       borderColor="rule"
       transition="transform 120ms"
-      _hover={{ transform: 'scale(1.06)', zIndex: 1, shadow: 'md' }}
+      _hover={{ transform: 'scale(1.06)', zIndex: 1, shadow: 'raisedHover' }}
       _focusWithin={{
         outline: '2px solid',
         outlineColor: 'ink',
