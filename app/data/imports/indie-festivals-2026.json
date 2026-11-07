@@ -1,0 +1,855 @@
+{
+  "source": "Indie game festivals like Stunfest (https://claude.ai/artifact/2Z1pFwH8vEoxk262FSr1ST), 24 Oct 2026",
+  "hours": "Daily hours aren't in the source: in-person events run 10:00 to 18:00 local time on their first and last day.",
+  "events": [
+    {
+      "key": "indie-game-nation-2026",
+      "name": "Indie Game Nation 2026",
+      "start": "2026-03-07",
+      "end": "2026-03-08",
+      "where": "Issy-les-Moulineaux, France",
+      "about": "Free salon with about 20 indie studios (video games, board games and role-playing games) and talks. 8th edition.",
+      "source": "https://openagenda.com/en/issy-com/events/indie-game-nation-2026",
+      "place": {
+        "found": "Issy-les-Moulineaux, Hauts-de-Seine, France",
+        "street": null,
+        "city": "Issy-les-Moulineaux",
+        "region": "Hauts-de-Seine",
+        "country_code": "FR",
+        "latitude": 48.82397,
+        "longitude": 2.272829,
+        "time_zone": "Europe/Paris"
+      }
+    },
+    {
+      "key": "play-sorbonne-2026",
+      "name": "Play Sorbonne 2026",
+      "start": "2026-09-19",
+      "end": "2026-09-19",
+      "where": "Paris, France",
+      "about": "Free student-run festival with 150 exhibitors, more than 100 indie video and board games, and tournaments. 10th edition.",
+      "source": "https://www.paris.fr/evenements/play-sorbonne-universite-123993",
+      "previous": {
+        "id": "ae5e6e5d-469b-4eab-91e6-6ff590680691",
+        "name": "Play Sorbonne 2023"
+      },
+      "place": {
+        "found": "Paris, France",
+        "street": null,
+        "city": "Paris",
+        "region": "Paris",
+        "country_code": "FR",
+        "latitude": 48.853495,
+        "longitude": 2.348392,
+        "time_zone": "Europe/Paris"
+      }
+    },
+    {
+      "key": "indie-game-factory-2026",
+      "name": "Indie Game Factory 2026",
+      "start": "2026-10-10",
+      "end": "2026-10-11",
+      "where": "Bordeaux, France",
+      "about": "Indie space inside the Animasia festival (about 30,000 visitors), with talks and workshops.",
+      "source": "https://www.cnc.fr/jeu-video/actualites/indie-game-factory--le-jeu-video-independant-a-lhonneur-a-bordeaux_2675864",
+      "place": {
+        "found": "Bordeaux, Gironde, France",
+        "street": null,
+        "city": "Bordeaux",
+        "region": "Gironde",
+        "country_code": "FR",
+        "latitude": 44.840115,
+        "longitude": -0.570681,
+        "time_zone": "Europe/Paris"
+      }
+    },
+    {
+      "key": "indie-game-fest-cologne-2026",
+      "name": "Indie Game Fest 2026",
+      "start": "2026-05-08",
+      "end": "2026-05-09",
+      "where": "Cologne, Germany",
+      "about": "Indie games expo with a business-to-business part.",
+      "source": "https://berkeleyhistoricalsociety.org/?p=8351",
+      "check": "The source link is a historical society's page: worth a better one.",
+      "place": {
+        "found": "Cologne, North Rhine-Westphalia, Germany",
+        "street": null,
+        "city": "Cologne",
+        "region": "North Rhine-Westphalia",
+        "country_code": "DE",
+        "latitude": 50.93804,
+        "longitude": 6.960162,
+        "time_zone": "Europe/Berlin"
+      }
+    },
+    {
+      "key": "a-maze-2026",
+      "name": "A MAZE. 2026",
+      "start": "2026-05-13",
+      "end": "2026-05-16",
+      "where": "Berlin, Germany",
+      "about": "Arthouse and indie games festival with the A MAZE. Award, talks and parties. 15th edition.",
+      "site": "https://2026.amaze-berlin.de",
+      "source": "https://2026.amaze-berlin.de/about",
+      "previous": {
+        "id": "ef2b33cd-6ee3-411c-877d-eb40a8ab4446",
+        "name": "A MAZE. 2025"
+      },
+      "place": {
+        "found": "Berlin, Germany",
+        "street": null,
+        "city": "Berlin",
+        "region": "Berlin",
+        "country_code": "DE",
+        "latitude": 52.517389,
+        "longitude": 13.395131,
+        "time_zone": "Europe/Berlin"
+      }
+    },
+    {
+      "key": "saga-bcn-game-fest-2026",
+      "name": "SAGA BCN Game Fest 2026",
+      "start": "2026-10-09",
+      "end": "2026-10-11",
+      "where": "Barcelona, Spain",
+      "about": "The merger of IndieDevDay, SAGA and RetroBarcelona. IndieDevDay drew about 17,000 visitors in 2025.",
+      "source": "https://en.ara.cat/media/the-saga-barcelona-game-fest-will-unify-the-indie-dev-day-saga-and-retro-barcelona_25_5684226",
+      "check": "BCN Game Fest (10–12 Oct 2025, L'Hospitalet) may be its previous edition: not linked.",
+      "place": {
+        "found": "Barcelona, Barcelona, Spain",
+        "street": null,
+        "city": "Barcelona",
+        "region": "Barcelona",
+        "country_code": "ES",
+        "latitude": 41.38723,
+        "longitude": 2.16538,
+        "time_zone": "Europe/Madrid"
+      }
+    },
+    {
+      "key": "games-ground-2026",
+      "name": "Games Ground 2026",
+      "start": "2026-11-05",
+      "end": "2026-11-08",
+      "where": "Berlin, Germany",
+      "about": "Two business days, then two public days with an indie exhibition, the Indie Awards, alternative controllers and music.",
+      "source": "https://www.gamesmarket.global/for-business-and-public-games-ground-berlin-returns-in-early-november/",
+      "place": {
+        "found": "Berlin, Germany",
+        "street": null,
+        "city": "Berlin",
+        "region": "Berlin",
+        "country_code": "DE",
+        "latitude": 52.517389,
+        "longitude": 13.395131,
+        "time_zone": "Europe/Berlin"
+      }
+    },
+    {
+      "key": "play-hamburg-2026",
+      "name": "PLAY – Creative Gaming Festival 2026",
+      "start": "2026-11-18",
+      "end": "2026-11-21",
+      "where": "Hamburg, Germany",
+      "about": "Creative games, workshops and talks. 19th edition, on music and emotion.",
+      "source": "https://www.zo-ii.com/events/",
+      "place": {
+        "found": "Hamburg, Germany",
+        "street": null,
+        "city": "Hamburg",
+        "region": "Hamburg",
+        "country_code": "DE",
+        "latitude": 53.550172,
+        "longitude": 10.001317,
+        "time_zone": "Europe/Berlin"
+      }
+    },
+    {
+      "key": "taipei-game-show-2026",
+      "name": "Taipei Game Show 2026",
+      "start": "2026-01-29",
+      "end": "2026-02-01",
+      "where": "Taipei, Taiwan",
+      "about": "The Indie House zone and the Indie Game Award, Asia's largest indie award (515 entries from 51 countries), inside an expo of about 400,000 visitors.",
+      "source": "https://www.gamesmarket.global/taipei-game-show-attracts-nearly-400-000-visitors-and-german-studio-wins-an-indie-award/",
+      "previous": {
+        "id": "4e5bc8ea-b8ad-4305-99a3-35395b3a952a",
+        "name": "Taipei Game Show 2023"
+      },
+      "place": {
+        "found": "Taipei, Taipei, Taiwan",
+        "street": null,
+        "city": "Taipei",
+        "region": "Taipei",
+        "country_code": "TW",
+        "latitude": 25.044743,
+        "longitude": 121.53953,
+        "time_zone": "Asia/Taipei"
+      }
+    },
+    {
+      "key": "taipei-game-show-2027",
+      "name": "Taipei Game Show 2027",
+      "start": "2027-01-21",
+      "end": "2027-01-24",
+      "where": "Taipei, Taiwan",
+      "about": "The Indie House zone and the Indie Game Award inside Taipei's games expo.",
+      "source": "https://www.gamesmarket.global/taipei-game-show-attracts-nearly-400-000-visitors-and-german-studio-wins-an-indie-award/",
+      "previous": {
+        "key": "taipei-game-show-2026"
+      },
+      "place": {
+        "found": "Taipei, Taipei, Taiwan",
+        "street": null,
+        "city": "Taipei",
+        "region": "Taipei",
+        "country_code": "TW",
+        "latitude": 25.044743,
+        "longitude": 121.53953,
+        "time_zone": "Asia/Taipei"
+      }
+    },
+    {
+      "key": "tokyo-indie-games-summit-2026",
+      "name": "Tokyo Indie Games Summit 2026",
+      "start": "2026-03-20",
+      "end": "2026-03-21",
+      "where": "Koenji, Suginami, Tokyo, Japan",
+      "about": "One business day and one public day at IMAGINUS, with more than 200 games and stage shows.",
+      "source": "https://www.gamer.ne.jp/news/INDIE+GAMES+SUMMIT",
+      "place": {
+        "found": "Tokyo, Tokyo Prefecture, Japan",
+        "street": null,
+        "city": "Tokyo",
+        "region": "Tokyo Prefecture",
+        "country_code": "JP",
+        "latitude": 35.688985,
+        "longitude": 139.692912,
+        "time_zone": "Asia/Tokyo"
+      }
+    },
+    {
+      "key": "tokyo-indie-games-summit-2027",
+      "name": "Tokyo Indie Games Summit 2027",
+      "start": "2027-03-27",
+      "end": "2027-03-28",
+      "where": "Koenji, Suginami, Tokyo, Japan",
+      "about": "One business day and one public day, with more than 200 games and stage shows.",
+      "source": "https://www.gamer.ne.jp/news/INDIE+GAMES+SUMMIT",
+      "previous": {
+        "key": "tokyo-indie-games-summit-2026"
+      },
+      "place": {
+        "found": "Tokyo, Tokyo Prefecture, Japan",
+        "street": null,
+        "city": "Tokyo",
+        "region": "Tokyo Prefecture",
+        "country_code": "JP",
+        "latitude": 35.688985,
+        "longitude": 139.692912,
+        "time_zone": "Asia/Tokyo"
+      }
+    },
+    {
+      "key": "bitsummit-2027",
+      "name": "BitSummit 2027",
+      "start": "2027-05-21",
+      "end": "2027-05-23",
+      "where": "Kyoto, Japan",
+      "about": "Japan's largest indie festival: a business day, then a public weekend with live music. The 2026 edition drew 68,208 visitors.",
+      "source": "https://www.videogameschronicle.com/news/japans-bitsummit-confirms-earlier-2026-dates-and-punch-theme/",
+      "previous": {
+        "id": "76cbece7-ac61-4390-ae22-98e9695053e1",
+        "name": "BitSummit XIV"
+      },
+      "place": {
+        "found": "Kyoto, Kyoto, Japan",
+        "street": null,
+        "city": "Kyoto",
+        "region": "Kyoto",
+        "country_code": "JP",
+        "latitude": 35.006172,
+        "longitude": 135.76918,
+        "time_zone": "Asia/Tokyo"
+      }
+    },
+    {
+      "key": "bic-festival-2026",
+      "name": "BIC Festival 2026",
+      "start": "2026-09-14",
+      "end": "2026-09-16",
+      "where": "Busan, South Korea",
+      "about": "A business day and conference, then two public festival days and the BIC Awards.",
+      "source": "https://sports.khan.co.kr/en/article/202608131516007",
+      "place": {
+        "found": "Busan, South Korea",
+        "street": null,
+        "city": "Busan",
+        "region": "Busan",
+        "country_code": "KR",
+        "latitude": 35.179953,
+        "longitude": 129.075236,
+        "time_zone": "Asia/Seoul"
+      }
+    },
+    {
+      "key": "osaka-indie-games-summit-2026",
+      "name": "Osaka Indie Games Summit 2026",
+      "start": "2026-10-03",
+      "end": "2026-10-04",
+      "where": "Osaka, Japan",
+      "about": "More than 150 games and stage events; 7,246 visitors, 1.6 times more than in 2025.",
+      "source": "https://automaton-media.com/articles/newsjp/oigs2026-20261005-471751/",
+      "place": {
+        "found": "Osaka-shi, Osaka, Japan",
+        "street": null,
+        "city": "Osaka-shi",
+        "region": "Osaka",
+        "country_code": "JP",
+        "latitude": 34.683594,
+        "longitude": 135.50078,
+        "time_zone": "Asia/Tokyo"
+      }
+    },
+    {
+      "key": "weplay-expo-2026",
+      "name": "WePlay Expo 2026",
+      "start": "2026-11-21",
+      "end": "2026-11-22",
+      "where": "Shanghai, China",
+      "about": "China's largest indie expo, with the indiePlay Awards; about 500 games in 2025. 10th edition.",
+      "source": "https://www.invenglobal.com/articles/26960/chinese-game-show-weplay-expo-to-be-held-in-japan-in-2027",
+      "place": {
+        "found": "Shanghai, People's Republic of China",
+        "street": null,
+        "city": "Shanghai",
+        "region": "Shanghai",
+        "country_code": "CN",
+        "latitude": 31.232344,
+        "longitude": 121.469102,
+        "time_zone": "Asia/Shanghai"
+      }
+    },
+    {
+      "key": "weplay-expo-japan-2027",
+      "name": "WePlay Expo Japan 2027",
+      "start": "2027-04-02",
+      "end": "2027-04-04",
+      "where": "Chiba, Chiba, Japan",
+      "about": "WePlay Expo's first edition in Japan.",
+      "source": "https://www.invenglobal.com/articles/26960/chinese-game-show-weplay-expo-to-be-held-in-japan-in-2027",
+      "place": {
+        "found": "Chiba, Chiba, Japan",
+        "street": null,
+        "city": "Chiba",
+        "region": "Chiba",
+        "country_code": "JP",
+        "latitude": 35.609818,
+        "longitude": 140.12024,
+        "time_zone": "Asia/Tokyo"
+      }
+    },
+    {
+      "key": "day-of-the-devs-sf-2026",
+      "name": "Day of the Devs – SF Edition 2026",
+      "start": "2026-03-08",
+      "end": "2026-03-08",
+      "where": "San Francisco, California, United States",
+      "about": "Free one-day indie party with playable games, live music and food.",
+      "source": "https://www.thebolditalic.com/day-of-the-devs-2026-san-francisco-edition-2026-03-08/",
+      "place": {
+        "found": "San Francisco, California, United States",
+        "street": null,
+        "city": "San Francisco",
+        "region": "California",
+        "country_code": "US",
+        "latitude": 37.779238,
+        "longitude": -122.419359,
+        "time_zone": "America/Los_Angeles"
+      }
+    },
+    {
+      "key": "big-festival-2026",
+      "name": "BIG Festival 2026",
+      "start": "2026-04-29",
+      "end": "2026-05-03",
+      "where": "São Paulo, Brazil",
+      "about": "Latin America's main indie competition, inside gamescom latam: 966 entries from 75 countries, 81 finalists.",
+      "source": "https://www.portaltela.com/noticias/ultimas-noticias/2026/05/04/big-festival-awards-elege-os-melhores-jogos-independentes-do-mundo/",
+      "place": {
+        "found": "São Paulo, São Paulo, Brazil",
+        "street": null,
+        "city": "São Paulo",
+        "region": "São Paulo",
+        "country_code": "BR",
+        "latitude": -23.55214,
+        "longitude": -46.647198,
+        "time_zone": "America/Sao_Paulo"
+      }
+    },
+    {
+      "key": "indie-video-game-fest-2026",
+      "name": "Indie Video Game Fest 2026",
+      "start": "2026-06-06",
+      "end": "2026-06-06",
+      "where": "Enoch Pratt Free Library, Baltimore, Maryland, United States",
+      "about": "Free one-day library festival of local indie games, with guest talks.",
+      "source": "https://www.prattlibrary.org/indie-game-fest",
+      "place": {
+        "found": "Baltimore, Maryland, United States",
+        "street": null,
+        "city": "Baltimore",
+        "region": "Maryland",
+        "country_code": "US",
+        "latitude": 39.289643,
+        "longitude": -76.612299,
+        "time_zone": "America/New_York"
+      }
+    },
+    {
+      "key": "toronto-games-week-2026",
+      "name": "Toronto Games Week 2026",
+      "start": "2026-06-11",
+      "end": "2026-06-17",
+      "where": "Toronto, Ontario, Canada",
+      "about": "A city-wide week of community events: pop-up arcades, silo projections and workshops.",
+      "source": "https://www.pocketgamer.biz/events/toronto-games-week-2026/",
+      "place": {
+        "found": "Toronto, Ontario, Canada",
+        "street": null,
+        "city": "Toronto",
+        "region": "Ontario",
+        "country_code": "CA",
+        "latitude": 43.647938,
+        "longitude": -79.38355,
+        "time_zone": "America/Toronto"
+      }
+    },
+    {
+      "key": "super-magfest-2027",
+      "name": "Super MAGFest 2027",
+      "start": "2027-01-07",
+      "end": "2027-01-10",
+      "where": "National Harbor, Maryland, United States",
+      "about": "A 24-hour music and games festival with the MAGFest Indie Videogame Showcase (40 to 60 indie booths), an indie arcade and retro homebrew; about 24,000 attendees at its peak.",
+      "source": "https://www.gamedeveloper.com/press-release/calling-all-devs-magfest-indie-retro-homebrew-showcase-submissions-are-now-open",
+      "place": {
+        "found": "National Harbor Boulevard, Oxon Hill, Maryland 20745, United States",
+        "street": "National Harbor Boulevard",
+        "city": "Oxon Hill",
+        "region": "Maryland",
+        "country_code": "US",
+        "latitude": 38.785984,
+        "longitude": -77.014415,
+        "time_zone": "America/New_York"
+      }
+    },
+    {
+      "key": "melbourne-games-week-2026",
+      "name": "Melbourne International Games Week 2026",
+      "start": "2026-10-02",
+      "end": "2026-10-11",
+      "where": "Melbourne, Victoria, Australia",
+      "about": "A city-wide week with the free Games Week Showcase of more than 100 indie games at ACMI, Freeplay's Parallels and other events; more than 125,000 attendees.",
+      "site": "https://gamesweek.melbourne",
+      "source": "https://gamesweek.melbourne/news/melbourne-international-games-week-program-announced-for-2026",
+      "place": {
+        "found": "Melbourne, Victoria, Australia",
+        "street": null,
+        "city": "Melbourne",
+        "region": "Victoria",
+        "country_code": "AU",
+        "latitude": -37.814198,
+        "longitude": 144.96333,
+        "time_zone": "Australia/Melbourne"
+      }
+    },
+    {
+      "key": "pax-aus-2026",
+      "name": "PAX Aus 2026",
+      "start": "2026-10-09",
+      "end": "2026-10-11",
+      "where": "Melbourne Convention and Exhibition Centre, Melbourne, Australia",
+      "about": "PAX Rising's indie zone and the 12-game juried Aus Indie Showcase, inside a large consumer expo.",
+      "site": "https://aus.paxsite.com",
+      "source": "https://aus.paxsite.com/en-us/get-involved/ais.html",
+      "place": {
+        "found": "Melbourne, Victoria, Australia",
+        "street": null,
+        "city": "Melbourne",
+        "region": "Victoria",
+        "country_code": "AU",
+        "latitude": -37.814198,
+        "longitude": 144.96333,
+        "time_zone": "Australia/Melbourne"
+      }
+    },
+    {
+      "key": "playtopia-2026",
+      "name": "Playtopia 2026",
+      "start": "2026-12-03",
+      "end": "2026-12-05",
+      "where": "Cape Town, South Africa",
+      "about": "Indie games and immersive arts festival with Arcadia, an arcade of more than 150 games, talks and an after-party; more than 1,500 expected.",
+      "source": "https://www.bizcommunity.ug/article/playtopia-festival-2026-reveals-dates-tickets-now-on-sale-069595a",
+      "previous": {
+        "id": "bbf7fcff-ef3d-4ca1-b0ab-97855b8f35ba",
+        "name": "Playtopia 2023"
+      },
+      "place": {
+        "found": "Cape Town, Western Cape, South Africa",
+        "street": null,
+        "city": "Cape Town",
+        "region": "Western Cape",
+        "country_code": "ZA",
+        "latitude": -33.922497,
+        "longitude": 18.420296,
+        "time_zone": "Africa/Johannesburg"
+      }
+    },
+    {
+      "key": "games-made-in-france-2026",
+      "name": "Games Made in France 2026",
+      "start": "2026-04-23",
+      "end": "2026-04-26",
+      "online": "Europe/Paris",
+      "onlineUrl": "https://www.twitch.tv/mistermv",
+      "about": "38 French indie games shown on MisterMV's Twitch channel, watched by about 300,000 people a day.",
+      "source": "https://www.cnc.fr/jeu-video/actualites/games-made-in-france--sixieme-edition-sur-twitch_2564103",
+      "previous": {
+        "id": "cdcb814f-debd-4363-8557-ce86fa434dc1",
+        "name": "Games Made in France 2024"
+      }
+    },
+    {
+      "key": "day-of-the-devs-sgf-2026",
+      "name": "Day of the Devs – Summer Game Fest Edition 2026",
+      "start": "2026-06-05",
+      "end": "2026-06-05",
+      "online": "America/Los_Angeles",
+      "about": "The indie stream after Summer Game Fest, picked from more than 1,700 submissions.",
+      "source": "https://www.thesixthaxis.com/2026/06/06/all-the-announcements-trailers-from-day-of-the-devs-sgf-2026/"
+    },
+    {
+      "key": "indie-live-expo-2026-12",
+      "name": "INDIE Live Expo December 2026",
+      "start": "2026-12-01",
+      "end": "2026-12-01",
+      "online": "Asia/Tokyo",
+      "about": "Online indie showcase with more than 80 games in its INDIE Waves segment. 15th edition.",
+      "source": "https://www.playnews.gg/actualites/indie-live-expo-du-1er-decembre-2026-les-studios-peuvent-postuler"
+    },
+    {
+      "key": "agdq-2026",
+      "name": "Awesome Games Done Quick 2026",
+      "start": "2026-01-04",
+      "end": "2026-01-10",
+      "where": "Pittsburgh, Pennsylvania, United States",
+      "about": "Week-long speedrun marathon for charity, streamed around the clock; about $2.4M raised in 2026. The 2027 edition moves to Atlanta.",
+      "source": "https://www.rtbf.be/mot-cle/speedrun",
+      "check": "The source gives only the start (4 Jan) and says week-long, and not the city: 10 Jan and Pittsburgh are assumed.",
+      "place": {
+        "found": "Pittsburgh, Pennsylvania, United States",
+        "street": null,
+        "city": "Pittsburgh",
+        "region": "Pennsylvania",
+        "country_code": "US",
+        "latitude": 40.439375,
+        "longitude": -79.996754,
+        "time_zone": "America/New_York"
+      }
+    },
+    {
+      "key": "speedons-2026",
+      "name": "SpeeDons 2026",
+      "start": "2026-05-07",
+      "end": "2026-05-10",
+      "where": "Centre de Congrès de Lyon, Lyon, France",
+      "about": "A speedrun marathon of about 75 hours for Médecins du Monde, hosted by MisterMV before an audience in a 3,000-seat amphitheatre; €2.23M raised in 2025. 6th edition.",
+      "source": "https://www.gamosaurus.com/?p=245322",
+      "place": {
+        "found": "Lyon, Rhône, France",
+        "street": null,
+        "city": "Lyon",
+        "region": "Rhône",
+        "country_code": "FR",
+        "latitude": 45.766106,
+        "longitude": 4.832619,
+        "time_zone": "Europe/Paris"
+      }
+    },
+    {
+      "key": "sgdq-2026",
+      "name": "Summer Games Done Quick 2026",
+      "start": "2026-07-05",
+      "end": "2026-07-11",
+      "where": "Minneapolis, Minnesota, United States",
+      "about": "Week-long speedrun marathon for Doctors Without Borders; $2.4M raised.",
+      "source": "https://www.gamedeveloper.com/press-release/summer-games-done-quick-2026-returns-this-sunday",
+      "place": {
+        "found": "Minneapolis, Minnesota, United States",
+        "street": null,
+        "city": "Minneapolis",
+        "region": "Minnesota",
+        "country_code": "US",
+        "latitude": 44.976106,
+        "longitude": -93.266096,
+        "time_zone": "America/Chicago"
+      }
+    },
+    {
+      "key": "sgdq-2027",
+      "name": "Summer Games Done Quick 2027",
+      "start": "2027-06-20",
+      "end": "2027-06-26",
+      "where": "Minneapolis, Minnesota, United States",
+      "about": "Week-long speedrun marathon for Doctors Without Borders.",
+      "source": "https://www.gamedeveloper.com/press-release/summer-games-done-quick-2026-returns-this-sunday",
+      "previous": {
+        "key": "sgdq-2026"
+      },
+      "check": "The source gives the 2027 dates, not the city: Minneapolis is assumed.",
+      "place": {
+        "found": "Minneapolis, Minnesota, United States",
+        "street": null,
+        "city": "Minneapolis",
+        "region": "Minnesota",
+        "country_code": "US",
+        "latitude": 44.976106,
+        "longitude": -93.266096,
+        "time_zone": "America/Chicago"
+      }
+    },
+    {
+      "key": "esa-summer-2026",
+      "name": "ESA Summer 2026",
+      "start": "2026-07-31",
+      "end": "2026-08-08",
+      "where": "Malmö, Sweden",
+      "about": "European Speedrunner Assembly's summer marathon, Europe's main one, on two parallel streams; about $1M raised across its history.",
+      "source": "https://www.bulbagarden.net/threads/runs-of-three-pokemon-games-to-feature-in-european-speedrunner-assembly-summer-2026-raising-money-for-the-make-a-wish-foundation.311220/",
+      "place": {
+        "found": "Malmö, Skåne, Sweden",
+        "street": null,
+        "city": "Malmö",
+        "region": "Skåne",
+        "country_code": "SE",
+        "latitude": 55.60456,
+        "longitude": 13.001223,
+        "time_zone": "Europe/Stockholm"
+      }
+    },
+    {
+      "key": "rta-in-japan-winter-2026",
+      "name": "RTA in Japan Winter 2026",
+      "start": "2026-12-25",
+      "end": "2026-12-31",
+      "where": "Shinjuku, Tokyo, Japan",
+      "about": "Japan's largest in-person speedrun event, with about 90 games; proceeds go to Doctors Without Borders.",
+      "source": "https://news.denfaminicogamer.jp/news/260815s",
+      "place": {
+        "found": "Tokyo, Tokyo Prefecture, Japan",
+        "street": null,
+        "city": "Tokyo",
+        "region": "Tokyo Prefecture",
+        "country_code": "JP",
+        "latitude": 35.688985,
+        "longitude": 139.692912,
+        "time_zone": "Asia/Tokyo"
+      }
+    },
+    {
+      "key": "gdc-2026",
+      "name": "GDC Festival of Gaming 2026",
+      "start": "2026-03-09",
+      "end": "2026-03-13",
+      "where": "San Francisco, California, United States",
+      "about": "Developers conference with an Indie & Education hall, the IGF awards and an evening developer concert; about 30,000 attendees in 2025. 40th edition.",
+      "source": "https://store.epicgames.com/news/new-gdc-festival-of-gaming-detailed-runs-march-9-to-march-16",
+      "place": {
+        "found": "San Francisco, California, United States",
+        "street": null,
+        "city": "San Francisco",
+        "region": "California",
+        "country_code": "US",
+        "latitude": 37.779238,
+        "longitude": -122.419359,
+        "time_zone": "America/Los_Angeles"
+      }
+    },
+    {
+      "key": "nordic-game-2026",
+      "name": "Nordic Game 2026",
+      "start": "2026-05-26",
+      "end": "2026-05-29",
+      "where": "Malmö, Sweden",
+      "about": "Talks, a showcase, matchmaking and the Nordic Game Awards; more than 3,100 expected.",
+      "site": "https://nordicgame.com",
+      "source": "https://nordicgame.com/nordic-game-2026-set-to-unite-global-game-developers-in-malmo/",
+      "place": {
+        "found": "Malmö, Skåne, Sweden",
+        "street": null,
+        "city": "Malmö",
+        "region": "Skåne",
+        "country_code": "SE",
+        "latitude": 55.60456,
+        "longitude": 13.001223,
+        "time_zone": "Europe/Stockholm"
+      }
+    },
+    {
+      "key": "nordic-game-2027",
+      "name": "Nordic Game 2027",
+      "start": "2027-05-25",
+      "end": "2027-05-28",
+      "where": "Malmö, Sweden",
+      "about": "Talks, a showcase, matchmaking and the Nordic Game Awards.",
+      "site": "https://nordicgame.com",
+      "source": "https://nordicgame.com/nordic-game-2026-set-to-unite-global-game-developers-in-malmo/",
+      "previous": {
+        "key": "nordic-game-2026"
+      },
+      "place": {
+        "found": "Malmö, Skåne, Sweden",
+        "street": null,
+        "city": "Malmö",
+        "region": "Skåne",
+        "country_code": "SE",
+        "latitude": 55.60456,
+        "longitude": 13.001223,
+        "time_zone": "Europe/Stockholm"
+      }
+    },
+    {
+      "key": "digra-2026",
+      "name": "DiGRA 2026",
+      "start": "2026-06-14",
+      "end": "2026-06-18",
+      "where": "Maynooth, Ireland",
+      "about": "Game studies research conference with a games exhibition, on the theme \"Intersectional Pleasures\".",
+      "site": "https://digra.org",
+      "source": "https://digra.org/conferences/",
+      "place": {
+        "found": "Maynooth, Kildare, Ireland",
+        "street": null,
+        "city": "Maynooth",
+        "region": "Kildare",
+        "country_code": "IE",
+        "latitude": 53.381096,
+        "longitude": -6.592671,
+        "time_zone": "Europe/Dublin"
+      }
+    },
+    {
+      "key": "game-camp-2026",
+      "name": "Game Camp France 2026",
+      "start": "2026-06-18",
+      "end": "2026-06-19",
+      "where": "Lille, France",
+      "about": "French games industry conference by Game IN and SNJV: more than 1,800 attendees and 50 talks.",
+      "source": "https://enjmin-en.cnam.fr/game-camp-8-1618077.kjsp",
+      "place": {
+        "found": "Lille, Nord, France",
+        "street": null,
+        "city": "Lille",
+        "region": "Nord",
+        "country_code": "FR",
+        "latitude": 50.6363,
+        "longitude": 3.063554,
+        "time_zone": "Europe/Paris"
+      }
+    },
+    {
+      "key": "develop-brighton-2026",
+      "name": "Develop:Brighton 2026",
+      "start": "2026-07-14",
+      "end": "2026-07-16",
+      "where": "Brighton, England, United Kingdom",
+      "about": "The UK's largest developers conference: more than 100 talks across 10 tracks, an Indie Showcase and the Develop:Star Awards. 20th edition.",
+      "site": "https://www.developconference.com",
+      "source": "https://www.developconference.com/latest-news/developbrighton-2026-one-week-to-go",
+      "place": {
+        "found": "Brighton, Brighton and Hove, England, United Kingdom",
+        "street": null,
+        "city": "Brighton",
+        "region": "England",
+        "country_code": "GB",
+        "latitude": 50.821026,
+        "longitude": -0.140374,
+        "time_zone": "Europe/London"
+      }
+    },
+    {
+      "key": "gcap-2026",
+      "name": "Games Connect Asia Pacific 2026",
+      "start": "2026-10-05",
+      "end": "2026-10-07",
+      "where": "Melbourne, Victoria, Australia",
+      "about": "Developers conference inside Melbourne International Games Week.",
+      "source": "https://www.onlymelbourne.com.au/melbourne-international-games-week",
+      "place": {
+        "found": "Melbourne, Victoria, Australia",
+        "street": null,
+        "city": "Melbourne",
+        "region": "Victoria",
+        "country_code": "AU",
+        "latitude": -37.814198,
+        "longitude": 144.96333,
+        "time_zone": "Australia/Melbourne"
+      }
+    },
+    {
+      "key": "migs-2026",
+      "name": "MIGS 2026",
+      "start": "2026-11-10",
+      "end": "2026-11-11",
+      "where": "Montreal, Quebec, Canada",
+      "about": "Montreal International Game Summit, Canada's largest business-to-business games conference; more than 1,500 attendees.",
+      "source": "https://www.pocketgamer.biz/events/montreal-international-game-summit-migs-2026/",
+      "place": {
+        "found": "Montreal, Quebec, Canada",
+        "street": null,
+        "city": "Montreal",
+        "region": "Quebec",
+        "country_code": "CA",
+        "latitude": 45.50283,
+        "longitude": -73.5728,
+        "time_zone": "America/Toronto"
+      }
+    },
+    {
+      "key": "ciga-2026",
+      "name": "CiGA Developers Conference 2026",
+      "start": "2026-11-20",
+      "end": "2026-11-20",
+      "where": "Shanghai, China",
+      "about": "Developers conference the day before WePlay Expo.",
+      "source": "https://cn.linkedin.com/in/vsimonzz",
+      "check": "The source link is a person's LinkedIn profile: worth a better one.",
+      "place": {
+        "found": "Shanghai, People's Republic of China",
+        "street": null,
+        "city": "Shanghai",
+        "region": "Shanghai",
+        "country_code": "CN",
+        "latitude": 31.232344,
+        "longitude": 121.469102,
+        "time_zone": "Asia/Shanghai"
+      }
+    }
+  ],
+  "left_out": [
+    "Stunfest 2026: already on the site",
+    "BitSummit 2026: already on the site as BitSummit XIV",
+    "Now Play This: 2026 edition not confirmed",
+    "Pixel Heaven: 2026 dates not found",
+    "The Overkill: dates TBA",
+    "Hand Eye Society Super FESTival: 2026 not confirmed",
+    "Fantastic Arcade: irregular, last held in 2024",
+    "IndieCade: online, January 2027 without dates",
+    "Ludicious: discontinued after 2020",
+    "Games Done Quick at gamescom: no dates",
+    "Reboot Develop Blue, Clash of Realities: discontinued"
+  ]
+}
