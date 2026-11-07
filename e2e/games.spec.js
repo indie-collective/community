@@ -222,9 +222,9 @@ test('a member credits a studio as both developer and publisher', async ({ page 
 
     // Added again, the studio is credited as the publisher too.
     await page.getByRole('button', { name: 'Add an author to the game' }).click();
-    await page.getByPlaceholder('Search...').fill(org.name);
+    await page.getByRole('combobox', { name: 'Add an author to the game' }).fill(org.name);
     const added = page.waitForResponse((response) => response.url().includes('/companies/add'));
-    await page.getByRole('listitem').filter({ hasText: org.name }).click();
+    await page.getByRole('option', { name: new RegExp(org.name) }).click();
     await added;
     const selects = page.getByRole('combobox', { name: `Role of ${org.name}` });
     await expect(selects).toHaveCount(2);
@@ -235,7 +235,8 @@ test('a member credits a studio as both developer and publisher', async ({ page 
     // The org page lists the game once as made and once as published.
     await page.goto(`/org/${org.id}`);
     for (const heading of ['Games', 'Published']) {
-      const section = page.locator('section').filter({ has: page.getByRole('heading', { name: heading, exact: true }) });
+      // The heading reads "Games 1 game": its name, then its count.
+      const section = page.locator('section').filter({ has: page.getByRole('heading', { name: new RegExp(`^${heading} \\d`) }) });
       await expect(section.getByText(game.name)).toHaveCount(1);
     }
 
@@ -382,11 +383,10 @@ test('a studio not found is added from the picker, then filled in', async ({ pag
     await page.goto(`/game/${game.id}`);
     await page.getByRole('button', { name: 'Add an author to the game' }).click();
 
-    const picker = page.getByRole('dialog');
-    await picker.getByPlaceholder('Search...').fill(name);
-    const addStudio = picker.getByRole('button', { name: `Add studio “${name}”` });
+    await page.getByRole('combobox', { name: 'Add an author to the game' }).fill(name);
+    const addStudio = page.getByRole('option', { name: `Add “${name}” as a studio` });
     await expect(addStudio).toBeVisible();
-    await expect(picker.getByRole('button', { name: `Add association “${name}”` })).toBeVisible();
+    await expect(page.getByRole('option', { name: `Add “${name}” as an association` })).toBeVisible();
 
     await addStudio.click();
     await expect(page).toHaveURL(/\/org\/[a-z0-9-]+\/edit\?return=/);
@@ -404,10 +404,9 @@ test('a studio not found is added from the picker, then filled in', async ({ pag
 
     // Now it exists, searching it again, in capitals, finds it and offers no "Add".
     await page.getByRole('button', { name: 'Add an author to the game' }).click();
-    const again = page.getByRole('dialog');
-    await again.getByPlaceholder('Search...').fill(name.toUpperCase());
-    await expect(again.getByRole('listitem').filter({ hasText: name })).toBeVisible();
-    await expect(again.getByRole('button', { name: /^Add studio/ })).toHaveCount(0);
+    await page.getByRole('combobox', { name: 'Add an author to the game' }).fill(name.toUpperCase());
+    await expect(page.getByRole('option', { name: new RegExp(name) })).toBeVisible();
+    await expect(page.getByRole('option', { name: /^Add “/ })).toHaveCount(0);
   } finally {
     await retryBusy(() => db.delete(games).where(eq(games.id, game.id)));
     await retryBusy(() => db.delete(organizations).where(eq(organizations.name, name)));

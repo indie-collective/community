@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Form, redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
 
 import { PageHeader } from '../components/Page';
-import PlacesSearch from '../components/PlacesSearch';
+import PlaceField from '../components/PlaceField';
 import { toaster } from '../components/ui/toaster';
 import { getVenue, updateVenue } from '../data/venues.server';
 import { actionErrorMessage } from '../utils/actionError.server';
@@ -82,7 +82,7 @@ const EditVenue = () => {
           </Field.Root>
           <Field.Root>
             <Field.Label>Location</Field.Label>
-            <PlacesSearch
+            <PlaceField
               inputProps={{ id: 'location' }}
               value={place}
               onChange={setPlace}

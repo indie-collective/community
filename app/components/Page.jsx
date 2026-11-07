@@ -114,7 +114,8 @@ export const SectionTitle = ({
     {count != null && (
       <Text as="span" color="muted" fontWeight="400" ms={1} fontSize="0.7em">
         {count.toLocaleString('en')}
-        <VisuallyHidden> {countLabel}</VisuallyHidden>
+        {/* "1 game", "8 games": the label is plural, one drops its "s". */}
+        <VisuallyHidden> {count === 1 ? countLabel.replace(/s$/, '') : countLabel}</VisuallyHidden>
       </Text>
     )}
   </Heading>

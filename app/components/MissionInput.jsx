@@ -1,12 +1,10 @@
-import { Box, Button, Field, HStack, Image, Input, NativeSelect, Stack, Text, Textarea } from '@chakra-ui/react';
+import { Box, Field, Image, Input, NativeSelect, Stack, Textarea } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useFetcher } from 'react-router';
 
-import useDebounce from '../hooks/useDebounce';
 import { GAME_ROLES } from '../utils/gameRoles';
 import { MilestoneFields } from './GameTimeline';
-import PickerCreate from './PickerCreate';
-import PlacesSearch from './PlacesSearch';
+import RecordPicker, { ORGANIZATION_CREATE } from './RecordPicker';
+import PlaceField from './PlaceField';
 import ThumbnailFields from './ThumbnailFields';
 
 // How a mission fills a gap in place (#339, #378), by the gap's `input`
@@ -35,66 +33,28 @@ const TextInput = ({ input }) => (
 // A studio or association: found by name, or added when it isn't there
 // (#374). Sent as `id`, or `name` and `type` for a new one.
 const OrganizationInput = ({ kind }) => {
-  const [query, setQuery] = useState('');
   const [picked, setPicked] = useState(null);
-  const orgs = useFetcher();
-  const debounced = useDebounce(query, 300);
-  useEffect(() => {
-    if (debounced.trim().length > 2) orgs.load(`/search-org?q=${encodeURIComponent(debounced.trim())}`);
-  }, [debounced]);
   const label = kind === 'game' ? 'Studio' : 'Organiser';
-
   return (
     <Stack gap={3}>
-      {picked ? (
-        <HStack gap={3} wrap="wrap" data-testid="mission-picked">
-          <Text>
-            {picked.id ? label : `New ${picked.type}`}: <b>{picked.name}</b>
-          </Text>
-          {picked.id ? (
-            <input type="hidden" name="id" value={picked.id} />
-          ) : (
-            <>
-              <input type="hidden" name="name" value={picked.name} />
-              <input type="hidden" name="type" value={picked.type} />
-            </>
-          )}
-          <Button type="button" size="xs" variant="outline" onClick={() => setPicked(null)}>
-            Change
-          </Button>
-        </HStack>
-      ) : (
-        <Field.Root>
-          <Field.Label htmlFor="organization-search">{label}</Field.Label>
-          <Input
-            id="organization-search"
-            placeholder="Search by name…"
-            autoComplete="off"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <Box width="100%" mt={2}>
-            <PickerCreate
-              query={query}
-              fetcher={orgs}
-              options={[
-                { type: 'studio', label: (name) => `Add studio “${name}”` },
-                { type: 'association', label: (name) => `Add association “${name}”` },
-              ]}
-              onCreate={setPicked}
-            />
-            {query.trim().length > 2 && Array.isArray(orgs.data) && (
-              <Stack gap={0}>
-                {orgs.data.map((org) => (
-                  <Button key={org.id} type="button" variant="ghost" justifyContent="flex-start" onClick={() => setPicked(org)}>
-                    {org.name}
-                  </Button>
-                ))}
-              </Stack>
-            )}
-          </Box>
-        </Field.Root>
-      )}
+      <Box data-testid={picked ? 'mission-picked' : undefined}>
+        <RecordPicker
+          source="/search-org"
+          label={label}
+          value={picked && (picked.id ? picked : { ...picked, name: `${picked.name} (new)` })}
+          onClear={() => setPicked(null)}
+          onSelect={setPicked}
+          createOptions={ORGANIZATION_CREATE}
+          onCreate={setPicked}
+        />
+        {picked?.id && <input type="hidden" name="id" value={picked.id} />}
+        {picked && !picked.id && (
+          <>
+            <input type="hidden" name="name" value={picked.name} />
+            <input type="hidden" name="type" value={picked.type} />
+          </>
+        )}
+      </Box>
       {kind === 'game' && (
         <Field.Root width="auto">
           <Field.Label htmlFor="role">Its role</Field.Label>
@@ -141,7 +101,7 @@ const PlaceInput = () => {
   return (
     <Field.Root>
       <Field.Label>Location</Field.Label>
-      <PlacesSearch
+      <PlaceField
         value={place}
         placeholder="Rennes, France"
         onChange={setPlace}

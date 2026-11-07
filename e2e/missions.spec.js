@@ -196,8 +196,8 @@ test.describe('gaps filled in place', () => {
     const game = await newGame();
     const studio = await newOrg('Picked Studio');
     await onMission(page, 'game', 'studio', game);
-    await page.getByLabel('Studio').fill(studio.name);
-    await page.getByRole('button', { name: studio.name }).click();
+    await page.getByRole('combobox', { name: 'Studio' }).fill(studio.name);
+    await page.getByRole('option', { name: new RegExp(studio.name) }).click();
     await expect(page.getByTestId('mission-picked')).toContainText(studio.name);
     await page.getByLabel('Its role').selectOption('publisher');
     await saveAndNext(page);
@@ -210,9 +210,9 @@ test.describe('gaps filled in place', () => {
     const event = await newEvent();
     const name = `Brand New Assoc ${suffix()}`;
     await onMission(page, 'event', 'hosts', event);
-    await page.getByLabel('Organiser').fill(name);
-    await page.getByRole('button', { name: `Add association “${name}”` }).click();
-    await expect(page.getByTestId('mission-picked')).toContainText(`New association: ${name}`);
+    await page.getByRole('combobox', { name: 'Organiser' }).fill(name);
+    await page.getByRole('option', { name: `Add “${name}” as an association` }).click();
+    await expect(page.getByTestId('mission-picked')).toContainText(`${name} (new)`);
     await saveAndNext(page);
     const [added] = await retryBusy(() => db.select().from(organizations).where(eq(organizations.name, name)));
     made.organizations.push(added.id);
@@ -274,8 +274,8 @@ test.describe('gaps filled in place', () => {
     );
     const studio = await newOrg();
     await onMission(page, 'organization', 'place', studio);
-    await page.getByRole('textbox', { name: 'Location' }).fill('Rennes');
-    await page.getByRole('button', { name: 'Rennes, Ille-et-Vilaine, France' }).click();
+    await page.getByRole('combobox', { name: 'Location' }).fill('Rennes');
+    await page.getByRole('option', { name: /Rennes/ }).click();
     await saveAndNext(page);
     const [placed] = await retryBusy(() => db.select().from(organizations).where(eq(organizations.id, studio.id)));
     expect(placed).toMatchObject({ countryCode: 'FR', city: 'Rennes', latitude: 48.11, longitude: -1.68 });

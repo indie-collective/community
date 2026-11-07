@@ -19,7 +19,7 @@ export default {
 export const Search = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.type(canvas.getByRole('textbox'), 'Nantes');
+    await userEvent.type(canvas.getByRole('combobox', { name: 'Search for the previous edition' }), 'Nantes');
     await expect(await canvas.findByText(/Nantes Game Jam 2025/)).toBeVisible();
   },
 };

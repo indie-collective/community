@@ -69,9 +69,9 @@ test('a change keeps only what changed, a save without change keeps nothing, and
     // Crediting a studio is a change to the game.
     await page.goto(`/game/${game.id}`);
     await page.getByRole('button', { name: 'Add an author to the game' }).click();
-    await page.getByPlaceholder('Search...').fill(studio.name);
+    await page.getByRole('combobox', { name: 'Add an author to the game' }).fill(studio.name);
     const added = page.waitForResponse((response) => response.url().includes('/companies/add'));
-    await page.getByRole('listitem').filter({ hasText: studio.name }).click();
+    await page.getByRole('option', { name: new RegExp(studio.name) }).click();
     await added;
     rows = await changesTo(game.id);
     expect(rows).toHaveLength(2);

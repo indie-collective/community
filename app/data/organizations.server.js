@@ -453,6 +453,10 @@ export async function searchOrganizations(q, { excludeIds = [] } = {}) {
       id: organizations.id,
       name: organizations.name,
       slug: organizations.slug,
+      // What it is and where, for the picker's rows.
+      type: organizations.type,
+      city: organizations.city,
+      country_code: organizations.countryCode,
     })
     .from(organizations)
     .where(and(notDeleted, inArray(organizations.id, ids)));
