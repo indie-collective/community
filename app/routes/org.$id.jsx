@@ -266,7 +266,7 @@ const Org = () => {
               >
                 {links.map(({ game, roles }) => (
                   <Box minW={0} key={game.id}>
-                    <GameCard {...game} />
+                    <GameCard {...game} showStudio={false} />
                     {/* #40: how this organisation took part, when not only as the developer. */}
                     {roles.some(
                       (role) => role !== 'developer' && role !== 'publisher'

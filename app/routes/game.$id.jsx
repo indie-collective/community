@@ -216,13 +216,8 @@ const Game = () => {
       {(currentUser || entities.length > 0) && (
         <Section title="Made by">
           <Grid
-            gap={5}
-            templateColumns={[
-              '1fr',
-              'repeat(2, 1fr)',
-              'repeat(2, 1fr)',
-              'repeat(3, 1fr)',
-            ]}
+            gap={2}
+            templateColumns="repeat(auto-fill, minmax(220px, 1fr))"
           >
             {game_entity.map(({ entity: author, role }) => (
               <OrgCard
@@ -260,7 +255,7 @@ const Game = () => {
               />
             ))}
             {currentUser && entities.length === 0 && (
-              <Empty>Who made this game? Add a studio or association</Empty>
+              <Empty gridColumn="1 / -1">Who made this game? Add a studio or association</Empty>
             )}
             {currentUser && (
               <LinkPicker

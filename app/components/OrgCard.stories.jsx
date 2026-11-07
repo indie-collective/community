@@ -5,7 +5,7 @@ import OrgCard from './OrgCard';
 export default {
   title: 'Cards/OrgCard',
   component: OrgCard,
-  decorators: [(Story) => <div style={{ width: 280 }}><Story /></div>],
+  decorators: [(Story) => <div style={{ width: 260 }}><Story /></div>],
   args: {
     id: 'org-1',
     type: 'studio',
@@ -30,18 +30,14 @@ export const Association = { args: { type: 'association', name: 'Feeney and Sons
 
 export const Dark = { ...Studio, globals: { colorMode: 'dark' } };
 
-// The homepage's studios and associations: a round logo and the name.
-export const Badge = {
-  decorators: [(Story) => <div style={{ width: 140 }}><Story /></div>],
-  args: { variant: 'badge' },
+// On a game page, for signed-in people: its role, and a button to remove it.
+export const OnAGame = {
+  args: { involvement: 'developer', onInvolvementChange: () => {}, onRemove: () => {} },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole('link', { name: 'Frami, Abernathy and Dickens' })).toHaveAttribute('href', '/org/org-1');
-    await expect(canvas.getByText(/Valentinfurt/)).toBeVisible();
+    await expect(canvas.getByRole('combobox', { name: 'Role of Frami, Abernathy and Dickens' })).toHaveValue('developer');
+    await expect(canvas.getByRole('button', { name: 'Remove Frami, Abernathy and Dickens' })).toBeVisible();
   },
 };
 
-export const BadgeAssociation = {
-  decorators: Badge.decorators,
-  args: { variant: 'badge', type: 'association', name: 'Feeney and Sons' },
-};
+export const Closed = { args: { status: 'closed' } };

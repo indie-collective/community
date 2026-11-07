@@ -71,13 +71,8 @@ const Orgs = () => {
         }
       />
       <Grid
-        gap={5}
-        templateColumns={[
-          '1fr',
-          'repeat(2, 1fr)',
-          'repeat(3, 1fr)',
-          'repeat(4, 1fr)',
-        ]}
+        gap={2}
+        templateColumns="repeat(auto-fill, minmax(220px, 1fr))"
       >
         <Suspense
           fallbackElement={[...new Array(PAGE_SIZE)].map((_, i) => (

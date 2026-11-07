@@ -1,4 +1,3 @@
-import Link from './Link';
 import {
   Box,
   Image,
@@ -17,13 +16,13 @@ import TagList from './TagList';
 import { gamePath } from '../utils/slug';
 
 export const GameCardSkeleton = () => (
-  <Box>
-    <AspectRatio ratio={2}>
-      <Skeleton />
+  <Box bg="surface" rounded="card" shadow="raised" p={1.5}>
+    <AspectRatio ratio={4 / 3}>
+      <Skeleton rounded="8px" />
     </AspectRatio>
-    <Box py={2} w="75%">
+    <Box px={1.5} pt={2} pb={1.5} w="75%">
       <Skeleton>
-        <Heading size="md">Game Title</Heading>
+        <Heading size="sm">Game Title</Heading>
       </Skeleton>
     </Box>
   </Box>
@@ -48,6 +47,13 @@ export function gameImage({ images = [], igdb_game }) {
   return { image, imageSrcSet };
 }
 
+/**
+ * A game, as a small collectible card: its picture in a window inset in
+ * the card, then its name, studio and tags. The same card on every page;
+ * the homepage sets it a little off-straight with `tilt` (degrees), and it
+ * straightens under the pointer. With `onRemove`, a button in the
+ * picture's corner takes it off the list it is on.
+ */
 function GameCard({
   ref,
   id,
@@ -58,164 +64,73 @@ function GameCard({
   tags,
   entities,
   onRemove,
-  isCompact,
-  // 'cover' is the full-bleed cover with a label on it, for the homepage;
-  // `tilt` (degrees) sets it a little off-straight, and `featured` gives it
-  // the bigger label of the big slot.
-  variant,
   tilt = 0,
-  featured = false,
+  // Off on a studio's own page, where the studio goes without saying.
+  showStudio = true,
 }) {
   const placeholder = usePlaceholder();
   const { image, imageSrcSet } = gameImage({ images, igdb_game });
-
-  if (variant === 'cover') {
-    const studio = entities?.[0]?.name;
-    return (
-      <Card
-        isClickable
-        ref={ref}
-        h="100%"
-        minH="150px"
-        rounded="card"
-        overflow="hidden"
-        borderWidth="2px"
-        borderColor="ink"
-        bg="surface"
-        transform={`rotate(${tilt}deg)`}
-        transition="transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1)"
-        _hover={{ transform: 'rotate(0deg) scale(1.03)', zIndex: 1 }}
-      >
-        <Image
-          position="absolute"
-          inset={0}
-          w="100%"
-          h="100%"
-          objectFit="cover"
-          src={image ?? placeholder}
-          srcSet={imageSrcSet}
-          alt=""
-          data-card-image
-        />
-        <Box
-          position="absolute"
-          left={2.5}
-          right={2.5}
-          bottom={2.5}
-          bg="surface"
-          rounded="control"
-          px={3}
-          py={2}
-          shadow="lift"
-        >
-          <Heading
-            as="h3"
-            size={featured ? 'xl' : 'sm'}
-            fontWeight="600"
-            lineHeight="1.15"
-            title={name}
-          >
-            <CardLink to={gamePath({ id, slug })}>{name}</CardLink>
-          </Heading>
-          {studio && (
-            <Text fontSize="xs" color="muted" lineClamp={1}>
-              {studio}
-            </Text>
-          )}
-        </Box>
-      </Card>
-    );
-  }
-
-  if (isCompact) {
-    return (
-      <Link to={gamePath({ id, slug })}>
-        <Box
-          rounded="card"
-          transition="background-color 200ms ease-out"
-          ref={ref}
-          position="relative"
-          // Its own stacking context: the cover (zIndex -1) sits behind the
-          // name, not behind the page (#203: covers didn't show).
-          isolation="isolate"
-          overflow="hidden"
-          border="1px solid"
-          borderColor="rule"
-          cursor="pointer"
-        >
-          {image && (
-            <Image
-              position="absolute"
-              objectFit="cover"
-              rounded="control"
-              size="100%"
-              src={image ?? placeholder}
-              srcSet={imageSrcSet}
-              alt=""
-              zIndex={-1}
-            />
-          )}
-
-          <Box
-            display="flex"
-            rounded="control"
-            paddingY={2}
-            paddingX={5}
-            zIndex={2}
-            backgroundColor={
-              image
-                ? {
-                    base: '#ffffff99',
-                    _dark: '#00000077',
-                  }
-                : ''
-            }
-            fontWeight="bold"
-          >
-            <Text>{name}</Text>
-
-            {onRemove && (
-              <IconButton
-                m="auto"
-                ml={2}
-                size="xs"
-                aria-label={`Remove ${name}`}
-                rounded="full"
-                variant="outline"
-                onClick={(e) => {
-                  e.preventDefault();
-
-                  onRemove();
-                }}
-              >
-                <LuTrash2 />
-              </IconButton>
-            )}
-          </Box>
-        </Box>
-      </Link>
-    );
-  }
+  const studio = showStudio ? entities?.[0]?.name : undefined;
 
   return (
-    <Card isClickable ref={ref} padding={2} rounded="card">
-      <AspectRatio ratio={2}>
+    <Card
+      isClickable
+      ref={ref}
+      bg="surface"
+      rounded="card"
+      shadow="xs"
+      p={1.5}
+      transform={tilt ? `rotate(${tilt}deg)` : undefined}
+      transition="transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 160ms ease-out"
+      _hover={{
+        shadow: 'raisedHover',
+        transform: tilt ? 'rotate(0deg) scale(1.03)' : 'translateY(-2px)',
+        zIndex: 1,
+      }}
+    >
+      <AspectRatio ratio={4 / 3}>
         <Image
-          size="100%"
-          objectFit="cover"
           src={image ?? placeholder}
           srcSet={imageSrcSet}
           alt=""
-          rounded="control"
+          objectFit="cover"
+          rounded="8px"
+          borderWidth="1px"
+          borderColor="ink"
           data-card-image
         />
       </AspectRatio>
-      <Box px={1} py={2}>
-        <Heading as="h3" size="md" title={name}>
+      {onRemove && (
+        // Above the card's link overlay, so it can be used.
+        <IconButton
+          position="absolute"
+          top={3}
+          right={3}
+          zIndex={1}
+          size="xs"
+          rounded="full"
+          variant="outline"
+          bg="surface"
+          aria-label={`Remove ${name}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onRemove();
+          }}
+        >
+          <LuTrash2 />
+        </IconButton>
+      )}
+      <Box px={1.5} pt={2} pb={1.5}>
+        <Heading as="h3" size="sm" fontWeight="600" lineHeight="1.2" lineClamp={1} title={name}>
           <CardLink to={gamePath({ id, slug })}>{name}</CardLink>
         </Heading>
+        {studio && (
+          <Text fontSize="xs" color="muted" lineClamp={1}>
+            {studio}
+          </Text>
+        )}
+        {tags?.length > 0 && <TagList tags={tags} mt={2} />}
       </Box>
-      {tags?.length > 0 && <TagList tags={tags} />}
     </Card>
   );
 }

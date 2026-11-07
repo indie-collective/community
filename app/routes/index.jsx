@@ -55,7 +55,7 @@ export const loader = async ({ request }) => {
     eventsCount,
   ] = await Promise.all([
     // #199: complete entries, recently updated, rather than the newest.
-    listFeaturedGames({ limit: 6 }),
+    listFeaturedGames({ limit: 8 }),
     listFeaturedOrganizations({ type: 'association', limit: 6 }),
     listFeaturedOrganizations({ type: 'studio', limit: 6 }),
     listUpcomingEvents({ limit: 6 }),
@@ -401,8 +401,8 @@ const topTags = (games, count = 4) => {
     .map(([name]) => name);
 };
 
-// The featured games as a wall of covers: the first in the big slot, the
-// next two beside it, the rest wide. Tags filter them.
+// The featured games as a wall of cards, each a little off-straight. Tags
+// filter them.
 const GameWall = ({ games }) => {
   const tags = useMemo(() => topTags(games), [games]);
   const [tag, setTag] = useState(null);
@@ -439,24 +439,11 @@ const GameWall = ({ games }) => {
           base: 'repeat(2, minmax(0, 1fr))',
           md: 'repeat(4, minmax(0, 1fr))',
         }}
-        gridAutoRows={{ base: '140px', md: '170px' }}
-        gridAutoFlow="dense"
-        gap={3.5}
+        gap={4}
       >
         {shown.map((game, i) => (
-          <Reveal
-            key={game.id}
-            index={i}
-            minW={0}
-            gridColumn={i === 0 || i >= 3 ? 'span 2' : undefined}
-            gridRow={i === 0 ? 'span 2' : undefined}
-          >
-            <GameCard
-              {...game}
-              variant="cover"
-              featured={i === 0}
-              tilt={TILTS[i % TILTS.length]}
-            />
+          <Reveal key={game.id} index={i} minW={0}>
+            <GameCard {...game} tilt={TILTS[i % TILTS.length]} />
           </Reveal>
         ))}
       </Grid>
@@ -465,10 +452,10 @@ const GameWall = ({ games }) => {
 };
 
 const OrgBadges = ({ orgs }) => (
-  <Grid templateColumns="repeat(3, minmax(0, 1fr))" gap={3}>
+  <Grid templateColumns="repeat(auto-fill, minmax(220px, 1fr))" gap={2}>
     {orgs.map((org, i) => (
       <Reveal key={org.id} index={i} minW={0}>
-        <OrgCard {...org} variant="badge" />
+        <OrgCard {...org} />
       </Reveal>
     ))}
   </Grid>
