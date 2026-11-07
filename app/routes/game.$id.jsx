@@ -45,7 +45,7 @@ import { Page, PageHeader, Section } from '../components/Page';
 import TagList from '../components/TagList';
 import { GAME_ROLES } from '../utils/gameRoles';
 import { gameShareImage, pageMeta, summarize } from '../utils/meta';
-import Empty, { EmptyAction } from '../components/Empty';
+import Empty from '../components/Empty';
 import GameTimeline from '../components/GameTimeline';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { gamePath } from '../utils/slug';

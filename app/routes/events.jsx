@@ -1,11 +1,11 @@
-import { Button, Box, Grid } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { LuPlus } from 'react-icons/lu';
 import { useLoaderData } from 'react-router';
 import Link from '../components/Link';
 
 import { listEvents, listEventsBetween } from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
-import EventCard from '../components/EventCard';
+import EventGrid from '../components/EventGrid';
 import EventDiary from '../components/EventDiary';
 import { SubscribeMenu } from '../components/CalendarMenus';
 import Filters, { NEAR_RADII } from '../components/Filters';
@@ -84,16 +84,6 @@ export const meta = ({ matches, location }) =>
 
 // One grid for every list of events (#311: upcoming ones were in a carousel
 // that rendered nothing).
-const EventGrid = ({ events }) => (
-  <Grid gap={4} templateColumns={['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}>
-    {events.map((event) => (
-      <Box minW={0} key={event.id}>
-        <EventCard {...event} />
-      </Box>
-    ))}
-  </Grid>
-);
-
 // A list with nothing in it: the picture, and for members the way to add one.
 const NoEvents = ({ children, member }) => (
   <Empty

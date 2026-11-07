@@ -414,7 +414,6 @@ const EventDiary = ({
                   <EventCard
                     key={event.id}
                     {...event}
-                    variant="ticket"
                     going={isGoing(event)}
                   />
                 ))}

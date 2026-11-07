@@ -1,9 +1,9 @@
-import { Alert, Avatar, Box, Grid, HStack, Link as ChakraLink, List, Text } from '@chakra-ui/react';
+import { Alert, Avatar, Box, HStack, Link as ChakraLink, List, Text } from '@chakra-ui/react';
 import { FaBluesky } from 'react-icons/fa6';
 import { useLoaderData } from 'react-router';
 
 import AchievementShelf from '../components/AchievementBadge';
-import EventCard from '../components/EventCard';
+import EventGrid from '../components/EventGrid';
 import Empty from '../components/Empty';
 import Link from '../components/Link';
 import Markdown from '../components/Markdown';
@@ -36,16 +36,6 @@ export const meta = ({ data, matches }) =>
     : [{ title: 'Not found' }];
 
 const KIND_LABELS = { game: 'game', organization: 'studio or association', event: 'event', venue: 'venue' };
-
-const EventGrid = ({ events }) => (
-  <Grid gap={4} templateColumns={['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}>
-    {events.map((event) => (
-      <Box minW={0} key={event.id}>
-        <EventCard {...event} />
-      </Box>
-    ))}
-  </Grid>
-);
 
 const PersonPage = () => {
   const { profile } = useLoaderData();
