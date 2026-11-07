@@ -13,7 +13,14 @@ export default function MapPin({ color, logo, size = 48 }) {
   const mask = useId();
 
   return (
-    <Icon asChild color={color} width={`${size}px`} height={`${size}px`}>
+    <Icon
+      asChild
+      color={color}
+      width={`${size}px`}
+      height={`${size}px`}
+      // An ink outline, as the atlas's marks have.
+      filter="drop-shadow(0 0 0.6px #10201d) drop-shadow(0 0 0.6px #10201d)"
+    >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" data-testid="map-pin">
         <defs>
           <mask id={mask}>

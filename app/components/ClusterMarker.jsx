@@ -19,8 +19,9 @@ const styleFromCount = (count) => {
     justifyContent: 'center',
     textAlign: 'center',
     cursor: 'default',
+    fontFamily: 'var(--chakra-fonts-heading)',
     fontSize: count >= 1000 ? '11px' : '14px',
-    fontWeight: 'bold',
+    fontWeight: 600,
   };
 };
 
