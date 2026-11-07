@@ -26,7 +26,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List } from 'react-window';
 
 import { Tooltip } from '../components/ui/tooltip';
-import AtlasMark from '../components/AtlasMark';
+import AtlasMark, { LogoMark } from '../components/AtlasMark';
 import ClusterMap from '../components/ClusterMap';
 import { focusOn, placeAt, zoomToFit } from '../utils/mapFocus';
 import SwipeableEdgeDrawer from '../components/SwipeableEdgeDrawer';
@@ -43,11 +43,11 @@ import { listMappedOrganizations } from '../data/organizations.server';
 import { listMappedUpcomingEvents } from '../data/events.server';
 import { useT } from '../i18n';
 
-const OrgMarker = React.memo(({ name, type, highlighted, onClick }) => (
+const OrgMarker = React.memo(({ name, type, logo, highlighted, onClick }) => (
   <Tooltip content={name} aria-label="A tooltip">
     <Box
-      width="24px"
-      height="24px"
+      width="28px"
+      height="28px"
       display="grid"
       placeItems="center"
       cursor="pointer"
@@ -57,7 +57,12 @@ const OrgMarker = React.memo(({ name, type, highlighted, onClick }) => (
       _hover={{ zIndex: 2, transform: 'scale(1.5)' }}
       onClick={onClick}
     >
-      <AtlasMark type={type} size={type === 'event' ? 20 : 17} />
+      {/* Its logo when it has one, else its mark. */}
+      {logo?.thumbnail_url ? (
+        <LogoMark type={type} logo={logo} size={26} />
+      ) : (
+        <AtlasMark type={type} size={type === 'event' ? 20 : 17} />
+      )}
     </Box>
   </Tooltip>
 ));
@@ -152,7 +157,7 @@ const EntryRow = ({ item, selected, onMouseEnter, onMouseOut, t }) => (
     onMouseEnter={() => onMouseEnter(item)}
     onMouseOut={() => onMouseOut(item)}
   >
-    <AtlasMark type={item.type} size={13} />
+    <LogoMark type={item.type} logo={item.logo} size={24} />
     <Link
       to={item.type === 'event' ? eventPath(item) : orgPath(item)}
       title={item.name}
@@ -436,11 +441,12 @@ const Places = () => {
       <Overlay
         key={org.id}
         anchor={[org.location.latitude, org.location.longitude]}
-        offset={[12, 12]}
+        offset={[14, 14]}
       >
         <OrgMarker
           name={org.name}
           type={org.type}
+          logo={org.logo}
           highlighted={org.id === highlightedOrg}
           onClick={(e) => {
             e.preventDefault();
