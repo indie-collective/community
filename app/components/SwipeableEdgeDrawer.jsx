@@ -99,7 +99,7 @@ function SwipeableEdgeDrawer({ header, label = 'Locations', children, isOpen, on
         flexDirection="column"
         bg="surface"
         borderTopRadius="panel"
-        boxShadow={open ? 'lg' : 'md'}
+        boxShadow="lift"
         transform={transform}
         transition={drag === null ? 'transform 0.25s ease-out' : 'none'}
       >

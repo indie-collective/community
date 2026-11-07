@@ -86,7 +86,7 @@ export const Medal = ({ achievement, locked = false, size = 'md', celebrate = fa
           color="muted"
           display="grid"
           placeItems="center"
-          shadow="sm"
+          shadow="raised"
         >
           <LuLock size="12px" />
         </Box>

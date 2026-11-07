@@ -163,8 +163,13 @@ const config = defineConfig({
           AN: { value: { base: '#e7e9e8', _dark: '#262b2a' } },
         },
       },
+      // Three shadows, nothing else: `raised` for what rests on the page
+      // (cards, tickets, the filter bar, panels), `raisedHover` for those
+      // under the pointer, `lift` for what floats above it (the cover
+      // story, stickers, pickers' lists, drawers).
       shadows: {
-        // Cards lifted off the paper: covers, tickets.
+        raised: { value: '{shadows.xs}' },
+        raisedHover: { value: '{shadows.sm}' },
         lift: {
           value: {
             base: '0 1px 0 rgba(16,32,29,.08), 0 10px 24px -12px rgba(16,32,29,.35)',

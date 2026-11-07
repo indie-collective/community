@@ -9,7 +9,6 @@ import {
   Circle,
   Icon,
   Flex,
-  Separator,
 } from '@chakra-ui/react';
 
 
@@ -253,7 +252,6 @@ const RewindPage = () => {
           </SimpleGrid>
 
           {/* Footer Message */}
-          <Separator />
           <MotionBox
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

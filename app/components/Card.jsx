@@ -12,7 +12,7 @@ function Card({ ref, isClickable, ...rest }) {
     cursor: 'pointer',
     transition:
       'background-color 160ms ease-out, transform 160ms ease-out, box-shadow 160ms ease-out',
-    _hover: { bg: 'surface', shadow: 'sm', transform: 'translateY(-2px)' },
+    _hover: { bg: 'surface', shadow: 'raisedHover', transform: 'translateY(-2px)' },
     _active: { transform: 'translateY(0)' },
     _focusWithin: {
       outline: '2px solid',

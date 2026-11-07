@@ -79,7 +79,7 @@ export const FilterBar = ({ children, ...rest }) => (
     mb={6}
     bg="surface"
     borderRadius="panel"
-    shadow="xs"
+    shadow="raised"
     {...rest}
   >
     {children}
@@ -121,11 +121,11 @@ export const SectionTitle = ({
 );
 
 /**
- * A section of a page: a rule, its title with an optional count, an
- * optional line above it saying what's in it, and on the right a link to the
- * whole list or anything else (`aside`). `big` is the homepage's: a heavy
- * ink rule and a large title; every other page has a hairline. Labelled by
- * its heading, so it's a region screen readers can jump to.
+ * A section of a page: its title with an optional count, an optional line
+ * above it saying what's in it, and on the right a link to the whole list
+ * or anything else (`aside`). No rule: space sets sections apart. `big` is
+ * the homepage's large title. Labelled by its heading, so it's a region
+ * screen readers can jump to.
  */
 export const Section = ({
   title,
@@ -152,9 +152,6 @@ export const Section = ({
         align="flex-end"
         gap={3}
         wrap="wrap"
-        borderTop={big ? '2px solid' : '1px solid'}
-        borderColor={big ? 'ink' : 'rule'}
-        pt={big ? 2 : 3}
         mb={big ? 5 : 4}
       >
         <Box minW={0}>

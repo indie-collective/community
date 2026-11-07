@@ -122,7 +122,7 @@ function AppShell({ children }) {
         py={2}
         borderRadius="control"
         bg="surface"
-        shadow="md"
+        shadow="lift"
         fontWeight="semibold"
         transform="translateY(-200%)"
         _focusVisible={{ transform: 'none' }}

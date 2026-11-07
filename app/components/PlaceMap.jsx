@@ -39,7 +39,7 @@ const PlaceMap = ({ location, id, color, logo, label, address }) => {
         borderWidth="1px"
         borderColor="border"
         transition="box-shadow 0.2s"
-        _hover={{ boxShadow: 'md' }}
+        _hover={{ boxShadow: 'raisedHover' }}
         _focusVisible={{
           outline: '2px solid',
           outlineColor: 'colorPalette.focusRing',

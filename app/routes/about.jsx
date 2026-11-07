@@ -68,7 +68,7 @@ const AboutPage = () => {
             p={4}
             bg="surface"
             borderRadius="card"
-            shadow="xs"
+            shadow="raised"
           >
             <Text
               fontFamily="heading"
