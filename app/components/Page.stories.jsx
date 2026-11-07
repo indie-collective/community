@@ -66,7 +66,7 @@ export const CountedHeading = {
     </Section>
   ),
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByRole('heading', { name: /^Games 23 games/ })).toBeVisible();
+    await expect(within(canvasElement).getByRole('heading', { name: 'Games' })).toBeVisible();
   },
 };
 

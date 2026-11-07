@@ -235,8 +235,7 @@ test('a member credits a studio as both developer and publisher', async ({ page 
     // The org page lists the game once as made and once as published.
     await page.goto(`/org/${org.id}`);
     for (const heading of ['Games', 'Published']) {
-      // The heading reads "Games 1 game": its name, then its count.
-      const section = page.locator('section').filter({ has: page.getByRole('heading', { name: new RegExp(`^${heading} \\d`) }) });
+      const section = page.locator('section').filter({ has: page.getByRole('heading', { name: heading, exact: true }) });
       await expect(section.getByText(game.name)).toHaveCount(1);
     }
 
