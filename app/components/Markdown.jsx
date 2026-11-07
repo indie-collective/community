@@ -1,7 +1,7 @@
 import { Remarkable } from 'remarkable';
 import { linkify } from 'remarkable/linkify';
 import RemarkableReactRenderer from 'remarkable-react';
-import { Text, Link, Box, Separator, List } from '@chakra-ui/react';
+import { Text, Link, Box, Code, Separator, List } from '@chakra-ui/react';
 import { LuExternalLink } from 'react-icons/lu';
 
 // remarkable-react passes each token's `type` (e.g. "paragraph_open") and
@@ -79,6 +79,8 @@ md.renderer = new RemarkableReactRenderer({
     ul: UnorderedList,
     li: Li,
     img: ImgLink,
+    // Inline code, in the theme's code style (ink on the page colour).
+    code: ({ type, ...props }) => <Code {...props} />,
   },
 });
 

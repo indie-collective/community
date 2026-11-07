@@ -144,7 +144,8 @@ const config = defineConfig({
         primary: {
           solid: { value: { base: '#0f7d6d', _dark: '#2cc4ac' } },
           contrast: { value: { base: '{colors.white}', _dark: '#0d1715' } },
-          fg: { value: { base: '#0f7d6d', _dark: '#8fe3d4' } },
+          // Green text on the palette's pale fills reads at the deep green.
+          fg: { value: '{colors.brandDeep}' },
           muted: { value: { base: '#cfe8e2', _dark: '#16423b' } },
           subtle: { value: { base: '#e3f2ee', _dark: '#102e29' } },
           emphasized: { value: { base: '#b5dcd3', _dark: '#1d5a50' } },
@@ -302,6 +303,18 @@ const config = defineConfig({
               lineHeight: '1.02',
               fontWeight: '600',
               letterSpacing: '-0.03em',
+            },
+          },
+        },
+      },
+      // Code: ink on the page colour, with a hairline.
+      code: {
+        variants: {
+          variant: {
+            subtle: {
+              bg: 'canvas',
+              color: 'ink',
+              boxShadow: 'inset 0 0 0 1px var(--chakra-colors-rule)',
             },
           },
         },

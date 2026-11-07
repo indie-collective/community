@@ -88,8 +88,8 @@ export const FilterBar = ({ children, ...rest }) => (
 
 /**
  * A section's title: the h2, and beside it, when given, a muted count read
- * as "8 games" (#197: inside the heading it read "Games8"). `big` is the
- * homepage's size.
+ * as "8 games". The count stays out of the heading (#197: inside it, the
+ * heading read "Games8"). `big` is the homepage's size.
  */
 export const SectionTitle = ({
   id,
@@ -99,26 +99,25 @@ export const SectionTitle = ({
   children,
   ...rest
 }) => (
-  <Heading
-    as="h2"
-    id={id}
-    fontSize={big ? { base: '3xl', md: '4xl' } : { base: 'xl', md: '2xl' }}
-    fontWeight="600"
-    letterSpacing="-0.02em"
-    lineHeight="1.1"
-    {...rest}
-  >
-    {children}
-    {/* A real space, so it reads "Games 23 games", not "Games23 games". */}
-    {count != null && ' '}
+  <HStack gap={2} align="baseline" wrap="wrap" {...rest}>
+    <Heading
+      as="h2"
+      id={id}
+      fontSize={big ? { base: '3xl', md: '4xl' } : { base: 'xl', md: '2xl' }}
+      fontWeight="600"
+      letterSpacing="-0.02em"
+      lineHeight="1.1"
+    >
+      {children}
+    </Heading>
     {count != null && (
-      <Text as="span" color="muted" fontWeight="400" ms={1} fontSize="0.7em">
+      <Text as="span" color="muted" fontSize={big ? '2xl' : 'lg'}>
         {count.toLocaleString('en')}
         {/* "1 game", "8 games": the label is plural, one drops its "s". */}
         <VisuallyHidden> {count === 1 ? countLabel.replace(/s$/, '') : countLabel}</VisuallyHidden>
       </Text>
     )}
-  </Heading>
+  </HStack>
 );
 
 /**

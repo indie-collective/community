@@ -705,7 +705,7 @@ const Places = () => {
           label={t('atlas.gazetteer')}
           header={
             <SectionTitle
-              textAlign={{ base: 'center', md: 'start' }}
+              justify={{ base: 'center', md: 'flex-start' }}
               // Clear of the drawer's handle on a phone.
               mt={{ base: 6, md: 0 }}
               mb={{ base: 2, md: 0 }}
