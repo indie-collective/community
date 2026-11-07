@@ -144,7 +144,6 @@ export default [
   route('admin/tags', 'routes/admin/tags.jsx'),
   route('admin/users', 'routes/admin/users.jsx'),
   route('admin/flags', 'routes/admin/flags.jsx'),
-  route('admin/import', 'routes/admin/import.jsx'),
 
   route('*', 'routes/$.jsx'),
 ] satisfies RouteConfig;
