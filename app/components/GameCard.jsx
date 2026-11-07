@@ -110,7 +110,6 @@ function GameCard({
           size="xs"
           rounded="full"
           variant="outline"
-          bg="surface"
           aria-label={`Remove ${name}`}
           onClick={(e) => {
             e.preventDefault();

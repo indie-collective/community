@@ -108,7 +108,6 @@ const MotionGallery = ({ gameId, gameName = 'the game', images, currentUser, fet
                 aria-label={`Remove image ${image.id}`}
                 rounded="full"
                 variant="outline"
-                bg="surface"
                 loading={
                   fetcher.state === 'submitting' &&
                   fetcher.formAction?.includes('images/delete') &&

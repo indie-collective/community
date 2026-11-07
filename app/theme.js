@@ -232,7 +232,7 @@ const config = defineConfig({
     recipes: {
       // The site's four buttons. `solid` (the default) is the primary
       // action, one per screen, in green. `outline` is every other action,
-      // outlined in ink; with aria-pressed or aria-current it's a toggle,
+      // on a pale green; with aria-pressed or aria-current it's a toggle,
       // sun yellow when on (Going, Follow, a picked plate or tab). `ghost` is
       // the quiet one: small actions and menus. Hover changes the colour; a
       // press presses in a little.
@@ -256,17 +256,19 @@ const config = defineConfig({
               _hover: { filter: 'brightness(0.82)' },
               _expanded: { filter: 'brightness(0.82)' },
             },
+            // Filled with a pale version of the palette's colour, the
+            // site's green or red for a Delete; the border stays, the
+            // fill's own colour, so the button keeps its size.
             outline: {
-              bg: 'transparent',
-              color: 'ink',
+              bg: 'colorPalette.muted',
+              color: 'colorPalette.fg',
               borderWidth: '2px',
-              borderColor: 'ink',
-              _hover: { bg: 'surface' },
-              _expanded: { bg: 'surface' },
+              borderColor: 'transparent',
+              _hover: { bg: 'colorPalette.emphasized' },
+              _expanded: { bg: 'colorPalette.emphasized' },
               '&:is([aria-pressed=true], [aria-current=page])': {
                 bg: 'sun',
                 color: 'onPop',
-                borderColor: 'ink',
                 _hover: { bg: 'sun' },
               },
             },
