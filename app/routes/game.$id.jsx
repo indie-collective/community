@@ -41,7 +41,7 @@ import FollowButton from '../components/FollowButton';
 import SourceCredit from '../components/SourceCredit';
 import { listRecordSources } from '../data/sources.server';
 import { ReportDuplicate } from '../components/Duplicates';
-import { Page, PageHeader, PageSection } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 import TagList from '../components/TagList';
 import { GAME_ROLES } from '../utils/gameRoles';
 import { gameShareImage, pageMeta, summarize } from '../utils/meta';
@@ -223,7 +223,7 @@ const Game = () => {
         )}
       </Box>
       {(currentUser || entities.length > 0) && (
-        <PageSection title="Made by">
+        <Section title="Made by">
           <Grid
             gap={5}
             templateColumns={[
@@ -307,7 +307,7 @@ const Game = () => {
               </>
             )}
           </Grid>
-        </PageSection>
+        </Section>
       )}
       <GameTimeline
         gameId={id}
@@ -317,7 +317,7 @@ const Game = () => {
         currentUser={currentUser}
       />
       {igdb_game?.videos.length > 0 && (
-        <PageSection title="Videos">
+        <Section title="Videos">
           <Grid
             gap={3}
             templateColumns={[
@@ -340,7 +340,7 @@ const Game = () => {
               </AspectRatio>
             ))}
           </Grid>
-        </PageSection>
+        </Section>
       )}
       {currentUser && (
         <Box>
@@ -389,7 +389,7 @@ const Game = () => {
       )}
       {/* #345: what it's looking for. */}
       {opportunities && (opportunities.length > 0 || currentUser) && (
-        <PageSection
+        <Section
           title="Opportunities"
           aside={
             currentUser && (
@@ -404,7 +404,7 @@ const Game = () => {
           ) : (
             <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
           )}
-        </PageSection>
+        </Section>
       )}
       {currentUser && (
         <ReportDuplicate kind="game" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />

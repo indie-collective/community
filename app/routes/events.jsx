@@ -13,7 +13,7 @@ import { placeAt } from '../utils/mapFocus';
 import { monthGridInstants, monthOf, parseMonth } from '../utils/eventCalendar';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import { pageMeta } from '../utils/meta';
-import { Page, PageHeader, PageSection } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 import countryNames from '../assets/countries.json';
 import { useT } from '../i18n';
 
@@ -167,9 +167,9 @@ const Events = () => {
             empty={<NoEvents>No upcoming events{where} yet.</NoEvents>}
           />
           {pastEvents.length > 0 && (
-            <PageSection title={t('lists.events.recently')}>
+            <Section title={t('lists.events.recently')}>
               <EventGrid events={pastEvents} />
-            </PageSection>
+            </Section>
           )}
         </>
       ) : events.length > 0 ? (

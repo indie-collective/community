@@ -15,7 +15,7 @@ import { countPlaces, getCountryOverview } from '../data/countries.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import countryNames from '../assets/countries.json';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
-import { Page, PageHeader, PageSection } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 import EventCard from '../components/EventCard';
 import VenueCard from '../components/VenueCard';
 import GameCard from '../components/GameCard';
@@ -100,11 +100,6 @@ export const meta = ({ data, matches, location }) => {
     path: location.pathname,
   });
 };
-
-// The page's sections, as on every page (design pass).
-const Section = ({ action, ...rest }) => (
-  <PageSection aside={action} {...rest} />
-);
 
 const MoreLink = ({ to, children }) => (
   <ChakraLink asChild textDecoration="underline">
@@ -235,7 +230,7 @@ const CountryPage = () => {
 
       <Section
         title="Associations"
-        action={
+        aside={
           counts.associations > 0 && (
             <MoreLink to={`/associations?country=${code}`}>
               All associations in {name}
@@ -284,7 +279,7 @@ const CountryPage = () => {
       {recentGames.length > 0 && (
         <Section
           title={`Games made in ${name}`}
-          action={
+          aside={
             <MoreLink to={`/games?country=${code}`}>
               All {plural(counts.games, 'game')}
             </MoreLink>
@@ -310,7 +305,7 @@ const CountryPage = () => {
 
       <Section
         title="Upcoming events"
-        action={
+        aside={
           <MoreLink to={`/events?country=${code}`}>
             All events in {name}
           </MoreLink>

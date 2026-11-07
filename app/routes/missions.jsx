@@ -3,7 +3,7 @@ import { useLoaderData } from 'react-router';
 
 import AchievementShelf from '../components/AchievementBadge';
 import Link from '../components/Link';
-import { Page, PageHeader, PageSection } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 import { countGaps, memberStats } from '../data/missions.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { pageMeta } from '../utils/meta';
@@ -43,7 +43,7 @@ const Missions = () => {
       )}
       {stats && (
         // Every badge, and how far there is to go for those not earned (#377).
-        <PageSection
+        <Section
           title="Your badges"
           aside={
             <Text color="muted" fontSize="sm">
@@ -52,10 +52,10 @@ const Missions = () => {
           }
         >
           <AchievementShelf achievements={stats.progress} data-testid="my-badges" />
-        </PageSection>
+        </Section>
       )}
       {Object.entries(GAPS).map(([kind, gaps]) => (
-        <PageSection key={kind} title={KIND_LABELS[kind]}>
+        <Section key={kind} title={KIND_LABELS[kind]}>
           <Grid templateColumns={['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']} gap={3}>
             {gaps
               .filter((gap) => counts[kind][gap.key] > 0)
@@ -83,7 +83,7 @@ const Missions = () => {
                 </Stack>
               ))}
           </Grid>
-        </PageSection>
+        </Section>
       ))}
     </Page>
   );

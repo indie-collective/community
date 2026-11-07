@@ -16,7 +16,7 @@ import { useFetcher } from 'react-router';
 
 import EmptyHint from './EmptyHint';
 import Link from './Link';
-import { PageSection } from './Page';
+import { Section } from './Page';
 import { formatEventRange } from '../utils/eventTime';
 import {
   MAX_NOTE_LENGTH,
@@ -144,7 +144,7 @@ const GameTimeline = ({ gameId, milestones, events, igdbReleaseDate, currentUser
   const toRelease = timeToRelease(entries);
 
   return (
-    <PageSection
+    <Section
       title="Timeline"
       aside={
         toRelease && (
@@ -221,7 +221,7 @@ const GameTimeline = ({ gameId, milestones, events, igdbReleaseDate, currentUser
         ))}
       </Box>
       {currentUser && <AddMilestone gameId={gameId} />}
-    </PageSection>
+    </Section>
   );
 };
 

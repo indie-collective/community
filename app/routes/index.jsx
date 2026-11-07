@@ -22,7 +22,7 @@ import GameCard, { gameImage } from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 import PlacesWidget from '../components/PlacesWidget';
-import { Department, Page } from '../components/Page';
+import { Page, Section } from '../components/Page';
 import Card from '../components/Card';
 import CardLink from '../components/CardLink';
 import Sticker from '../components/Sticker';
@@ -518,16 +518,16 @@ const HomePage = () => {
       )}
 
       {joinedEventsToCome.length > 0 && (
-        <Department
+        <Section big
           title="Your next events"
           to="/events"
           linkLabel="All events"
         >
           <TicketGrid events={joinedEventsToCome} />
-        </Department>
+        </Section>
       )}
 
-      <Department title="Upcoming events" to="/events" linkLabel="All events">
+      <Section big title="Upcoming events" to="/events" linkLabel="All events">
         {eventsToCome.length > 0 ? (
           <TicketGrid events={eventsToCome} />
         ) : (
@@ -540,20 +540,20 @@ const HomePage = () => {
             </Text>
           </Box>
         )}
-      </Department>
+      </Section>
 
-      <Department
+      <Section big
         kicker="Recently updated"
         title="Games"
         to="/games"
         linkLabel="All games"
       >
         <GameWall games={games} />
-      </Department>
+      </Section>
 
-      <Department title="Atlas" to="/places" linkLabel="Open the atlas">
+      <Section big title="Atlas" to="/places" linkLabel="Open the atlas">
         <PlacesWidget placesCount={placesCount} placesPoints={placesPoints} />
-      </Department>
+      </Section>
 
       {/* minW 0: grid items otherwise can't shrink below their content,
           which pushed the page past a 375px screen. */}
@@ -561,16 +561,16 @@ const HomePage = () => {
         gap={{ base: 0, lg: 8 }}
         templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}
       >
-        <Department title="Studios" to="/studios" linkLabel="All studios">
+        <Section big title="Studios" to="/studios" linkLabel="All studios">
           <OrgBadges orgs={studios} />
-        </Department>
-        <Department
+        </Section>
+        <Section big
           title="Associations"
           to="/associations"
           linkLabel="All associations"
         >
           <OrgBadges orgs={associations} />
-        </Department>
+        </Section>
       </Grid>
 
       {!currentUser && <Contribute />}

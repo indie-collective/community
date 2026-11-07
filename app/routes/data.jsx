@@ -1,7 +1,7 @@
 import { Box, Button, Code, Heading, Link as ChakraLink, List, Stack, Table, Text } from '@chakra-ui/react';
 import { Form, useLoaderData, useNavigation } from 'react-router';
 
-import { Page, PageHeader, PageSection } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 import { listExports, publishExport } from '../data/openData.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { pageMeta } from '../utils/meta';
@@ -77,7 +77,7 @@ const OpenData = () => {
       </Stack>
 
       {exports.length > 0 && (
-        <PageSection title="Every export">
+        <Section title="Every export">
           <List.Root ps={5}>
             {exports.map((file) => (
               <List.Item key={file.name}>
@@ -88,10 +88,10 @@ const OpenData = () => {
               </List.Item>
             ))}
           </List.Root>
-        </PageSection>
+        </Section>
       )}
 
-      <PageSection title="What's in it">
+      <Section title="What's in it">
         <Text mb={4}>
           The zip holds a CSV file per table, linked by IDs, and <Code>community.json</Code> with the same records
           nested: games with their organisations, tags, events and milestones; events with their hosts and games.
@@ -120,7 +120,7 @@ const OpenData = () => {
             </Box>
           ))}
         </Stack>
-      </PageSection>
+      </Section>
     </Page>
   );
 };

@@ -8,7 +8,7 @@ import EmptyHint from '../components/EmptyHint';
 import EventCard from '../components/EventCard';
 import Link from '../components/Link';
 import Markdown from '../components/Markdown';
-import { Page, PageHeader, PageSection } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 import PlaceMap from '../components/PlaceMap';
 import { listVenueEvents } from '../data/events.server';
 import { getVenue } from '../data/venues.server';
@@ -102,23 +102,23 @@ const Venue = () => {
       )}
 
       {about && (
-        <PageSection title="About" maxW="2xl">
+        <Section title="About" maxW="2xl">
           <Markdown value={about} />
-        </PageSection>
+        </Section>
       )}
 
-      <PageSection title="Upcoming events">
+      <Section title="Upcoming events">
         {events.upcoming.length > 0 ? (
           <Events events={events.upcoming} />
         ) : (
           <EmptyHint>Nothing planned here for now.</EmptyHint>
         )}
-      </PageSection>
+      </Section>
 
       {events.past.length > 0 && (
-        <PageSection title="Past events">
+        <Section title="Past events">
           <Events events={events.past} />
-        </PageSection>
+        </Section>
       )}
     </Page>
   );
