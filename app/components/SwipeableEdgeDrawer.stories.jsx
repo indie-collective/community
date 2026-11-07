@@ -13,7 +13,7 @@ export default {
 export const Default = {
   args: {
     header: <Text fontWeight="semibold">17 in view</Text>,
-    children: <Text p={4}>The list of what's on the map.</Text>,
+    children: <Text p={4}>{"The list of what's on the map"}</Text>,
     isOpen: false,
     onClose: () => {},
   },
