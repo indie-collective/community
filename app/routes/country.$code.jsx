@@ -13,7 +13,7 @@ import { countPlaces, getCountryOverview } from '../data/countries.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import countryNames from '../assets/countries.json';
 import { Page, PageHeader, Section } from '../components/Page';
-import EventCard from '../components/EventCard';
+import EventGrid from '../components/EventGrid';
 import VenueCard from '../components/VenueCard';
 import GameCard from '../components/GameCard';
 import Empty, { EmptyAction } from '../components/Empty';
@@ -306,16 +306,7 @@ const CountryPage = () => {
         }
       >
         {upcomingEvents.length > 0 ? (
-          <Grid
-            gap={3}
-            templateColumns={['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
-          >
-            {upcomingEvents.map((event) => (
-              <Box minW={0} key={event.id}>
-                <EventCard {...event} />
-              </Box>
-            ))}
-          </Grid>
+          <EventGrid events={upcomingEvents} />
         ) : (
           <Empty
             picture

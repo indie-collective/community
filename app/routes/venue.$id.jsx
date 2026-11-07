@@ -1,11 +1,11 @@
-import { Box, Grid, Link as ChakraLink, Stack, Text } from '@chakra-ui/react';
+import { Box, Link as ChakraLink, Stack, Text } from '@chakra-ui/react';
 import { LuExternalLink, LuMapPin } from 'react-icons/lu';
 import { useLoaderData } from 'react-router';
 
 import countryNames from '../assets/countries.json';
 import ActionMenu from '../components/ActionMenu';
-import Empty, { EmptyAction } from '../components/Empty';
-import EventCard from '../components/EventCard';
+import Empty from '../components/Empty';
+import EventGrid from '../components/EventGrid';
 import Link from '../components/Link';
 import Markdown from '../components/Markdown';
 import { Page, PageHeader, Section } from '../components/Page';
@@ -44,16 +44,6 @@ export const meta = ({ data, matches }) => {
     path: venuePath(venue),
   });
 };
-
-const Events = ({ events }) => (
-  <Grid as="ul" listStyleType="none" gap={3} templateColumns={['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}>
-    {events.map((event) => (
-      <Box as="li" minW={0} key={event.id}>
-        <EventCard {...event} />
-      </Box>
-    ))}
-  </Grid>
-);
 
 const Venue = () => {
   const { venue, events, currentUser } = useLoaderData();
@@ -109,7 +99,7 @@ const Venue = () => {
 
       <Section title="Upcoming events">
         {events.upcoming.length > 0 ? (
-          <Events events={events.upcoming} />
+          <EventGrid events={events.upcoming} />
         ) : (
           <Empty>Nothing planned here for now</Empty>
         )}
@@ -117,7 +107,7 @@ const Venue = () => {
 
       {events.past.length > 0 && (
         <Section title="Past events">
-          <Events events={events.past} />
+          <EventGrid events={events.past} />
         </Section>
       )}
     </Page>

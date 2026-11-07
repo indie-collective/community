@@ -25,7 +25,7 @@ import countryNames from '../assets/countries.json';
 import { getOrganization } from '../data/organizations.server';
 import GameCard from '../components/GameCard';
 import { gameRoleLabel } from '../utils/gameRoles';
-import EventCard from '../components/EventCard';
+import EventGrid from '../components/EventGrid';
 import PlaceMap from '../components/PlaceMap';
 import usePlaceholder from '../hooks/usePlaceholder';
 import Markdown from '../components/Markdown';
@@ -283,21 +283,7 @@ const Org = () => {
       )}
       {events.length > 0 && (
         <Section title="Hosted events" count={events.length} countLabel="events">
-          <Grid
-            gap={3}
-            templateColumns={[
-              'repeat(2, 1fr)',
-              'repeat(2, 1fr)',
-              'repeat(3, 1fr)',
-              'repeat(4, 1fr)',
-            ]}
-          >
-            {events.map((event) => (
-              <Box minW={0} key={event.id}>
-                <EventCard {...event} />
-              </Box>
-            ))}
-          </Grid>
+          <EventGrid events={events} />
         </Section>
       )}
       {/* Empty sections stay hidden from visitors; members get a way in (#198). */}

@@ -20,7 +20,7 @@ import Link from '../components/Link';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import GameCard, { gameImage } from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
-import EventCard from '../components/EventCard';
+import EventGrid from '../components/EventGrid';
 import PlacesWidget from '../components/PlacesWidget';
 import { Page, Section } from '../components/Page';
 import Card from '../components/Card';
@@ -383,20 +383,6 @@ const Contribute = () => (
   </Grid>
 );
 
-const TicketGrid = ({ events }) => (
-  <Grid
-    templateColumns={['1fr', 'repeat(2, 1fr)', 'repeat(3, 1fr)']}
-    gap={4}
-    pt={2}
-  >
-    {events.map((event, i) => (
-      <Reveal key={event.id} index={i} minW={0}>
-        <EventCard {...event} variant="ticket" />
-      </Reveal>
-    ))}
-  </Grid>
-);
-
 // Covers a little off-straight, each its own way; they straighten on hover.
 const TILTS = [-1.2, 1, -0.6, 0.8, -1, 1.4];
 
@@ -518,13 +504,13 @@ const HomePage = () => {
           to="/events"
           linkLabel="All events"
         >
-          <TicketGrid events={joinedEventsToCome} />
+          <EventGrid events={joinedEventsToCome} reveal />
         </Section>
       )}
 
       <Section big title="Upcoming events" to="/events" linkLabel="All events">
         {eventsToCome.length > 0 ? (
-          <TicketGrid events={eventsToCome} />
+          <EventGrid events={eventsToCome} reveal />
         ) : (
           <Empty
             picture

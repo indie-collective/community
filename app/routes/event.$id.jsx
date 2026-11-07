@@ -60,8 +60,8 @@ import usePlaceholder from '../hooks/usePlaceholder';
 import GameCard from '../components/GameCard';
 import OrgCard from '../components/OrgCard';
 import Markdown from '../components/Markdown';
-import RelatedEvents from '../components/RelatedEvents';
-import DateLabel from '../components/DateLabel';
+import EventGrid from '../components/EventGrid';
+import { CalendarDate } from '../components/EventCard';
 import JoinEventButton from '../components/JoinEventButton';
 import { SearchGameModal } from './search-game';
 // Named, not default: React Router wraps a route module's default export and
@@ -72,7 +72,7 @@ import { Page, PageHeader, Section } from '../components/Page';
 import countryNames from '../assets/countries.json';
 import { formatEventDate, formatEventRange } from '../utils/eventTime';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
-import Empty, { EmptyAction } from '../components/Empty';
+import Empty from '../components/Empty';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { eventPath, venuePath } from '../utils/slug';
 import { useLanguage } from '../i18n';
@@ -204,11 +204,18 @@ const Event = () => {
             css={{ viewTransitionName: 'record-image' }}
           />
         </AspectRatio>
-        <DateLabel
+        {/* The date as a calendar page over the picture. */}
+        <CalendarDate
+          size="lg"
           position="absolute"
           right={3}
           bottom={3}
-          value={new Date(startsAt)}
+          w={{ base: '64px', md: '84px' }}
+          bg="surface"
+          rounded="card"
+          overflow="hidden"
+          shadow="lift"
+          value={startsAt}
           timeZone={timeZone}
         />
       </Box>
@@ -575,7 +582,11 @@ const Event = () => {
       {relatedEvents.length > 0 && (
         <Section title="Related events">
 
-          <RelatedEvents events={relatedEvents} />
+          {relatedEvents.length > 0 ? (
+            <EventGrid events={relatedEvents} />
+          ) : (
+            <Empty>No related events yet</Empty>
+          )}
         </Section>
       )}
       {currentUser && (
