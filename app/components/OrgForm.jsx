@@ -23,7 +23,7 @@ import { LuPencil } from 'react-icons/lu';
 import TileMap from './TileMap';
 import { viewport } from '@mapbox/geo-viewport';
 
-import PlacesSearch from '../components/PlacesSearch';
+import PlaceField from '../components/PlaceField';
 import { DuplicateHint } from './Duplicates';
 import PrefillFromLink from './PrefillFromLink';
 import usePlaceholder from '../hooks/usePlaceholder';
@@ -238,7 +238,7 @@ const OrgForm = ({ defaultData = {}, loading = false, ...rest }) => {
             control={control}
             name="location"
             render={({ field }) => (
-              <PlacesSearch
+              <PlaceField
                 {...field}
                 placeholder="Rennes, France"
                 onClear={() => {

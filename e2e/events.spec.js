@@ -133,7 +133,7 @@ test('the location picker asks for English place names', async ({ page }) => {
 
   await signIn(page, MEMBER);
   await page.goto('/events/create');
-  await page.getByRole('textbox', { name: 'Location' }).fill('Warszawa');
+  await page.getByRole('combobox', { name: 'Location' }).fill('Warszawa');
 
   await expect.poll(() => requests.length).toBeGreaterThan(0);
   expect(requests.at(-1).searchParams.get('language')).toBe('en');
@@ -296,9 +296,9 @@ test('an event lists its editions, and links its website and tickets', async ({
     await page.getByLabel('Website').fill('fjordfest.example');
     await page.getByLabel('Tickets').fill('https://tickets.example/fjordfest');
     await page
-      .getByRole('textbox', { name: 'Search for the previous edition' })
+      .getByRole('combobox', { name: 'Search for the previous edition' })
       .fill(`Fjordfest ${tag}`);
-    await page.getByRole('button', { name: `Fjordfest ${tag} 2025` }).click();
+    await page.getByRole('option', { name: new RegExp(`Fjordfest ${tag} 2025`) }).click();
     await page.getByRole('button', { name: /submit|save/i }).click();
     await expect(page).toHaveURL(`/event/fjordfest-${tag}-2026`);
 

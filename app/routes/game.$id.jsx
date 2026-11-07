@@ -7,7 +7,6 @@ import {
   AspectRatio,
   Button,
   useDisclosure,
-  IconButton,
   Dialog,
   Portal,
   Link as ChakraLink,
@@ -28,7 +27,7 @@ import { getGame } from '../data/games.server';
 import OrgCard from '../components/OrgCard';
 // Named, not default: React Router wraps a route module's default export and
 // drops the props passed to it here.
-import { SearchOrgModal } from './search-org';
+import { LinkPicker, ORGANIZATION_CREATE } from '../components/RecordPicker';
 import Markdown from '../components/Markdown';
 import MotionGallery from '../components/MotionGallery';
 import ActionMenu from '../components/ActionMenu';
@@ -107,12 +106,6 @@ export const meta = ({ data, matches }) => {
 const Game = () => {
   const { game, currentUser, opportunities, following, sources } = useLoaderData();
   const fetcher = useFetcher();
-
-  const {
-    open: linkAuthorIsOpen,
-    onOpen: onOpenLinkAuthor,
-    onClose: onCloseLinkAuthor,
-  } = useDisclosure();
 
   const deleteModal = useDisclosure();
   // #346
@@ -270,38 +263,27 @@ const Game = () => {
               <Empty>Who made this game? Add a studio or association</Empty>
             )}
             {currentUser && (
-              <>
-                <IconButton
-                  variant="outline"
-                  alignSelf="center"
-                  justifySelf="flex-start"
-                  aria-label="Add an author to the game"
-                  onClick={onOpenLinkAuthor}
-                >
-                  <LuPlus />
-                </IconButton>
-                <SearchOrgModal
-                  isOpen={linkAuthorIsOpen}
-                  onClose={onCloseLinkAuthor}
-                  // Credited again, a studio takes another role (#335):
-                  // only those with every role are left out.
-                  excludedIds={entities
-                    .map((entity) => entity.id)
-                    .filter(
-                      (orgId) => rolesOf(orgId).length === GAME_ROLES.length
-                    )}
-                  onSelect={(author) => {
-                    fetcher.submit(
-                      { id: author.id },
-                      { method: 'post', action: `/game/${id}/companies/add` }
-                    );
-                  }}
-                  // Not found: added, linked, then opened to fill in (#374).
-                  onCreate={(record) =>
-                    fetcher.submit(record, { method: 'post', action: `/game/${id}/companies/add` })
-                  }
-                />
-              </>
+              <LinkPicker
+                label="Add an author to the game"
+                source="/search-org"
+                triggerProps={{ alignSelf: 'center', justifySelf: 'flex-start' }}
+                // Credited again, a studio takes another role (#335): only
+                // those with every role are left out.
+                excludedIds={entities
+                  .map((entity) => entity.id)
+                  .filter((orgId) => rolesOf(orgId).length === GAME_ROLES.length)}
+                createOptions={ORGANIZATION_CREATE}
+                onSelect={(author) =>
+                  fetcher.submit(
+                    { id: author.id },
+                    { method: 'post', action: `/game/${id}/companies/add` }
+                  )
+                }
+                // Not found: added, linked, then opened to fill in (#374).
+                onCreate={(record) =>
+                  fetcher.submit(record, { method: 'post', action: `/game/${id}/companies/add` })
+                }
+              />
             )}
           </Grid>
         </Section>

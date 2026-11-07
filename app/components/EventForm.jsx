@@ -22,7 +22,7 @@ import { LuPencil } from 'react-icons/lu';
 import TileMap from './TileMap';
 import { viewport } from '@mapbox/geo-viewport';
 
-import PlacesSearch from './PlacesSearch';
+import PlaceField from './PlaceField';
 import usePlaceholder from '../hooks/usePlaceholder';
 import useMergeRefs from '../hooks/useMergeRefs';
 import { Form, useSubmit } from 'react-router';
@@ -350,7 +350,7 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
               control={control}
               name="location"
               render={({ field }) => (
-                <PlacesSearch
+                <PlaceField
                   inputProps={{ id: 'location' }}
                   {...field}
                   venues

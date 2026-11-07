@@ -9,7 +9,6 @@ import {
   Avatar,
   Button,
   Stack,
-  IconButton,
   useDisclosure,
   Wrap,
   Link as ChakraLink,
@@ -63,10 +62,14 @@ import Markdown from '../components/Markdown';
 import EventGrid from '../components/EventGrid';
 import { CalendarDate } from '../components/EventCard';
 import JoinEventButton from '../components/JoinEventButton';
-import { SearchGameModal } from './search-game';
-// Named, not default: React Router wraps a route module's default export and
-// drops the props passed to it here.
-import { SearchOrgModal } from './search-org';
+import {
+  LinkPicker,
+  ORGANIZATION_CREATE,
+  describeGame,
+} from '../components/RecordPicker';
+
+// "Add “Salt and Lanterns” as a game".
+const GAME_CREATE = [{ label: (name) => `Add “${name}” as a game` }];
 import ActionMenu from '../components/ActionMenu';
 import { Page, PageHeader, Section } from '../components/Page';
 import countryNames from '../assets/countries.json';
@@ -138,16 +141,6 @@ const Event = () => {
   const fetcher = useFetcher();
   const placeholder = usePlaceholder();
   const language = useLanguage();
-  const {
-    open: linkGameIsOpen,
-    onOpen: onOpenLinkGame,
-    onClose: onCloseLinkGame,
-  } = useDisclosure();
-  const {
-    open: linkHostIsOpen,
-    onOpen: onOpenLinkHost,
-    onClose: onCloseLinkHost,
-  } = useDisclosure();
 
   const deleteModal = useDisclosure();
   // #346
@@ -449,34 +442,20 @@ const Event = () => {
               <Empty>Which games were shown here? Add them</Empty>
             )}
             {currentUser && (
-              <>
-                <IconButton
-                  variant="outline"
-                  aria-label="Add a game to the event"
-                  onClick={onOpenLinkGame}
-                >
-                  <LuPlus />
-                </IconButton>
-                <SearchGameModal
-                  isOpen={linkGameIsOpen}
-                  onClose={onCloseLinkGame}
-                  excludedIds={games.map(({ id }) => id)}
-                  onSelect={(game) => {
-                    fetcher.submit(
-                      { id: game.id },
-                      {
-                        method: 'post',
-                        action: `/event/${id}/games/add`,
-                      }
-                      // { method: 'post', action: './games/add' }
-                    );
-                  }}
-                  // Not found: added, linked, then opened to fill in (#374).
-                  onCreate={(record) =>
-                    fetcher.submit(record, { method: 'post', action: `/event/${id}/games/add` })
-                  }
-                />
-              </>
+              <LinkPicker
+                label="Add a game to the event"
+                source="/search-game"
+                describe={describeGame}
+                excludedIds={games.map(({ id: gameId }) => gameId)}
+                createOptions={GAME_CREATE}
+                onSelect={(game) =>
+                  fetcher.submit({ id: game.id }, { method: 'post', action: `/event/${id}/games/add` })
+                }
+                // Not found: added, linked, then opened to fill in (#374).
+                onCreate={(record) =>
+                  fetcher.submit(record, { method: 'post', action: `/event/${id}/games/add` })
+                }
+              />
             )}
           </Wrap>
         </Section>
@@ -517,33 +496,20 @@ const Event = () => {
               <Empty>Who organises it? Add a studio or association</Empty>
             )}
             {currentUser && (
-              <>
-                <IconButton
-                  variant="outline"
-                  alignSelf="center"
-                  justifySelf="flex-start"
-                  aria-label="Add a host to the event"
-                  onClick={onOpenLinkHost}
-                >
-                  <LuPlus />
-                </IconButton>
-                <SearchOrgModal
-                  isOpen={linkHostIsOpen}
-                  onClose={onCloseLinkHost}
-                  excludedIds={entities.map(({ id }) => id)}
-                  onSelect={(host) => {
-                    fetcher.submit(
-                      { id: host.id },
-                      { method: 'post', action: `/event/${id}/hosts/add` }
-                      // { method: 'post', action: './hosts/add' }
-                    );
-                  }}
-                  // Not found: added, linked, then opened to fill in (#374).
-                  onCreate={(record) =>
-                    fetcher.submit(record, { method: 'post', action: `/event/${id}/hosts/add` })
-                  }
-                />
-              </>
+              <LinkPicker
+                label="Add a host to the event"
+                source="/search-org"
+                triggerProps={{ alignSelf: 'center', justifySelf: 'flex-start' }}
+                excludedIds={entities.map(({ id: orgId }) => orgId)}
+                createOptions={ORGANIZATION_CREATE}
+                onSelect={(host) =>
+                  fetcher.submit({ id: host.id }, { method: 'post', action: `/event/${id}/hosts/add` })
+                }
+                // Not found: added, linked, then opened to fill in (#374).
+                onCreate={(record) =>
+                  fetcher.submit(record, { method: 'post', action: `/event/${id}/hosts/add` })
+                }
+              />
             )}
           </Grid>
         </Section>

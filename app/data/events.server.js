@@ -586,7 +586,14 @@ export async function searchEvents(q, { excludeIds = [], limit = 10 } = {}) {
   if (!found || found.hits.length === 0) return [];
   const ids = found.hits.map((hit) => hit.id);
   const rows = await db
-    .select({ id: events.id, name: events.name, slug: events.slug })
+    .select({
+      id: events.id,
+      name: events.name,
+      slug: events.slug,
+      // When, for the picker's rows.
+      starts_at: events.startsAt,
+      time_zone: events.timeZone,
+    })
     .from(events)
     .where(and(notDeleted, inArray(events.id, ids)));
   return inOrder(ids, rows);

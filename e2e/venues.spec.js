@@ -48,8 +48,8 @@ async function fillEvent(page, name) {
 }
 
 const pick = async (page, text, option) => {
-  await page.getByRole('textbox', { name: 'Location' }).fill(text);
-  await page.getByRole('button', { name: option }).click();
+  await page.getByRole('combobox', { name: 'Location' }).fill(text);
+  await page.getByRole('option', { name: option }).click();
 };
 
 const save = async (page, name) => {
@@ -227,8 +227,10 @@ test('moving a venue moves its upcoming events, not its past ones, and undoing m
     await signIn(member, MEMBER);
     await member.goto(`/venue/${venue.slug}/edit`);
     await waitForHydration(member);
-    await member.getByRole('textbox', { name: 'Location' }).fill('Kyoto');
-    await member.getByRole('button', { name: 'Kyoto, Japan' }).click();
+    // Its place is a row; Change searches for another.
+    await member.getByRole('button', { name: 'Change' }).click();
+    await member.getByRole('combobox', { name: 'Location' }).fill('Kyoto');
+    await member.getByRole('option', { name: 'Kyoto, Japan' }).click();
     await member.getByRole('button', { name: /submit/i }).click();
     await expect(member.getByRole('heading', { name, level: 1 })).toBeVisible();
 

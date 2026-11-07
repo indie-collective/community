@@ -9,10 +9,11 @@ test('filters narrow the studios list', async ({ page }) => {
 });
 
 // #202: cards showed raw "studio"/"assoc", the org page the raw enum value.
-for (const [list, label, short] of [['/studios', 'Studio', 'Studio'], ['/associations', 'Association', 'Assoc.']]) {
+for (const [list, label] of [['/studios', 'Studio'], ['/associations', 'Association']]) {
   test(`${list} labels the org type as "${label}"`, async ({ page }) => {
     await page.goto(list);
-    await expect(page.locator('main').getByText(short, { exact: true }).first()).toBeVisible();
+    // Each card says what it is, then where: "Studio · Nantes, FR".
+    await expect(page.locator('main').getByText(new RegExp(`^${label}( · |$)`)).first()).toBeVisible();
 
     await page.locator('main a[href^="/org/"]').first().click();
     // The eyebrow says what it is, and where when known: "Association · Lyon, France".
@@ -54,13 +55,13 @@ test('an empty org page hints at adding games and events when signed in', async 
     .returning();
   try {
     await page.goto(`/org/${org.id}`);
-    await expect(page.getByText('No games yet.')).toHaveCount(0);
+    await expect(page.getByText(/^No games yet/)).toHaveCount(0);
 
     await signIn(page, MEMBER);
     await page.goto(`/org/${org.id}`);
-    await expect(page.getByText('No games yet.')).toBeVisible();
+    await expect(page.getByText(/^No games yet/)).toBeVisible();
     await expect(page.getByRole('link', { name: 'Add a game' })).toHaveAttribute('href', '/games/create');
-    await expect(page.getByText('No hosted events yet.')).toBeVisible();
+    await expect(page.getByText(/^No hosted events yet/)).toBeVisible();
     await expect(page.getByRole('link', { name: 'Add an event' })).toHaveAttribute('href', '/events/create');
   } finally {
     await db.delete(organizations).where(eq(organizations.id, org.id));
