@@ -99,7 +99,7 @@ the way to add it (a secondary button, members only) when there is one.
 Replaces `EmptyHint`, `NoEvents` and the inline texts (related events, search
 dialogs, rewind, country, admin lists).
 
-## 10. Colours and corners
+## 10. Colours, corners and shadows
 
 - Every Chakra grey becomes a theme neutral: `canvas` (the page), `surface`
   (cards, fields), `rule` (hairlines), `muted` (secondary text), `ink`.
@@ -113,6 +113,15 @@ dialogs, rewind, country, admin lists).
   rewind's gradient text lose their one-off colours.
 - Five radius tokens: `label` 6px, `control` 10px, `card` 14px, `panel` 20px,
   `round`. Every corner on the site is one of them.
+- Three shadow tokens, and no other shadows: `raised` for what rests on the
+  page (cards, tickets, the filter bar, panels), `raisedHover` for the same
+  things under the pointer, and `lift` for what floats above the page (the
+  cover story, stickers, pickers' lists, drawers, the skip link). The event
+  ticket draws `raised` as a drop shadow on its wrapper so it follows the
+  notches. Left as they are: the Contribute buttons' hard offset shadow and
+  the achievement badge's bevel, which are drawings, not depth.
+- No horizontal rules between a page's sections; space sets them apart.
+  Rules stay inside lists, tables and menus.
 
 ## 11. Removed
 
