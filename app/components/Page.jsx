@@ -6,6 +6,7 @@ import {
   Link as ChakraLink,
   Stack,
   Text,
+  VisuallyHidden,
 } from '@chakra-ui/react';
 import { useId } from 'react';
 import Link from './Link';
@@ -64,30 +65,6 @@ export const PageHeader = ({
 );
 
 /**
- * A section of a page: its h2, with an optional count or action beside it.
- * Labelled by its heading, so it's a region screen readers can jump to.
- */
-export const PageSection = ({ title, aside, children, ...rest }) => {
-  const headingId = useId();
-  return (
-    <Box
-      as="section"
-      aria-labelledby={headingId}
-      mb={{ base: 8, md: 10 }}
-      {...rest}
-    >
-      <Flex justify="space-between" align="baseline" gap={3} mb={4} wrap="wrap">
-        <Heading as="h2" id={headingId} size="xl">
-          {title}
-        </Heading>
-        {aside}
-      </Flex>
-      {children}
-    </Box>
-  );
-};
-
-/**
  * The filters above a list: one panel, the same on every list page, its
  * controls wrapping on narrow screens.
  */
@@ -110,15 +87,55 @@ export const FilterBar = ({ children, ...rest }) => (
 );
 
 /**
- * A section of the homepage: a heavy rule, an optional line saying what's in
- * it, its title, and a link to the full list. Labelled by its heading, so
- * it's a region screen readers can jump to.
+ * A section's title: the h2, and beside it, when given, a muted count read
+ * as "8 games" (#197: inside the heading it read "Games8"). `big` is the
+ * homepage's size.
  */
-export const Department = ({
+export const SectionTitle = ({
+  id,
+  count,
+  countLabel = 'items',
+  big = false,
+  children,
+  ...rest
+}) => (
+  <Heading
+    as="h2"
+    id={id}
+    fontSize={big ? { base: '3xl', md: '4xl' } : { base: 'xl', md: '2xl' }}
+    fontWeight="600"
+    letterSpacing="-0.02em"
+    lineHeight="1.1"
+    {...rest}
+  >
+    {children}
+    {/* A real space, so it reads "Games 23 games", not "Games23 games". */}
+    {count != null && ' '}
+    {count != null && (
+      <Text as="span" color="muted" fontWeight="400" ms={1} fontSize="0.7em">
+        {count.toLocaleString('en')}
+        <VisuallyHidden> {countLabel}</VisuallyHidden>
+      </Text>
+    )}
+  </Heading>
+);
+
+/**
+ * A section of a page: a rule, its title with an optional count, an
+ * optional line above it saying what's in it, and on the right a link to the
+ * whole list or anything else (`aside`). `big` is the homepage's: a heavy
+ * ink rule and a large title; every other page has a hairline. Labelled by
+ * its heading, so it's a region screen readers can jump to.
+ */
+export const Section = ({
   title,
   kicker,
+  count,
+  countLabel,
   to,
   linkLabel,
+  aside,
+  big = false,
   children,
   ...rest
 }) => {
@@ -128,17 +145,17 @@ export const Department = ({
       as="section"
       aria-labelledby={headingId}
       minW={0}
-      mb={{ base: 10, md: 14 }}
+      mb={big ? { base: 10, md: 14 } : { base: 8, md: 10 }}
       {...rest}
     >
       <Flex
         align="flex-end"
         gap={3}
         wrap="wrap"
-        borderTop="2px solid"
-        borderColor="ink"
-        pt={2}
-        mb={5}
+        borderTop={big ? '2px solid' : '1px solid'}
+        borderColor={big ? 'ink' : 'rule'}
+        pt={big ? 2 : 3}
+        mb={big ? 5 : 4}
       >
         <Box minW={0}>
           {kicker && (
@@ -146,29 +163,27 @@ export const Department = ({
               {kicker}
             </Text>
           )}
-          <Heading
-            as="h2"
-            id={headingId}
-            fontSize={{ base: '3xl', md: '4xl' }}
-            fontWeight="600"
-            letterSpacing="-0.02em"
-            lineHeight="1.05"
-          >
+          <SectionTitle id={headingId} count={count} countLabel={countLabel} big={big}>
             {title}
-          </Heading>
+          </SectionTitle>
         </Box>
-        {to && (
-          <ChakraLink
-            asChild
-            ml="auto"
-            fontWeight="semibold"
-            fontSize="sm"
-            borderBottom="2px solid"
-            borderColor="brand"
-            _hover={{ color: 'brand', textDecoration: 'none' }}
-          >
-            <Link to={to}>{linkLabel} →</Link>
-          </ChakraLink>
+        {(to || aside) && (
+          <Box ml="auto">
+            {to ? (
+              <ChakraLink
+                asChild
+                fontWeight="semibold"
+                fontSize="sm"
+                borderBottom="2px solid"
+                borderColor="brand"
+                _hover={{ color: 'primary.fg', textDecoration: 'none' }}
+              >
+                <Link to={to}>{linkLabel} →</Link>
+              </ChakraLink>
+            ) : (
+              aside
+            )}
+          </Box>
         )}
       </Flex>
       {children}

@@ -9,7 +9,7 @@ import {
 import { useLoaderData } from 'react-router';
 
 import { pageMeta } from '../utils/meta';
-import { Page, PageHeader, PageSection } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 import { countEvents } from '../data/events.server';
 import { countGames } from '../data/games.server';
 import { countOrganizations } from '../data/organizations.server';
@@ -33,9 +33,9 @@ export const meta = ({ matches, location }) =>
 
 // A section of prose: its h2 and paragraphs, at a readable width.
 const Prose = ({ title, children }) => (
-  <PageSection title={title} maxW="2xl">
+  <Section title={title} maxW="2xl">
     <Stack gap={4}>{children}</Stack>
-  </PageSection>
+  </Section>
 );
 
 const AboutPage = () => {

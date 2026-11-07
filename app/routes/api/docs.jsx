@@ -1,7 +1,7 @@
 import { Box, Code, Heading, Link as ChakraLink, List, Stack, Text } from '@chakra-ui/react';
 import { useLoaderData } from 'react-router';
 
-import { Page, PageHeader, PageSection } from '../../components/Page';
+import { Page, PageHeader, Section } from '../../components/Page';
 import { pageMeta } from '../../utils/meta';
 import getOrigin from '../../utils/origin.server';
 import { requireFeature } from '../../data/featureFlags.server';
@@ -61,7 +61,7 @@ const Api = () => {
           <ChakraLink href="/api/v1/openapi.json">OpenAPI</ChakraLink>.
         </Text>
       </Stack>
-      <PageSection title="Endpoints">
+      <Section title="Endpoints">
         <List.Root gap={2} ps={5} mb={6}>
           {ENDPOINTS.map(([path, about]) => (
             <List.Item key={path}>
@@ -75,15 +75,15 @@ const Api = () => {
         <Example>{`fetch('${origin}/api/v1/events?country=FR&limit=10')
   .then((response) => response.json())
   .then(({ data, next }) => console.log(data.map((event) => event.name)));`}</Example>
-      </PageSection>
-      <PageSection title="Widgets">
+      </Section>
+      <Section title="Widgets">
         <Text mb={3}>
           Show an organisation&apos;s upcoming events or games on your site: copy the code from its page (“On your
           site”), or use these, with its ID or slug:
         </Text>
         <Example>{`<iframe src="${origin}/embed/org/{id or slug}/events" width="100%" height="400" style="border:0" title="Upcoming events"></iframe>
 <iframe src="${origin}/embed/org/{id or slug}/games?theme=dark" width="100%" height="400" style="border:0" title="Games"></iframe>`}</Example>
-      </PageSection>
+      </Section>
     </Page>
   );
 };

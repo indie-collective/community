@@ -2,8 +2,7 @@ import { Button, Text } from '@chakra-ui/react';
 import { expect, within } from 'storybook/test';
 
 import EmptyHint from './EmptyHint';
-import { Department, FilterBar, Page, PageHeader, PageSection } from './Page';
-import SectionHeading from './SectionHeading';
+import { FilterBar, Page, PageHeader, Section } from './Page';
 
 export default {
   title: 'Layout/Page',
@@ -24,12 +23,12 @@ export const ListPage = {
       <FilterBar>
         <Text fontSize="sm">Filters go here</Text>
       </FilterBar>
-      <PageSection title="Recently updated" aside={<Text color="muted">12</Text>}>
+      <Section title="Recently updated" aside={<Text color="muted">12</Text>}>
         <Text>{"The section's content."}</Text>
-      </PageSection>
-      <PageSection title="Nothing here yet">
+      </Section>
+      <Section title="Nothing here yet">
         <EmptyHint>Add the first one.</EmptyHint>
-      </PageSection>
+      </Section>
     </Page>
   ),
   play: async ({ canvasElement }) => {
@@ -41,15 +40,15 @@ export const ListPage = {
 
 // The homepage's sections: a heavy rule, an optional line above the title,
 // and a link to the full list.
-export const Departments = {
+export const BigSections = {
   render: () => (
     <Page>
-      <Department kicker="Recently updated" title="Games" to="/games" linkLabel="All games">
+      <Section big kicker="Recently updated" title="Games" to="/games" linkLabel="All games">
         <Text>{"The section's content."}</Text>
-      </Department>
-      <Department title="Studios" to="/studios" linkLabel="All studios">
+      </Section>
+      <Section big title="Studios" to="/studios" linkLabel="All studios">
         <Text>{"The section's content."}</Text>
-      </Department>
+      </Section>
     </Page>
   ),
   play: async ({ canvasElement }) => {
@@ -62,12 +61,12 @@ export const Departments = {
 // #197: the count sits beside the heading, not in it.
 export const CountedHeading = {
   render: () => (
-    <SectionHeading count={23} countLabel="games">
-      Games
-    </SectionHeading>
+    <Section title="Games" count={23} countLabel="games" to="/games" linkLabel="All 23">
+      <Text>{"The section's content."}</Text>
+    </Section>
   ),
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByRole('heading', { name: 'Games' })).toBeVisible();
+    await expect(within(canvasElement).getByRole('heading', { name: /^Games 23 games/ })).toBeVisible();
   },
 };
 

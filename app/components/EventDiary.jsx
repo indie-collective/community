@@ -14,7 +14,7 @@ import { useSearchParams } from 'react-router';
 
 import EventCard from './EventCard';
 import Link from './Link';
-import { PageSection } from './Page';
+import { Section } from './Page';
 import { useLanguage, useT } from '../i18n';
 import {
   agendaGroups,
@@ -382,7 +382,7 @@ const EventDiary = ({
         </HStack>
       </Box>
 
-      <PageSection
+      <Section
         title={agendaTitle}
         aside={
           selected && (
@@ -424,7 +424,7 @@ const EventDiary = ({
         ) : (
           empty
         )}
-      </PageSection>
+      </Section>
     </Grid>
   );
 };

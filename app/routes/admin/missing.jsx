@@ -2,7 +2,7 @@ import { Badge, Box, Button, Grid, HStack, Link as ChakraLink, List, Stack, Tabs
 import { Form, useLoaderData, useNavigate } from 'react-router';
 
 import Link from '../../components/Link';
-import { PageHeader, PageSection } from '../../components/Page';
+import { PageHeader, Section } from '../../components/Page';
 import PersonLink from '../../components/PersonLink';
 import { countGaps, listGapRecords, listMissionFlags, resolveFlag } from '../../data/missions.server';
 import isAuthenticated from '../../utils/isAuthenticated.server';
@@ -49,7 +49,7 @@ const Missing = () => {
       />
 
       {flags.length > 0 && (
-        <PageSection title="Flagged on missions">
+        <Section title="Flagged on missions">
           <Stack gap={2}>
             {flags.map((flag) => (
               <HStack key={`${flag.person_id}:${flag.record_id}`} gap={3} wrap="wrap" data-testid="mission-flag">
@@ -71,7 +71,7 @@ const Missing = () => {
               </HStack>
             ))}
           </Stack>
-        </PageSection>
+        </Section>
       )}
 
       <Tabs.Root value={kind} onValueChange={({ value }) => navigate(`?kind=${value}`)} mb={4}>

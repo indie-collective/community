@@ -30,7 +30,7 @@ import AtlasMark from '../components/AtlasMark';
 import ClusterMap from '../components/ClusterMap';
 import { focusOn, placeAt, zoomToFit } from '../utils/mapFocus';
 import SwipeableEdgeDrawer from '../components/SwipeableEdgeDrawer';
-import SectionHeading from '../components/SectionHeading';
+import { SectionTitle } from '../components/Page';
 import Link from '../components/Link';
 import { pageMeta } from '../utils/meta';
 import { eventPath, orgPath } from '../utils/slug';
@@ -704,22 +704,16 @@ const Places = () => {
         <MovingBand
           label={t('atlas.gazetteer')}
           header={
-            <SectionHeading
-              justify={{ base: 'center', md: 'flex-start' }}
+            <SectionTitle
+              textAlign={{ base: 'center', md: 'start' }}
               // Clear of the drawer's handle on a phone.
               mt={{ base: 6, md: 0 }}
               mb={{ base: 2, md: 0 }}
               count={orgsInBounds.length}
               countLabel={t('atlas.entries')}
-              badgeProps={{
-                variant: 'solid',
-                fontSize: 'sm',
-                bg: 'ink',
-                color: 'canvas',
-              }}
             >
               {t('atlas.gazetteer')}
-            </SectionHeading>
+            </SectionTitle>
           }
           isOpen={isMovingBandOpen}
           onClose={() => setMovingBandOpen(false)}

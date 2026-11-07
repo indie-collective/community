@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Heading, HStack, Text } from '@chakra-ui/react';
+import { Box, Button, Grid, HStack, Text } from '@chakra-ui/react';
 import { LuChevronLeft, LuChevronRight, LuPlus } from 'react-icons/lu';
 import { useLoaderData } from 'react-router';
 import Link from '../components/Link';
@@ -9,7 +9,7 @@ import OrgCard from '../components/OrgCard';
 import EventCard from '../components/EventCard';
 import VenueCard from '../components/VenueCard';
 import SearchMatch from '../components/SearchMatch';
-import { Page, PageHeader } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 
 // The kinds of results, in the order the page shows them (#306).
 const KINDS = [
@@ -224,30 +224,18 @@ const SearchPage = () => {
         )
       ) : (
         KINDS.filter((k) => counts[k.kind] > 0).map((k) => (
-          <Box
-            as="section"
+          <Section
             key={k.kind}
-            aria-labelledby={`results-${k.kind}`}
-            mb={{ base: 8, md: 10 }}
+            title={k.label}
+            count={counts[k.kind]}
+            countLabel={`${k.one}s`}
+            {...(counts[k.kind] > results[k.kind].length && {
+              to: searchHref({ q, kind: k.kind }),
+              linkLabel: `See all ${plural(counts[k.kind], k.one)}`,
+            })}
           >
-            <HStack justify="space-between" align="baseline" mb={4} wrap="wrap">
-              <Heading as="h2" size="xl" id={`results-${k.kind}`}>
-                {k.label}{' '}
-                <Text as="span" color="muted" fontWeight="normal">
-                  {counts[k.kind].toLocaleString('en')}
-                </Text>
-              </Heading>
-              {counts[k.kind] > results[k.kind].length && (
-                <Button asChild variant="ghost" size="sm">
-                  <Link to={searchHref({ q, kind: k.kind })}>
-                    See all {plural(counts[k.kind], k.one)}
-                    <LuChevronRight />
-                  </Link>
-                </Button>
-              )}
-            </HStack>
             <Results kind={k.kind} records={results[k.kind]} />
-          </Box>
+          </Section>
         ))
       )}
     </Page>

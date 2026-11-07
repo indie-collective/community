@@ -6,7 +6,7 @@ import AchievementShelf from '../components/AchievementBadge';
 import EventCard from '../components/EventCard';
 import Link from '../components/Link';
 import Markdown from '../components/Markdown';
-import { Page, PageHeader, PageSection } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 import { getPublicProfile } from '../data/profiles.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import { pageMeta, summarize } from '../utils/meta';
@@ -100,7 +100,7 @@ const PersonPage = () => {
         </Box>
       )}
 
-      <PageSection title="Contributions">
+      <Section title="Contributions">
         {/* #339: from missions and every edit. */}
         <Box mb={5} data-testid="badges">
           <Text mb={profile.badges.length > 0 ? 4 : 0}>
@@ -136,17 +136,17 @@ const PersonPage = () => {
             ))}
           </List.Root>
         )}
-      </PageSection>
+      </Section>
 
       {attending.upcoming.length > 0 && (
-        <PageSection title="Going to">
+        <Section title="Going to">
           <EventGrid events={attending.upcoming} />
-        </PageSection>
+        </Section>
       )}
       {attending.past.length > 0 && (
-        <PageSection title="Went to">
+        <Section title="Went to">
           <EventGrid events={attending.past} />
-        </PageSection>
+        </Section>
       )}
       {attending.upcoming.length === 0 && attending.past.length === 0 && contributions.latest.length === 0 && (
         <Stack>

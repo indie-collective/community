@@ -67,9 +67,8 @@ import { SearchGameModal } from './search-game';
 // Named, not default: React Router wraps a route module's default export and
 // drops the props passed to it here.
 import { SearchOrgModal } from './search-org';
-import SectionHeading from '../components/SectionHeading';
 import ActionMenu from '../components/ActionMenu';
-import { Page, PageHeader, PageSection } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 import countryNames from '../assets/countries.json';
 import { formatEventDate, formatEventRange } from '../utils/eventTime';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
@@ -408,20 +407,14 @@ const Event = () => {
       )}
 
       {about && (
-        <Box as="section" mb={{ base: 8, md: 10 }} maxW="2xl">
-          <Heading as="h2" size="xl" mb={4}>
-            About
-          </Heading>
+        <Section title="About" maxW="2xl">
           <Markdown value={about} />
           <SourceCredit sources={sources} field="about" value={about} />
-        </Box>
+        </Section>
       )}
 
       {(currentUser || games.length > 0) && (
-        <Box as="section" mb={{ base: 8, md: 10 }}>
-          <SectionHeading mb={4} count={games.length} countLabel="games">
-            Games
-          </SectionHeading>
+        <Section title="Games" count={games.length} countLabel="games">
           <Wrap gap={2}>
             {games.map((game) => (
               <Box key={game.id} position="relative">
@@ -478,14 +471,11 @@ const Event = () => {
               </>
             )}
           </Wrap>
-        </Box>
+        </Section>
       )}
 
       {(currentUser || entities.length > 0) && (
-        <Box as="section" mb={{ base: 8, md: 10 }}>
-          <Heading as="h2" size="xl" mb={4}>
-            Organizers
-          </Heading>
+        <Section title="Organizers">
 
           <Grid
             gap={5}
@@ -549,14 +539,11 @@ const Event = () => {
               </>
             )}
           </Grid>
-        </Box>
+        </Section>
       )}
 
       {editions.length > 1 && (
-        <Box as="section" mb={{ base: 8, md: 10 }}>
-          <Heading as="h2" size="xl" mb={4}>
-            Editions
-          </Heading>
+        <Section title="Editions">
           <List.Root variant="plain" gap={1}>
             {editions.map((edition) => (
               <List.Item key={edition.id}>
@@ -583,16 +570,13 @@ const Event = () => {
               </List.Item>
             ))}
           </List.Root>
-        </Box>
+        </Section>
       )}
       {relatedEvents.length > 0 && (
-        <Box as="section" mb={{ base: 8, md: 10 }}>
-          <Heading as="h2" size="xl" mb={4}>
-            Related events
-          </Heading>
+        <Section title="Related events">
 
           <RelatedEvents events={relatedEvents} />
-        </Box>
+        </Section>
       )}
       {currentUser && (
         <Box>
@@ -637,7 +621,7 @@ const Event = () => {
       )}
       {/* #345: what it's looking for. */}
       {opportunities && (opportunities.length > 0 || currentUser) && (
-        <PageSection
+        <Section
           title="Opportunities"
           aside={
             currentUser && (
@@ -652,7 +636,7 @@ const Event = () => {
           ) : (
             <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
           )}
-        </PageSection>
+        </Section>
       )}
       {currentUser && (
         <ReportDuplicate kind="event" id={id} isOpen={reportModal.open} onClose={reportModal.onClose} />

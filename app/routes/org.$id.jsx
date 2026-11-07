@@ -41,9 +41,8 @@ import SourceCredit from '../components/SourceCredit';
 import { listRecordSources } from '../data/sources.server';
 import { ReportDuplicate } from '../components/Duplicates';
 import { SubscribeMenu } from '../components/CalendarMenus';
-import { Page, PageHeader, PageSection } from '../components/Page';
+import { Page, PageHeader, Section } from '../components/Page';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
-import SectionHeading from '../components/SectionHeading';
 import {
   ORG_STATUSES,
   orgStatusLabel,
@@ -258,10 +257,7 @@ const Org = () => {
       ].map(
         ([heading, links]) =>
           links.length > 0 && (
-            <Box as="section" mb={{ base: 8, md: 10 }} key={heading}>
-              <SectionHeading mb={4} count={links.length} countLabel="games">
-                {heading}
-              </SectionHeading>
+            <Section key={heading} title={heading} count={links.length} countLabel="games">
               <Grid
                 gap={3}
                 templateColumns={[
@@ -285,14 +281,11 @@ const Org = () => {
                   </Box>
                 ))}
               </Grid>
-            </Box>
+            </Section>
           )
       )}
       {events.length > 0 && (
-        <Box as="section" mb={{ base: 8, md: 10 }}>
-          <SectionHeading mb={4} count={events.length} countLabel="events">
-            Hosted events
-          </SectionHeading>
+        <Section title="Hosted events" count={events.length} countLabel="events">
           <Grid
             gap={3}
             templateColumns={[
@@ -308,7 +301,7 @@ const Org = () => {
               </Box>
             ))}
           </Grid>
-        </Box>
+        </Section>
       )}
       {/* Empty sections stay hidden from visitors; members get a way in (#198). */}
       {currentUser && (games.length === 0 || events.length === 0) && (
@@ -376,7 +369,7 @@ const Org = () => {
       )}
       {/* #345: what it's looking for. */}
       {opportunities && (opportunities.length > 0 || currentUser) && (
-        <PageSection
+        <Section
           title="Opportunities"
           aside={
             currentUser && (
@@ -391,7 +384,7 @@ const Org = () => {
           ) : (
             <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
           )}
-        </PageSection>
+        </Section>
       )}
       {/* #349: its games or events on its own site. */}
       {/* The widgets go with the API, behind its flag (/admin/flags). */}
