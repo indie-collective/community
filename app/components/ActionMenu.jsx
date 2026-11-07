@@ -31,7 +31,6 @@ const ActionMenu = ({ editLink, onDelete, onReportDuplicate, ...props }) => {
             aria-label={t('actions.more')}
             size="sm"
             variant="ghost"
-            colorPalette="gray"
           >
             <LuEllipsis />
           </IconButton>

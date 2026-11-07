@@ -85,8 +85,7 @@ const Tabs = ({ q, kind, counts }) => {
             asChild
             size="sm"
             borderRadius="full"
-            variant={current ? 'solid' : 'outline'}
-            colorPalette={current ? 'green' : 'gray'}
+            variant="outline"
             // Kinds without results look quieter, still readable (#350: was
             // 60% opacity, under WCAG AA contrast).
             color={tab.count === 0 && !current ? 'muted' : undefined}
@@ -239,7 +238,7 @@ const SearchPage = () => {
                 </Text>
               </Heading>
               {counts[k.kind] > results[k.kind].length && (
-                <Button asChild variant="ghost" colorPalette="gray" size="sm">
+                <Button asChild variant="ghost" size="sm">
                   <Link to={searchHref({ q, kind: k.kind })}>
                     See all {plural(counts[k.kind], k.one)}
                     <LuChevronRight />

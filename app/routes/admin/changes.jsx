@@ -164,7 +164,7 @@ const Moderation = () => {
           {person.role !== 'restricted' && person.role !== 'admin' && (
             <Form method="post">
               <input type="hidden" name="person" value={person.id} />
-              <Button type="submit" name="intent" value="restrict" size="sm" colorPalette="red" variant="outline">
+              <Button type="submit" name="intent" value="restrict" size="sm" variant="outline">
                 Restrict @{person.username}
               </Button>
             </Form>

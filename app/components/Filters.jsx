@@ -59,7 +59,7 @@ const NearMe = ({ selected, onChange, without }) => {
     <Button
       type="button"
       size="sm"
-      variant="popOutline"
+      variant="outline"
       loading={state === 'locating'}
       onClick={(event) => {
         const form = event.currentTarget.form;

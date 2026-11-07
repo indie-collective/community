@@ -88,7 +88,8 @@ const Missing = () => {
           <Button
             key={item.key}
             asChild
-            variant={item.key === gap ? 'solid' : 'outline'}
+            variant="outline"
+            aria-pressed={item.key === gap}
             size="sm"
             justifyContent="space-between"
           >

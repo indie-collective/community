@@ -190,7 +190,7 @@ const CoverStory = ({ games }) => {
       </Card>
       {games.length > 1 && (
         <Button
-          variant="popOutline"
+          variant="outline"
           bg="surface"
           size="sm"
           position="absolute"
@@ -272,7 +272,7 @@ const Cover = ({ counts, games }) => (
             placeholder="Find a game, studio, association or event"
             aria-label="Search"
           />
-          <Button type="submit" size="md" variant="pop">
+          <Button type="submit" size="md">
             <LuSearch />
             Search
           </Button>

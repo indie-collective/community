@@ -200,7 +200,6 @@ const GameTimeline = ({ gameId, milestones, events, igdbReleaseDate, currentUser
                 <IconButton
                   size="2xs"
                   variant="ghost"
-                  colorPalette="red"
                   aria-label={`Remove ${milestoneLabel(entry.kind)} from the timeline`}
                   onClick={() =>
                     fetcher.submit(

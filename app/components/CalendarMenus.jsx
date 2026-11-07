@@ -39,7 +39,7 @@ export const AddToCalendar = ({ event, path, place }) => {
   return (
     <Menu.Root positioning={{ placement: 'bottom-end' }}>
       <Menu.Trigger asChild>
-        <Button size="sm" variant="popOutline">
+        <Button size="sm" variant="outline">
           <LuCalendarPlus />
           {t('calendar.add')}
         </Button>
@@ -92,7 +92,7 @@ export const SubscribeMenu = ({ calendarPath, feedPath, label }) => {
   return (
     <Menu.Root positioning={{ placement: 'bottom-end' }}>
       <Menu.Trigger asChild>
-        <Button size="sm" variant="popOutline">
+        <Button size="sm" variant="outline">
           <LuCalendarPlus />
           {label ?? t('calendar.subscribe')}
         </Button>

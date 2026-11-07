@@ -322,7 +322,7 @@ const EventDiary = ({
           <HStack gap={2}>
             <IconButton
               asChild
-              variant="popOutline"
+              variant="outline"
               rounded="full"
               size="sm"
               aria-label={t('events.previousMonth')}
@@ -337,7 +337,7 @@ const EventDiary = ({
             </IconButton>
             <IconButton
               asChild
-              variant="popOutline"
+              variant="outline"
               rounded="full"
               size="sm"
               aria-label={t('events.nextMonth')}
@@ -351,7 +351,7 @@ const EventDiary = ({
               </Link>
             </IconButton>
             {!isThisMonth && (
-              <Button asChild variant="popOutline" size="sm">
+              <Button asChild variant="outline" size="sm">
                 <Link to={monthHref(null)} preventScrollReset>
                   {t('events.today')}
                 </Link>
