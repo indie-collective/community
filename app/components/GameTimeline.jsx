@@ -1,5 +1,4 @@
 import {
-  Badge,
   Box,
   Button,
   Field,
@@ -14,7 +13,8 @@ import { useEffect, useRef } from 'react';
 import { LuPlus, LuTrash2 } from 'react-icons/lu';
 import { useFetcher } from 'react-router';
 
-import EmptyHint from './EmptyHint';
+import Empty from './Empty';
+import Label from './Label';
 import Link from './Link';
 import { Section } from './Page';
 import { formatEventRange } from '../utils/eventTime';
@@ -155,7 +155,7 @@ const GameTimeline = ({ gameId, milestones, events, igdbReleaseDate, currentUser
       }
     >
       {entries.length === 0 && (
-        <EmptyHint>How did this game come to be? Add when it was announced, in beta, released…</EmptyHint>
+        <Empty>How did this game come to be? Add when it was announced, in beta, released…</Empty>
       )}
       <Box as="ol" listStyleType="none" m={0} p={0}>
         {entries.map((entry, index) => (
@@ -184,14 +184,12 @@ const GameTimeline = ({ gameId, milestones, events, igdbReleaseDate, currentUser
                 <EntryDate entry={entry} />
               </Text>
               {entry.since > 0 && (
-                <Badge size="sm" variant="subtle">
+                <Text as="span" fontSize="sm" color="muted">
                   +{formatDuration(entry.since)}
-                </Badge>
+                </Text>
               )}
               {entry.type === 'release' && (
-                <Badge size="sm" variant="outline">
-                  from IGDB
-                </Badge>
+                <Label tone="neutral">From IGDB</Label>
               )}
             </Flex>
             <Flex gap={2} align="center">

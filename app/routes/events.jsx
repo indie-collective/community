@@ -1,4 +1,4 @@
-import { Button, Box, Text, Grid, Image, Stack } from '@chakra-ui/react';
+import { Button, Box, Grid } from '@chakra-ui/react';
 import { LuPlus } from 'react-icons/lu';
 import { useLoaderData } from 'react-router';
 import Link from '../components/Link';
@@ -11,7 +11,7 @@ import { SubscribeMenu } from '../components/CalendarMenus';
 import Filters, { NEAR_RADII } from '../components/Filters';
 import { placeAt } from '../utils/mapFocus';
 import { monthGridInstants, monthOf, parseMonth } from '../utils/eventCalendar';
-import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
+import Empty, { EmptyAction } from '../components/Empty';
 import { pageMeta } from '../utils/meta';
 import { Page, PageHeader, Section } from '../components/Page';
 import countryNames from '../assets/countries.json';
@@ -94,13 +94,14 @@ const EventGrid = ({ events }) => (
   </Grid>
 );
 
-const NoEvents = ({ children }) => (
-  <Stack align="center" textAlign="center" py={10} gap={5}>
-    <Image src={noEventsImage} alt="" maxW="200px" />
-    <Text fontSize="lg" color="muted">
-      {children}
-    </Text>
-  </Stack>
+// A list with nothing in it: the picture, and for members the way to add one.
+const NoEvents = ({ children, member }) => (
+  <Empty
+    picture
+    action={member && <EmptyAction to="/events/create">Add an event</EmptyAction>}
+  >
+    {children}
+  </Empty>
 );
 
 const Events = () => {
@@ -164,7 +165,7 @@ const Events = () => {
             monthEvents={monthEvents}
             upcoming={events}
             currentUserId={currentUser?.id}
-            empty={<NoEvents>No upcoming events{where} yet.</NoEvents>}
+            empty={<NoEvents member={currentUser}>No upcoming events{where} yet</NoEvents>}
           />
           {pastEvents.length > 0 && (
             <Section title={t('lists.events.recently')}>
@@ -175,8 +176,8 @@ const Events = () => {
       ) : events.length > 0 ? (
         <EventGrid events={events} />
       ) : (
-        <NoEvents>
-          No events{where} in {selected.period}.
+        <NoEvents member={currentUser}>
+          No events{where} in {selected.period}
         </NoEvents>
       )}
     </Page>

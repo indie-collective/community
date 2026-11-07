@@ -1,7 +1,8 @@
-import { Alert, Badge, Box, Button, HStack, Input, Link as ChakraLink, Table, Text } from '@chakra-ui/react';
+import { Alert, Box, Button, HStack, Input, Link as ChakraLink, Table, Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import { Form, useActionData, useLoaderData, useNavigation } from 'react-router';
 
+import Label from '../../components/Label';
 import Link from '../../components/Link';
 import { PageHeader } from '../../components/Page';
 import { listRecentSources, refreshSources } from '../../data/sources.server';
@@ -84,7 +85,7 @@ const Sources = () => {
                   )}
                 </Table.Cell>
                 <Table.Cell>
-                  <Badge mr={2}>{source.source}</Badge>
+                  <Label tone="neutral" mr={2}>{source.source}</Label>
                   <ChakraLink href={source.url} target="_blank" rel="noopener noreferrer" fontSize="sm">
                     {source.url.replace(/^https?:\/\//, '').slice(0, 60)}
                   </ChakraLink>

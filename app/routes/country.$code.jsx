@@ -1,8 +1,6 @@
 import {
   Box,
-  Flex,
   Grid,
-  Image,
   Link as ChakraLink,
   SimpleGrid,
   Stack,
@@ -14,12 +12,11 @@ import Link from '../components/Link';
 import { countPlaces, getCountryOverview } from '../data/countries.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import countryNames from '../assets/countries.json';
-import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import { Page, PageHeader, Section } from '../components/Page';
 import EventCard from '../components/EventCard';
 import VenueCard from '../components/VenueCard';
 import GameCard from '../components/GameCard';
-import EmptyHint from '../components/EmptyHint';
+import Empty, { EmptyAction } from '../components/Empty';
 import { pageMeta } from '../utils/meta';
 import { associationsByCity, citiesOf } from '../utils/countryOverview';
 import countryMaps from '../assets/countryMaps.json';
@@ -261,18 +258,15 @@ const CountryPage = () => {
             )}
           </>
         ) : (
-          <Stack gap={2}>
-            <Text color="muted">No associations in {name} yet.</Text>
-            {currentUser && (
-              <EmptyHint alignSelf="flex-start">
-                Know one?{' '}
-                <MoreLink to="/orgs/create?type=association">
-                  Add an association
-                </MoreLink>
-                .
-              </EmptyHint>
-            )}
-          </Stack>
+          <Empty
+            action={
+              currentUser && (
+                <EmptyAction to="/orgs/create?type=association">Add an association</EmptyAction>
+              )
+            }
+          >
+            No associations in {name} yet
+          </Empty>
         )}
       </Section>
 
@@ -323,15 +317,12 @@ const CountryPage = () => {
             ))}
           </Grid>
         ) : (
-          <Flex direction="column" align="center" gap={4} py={5}>
-            <Image src={noEventsImage} alt="" maxW="16rem" />
-            <Text fontSize="lg">No upcoming events in {name}.</Text>
-            {currentUser && (
-              <EmptyHint>
-                Know one? <MoreLink to="/events/create">Add an event</MoreLink>.
-              </EmptyHint>
-            )}
-          </Flex>
+          <Empty
+            picture
+            action={currentUser && <EmptyAction to="/events/create">Add an event</EmptyAction>}
+          >
+            No upcoming events in {name} yet
+          </Empty>
         )}
       </Section>
 

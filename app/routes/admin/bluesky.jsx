@@ -1,6 +1,7 @@
 import { Alert, Box, Button, Text } from '@chakra-ui/react';
 import { Form, useActionData, useLoaderData, useNavigation } from 'react-router';
 
+import Empty from '../../components/Empty';
 import { PageHeader } from '../../components/Page';
 import { postWeeklySummary, weeklySummary } from '../../data/weeklySummary.server';
 import isAuthenticated from '../../utils/isAuthenticated.server';
@@ -60,7 +61,7 @@ const Bluesky = () => {
           </Form>
         </>
       ) : (
-        <Text color="muted">Nothing was added in the past seven days.</Text>
+        <Empty>Nothing was added in the past seven days</Empty>
       )}
     </Box>
   );

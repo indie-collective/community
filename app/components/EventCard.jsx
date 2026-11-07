@@ -20,7 +20,7 @@ import {
   formatEventRange,
 } from '../utils/eventTime';
 import { eventDays } from '../utils/eventCalendar';
-import Sticker from './Sticker';
+import Label from './Label';
 import { eventPath } from '../utils/slug';
 import { useLanguage, useT } from '../i18n';
 
@@ -135,19 +135,19 @@ const EventTicket = ({
         </Text>
         {(online || going) && (
           <Flex gap={1.5} mt={2} wrap="wrap">
-            {going && <Sticker tone="sun">{t('events.going')}</Sticker>}
+            {going && <Label tone="sun">{t('events.going')}</Label>}
             {online && (
-              <Sticker tone="lilac">
+              <Label tone="lilac">
                 {t(attendance === 'hybrid' ? 'events.hybrid' : 'events.online')}
-              </Sticker>
+              </Label>
             )}
           </Flex>
         )}
       </Box>
       {canceled && (
-        <Sticker tone="coral" position="absolute" top="-10px" right={3}>
+        <Label tone="coral" position="absolute" top="-10px" right={3}>
           {t('events.canceled')}
-        </Sticker>
+        </Label>
       )}
     </Card>
   );

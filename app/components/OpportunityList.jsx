@@ -1,9 +1,10 @@
-import { Badge, Box, Button, HStack, Link as ChakraLink, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, HStack, Link as ChakraLink, Stack, Text } from '@chakra-ui/react';
 import { LuExternalLink, LuGlobe, LuMapPin } from 'react-icons/lu';
 import { useFetcher } from 'react-router';
 
 import countryNames from '../assets/countries.json';
 import Link from './Link';
+import Label from './Label';
 import { opportunityKindLabel } from '../utils/opportunities';
 
 const endDate = (date) =>
@@ -23,7 +24,7 @@ const OpportunityList = ({ opportunities, currentUser, showFor = true }) => {
         return (
           <Box key={opportunity.id} id={opportunity.id} p={4} borderWidth="1px" borderRadius="card" data-testid="opportunity">
             <HStack gap={2} wrap="wrap" mb={1}>
-              <Badge colorPalette="purple">{opportunityKindLabel(opportunity.kind)}</Badge>
+              <Label tone="neutral">{opportunityKindLabel(opportunity.kind)}</Label>
               <Text fontSize="sm" color="muted">
                 Until {endDate(opportunity.ends_at)}
               </Text>

@@ -1,7 +1,7 @@
 import { Button, Text } from '@chakra-ui/react';
 import { expect, within } from 'storybook/test';
 
-import EmptyHint from './EmptyHint';
+import Empty from './Empty';
 import { FilterBar, Page, PageHeader, Section } from './Page';
 
 export default {
@@ -27,7 +27,7 @@ export const ListPage = {
         <Text>{"The section's content."}</Text>
       </Section>
       <Section title="Nothing here yet">
-        <EmptyHint>Add the first one.</EmptyHint>
+        <Empty>Nothing here yet</Empty>
       </Section>
     </Page>
   ),

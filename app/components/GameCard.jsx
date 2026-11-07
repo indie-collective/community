@@ -215,7 +215,7 @@ function GameCard({
           <CardLink to={gamePath({ id, slug })}>{name}</CardLink>
         </Heading>
       </Box>
-      {tags?.length > 0 && <TagList tags={tags} ml="3px" />}
+      {tags?.length > 0 && <TagList tags={tags} />}
     </Card>
   );
 }

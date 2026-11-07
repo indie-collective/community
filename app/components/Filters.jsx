@@ -1,8 +1,9 @@
-import { Button, NativeSelect, Checkbox, Tag } from '@chakra-ui/react';
+import { Button, NativeSelect, Checkbox } from '@chakra-ui/react';
 import { useState } from 'react';
 import { LuLocateFixed } from 'react-icons/lu';
 
 import { Form, useNavigate, useSearchParams, useSubmit } from 'react-router';
+import Chip from './Chip';
 import CountryCombobox from './CountryCombobox';
 import { FilterBar } from './Page';
 import useFeature from '../hooks/useFeature';
@@ -38,20 +39,13 @@ const NearMe = ({ selected, onChange, without }) => {
           </NativeSelect.Field>
           <NativeSelect.Indicator />
         </NativeSelect.Root>
-        <Tag.Root
-          size="lg"
-          variant="subtle"
+        <Chip
           alignSelf="center"
+          onRemove={() => navigate(without('near', 'km'))}
+          removeLabel="Show events anywhere"
         >
-          <Tag.Label>Near you</Tag.Label>
-          <Tag.EndElement>
-            <Tag.CloseTrigger
-              type="button"
-              aria-label="Show events anywhere"
-              onClick={() => navigate(without('near', 'km'))}
-            />
-          </Tag.EndElement>
-        </Tag.Root>
+          Near you
+        </Chip>
       </>
     );
   }
@@ -123,21 +117,14 @@ const Filters = ({ facets, selected, type }) => {
         {selected.city && (
           <>
             <input type="hidden" name="city" value={selected.city} />
-            <Tag.Root
-              size="lg"
-              variant="subtle"
+            <Chip
               alignSelf="center"
+              // Inside the form: the × is a plain button, not a submit.
+              onRemove={() => navigate(withoutCity())}
+              removeLabel="Show every city"
             >
-              <Tag.Label>In {selected.city}</Tag.Label>
-              <Tag.EndElement>
-                <Tag.CloseTrigger
-                  // Inside the form: a submit button would send the city again.
-                  type="button"
-                  aria-label="Show every city"
-                  onClick={() => navigate(withoutCity())}
-                />
-              </Tag.EndElement>
-            </Tag.Root>
+              In {selected.city}
+            </Chip>
           </>
         )}
 

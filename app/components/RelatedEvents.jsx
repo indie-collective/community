@@ -1,6 +1,7 @@
-import { Grid, Box, Text } from "@chakra-ui/react";
+import { Grid, Box } from "@chakra-ui/react";
 
 import EventCard from "./EventCard";
+import Empty from "./Empty";
 
 const RelatedEvents = ({events}) => {
   return (
@@ -16,7 +17,7 @@ const RelatedEvents = ({events}) => {
           </Box>
         ))
       ) : (
-        <Text>No related events.</Text>
+        <Empty gridColumn="1 / -1">No related events yet</Empty>
       )}
     </Grid>
   );

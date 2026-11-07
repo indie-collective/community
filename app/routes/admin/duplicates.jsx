@@ -1,6 +1,8 @@
-import { Badge, Box, Button, HStack, Link as ChakraLink, Stack, Tabs, Text } from '@chakra-ui/react';
+import { Box, Button, HStack, Link as ChakraLink, Stack, Tabs, Text } from '@chakra-ui/react';
 import { Form, useLoaderData, useNavigate } from 'react-router';
 
+import Empty from '../../components/Empty';
+import Label from '../../components/Label';
 import Link from '../../components/Link';
 import { PageHeader } from '../../components/Page';
 import { DUPLICATE_KINDS, dismissDuplicate, listSuspectedDuplicates } from '../../data/duplicates.server';
@@ -72,7 +74,7 @@ const Duplicates = () => {
           ))}
         </Tabs.List>
       </Tabs.Root>
-      {pairs.length === 0 && <Text color="muted">No duplicates to check.</Text>}
+      {pairs.length === 0 && <Empty>No duplicates to check</Empty>}
       <Stack gap={3}>
         {pairs.map(({ a, b, reasons, flagged }) => (
           <Stack
@@ -89,9 +91,9 @@ const Duplicates = () => {
             <Record record={b} />
             <HStack gap={1} wrap="wrap">
               {reasons.map((reason) => (
-                <Badge key={reason} colorPalette={flagged && reason === 'flagged by a member' ? 'orange' : 'gray'}>
+                <Label key={reason} tone={flagged && reason === 'flagged by a member' ? 'sun' : 'neutral'}>
                   {reason}
-                </Badge>
+                </Label>
               ))}
             </HStack>
             <HStack>

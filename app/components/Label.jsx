@@ -1,10 +1,17 @@
 import { Box } from '@chakra-ui/react';
 
+// Colour only where it means something: sun for yours, lilac for online,
+// coral for canceled. Everything else (a status, a kind, a source) is
+// neutral: a hairline and muted text.
 const TONES = {
-  sun: 'sun',
-  coral: 'coral',
-  lilac: 'lilac',
-  brand: 'brand',
+  sun: { bg: 'sun', color: 'onPop' },
+  coral: { bg: 'coral', color: 'onPop' },
+  lilac: { bg: 'lilac', color: 'onPop' },
+  neutral: {
+    bg: 'transparent',
+    color: 'muted',
+    boxShadow: 'inset 0 0 0 1px var(--chakra-colors-rule)',
+  },
 };
 
 // The big round one on the homepage's cover story, slapped on at an angle;
@@ -32,7 +39,7 @@ const ROUND = {
  * only, never decoration, so each says something true about what it's on.
  * `round` makes the cover story's sticker.
  */
-const Sticker = ({
+const Label = ({
   tone = 'sun',
   round = false,
   rotate = -14,
@@ -43,8 +50,7 @@ const Sticker = ({
   <Box
     as="span"
     display="inline-block"
-    bg={TONES[tone] ?? tone}
-    color="onPop"
+    {...(TONES[tone] ?? TONES.neutral)}
     fontSize="xs"
     fontWeight="medium"
     lineHeight="1.4"
@@ -66,4 +72,4 @@ const Sticker = ({
   </Box>
 );
 
-export default Sticker;
+export default Label;

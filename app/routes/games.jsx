@@ -3,8 +3,6 @@ import {
   Grid,
   Flex,
   Button,
-  Tag,
-  Badge,
   Wrap,
   WrapItem,
   Input,
@@ -18,6 +16,7 @@ import {
   useRouteLoaderData,
   useSearchParams,
 } from 'react-router';
+import Chip from '../components/Chip';
 import Link from '../components/Link';
 import { LuPlus, LuSearch } from 'react-icons/lu';
 
@@ -218,15 +217,13 @@ const Games = () => {
             <NativeSelect.Indicator />
           </NativeSelect.Root>
           {country && (
-            <Tag.Root size="lg" variant="subtle">
-              <Tag.Label>Made in {country.name}</Tag.Label>
-              <Tag.EndElement>
-                <Tag.CloseTrigger
-                  aria-label={`Show games from every country`}
-                  onClick={() => updateParams({ country: '' })}
-                />
-              </Tag.EndElement>
-            </Tag.Root>
+            <Chip
+              alignSelf="center"
+              onRemove={() => updateParams({ country: '' })}
+              removeLabel="Show games from every country"
+            >
+              Made in {country.name}
+            </Chip>
           )}
         </Flex>
         <Wrap gap={2} role="group" aria-label="Filter by tag">
@@ -235,31 +232,19 @@ const Games = () => {
             return (
               <WrapItem key={tag.id}>
                 {/* A real toggle button, so the filter works with the keyboard (#224). */}
-                <Tag.Root
-                  asChild
-                  size="lg"
-                  // Neutral until picked, then green (design pass).
-                  variant={selected ? 'solid' : 'subtle'}
-                  colorPalette={selected ? 'green' : 'gray'}
-                  cursor="pointer"
+                <Chip
+                  pressed={selected}
+                  count={tag.game_tag.length}
+                  onClick={() =>
+                    updateParams({
+                      tags: selected
+                        ? selectedTags.filter((t) => t !== tag.name)
+                        : [...selectedTags, tag.name],
+                    })
+                  }
                 >
-                  <button
-                    type="button"
-                    aria-pressed={selected}
-                    onClick={() =>
-                      updateParams({
-                        tags: selected
-                          ? selectedTags.filter((t) => t !== tag.name)
-                          : [...selectedTags, tag.name],
-                      })
-                    }
-                  >
-                    <Tag.Label>{tag.name}</Tag.Label>
-                    <Badge variant="subtle" ml={1}>
-                      {tag.game_tag.length}
-                    </Badge>
-                  </button>
-                </Tag.Root>
+                  {tag.name}
+                </Chip>
               </WrapItem>
             );
           })}

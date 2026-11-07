@@ -25,10 +25,11 @@ import PlacesWidget from '../components/PlacesWidget';
 import { Page, Section } from '../components/Page';
 import Card from '../components/Card';
 import CardLink from '../components/CardLink';
-import Sticker from '../components/Sticker';
+import Chip from '../components/Chip';
+import Label from '../components/Label';
 import usePlaceholder from '../hooks/usePlaceholder';
 import { gamePath } from '../utils/slug';
-import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
+import Empty, { EmptyAction } from '../components/Empty';
 import { pageMeta } from '../utils/meta';
 import { countEvents, listUpcomingEvents } from '../data/events.server';
 import { countGames, listFeaturedGames } from '../data/games.server';
@@ -109,7 +110,7 @@ const CoverStory = ({ games }) => {
       maxW={{ base: '380px', md: 'none' }}
       mx="auto"
     >
-      <Sticker
+      <Label
         round
         land
         rotate={-14}
@@ -121,7 +122,7 @@ const CoverStory = ({ games }) => {
         Cover
         <br />
         story
-      </Sticker>
+      </Label>
       <Card
         isClickable
         aspectRatio={4 / 5}
@@ -436,20 +437,13 @@ const GameWall = ({ games }) => {
           {[null, ...tags].map((name) => {
             const pressed = tag === name;
             return (
-              <Button
+              <Chip
                 key={name ?? 'all'}
-                size="xs"
-                rounded="full"
-                borderWidth="1.5px"
-                borderColor={pressed ? 'sun' : 'ink'}
-                bg={pressed ? 'sun' : 'transparent'}
-                color={pressed ? 'onPop' : 'ink'}
-                fontWeight="medium"
-                aria-pressed={pressed}
+                pressed={pressed}
                 onClick={() => setTag(name)}
               >
                 {name ?? 'All'}
-              </Button>
+              </Chip>
             );
           })}
         </HStack>
@@ -518,7 +512,8 @@ const HomePage = () => {
       )}
 
       {joinedEventsToCome.length > 0 && (
-        <Section big
+        <Section
+        big
           title="Your next events"
           to="/events"
           linkLabel="All events"
@@ -531,18 +526,17 @@ const HomePage = () => {
         {eventsToCome.length > 0 ? (
           <TicketGrid events={eventsToCome} />
         ) : (
-          <Box my={5} width={['auto', '50%', '35%', '25%']} mx="auto">
-            <Image src={noEventsImage} alt="" />
-            <Text fontSize="xl" mt={5} textAlign="center">
-              No upcoming events
-              <br />
-              <small>(yet)</small>
-            </Text>
-          </Box>
+          <Empty
+            picture
+            action={currentUser && <EmptyAction to="/events/create">Add an event</EmptyAction>}
+          >
+            No upcoming events yet
+          </Empty>
         )}
       </Section>
 
-      <Section big
+      <Section
+        big
         kicker="Recently updated"
         title="Games"
         to="/games"
@@ -564,7 +558,8 @@ const HomePage = () => {
         <Section big title="Studios" to="/studios" linkLabel="All studios">
           <OrgBadges orgs={studios} />
         </Section>
-        <Section big
+        <Section
+        big
           title="Associations"
           to="/associations"
           linkLabel="All associations"

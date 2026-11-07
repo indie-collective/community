@@ -1,5 +1,7 @@
 import { Box, Flex, List, Text } from '@chakra-ui/react';
 
+import Empty from './Empty';
+
 // A country's biggest cities as a ranked list with the studio/association
 // split (#258), for countries the map can't show.
 
@@ -13,7 +15,7 @@ const CityList = ({ cities, limit = 10 }) => {
   const listed = cities.slice(0, limit);
   const most = listed[0]?.count ?? 0;
   if (listed.length === 0) {
-    return <Text color="muted">No studios or associations here yet.</Text>;
+    return <Empty>No studios or associations here yet</Empty>;
   }
   return (
     <List.Root listStyle="none" gap={3} maxW="44rem">
