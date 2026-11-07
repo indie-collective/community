@@ -1,6 +1,5 @@
 import {
   Alert,
-  Badge,
   Box,
   Button,
   Field,
@@ -15,6 +14,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { Form, useActionData, useLoaderData, useNavigation, useSearchParams } from 'react-router';
 
+import Label from '../../components/Label';
 import Link from '../../components/Link';
 import { PageHeader } from '../../components/Page';
 import PersonLink from '../../components/PersonLink';
@@ -187,7 +187,7 @@ const Moderation = () => {
           </Table.Header>
           <Table.Body>
             {changes.map((change) => {
-              const [verb, color] = OPERATIONS[change.operation];
+              const [verb] = OPERATIONS[change.operation];
               return (
                 <Table.Row key={change.id} data-testid="change">
                   <Table.Cell whiteSpace="nowrap" color="muted">
@@ -211,7 +211,7 @@ const Moderation = () => {
                   </Table.Cell>
                   <Table.Cell>
                     <HStack gap={2} wrap="wrap">
-                      <Badge colorPalette={change.undo_of ? 'gray' : color}>{change.undo_of ? 'Undid' : verb}</Badge>
+                      <Label tone="neutral">{change.undo_of ? 'Undid' : verb}</Label>
                       <Text as="span" color="muted">
                         {change.kind}
                       </Text>
@@ -222,7 +222,7 @@ const Moderation = () => {
                       ) : (
                         <Text as="span">{change.record_id}</Text>
                       )}
-                      {change.record?.deleted && <Badge colorPalette="red">deleted</Badge>}
+                      {change.record?.deleted && <Label tone="coral">Deleted</Label>}
                       {change.fields?.length > 0 && change.operation === 'update' && (
                         <Text as="span" fontSize="xs" color="muted">
                           {change.fields.join(', ')}

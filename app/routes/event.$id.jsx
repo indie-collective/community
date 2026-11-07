@@ -72,7 +72,7 @@ import { Page, PageHeader, Section } from '../components/Page';
 import countryNames from '../assets/countries.json';
 import { formatEventDate, formatEventRange } from '../utils/eventTime';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
-import EmptyHint from '../components/EmptyHint';
+import Empty, { EmptyAction } from '../components/Empty';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { eventPath, venuePath } from '../utils/slug';
 import { useLanguage } from '../i18n';
@@ -439,11 +439,12 @@ const Event = () => {
               </Box>
             ))}
             {currentUser && games.length === 0 && (
-              <EmptyHint>Which games were shown here? Add them.</EmptyHint>
+              <Empty>Which games were shown here? Add them</Empty>
             )}
             {currentUser && (
               <>
                 <IconButton
+                  variant="outline"
                   aria-label="Add a game to the event"
                   onClick={onOpenLinkGame}
                 >
@@ -506,13 +507,12 @@ const Event = () => {
               />
             ))}
             {currentUser && entities.length === 0 && (
-              <EmptyHint>
-                Who organises it? Add a studio or association.
-              </EmptyHint>
+              <Empty>Who organises it? Add a studio or association</Empty>
             )}
             {currentUser && (
               <>
                 <IconButton
+                  variant="outline"
                   alignSelf="center"
                   justifySelf="flex-start"
                   aria-label="Add a host to the event"
@@ -634,7 +634,7 @@ const Event = () => {
           {opportunities.length > 0 ? (
             <OpportunityList opportunities={opportunities} currentUser={currentUser} showFor={false} />
           ) : (
-            <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
+            <Empty>Hiring, looking for playtesters or pitches? Post it here</Empty>
           )}
         </Section>
       )}

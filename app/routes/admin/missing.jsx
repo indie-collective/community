@@ -1,6 +1,7 @@
-import { Badge, Box, Button, Grid, HStack, Link as ChakraLink, List, Stack, Tabs, Text } from '@chakra-ui/react';
+import { Box, Button, Grid, HStack, Link as ChakraLink, List, Stack, Tabs, Text } from '@chakra-ui/react';
 import { Form, useLoaderData, useNavigate } from 'react-router';
 
+import Label from '../../components/Label';
 import Link from '../../components/Link';
 import { PageHeader, Section } from '../../components/Page';
 import PersonLink from '../../components/PersonLink';
@@ -53,7 +54,7 @@ const Missing = () => {
           <Stack gap={2}>
             {flags.map((flag) => (
               <HStack key={`${flag.person_id}:${flag.record_id}`} gap={3} wrap="wrap" data-testid="mission-flag">
-                <Badge colorPalette="orange">{REASONS[flag.reason] ?? flag.reason}</Badge>
+                <Label tone="neutral">{REASONS[flag.reason] ?? flag.reason}</Label>
                 <ChakraLink asChild>
                   <Link to={flag.path}>{flag.name}</Link>
                 </ChakraLink>
@@ -94,7 +95,7 @@ const Missing = () => {
             justifyContent="space-between"
           >
             <Link to={`?kind=${kind}&gap=${item.key}`} data-testid={`gap-${item.key}`}>
-              {item.label} <Badge ml={2}>{counts[kind][item.key].toLocaleString('en')}</Badge>
+              {item.label} <Text as="span" color="muted" fontWeight="400" ms={2}>{counts[kind][item.key].toLocaleString('en')}</Text>
             </Link>
           </Button>
         ))}

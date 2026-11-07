@@ -1,11 +1,11 @@
 import { HStack } from '@chakra-ui/react';
 import { expect, within } from 'storybook/test';
 
-import Sticker from './Sticker';
+import Label from './Label';
 
 export default {
-  title: 'Labels/Sticker',
-  component: Sticker,
+  title: 'Labels/Label',
+  component: Label,
 };
 
 // Status on a card, one tone per meaning: sun for yours, lilac for online,
@@ -13,9 +13,10 @@ export default {
 export const Tones = {
   render: () => (
     <HStack gap={2}>
-      <Sticker tone="sun">{"You're going"}</Sticker>
-      <Sticker tone="lilac">Online</Sticker>
-      <Sticker tone="coral">Canceled</Sticker>
+      <Label tone="sun">{"You're going"}</Label>
+      <Label tone="lilac">Online</Label>
+      <Label tone="coral">Canceled</Label>
+      <Label tone="neutral">On hiatus</Label>
     </HStack>
   ),
   play: async ({ canvasElement }) => {

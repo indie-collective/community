@@ -2,7 +2,6 @@ import {
   Box,
   Text,
   Heading,
-  Badge,
   Grid,
   Image,
   Flex,
@@ -19,6 +18,7 @@ import { LuPlus, LuExternalLink, LuMapPin } from 'react-icons/lu';
 
 import { useLoaderData, Form, isRouteErrorResponse, useRouteError, useRouteLoaderData } from 'react-router';
 import Link from '../components/Link';
+import Label from '../components/Label';
 
 import isAuthenticated from '../utils/isAuthenticated.server';
 import countryNames from '../assets/countries.json';
@@ -44,12 +44,11 @@ import { SubscribeMenu } from '../components/CalendarMenus';
 import { Page, PageHeader, Section } from '../components/Page';
 import { pageMeta, shareImage, summarize } from '../utils/meta';
 import {
-  ORG_STATUSES,
   orgStatusLabel,
   orgTypeLabel,
   pinColor,
 } from '../utils/orgTypes';
-import EmptyHint from '../components/EmptyHint';
+import Empty, { EmptyAction } from '../components/Empty';
 import { FaBluesky } from 'react-icons/fa6';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { orgPath } from '../utils/slug';
@@ -189,9 +188,7 @@ const Org = () => {
         >
           <HStack gap={4} wrap="wrap" fontSize="sm" color="muted">
             {status && status !== 'active' && (
-              <Badge colorPalette={ORG_STATUSES[status]?.color}>
-                {orgStatusLabel(status)}
-              </Badge>
+              <Label tone="neutral">{orgStatusLabel(status)}</Label>
             )}
             {location && (
               <HStack gap={1}>
@@ -305,26 +302,18 @@ const Org = () => {
       )}
       {/* Empty sections stay hidden from visitors; members get a way in (#198). */}
       {currentUser && (games.length === 0 || events.length === 0) && (
-        <Box mb={{ base: 8, md: 10 }}>
+        <Stack gap={2} mb={{ base: 8, md: 10 }}>
           {games.length === 0 && (
-            <EmptyHint mb={1}>
-              No games yet.{' '}
-              <ChakraLink asChild textDecoration="underline">
-                <Link to="/games/create">Add a game</Link>
-              </ChakraLink>
-              , then link this organization from its page.
-            </EmptyHint>
+            <Empty action={<EmptyAction to="/games/create">Add a game</EmptyAction>}>
+              No games yet: add one, then link this organisation from its page
+            </Empty>
           )}
           {events.length === 0 && (
-            <EmptyHint>
-              No hosted events yet.{' '}
-              <ChakraLink asChild textDecoration="underline">
-                <Link to="/events/create">Add an event</Link>
-              </ChakraLink>
-              , then add this organization as an organizer.
-            </EmptyHint>
+            <Empty action={<EmptyAction to="/events/create">Add an event</EmptyAction>}>
+              No hosted events yet: add one, then add this organisation as an organiser
+            </Empty>
           )}
-        </Box>
+        </Stack>
       )}
       {currentUser && (
         <Box>
@@ -382,7 +371,7 @@ const Org = () => {
           {opportunities.length > 0 ? (
             <OpportunityList opportunities={opportunities} currentUser={currentUser} showFor={false} />
           ) : (
-            <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
+            <Empty>Hiring, looking for playtesters or pitches? Post it here</Empty>
           )}
         </Section>
       )}

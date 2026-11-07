@@ -45,7 +45,7 @@ import { Page, PageHeader, Section } from '../components/Page';
 import TagList from '../components/TagList';
 import { GAME_ROLES } from '../utils/gameRoles';
 import { gameShareImage, pageMeta, summarize } from '../utils/meta';
-import EmptyHint from '../components/EmptyHint';
+import Empty, { EmptyAction } from '../components/Empty';
 import GameTimeline from '../components/GameTimeline';
 import { pageRecordId } from '../utils/pageRecord.server';
 import { gamePath } from '../utils/slug';
@@ -194,10 +194,8 @@ const Game = () => {
           <TagList
             tags={tags}
             size="md"
-            fontSize="0.8rem"
             linked
-            ml="3px"
-            mt="5px"
+            mt={1}
           />
         )}
 
@@ -209,7 +207,7 @@ const Game = () => {
         )}
 
         {site && (
-          <Button asChild>
+          <Button asChild variant="outline">
             <ChakraLink
               href={site}
               title={site.replace(/https?:\/\//, '')}
@@ -269,13 +267,12 @@ const Game = () => {
               />
             ))}
             {currentUser && entities.length === 0 && (
-              <EmptyHint>
-                Who made this game? Add a studio or association.
-              </EmptyHint>
+              <Empty>Who made this game? Add a studio or association</Empty>
             )}
             {currentUser && (
               <>
                 <IconButton
+                  variant="outline"
                   alignSelf="center"
                   justifySelf="flex-start"
                   aria-label="Add an author to the game"
@@ -402,7 +399,7 @@ const Game = () => {
           {opportunities.length > 0 ? (
             <OpportunityList opportunities={opportunities} currentUser={currentUser} showFor={false} />
           ) : (
-            <EmptyHint>Hiring, looking for playtesters or pitches? Post it here.</EmptyHint>
+            <Empty>Hiring, looking for playtesters or pitches? Post it here</Empty>
           )}
         </Section>
       )}

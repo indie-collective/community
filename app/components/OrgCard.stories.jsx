@@ -22,7 +22,7 @@ export const Studio = {
     await expect(getComputedStyle(link).color).toBe(
       getComputedStyle(link.closest('h3, h2, p, div')).color
     );
-    await expect(canvas.getByText('Valentinfurt, NI')).toBeVisible();
+    await expect(canvas.getByText(/Studio · Valentinfurt, NI/)).toBeVisible();
   },
 };
 

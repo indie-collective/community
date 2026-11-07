@@ -1,9 +1,10 @@
-import { Alert, Avatar, Box, Grid, HStack, Link as ChakraLink, List, Stack, Text } from '@chakra-ui/react';
+import { Alert, Avatar, Box, Grid, HStack, Link as ChakraLink, List, Text } from '@chakra-ui/react';
 import { FaBluesky } from 'react-icons/fa6';
 import { useLoaderData } from 'react-router';
 
 import AchievementShelf from '../components/AchievementBadge';
 import EventCard from '../components/EventCard';
+import Empty from '../components/Empty';
 import Link from '../components/Link';
 import Markdown from '../components/Markdown';
 import { Page, PageHeader, Section } from '../components/Page';
@@ -149,9 +150,7 @@ const PersonPage = () => {
         </Section>
       )}
       {attending.upcoming.length === 0 && attending.past.length === 0 && contributions.latest.length === 0 && (
-        <Stack>
-          <Text color="muted">Nothing to show yet.</Text>
-        </Stack>
+        <Empty>Nothing to show yet</Empty>
       )}
     </Page>
   );

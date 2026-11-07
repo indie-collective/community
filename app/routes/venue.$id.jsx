@@ -4,7 +4,7 @@ import { useLoaderData } from 'react-router';
 
 import countryNames from '../assets/countries.json';
 import ActionMenu from '../components/ActionMenu';
-import EmptyHint from '../components/EmptyHint';
+import Empty, { EmptyAction } from '../components/Empty';
 import EventCard from '../components/EventCard';
 import Link from '../components/Link';
 import Markdown from '../components/Markdown';
@@ -111,7 +111,7 @@ const Venue = () => {
         {events.upcoming.length > 0 ? (
           <Events events={events.upcoming} />
         ) : (
-          <EmptyHint>Nothing planned here for now.</EmptyHint>
+          <Empty>Nothing planned here for now</Empty>
         )}
       </Section>
 

@@ -1,6 +1,7 @@
-import { Badge, Box, Button, HStack, NativeSelect, Table, Text } from '@chakra-ui/react';
+import { Box, Button, HStack, NativeSelect, Table, Text } from '@chakra-ui/react';
 import { useFetcher, useLoaderData } from 'react-router';
 
+import Label from '../../components/Label';
 import { PageHeader } from '../../components/Page';
 import { flagStates, setFlagState } from '../../data/featureFlags.server';
 import { FEATURE_FLAGS, FLAG_STATES } from '../../utils/featureFlags';
@@ -33,7 +34,6 @@ export const action = async ({ request }) => {
 
 export const meta = () => [{ title: 'Feature flags - Community Administration' }];
 
-const STATE_COLORS = { off: 'gray', admins: 'orange', on: 'green' };
 const stateLabel = (state) => FLAG_STATES.find(([value]) => value === state)?.[1] ?? state;
 
 const FlagRow = ({ flag }) => {
@@ -49,7 +49,7 @@ const FlagRow = ({ flag }) => {
         </Text>
       </Table.Cell>
       <Table.Cell>
-        <Badge colorPalette={STATE_COLORS[state]} data-testid="flag-state">{stateLabel(state)}</Badge>
+        <Label tone={state === 'on' ? 'sun' : 'neutral'} data-testid="flag-state">{stateLabel(state)}</Label>
       </Table.Cell>
       <Table.Cell>
         <fetcher.Form method="post">

@@ -17,6 +17,7 @@ import { useLoaderData } from 'react-router';
 import { pageMeta } from '../utils/meta';
 import { FIRST_REWIND_YEAR, latestRewindYear, rewindYear } from '../utils/rewind';
 import Link from '../components/Link';
+import Empty from '../components/Empty';
 import { FaCalendarAlt, FaGamepad, FaUsers, FaBuilding, FaMapMarkerAlt, FaHashtag } from 'react-icons/fa';
 import { getYearInReview } from '../data/rewind.server';
 
@@ -193,7 +194,7 @@ const RewindPage = () => {
                     ))}
                   </VStack>
                 ) : (
-                  <Text fontStyle="italic" color="muted">No tags recorded this year.</Text>
+                  <Empty w="100%">No tags recorded this year</Empty>
                 )}
               </VStack>
             </MotionBox>
@@ -245,7 +246,7 @@ const RewindPage = () => {
                     ))}
                   </VStack>
                 ) : (
-                  <Text fontStyle="italic" color="muted">No geographical data recorded this year.</Text>
+                  <Empty w="100%">No places recorded this year</Empty>
                 )}
               </VStack>
             </MotionBox>

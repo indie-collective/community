@@ -1,8 +1,6 @@
 import React from 'react';
-import { DarkMode } from './ui/color-mode';
 import {
   Box,
-  Badge,
   Image,
   Flex,
   Heading,
@@ -10,21 +8,16 @@ import {
   Skeleton,
   SkeletonText,
   Text,
-  Icon,
   NativeSelect,
 } from '@chakra-ui/react';
-import { LuMapPin, LuTrash2 } from 'react-icons/lu';
+import { LuTrash2 } from 'react-icons/lu';
 
 import usePlaceholder from '../hooks/usePlaceholder';
 import countryNames from '../assets/countries.json';
 import Card from './Card';
 import CardLink from './CardLink';
-import {
-  ORG_STATUSES,
-  orgStatusLabel,
-  orgTypeColor,
-  orgTypeLabel,
-} from '../utils/orgTypes';
+import Label from './Label';
+import { orgStatusLabel, orgTypeLabel } from '../utils/orgTypes';
 import { GAME_ROLES, gameRoleLabel } from '../utils/gameRoles';
 import { orgPath } from '../utils/slug';
 
@@ -133,19 +126,6 @@ const OrgCard = ({
             data-card-image
           />
 
-          <DarkMode>
-            <Badge
-              position="absolute"
-              bottom="3px"
-              right="3px"
-              rounded="label"
-              variant="solid"
-              colorPalette={orgTypeColor(type)}
-              fontSize="0.55em"
-            >
-              {orgTypeLabel(type, { short: true })}
-            </Badge>
-          </DarkMode>
         </Flex>
 
         <Box flex="1">
@@ -154,9 +134,7 @@ const OrgCard = ({
           </Heading>
 
           {status && status !== 'active' && (
-            <Badge size="sm" colorPalette={ORG_STATUSES[status]?.color}>
-              {orgStatusLabel(status)}
-            </Badge>
+            <Label tone="neutral">{orgStatusLabel(status)}</Label>
           )}
 
           {involvement &&
@@ -199,31 +177,19 @@ const OrgCard = ({
             </Text>
           )}
 
-          {location && (
-            <Flex
-              as={Text}
-              title={
-                location.city
+          {/* What it is and where, in one line: the type replaces the badge
+              that sat on the logo. */}
+          <Text fontSize="sm" color="muted" lineClamp={1}>
+            {[
+              orgTypeLabel(type),
+              location &&
+                (location.city
                   ? `${location.city}, ${location.country_code}`
-                  : countryNames[location.country_code.toUpperCase()]
-              }
-              color="muted"
-              fontWeight="semibold"
-              letterSpacing="wide"
-              fontSize="xs"
-              textTransform="uppercase"
-              align="center"
-            >
-              <Icon>
-                <LuMapPin />
-              </Icon>
-              <Box as="span" lineClamp={1} flex="1" ml={1}>
-                {location.city
-                  ? `${location.city}, ${location.country_code}`
-                  : countryNames[location.country_code.toUpperCase()]}
-              </Box>
-            </Flex>
-          )}
+                  : countryNames[location.country_code.toUpperCase()]),
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </Text>
         </Box>
 
         {onRemove && (
