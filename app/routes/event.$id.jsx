@@ -415,9 +415,17 @@ const Event = () => {
 
       {(currentUser || games.length > 0) && (
         <Section title="Games" count={games.length} countLabel="games">
-          <Wrap gap={2}>
+          <Grid
+            gap={4}
+            templateColumns={[
+              'repeat(2, minmax(0, 1fr))',
+              'repeat(2, minmax(0, 1fr))',
+              'repeat(3, minmax(0, 1fr))',
+              'repeat(4, minmax(0, 1fr))',
+            ]}
+          >
             {games.map((game) => (
-              <Box key={game.id} position="relative">
+              <Box key={game.id} minW={0}>
                 <GameCard
                   id={game.id}
                   {...game}
@@ -434,10 +442,11 @@ const Event = () => {
                           )
                       : null
                   }
-                  isCompact
                 />
               </Box>
             ))}
+          </Grid>
+          <Wrap gap={2} mt={games.length > 0 ? 4 : 0}>
             {currentUser && games.length === 0 && (
               <Empty>Which games were shown here? Add them</Empty>
             )}
@@ -465,13 +474,8 @@ const Event = () => {
         <Section title="Organizers">
 
           <Grid
-            gap={5}
-            templateColumns={[
-              '1fr',
-              'repeat(2, 1fr)',
-              'repeat(2, 1fr)',
-              'repeat(3, 1fr)',
-            ]}
+            gap={2}
+            templateColumns="repeat(auto-fill, minmax(220px, 1fr))"
           >
             {entities.map((host) => (
               <OrgCard
@@ -493,7 +497,7 @@ const Event = () => {
               />
             ))}
             {currentUser && entities.length === 0 && (
-              <Empty>Who organises it? Add a studio or association</Empty>
+              <Empty gridColumn="1 / -1">Who organises it? Add a studio or association</Empty>
             )}
             {currentUser && (
               <LinkPicker

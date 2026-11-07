@@ -19,6 +19,7 @@ export default {
 // #173: the title is the card's link. It inherits the text colour (not the
 // green link palette) and its ::before overlay makes the whole card clickable.
 export const Default = {
+  args: { entities: [{ id: 's1', name: 'Pixel Moss' }] },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const link = canvas.getByRole('link', { name: 'Handmade Gold Sausages' });
@@ -34,15 +35,10 @@ export const Default = {
 
 export const Dark = { ...Default, globals: { colorMode: 'dark' } };
 
-// The homepage's game wall: a full-bleed cover with the name on it, a little
-// off-straight until the pointer is on it.
-export const Cover = {
-  decorators: [(Story) => <div style={{ width: 200, aspectRatio: '3 / 4' }}><Story /></div>],
-  args: {
-    variant: 'cover',
-    tilt: -1.2,
-    entities: [{ id: 's1', name: 'Pixel Moss' }],
-  },
+// The homepage's wall: the same card, a little off-straight until the
+// pointer is on it.
+export const Tilted = {
+  args: { tilt: -1.2, entities: [{ id: 's1', name: 'Pixel Moss' }] },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole('link', { name: 'Handmade Gold Sausages' })).toHaveAttribute('href', '/game/game-1');
@@ -50,10 +46,11 @@ export const Cover = {
   },
 };
 
-// The big slot of the wall: the bigger label.
-export const CoverFeatured = {
-  decorators: [(Story) => <div style={{ width: 420, aspectRatio: '1' }}><Story /></div>],
-  args: { ...Cover.args, featured: true, tilt: 1 },
+// On an event page, for signed-in people: a button to take it off the list.
+export const Removable = {
+  args: { onRemove: () => {} },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('button', { name: 'Remove Handmade Gold Sausages' })).toBeVisible();
+  },
 };
-
-export const Compact = { args: { isCompact: true } };

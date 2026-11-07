@@ -1,12 +1,10 @@
-import React from 'react';
 import {
   Box,
   Image,
-  Flex,
   Heading,
   IconButton,
-  Skeleton,
   SkeletonText,
+  Skeleton,
   Text,
   NativeSelect,
 } from '@chakra-ui/react';
@@ -22,25 +20,19 @@ import { GAME_ROLES, gameRoleLabel } from '../utils/gameRoles';
 import { orgPath } from '../utils/slug';
 
 export const OrgCardSkeleton = () => (
-  <Flex position="relative" alignItems="center">
-    <Flex
-      direction="column"
-      width="75px"
-      mr={3}
-      flexShrink={0}
-      position="relative"
-    >
-      <Skeleton w="75px" h="75px" />
-    </Flex>
-
-    <Box flex="1">
-      <SkeletonText skeletonHeight="1.8rem" py={2} lineClamp={1} w="75%" />
-
-      <SkeletonText skeletonHeight="0.75rem" lineClamp={1} w="50%" />
-    </Box>
-  </Flex>
+  <Box display="flex" alignItems="center" gap={2.5} p={1.5}>
+    <Skeleton w="56px" aspectRatio={1} rounded="8px" flexShrink={0} />
+    <SkeletonText noOfLines={2} gap={2} flex={1} />
+  </Box>
 );
 
+/**
+ * A studio or association, as a row: its logo in a small square, then its
+ * name and what it is and where. Bare on the page; under the pointer it
+ * lifts onto a card. The same row on every page. On a game, how it took part
+ * (with `onInvolvementChange`, a select to change it); with `onRemove`, a
+ * button in the corner takes it off the list it is on.
+ */
 const OrgCard = ({
   id,
   slug,
@@ -49,9 +41,6 @@ const OrgCard = ({
   logo,
   name,
   location,
-  people,
-  games,
-  events,
   onRemove,
   // #40: how the organisation took part in a game, shown under its name;
   // with onInvolvementChange, a select to change it.
@@ -61,154 +50,133 @@ const OrgCard = ({
   takenRoles = [],
   // #331: on the publishers list, how many games it published.
   published_count,
-  // Magazine pass: 'badge' is the homepage masthead's round logo, ringed in
-  // its type's colour, with the name and type and city under it.
-  variant,
+  // Props that belong to records, not to the card's box.
+  // eslint-disable-next-line no-unused-vars
+  people, games, events,
   ...rest
 }) => {
   const placeholder = usePlaceholder('square');
-
-  if (variant === 'badge') {
-    return (
-      <Card isClickable textAlign="center" rounded="card" p={2} {...rest}>
-        <Box
-          mx="auto"
-          w="100%"
-          maxW="110px"
-          aspectRatio={1}
-          rounded="full"
-          overflow="hidden"
-          borderWidth="2px"
-          borderColor="rule"
-          bg="surface"
-          transition="transform 300ms cubic-bezier(0.3, 1.6, 0.5, 1)"
-          css={{
-            '[data-card]:hover &': { transform: 'rotate(-10deg) scale(1.06)' },
-          }}
-        >
-          <Image
-            w="100%"
-            h="100%"
-            objectFit="contain"
-            src={logo?.thumbnail_url ?? placeholder}
-            alt=""
-            data-card-image
-          />
-        </Box>
-        <Heading as="h3" size="sm" mt={2} lineHeight="1.2" title={name}>
-          <CardLink to={orgPath({ id, slug })}>{name}</CardLink>
-        </Heading>
-        <Text fontSize="xs" color="muted" lineClamp={1}>
-          {orgTypeLabel(type)}
-          {location?.city && ` · ${location.city}`}
-        </Text>
-      </Card>
-    );
-  }
+  const where =
+    location &&
+    (location.city
+      ? `${location.city}, ${location.country_code}`
+      : countryNames[location.country_code?.toUpperCase()]);
 
   return (
-    <Card id={id} isClickable padding={2} rounded="card" {...rest}>
-      <Flex position="relative" alignItems="center">
-        <Flex
-          direction="column"
-          width="75px"
-          mr={3}
-          flexShrink={0}
-          position="relative"
+    <Card
+      id={id}
+      isClickable
+      bg="transparent"
+      rounded="card"
+      p={1.5}
+      display="flex"
+      alignItems="center"
+      gap={2.5}
+      {...rest}
+    >
+      <Box
+        w="56px"
+        aspectRatio={1}
+        flexShrink={0}
+        rounded="8px"
+        overflow="hidden"
+        bg="surface"
+      >
+        <Image
+          w="100%"
+          h="100%"
+          objectFit="contain"
+          src={logo?.thumbnail_url ?? placeholder}
+          alt=""
+          data-card-image
+        />
+      </Box>
+      {onRemove && (
+        // Above the card's link overlay, so it can be used.
+        <IconButton
+          position="absolute"
+          top={1.5}
+          right={1.5}
+          zIndex={1}
+          size="xs"
+          rounded="full"
+          variant="outline"
+          bg="surface"
+          aria-label={`Remove ${name}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onRemove();
+          }}
         >
-          <Image
-            w="75px"
-            h="75px"
-            objectFit="contain"
-            src={logo?.thumbnail_url ?? placeholder}
-            alt=""
-            rounded="label"
-            data-card-image
-          />
+          <LuTrash2 />
+        </IconButton>
+      )}
 
-        </Flex>
+      {/* Clear of the remove button beside it. */}
+      <Box minW={0} flex={1} pr={onRemove ? 8 : 1}>
+        <Heading
+          as="h3"
+          size="sm"
+          fontWeight="600"
+          lineHeight="1.2"
+          title={name}
+          // The link clamps itself to two lines; here, one.
+          css={{ '& a': { WebkitLineClamp: '1' } }}
+        >
+          <CardLink to={orgPath({ id, slug })}>{name}</CardLink>
+        </Heading>
 
-        <Box flex="1">
-          <Heading as="h3" size="md" title={name}>
-            <CardLink to={orgPath({ id, slug })}>{name}</CardLink>
-          </Heading>
+        {/* What it is and where, in one line. */}
+        <Text fontSize="xs" color="muted" lineClamp={1}>
+          {[orgTypeLabel(type), where].filter(Boolean).join(' · ')}
+        </Text>
 
-          {status && status !== 'active' && (
-            <Label tone="neutral">{orgStatusLabel(status)}</Label>
-          )}
-
-          {involvement &&
-            (onInvolvementChange ? (
-              // Above the card's link overlay, so it can be used.
-              <NativeSelect.Root
-                size="xs"
-                width="9rem"
-                my={1}
-                position="relative"
-                zIndex={1}
-              >
-                <NativeSelect.Field
-                  aria-label={`Role of ${name}`}
-                  value={involvement}
-                  onChange={(event) => onInvolvementChange(event.target.value)}
-                >
-                  {GAME_ROLES.map(([value, label]) => (
-                    <option
-                      key={value}
-                      value={value}
-                      disabled={takenRoles.includes(value)}
-                    >
-                      {label}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            ) : (
-              <Text fontSize="sm" color="muted">
-                {gameRoleLabel(involvement)}
-              </Text>
-            ))}
-
-          {published_count > 0 && (
-            <Text fontSize="sm" color="muted">
-              Published {published_count}{' '}
-              {published_count === 1 ? 'game' : 'games'}
-            </Text>
-          )}
-
-          {/* What it is and where, in one line: the type replaces the badge
-              that sat on the logo. */}
-          <Text fontSize="sm" color="muted" lineClamp={1}>
-            {[
-              orgTypeLabel(type),
-              location &&
-                (location.city
-                  ? `${location.city}, ${location.country_code}`
-                  : countryNames[location.country_code.toUpperCase()]),
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </Text>
-        </Box>
-
-        {onRemove && (
-          <IconButton
-            mx={5}
-            size="xs"
-            aria-label={`Remove ${name}`}
-            rounded="full"
-            variant="outline"
-            onClick={(e) => {
-              e.preventDefault();
-
-              onRemove();
-            }}
-          >
-            <LuTrash2 />
-          </IconButton>
+        {status && status !== 'active' && (
+          <Label tone="neutral" mt={1}>
+            {orgStatusLabel(status)}
+          </Label>
         )}
-      </Flex>
+
+        {published_count > 0 && (
+          <Text fontSize="xs" color="muted">
+            Published {published_count}{' '}
+            {published_count === 1 ? 'game' : 'games'}
+          </Text>
+        )}
+
+        {involvement &&
+          (onInvolvementChange ? (
+            // Above the card's link overlay, so it can be used.
+            <NativeSelect.Root
+              size="xs"
+              maxW="9rem"
+              mt={1.5}
+              position="relative"
+              zIndex={1}
+            >
+              <NativeSelect.Field
+                aria-label={`Role of ${name}`}
+                value={involvement}
+                onChange={(event) => onInvolvementChange(event.target.value)}
+              >
+                {GAME_ROLES.map(([value, label]) => (
+                  <option
+                    key={value}
+                    value={value}
+                    disabled={takenRoles.includes(value)}
+                  >
+                    {label}
+                  </option>
+                ))}
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+          ) : (
+            <Text fontSize="xs" color="muted">
+              {gameRoleLabel(involvement)}
+            </Text>
+          ))}
+      </Box>
     </Card>
   );
 };
