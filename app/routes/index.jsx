@@ -192,7 +192,6 @@ const CoverStory = ({ games }) => {
       {games.length > 1 && (
         <Button
           variant="outline"
-          bg="surface"
           size="sm"
           position="absolute"
           top={3}
@@ -360,9 +359,11 @@ const Contribute = () => (
           key={to}
           size="sm"
           borderWidth="2px"
-          borderColor="onPop"
+          // The first in ink; the others on a pale ink, as the site's
+          // secondary buttons are on a pale green.
+          borderColor={i === 0 ? 'onPop' : 'transparent'}
           borderRadius="control"
-          bg={i === 0 ? 'onPop' : 'transparent'}
+          bg={i === 0 ? 'onPop' : 'rgba(16, 32, 29, 0.12)'}
           color={i === 0 ? 'sun' : 'onPop'}
           fontWeight="semibold"
           justifyContent="flex-start"
