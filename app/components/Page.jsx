@@ -110,9 +110,9 @@ export const FilterBar = ({ children, ...rest }) => (
 );
 
 /**
- * A department of the homepage magazine (magazine pass): a heavy rule, a
- * kicker saying what's in it, a big title, and a link to the full list.
- * Labelled by its heading, so it's a region screen readers can jump to.
+ * A section of the homepage: a heavy rule, an optional line saying what's in
+ * it, its title, and a link to the full list. Labelled by its heading, so
+ * it's a region screen readers can jump to.
  */
 export const Department = ({
   title,
@@ -142,13 +142,7 @@ export const Department = ({
       >
         <Box minW={0}>
           {kicker && (
-            <Text
-              fontSize="xs"
-              fontWeight="semibold"
-              letterSpacing="wider"
-              textTransform="uppercase"
-              color="brandDeep"
-            >
+            <Text fontSize="sm" color="muted">
               {kicker}
             </Text>
           )}
@@ -156,9 +150,9 @@ export const Department = ({
             as="h2"
             id={headingId}
             fontSize={{ base: '3xl', md: '4xl' }}
-            fontWeight="800"
-            letterSpacing="-0.03em"
-            lineHeight="1"
+            fontWeight="600"
+            letterSpacing="-0.02em"
+            lineHeight="1.05"
           >
             {title}
           </Heading>

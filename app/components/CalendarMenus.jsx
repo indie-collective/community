@@ -8,14 +8,19 @@ import { googleCalendarUrl, outlookCalendarUrl } from '../utils/ical';
 import { useT } from '../i18n';
 
 // The site's origin, for absolute calendar and feed addresses.
-const useOrigin = () => useRouteLoaderData('root')?.origin ?? 'https://community.indieco.xyz';
+const useOrigin = () =>
+  useRouteLoaderData('root')?.origin ?? 'https://community.indieco.xyz';
 
 const copy = async (text, title) => {
   try {
     await navigator.clipboard.writeText(text);
     toaster.create({ title, type: 'success' });
   } catch {
-    toaster.create({ title: "Couldn't copy it", description: text, type: 'error' });
+    toaster.create({
+      title: "Couldn't copy it",
+      description: text,
+      type: 'error',
+    });
   }
 };
 
@@ -34,7 +39,7 @@ export const AddToCalendar = ({ event, path, place }) => {
   return (
     <Menu.Root positioning={{ placement: 'bottom-end' }}>
       <Menu.Trigger asChild>
-        <Button size="sm" variant="outline">
+        <Button size="sm" variant="popOutline">
           <LuCalendarPlus />
           {t('calendar.add')}
         </Button>
@@ -49,13 +54,21 @@ export const AddToCalendar = ({ event, path, place }) => {
               </a>
             </Menu.Item>
             <Menu.Item value="google" asChild>
-              <a href={googleCalendarUrl(details)} target="_blank" rel="noopener noreferrer">
+              <a
+                href={googleCalendarUrl(details)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <FaGoogle />
                 Google Calendar
               </a>
             </Menu.Item>
             <Menu.Item value="outlook" asChild>
-              <a href={outlookCalendarUrl(details)} target="_blank" rel="noopener noreferrer">
+              <a
+                href={outlookCalendarUrl(details)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <FaMicrosoft />
                 Outlook.com
               </a>
@@ -79,7 +92,7 @@ export const SubscribeMenu = ({ calendarPath, feedPath, label }) => {
   return (
     <Menu.Root positioning={{ placement: 'bottom-end' }}>
       <Menu.Trigger asChild>
-        <Button size="sm" variant="outline">
+        <Button size="sm" variant="popOutline">
           <LuCalendarPlus />
           {label ?? t('calendar.subscribe')}
         </Button>
@@ -105,7 +118,10 @@ export const SubscribeMenu = ({ calendarPath, feedPath, label }) => {
                     Google Calendar
                   </a>
                 </Menu.Item>
-                <Menu.Item value="copy" onSelect={() => copy(calendar, 'Calendar address copied')}>
+                <Menu.Item
+                  value="copy"
+                  onSelect={() => copy(calendar, 'Calendar address copied')}
+                >
                   <LuLink />
                   {t('calendar.copy')}
                 </Menu.Item>

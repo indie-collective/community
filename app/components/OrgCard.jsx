@@ -85,8 +85,8 @@ const OrgCard = ({
           aspectRatio={1}
           rounded="full"
           overflow="hidden"
-          borderWidth="3px"
-          borderColor={type === 'association' ? 'brand' : 'sun'}
+          borderWidth="2px"
+          borderColor="rule"
           bg="surface"
           transition="transform 300ms cubic-bezier(0.3, 1.6, 0.5, 1)"
           css={{
@@ -105,14 +105,7 @@ const OrgCard = ({
         <Heading as="h3" size="sm" mt={2} lineHeight="1.2" title={name}>
           <CardLink to={orgPath({ id, slug })}>{name}</CardLink>
         </Heading>
-        <Text
-          fontSize="2xs"
-          fontWeight="semibold"
-          letterSpacing="wider"
-          textTransform="uppercase"
-          color="muted"
-          lineClamp={1}
-        >
+        <Text fontSize="xs" color="muted" lineClamp={1}>
           {orgTypeLabel(type)}
           {location?.city && ` · ${location.city}`}
         </Text>
@@ -182,7 +175,11 @@ const OrgCard = ({
                   onChange={(event) => onInvolvementChange(event.target.value)}
                 >
                   {GAME_ROLES.map(([value, label]) => (
-                    <option key={value} value={value} disabled={takenRoles.includes(value)}>
+                    <option
+                      key={value}
+                      value={value}
+                      disabled={takenRoles.includes(value)}
+                    >
                       {label}
                     </option>
                   ))}
@@ -197,7 +194,8 @@ const OrgCard = ({
 
           {published_count > 0 && (
             <Text fontSize="sm" color="muted">
-              Published {published_count} {published_count === 1 ? 'game' : 'games'}
+              Published {published_count}{' '}
+              {published_count === 1 ? 'game' : 'games'}
             </Text>
           )}
 

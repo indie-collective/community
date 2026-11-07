@@ -404,7 +404,7 @@ test('the events diary puts events on their days and moves between months', asyn
     await expect(page.getByRole('heading', { name: /^From .*May 18/ })).toBeVisible();
     await expect(tickets.filter({ hasText: moot.name })).toHaveCount(0);
     await expect(tickets.filter({ hasText: canceled.name })).toBeVisible();
-    await page.getByRole('button', { name: 'Show everything' }).click();
+    await page.getByRole('button', { name: 'Show all' }).click();
     await expect(tickets.filter({ hasText: moot.name })).toBeVisible();
 
     // Filters keep the month, and months keep the filters.

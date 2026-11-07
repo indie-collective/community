@@ -131,11 +131,11 @@ const SearchInput = () => {
               bg="surface"
               borderWidth="2px"
               borderColor="ink"
-              borderRadius="full"
+              borderRadius="10px"
               _focusVisible={{
-                outline: 'none',
-                borderColor: 'ink',
-                shadow: 'pop',
+                outline: '2px solid',
+                outlineColor: 'brand',
+                outlineOffset: '2px',
               }}
               onKeyDown={(event) => {
                 // Enter without a suggestion picked: every result.

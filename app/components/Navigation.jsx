@@ -40,8 +40,8 @@ function NavLink(props) {
       : location.pathname.startsWith(href);
   const isNavigatingTo = navigation.location?.pathname === href;
 
-  // Magazine pass: the current section is an ink pill; the others tilt a
-  // little onto a panel under the pointer.
+  // The current section is an ink pill; the others tilt a little onto a
+  // panel under the pointer.
   return (
     <Button
       variant="ghost"
@@ -75,18 +75,16 @@ const Wordmark = ({ showTitle }) => (
           <Text
             as="span"
             fontFamily="heading"
-            fontWeight="800"
+            fontWeight="600"
             fontSize="xl"
-            letterSpacing="-0.03em"
+            letterSpacing="-0.02em"
           >
             Indie Collective
           </Text>
           <Text
             as="span"
-            fontSize="2xs"
-            fontWeight="semibold"
-            letterSpacing="wider"
-            textTransform="uppercase"
+            fontSize="xs"
+            fontWeight="medium"
             color="brandDeep"
             mt={0.5}
           >
@@ -281,8 +279,8 @@ const Navigation = ({ search }) => {
     );
   }
 
-  // The masthead (magazine pass): the name, search and the account on the
-  // paper, then the sections between two ink rules.
+  // The masthead: the name, search and the account on the
+  // paper, then the sections in an ink pill.
   return (
     <VStack
       as="header"
@@ -309,10 +307,11 @@ const Navigation = ({ search }) => {
       </HStack>
       <Box
         w="100%"
-        py={1.5}
-        borderTop="2px solid"
-        borderBottom="2px solid"
+        p={1.5}
+        borderWidth="2px"
         borderColor="ink"
+        // A pill around the sections' pills, 6px out from them.
+        borderRadius="full"
       >
         <HStack as="nav" aria-label={t('nav.main')} gap={1} width="100%">
           {nav.map(([href, key]) => (

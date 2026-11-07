@@ -39,15 +39,13 @@ const AvatarButton = () => {
       ? ''
       : `?prev=${encodeURIComponent(pathname + search)}`;
   return (
-    // The magazine's pressable button: ink, with a hard shadow under the
-    // pointer. Full width in the phone menu.
+    // The site's ink button, full width in the phone menu.
     <Button
       asChild
       variant="pop"
       w={{ base: '100%', md: 'auto' }}
       size="md"
       px={5}
-      borderRadius="full"
     >
       <Link to={`/signin${prev}`}>
         <LuLogIn />

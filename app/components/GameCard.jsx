@@ -59,9 +59,9 @@ function GameCard({
   entities,
   onRemove,
   isCompact,
-  // Magazine pass: 'cover' is the full-bleed cover with a floating label,
-  // for the homepage; `tilt` (degrees) sets it a little off-straight, and
-  // `featured` gives it the bigger label of the big slot.
+  // 'cover' is the full-bleed cover with a label on it, for the homepage;
+  // `tilt` (degrees) sets it a little off-straight, and `featured` gives it
+  // the bigger label of the big slot.
   variant,
   tilt = 0,
   featured = false,
@@ -111,21 +111,14 @@ function GameCard({
           <Heading
             as="h3"
             size={featured ? 'xl' : 'sm'}
-            fontWeight={featured ? '800' : 'bold'}
+            fontWeight="600"
             lineHeight="1.15"
             title={name}
           >
             <CardLink to={gamePath({ id, slug })}>{name}</CardLink>
           </Heading>
           {studio && (
-            <Text
-              fontSize="2xs"
-              fontWeight="semibold"
-              letterSpacing="wider"
-              textTransform="uppercase"
-              color="muted"
-              lineClamp={1}
-            >
+            <Text fontSize="xs" color="muted" lineClamp={1}>
               {studio}
             </Text>
           )}
