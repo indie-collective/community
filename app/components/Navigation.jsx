@@ -203,9 +203,6 @@ const Navigation = ({ search }) => {
             <Menu.Item value="item-7" asChild cursor="pointer">
               <Link to="/admin/flags">Feature flags</Link>
             </Menu.Item>
-            <Menu.Item value="item-8" asChild cursor="pointer">
-              <Link to="/admin/import">Import events</Link>
-            </Menu.Item>
           </Menu.Content>
         </Menu.Positioner>
       </Portal>
