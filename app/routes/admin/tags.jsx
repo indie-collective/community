@@ -122,7 +122,7 @@ const TagsAdmin = () => {
                   <Form method="post">
                     <input type="hidden" name="tagId" value={tag.id} />
                     <input type="hidden" name="intent" value="delete" />
-                    <Button size="sm" colorPalette="red" type="submit">
+                    <Button size="sm" variant="outline" type="submit">
                       Delete
                     </Button>
                   </Form>

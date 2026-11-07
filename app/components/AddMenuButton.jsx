@@ -25,7 +25,7 @@ const AddMenuButton = () => {
       <Menu.Trigger asChild>
         <IconButton
           size="md"
-          variant="popOutline"
+          variant="outline"
           borderRadius="full"
           transition="background-color 150ms ease-out, transform 150ms ease-out"
           // Its plus turns into a cross while the menu is open.

@@ -232,7 +232,7 @@ const OrgCard = ({
             size="xs"
             aria-label={`Remove ${name}`}
             rounded="full"
-            colorPalette="red"
+            variant="outline"
             onClick={(e) => {
               e.preventDefault();
 

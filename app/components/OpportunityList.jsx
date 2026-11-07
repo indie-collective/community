@@ -68,7 +68,6 @@ const OpportunityList = ({ opportunities, currentUser, showFor = true }) => {
                 <Button
                   size="sm"
                   variant="ghost"
-                  colorPalette="red"
                   loading={fetcher.state !== 'idle'}
                   onClick={() =>
                     fetcher.submit({}, { method: 'post', action: `/opportunities/${opportunity.id}/delete` })

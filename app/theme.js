@@ -224,34 +224,54 @@ const config = defineConfig({
     // `subtle` fills with bg.muted, the same gray as the page background, so
     // fields were invisible; fill them with a colour that contrasts instead.
     recipes: {
-      // The site's buttons: ink, or outlined in ink. Hover changes the
-      // colour; a press presses in a little.
+      // The site's four buttons. `solid` (the default) is the primary
+      // action, one per screen, in green. `outline` is every other action,
+      // outlined in ink; with aria-pressed or aria-current it's a toggle,
+      // sun yellow when on (Going, Follow, a picked plate or tab). `ghost` is
+      // the quiet one: small actions and menus. Hover changes the colour; a
+      // press presses in a little.
       button: {
+        base: {
+          borderRadius: 'control',
+          fontWeight: 'semibold',
+          transition:
+            'background-color 150ms ease-out, border-color 150ms ease-out, transform 100ms ease-out',
+          _active: { transform: 'scale(0.98)' },
+        },
         variants: {
           variant: {
-            pop: {
-              bg: 'ink',
-              color: 'canvas',
+            solid: {
+              bg: 'colorPalette.solid',
+              color: 'colorPalette.contrast',
               borderWidth: '2px',
-              borderColor: 'ink',
-              borderRadius: 'control',
-              fontWeight: 'semibold',
-              transition:
-                'background-color 150ms ease-out, border-color 150ms ease-out, transform 100ms ease-out',
-              _hover: { bg: 'muted', borderColor: 'muted' },
-              _active: { transform: 'scale(0.98)' },
+              borderColor: 'colorPalette.solid',
+              // Darker under the pointer, whatever the palette: the site's
+              // green, or red for the Delete in a confirmation.
+              _hover: { filter: 'brightness(0.82)' },
+              _expanded: { filter: 'brightness(0.82)' },
             },
-            popOutline: {
+            outline: {
               bg: 'transparent',
               color: 'ink',
               borderWidth: '2px',
               borderColor: 'ink',
-              borderRadius: 'control',
-              fontWeight: 'semibold',
-              transition: 'background-color 150ms ease-out, transform 100ms ease-out',
               _hover: { bg: 'surface' },
-              _active: { transform: 'scale(0.98)' },
+              _expanded: { bg: 'surface' },
+              '&:is([aria-pressed=true], [aria-current=page])': {
+                bg: 'sun',
+                color: 'onPop',
+                borderColor: 'ink',
+                _hover: { bg: 'sun' },
+              },
             },
+            ghost: {
+              bg: 'transparent',
+              color: 'ink',
+              _hover: { bg: 'surface' },
+              _expanded: { bg: 'surface' },
+            },
+            // A button that reads as a link: Show all, Change.
+            plain: { color: 'ink', _hover: { color: 'primary.fg' } },
           },
         },
       },

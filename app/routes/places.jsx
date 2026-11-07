@@ -480,7 +480,7 @@ const Places = () => {
               key={option.key}
               size="sm"
               rounded="full"
-              variant={plate === option.key ? 'pop' : 'popOutline'}
+              variant="outline"
               aria-pressed={plate === option.key}
               onClick={() => openPlate(option)}
             >

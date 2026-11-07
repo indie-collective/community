@@ -129,7 +129,7 @@ const Navigation = ({ search }) => {
     <Box position="relative">
       <IconButton
         asChild
-        variant="popOutline"
+        variant="outline"
         rounded="full"
         aria-label={
           unreadNotifications > 0
@@ -166,7 +166,7 @@ const Navigation = ({ search }) => {
       <Menu.Trigger asChild>
         <Button
           size="sm"
-          variant="popOutline"
+          variant="outline"
           borderRadius="full"
           textAlign="left"
           w={isMobile ? '100%' : 'auto'}
@@ -234,7 +234,7 @@ const Navigation = ({ search }) => {
             {currentUser && <AddMenuButton />}
             {currentUser && <Bell />}
             <IconButton
-              variant="popOutline"
+              variant="outline"
               size="md"
               rounded="full"
               aria-label={t('nav.menu')}

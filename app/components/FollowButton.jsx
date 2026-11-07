@@ -17,7 +17,7 @@ const FollowButton = ({ type, id, following }) => {
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="follow" value={now ? 'off' : 'on'} />
-      <Button type="submit" size="sm" variant={now ? 'subtle' : 'outline'} aria-pressed={now}>
+      <Button type="submit" size="sm" variant="outline" aria-pressed={now}>
         {now ? <LuBellOff /> : <LuBell />}
         {now ? t('follow.following') : t('follow.follow')}
       </Button>

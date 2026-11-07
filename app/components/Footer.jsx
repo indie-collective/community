@@ -83,7 +83,7 @@ const Footer = () => {
             {t('footer.donate')} <LuExternalLink mx="2px" />
           </ChakraLink>
 
-          <ButtonGroup variant="ghost" colorPalette="gray">
+          <ButtonGroup variant="ghost">
             <IconButton aria-label="Discord" asChild>
               <a href="https://discord.gg/KxZVu2ZZYs">
                 <FaDiscord />

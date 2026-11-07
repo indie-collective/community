@@ -42,7 +42,6 @@ const AvatarButton = () => {
     // The site's ink button, full width in the phone menu.
     <Button
       asChild
-      variant="pop"
       w={{ base: '100%', md: 'auto' }}
       size="md"
       px={5}
