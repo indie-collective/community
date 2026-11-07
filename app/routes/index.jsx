@@ -91,9 +91,6 @@ export const meta = ({ matches, location }) =>
 
 const number = (n) => n.toLocaleString('en');
 
-// The homepage is the current issue of a magazine about the indie scene
-// (magazine pass): a cover, then departments, each with its own furniture.
-
 // The cover story: one of the featured games, full bleed, set a little
 // off-straight under a sticker. "Another" turns to the next one.
 const CoverStory = ({ games }) => {
@@ -134,7 +131,8 @@ const CoverStory = ({ games }) => {
         borderColor="ink"
         shadow="lift"
         transform="rotate(2.5deg)"
-        animation="settle 800ms cubic-bezier(0.2, 0.8, 0.2, 1) both"
+        // Backwards only: once settled, the hover transition takes the transform.
+        animation="settle 800ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards"
         transition="transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1)"
         _hover={{ transform: 'rotate(0deg) scale(1.01)' }}
       >
@@ -221,16 +219,6 @@ const Cover = ({ counts, games }) => (
     mb={{ base: 12, md: 16 }}
   >
     <Box minW={0}>
-      <Text
-        fontSize="xs"
-        fontWeight="semibold"
-        letterSpacing="wider"
-        textTransform="uppercase"
-        color="brandDeep"
-        mb={3}
-      >
-        The open database of the indie scene
-      </Text>
       <Heading as="h1" size="cover">
         The indie game scene,{' '}
         <Box
@@ -262,14 +250,17 @@ const Cover = ({ counts, games }) => (
       <Form method="get" action="/search" role="search">
         <HStack
           maxW="lg"
-          p={1.5}
+          p={1}
           bg="surface"
           borderWidth="2px"
           borderColor="ink"
-          rounded="xl"
-          shadow="pop"
-          transition="box-shadow 120ms ease-out"
-          _focusWithin={{ shadow: 'popHover' }}
+          // The button's 10px, plus the 4px between them.
+          borderRadius="14px"
+          _focusWithin={{
+            outline: '2px solid',
+            outlineColor: 'brand',
+            outlineOffset: '2px',
+          }}
         >
           <Input
             name="q"
@@ -301,21 +292,13 @@ const Cover = ({ counts, games }) => (
           [counts.events, 'events'],
         ].map(([n, label]) => (
           <Flex key={label} direction="column-reverse">
-            <Text
-              as="dt"
-              fontSize="2xs"
-              fontWeight="semibold"
-              letterSpacing="wider"
-              textTransform="uppercase"
-              color="muted"
-              mt={1}
-            >
+            <Text as="dt" fontSize="sm" color="muted" mt={1}>
               {label}
             </Text>
             <Text
               as="dd"
               fontFamily="heading"
-              fontWeight="800"
+              fontWeight="600"
               fontSize={{ base: '2xl', md: '3xl' }}
               lineHeight="1"
               letterSpacing="-0.02em"
@@ -332,7 +315,7 @@ const Cover = ({ counts, games }) => (
 );
 
 // The invitation to add what's missing, as a sticky note at the end of the
-// issue. Only for people who aren't signed in, as the cover.
+// page. Only for people who aren't signed in, as the cover.
 const Contribute = () => (
   <Grid
     as="aside"
@@ -353,15 +336,14 @@ const Contribute = () => (
       <Heading
         as="h2"
         fontSize={{ base: '3xl', md: '4xl' }}
-        fontWeight="800"
+        fontWeight="600"
         letterSpacing="-0.03em"
         lineHeight="1"
       >
-        {"Know one we're missing?"}
+        {"Add what's missing"}
       </Heading>
       <Text mt={2} maxW="52ch">
-        This magazine is written by its readers: add a game, a studio or an
-        association, or an event.
+        Anyone can add a game, a studio or an association, or an event.
       </Text>
       <Text fontSize="sm" mt={2}>
         Adding needs a free account: sign in with Bluesky.
@@ -378,6 +360,7 @@ const Contribute = () => (
           size="sm"
           borderWidth="2px"
           borderColor="onPop"
+          borderRadius="10px"
           bg={i === 0 ? 'onPop' : 'transparent'}
           color={i === 0 ? 'sun' : 'onPop'}
           fontWeight="semibold"
@@ -465,7 +448,7 @@ const GameWall = ({ games }) => {
                 aria-pressed={pressed}
                 onClick={() => setTag(name)}
               >
-                {name ?? 'Everything'}
+                {name ?? 'All'}
               </Button>
             );
           })}
@@ -536,7 +519,6 @@ const HomePage = () => {
 
       {joinedEventsToCome.length > 0 && (
         <Department
-          kicker="On your calendar"
           title="Your next events"
           to="/events"
           linkLabel="All events"
@@ -545,12 +527,7 @@ const HomePage = () => {
         </Department>
       )}
 
-      <Department
-        kicker="Agenda"
-        title="Upcoming events"
-        to="/events"
-        linkLabel="Explore events"
-      >
+      <Department title="Upcoming events" to="/events" linkLabel="All events">
         {eventsToCome.length > 0 ? (
           <TicketGrid events={eventsToCome} />
         ) : (
@@ -569,17 +546,12 @@ const HomePage = () => {
         kicker="Recently updated"
         title="Games"
         to="/games"
-        linkLabel="Explore games"
+        linkLabel="All games"
       >
         <GameWall games={games} />
       </Department>
 
-      <Department
-        kicker="Atlas"
-        title="Map"
-        to="/places"
-        linkLabel="Open the map"
-      >
+      <Department title="Atlas" to="/places" linkLabel="Open the atlas">
         <PlacesWidget placesCount={placesCount} placesPoints={placesPoints} />
       </Department>
 
@@ -589,19 +561,13 @@ const HomePage = () => {
         gap={{ base: 0, lg: 8 }}
         templateColumns={['1fr', '1fr', '1fr', 'repeat(2, 1fr)']}
       >
-        <Department
-          kicker="Who makes them"
-          title="Studios"
-          to="/studios"
-          linkLabel="Explore studios"
-        >
+        <Department title="Studios" to="/studios" linkLabel="All studios">
           <OrgBadges orgs={studios} />
         </Department>
         <Department
-          kicker="Who brings people together"
           title="Associations"
           to="/associations"
-          linkLabel="Explore associations"
+          linkLabel="All associations"
         >
           <OrgBadges orgs={associations} />
         </Department>

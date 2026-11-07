@@ -24,19 +24,12 @@ const AddMenuButton = () => {
     <Menu.Root>
       <Menu.Trigger asChild>
         <IconButton
-          borderRadius="full"
           size="md"
-          variant="solid"
-          bg="sun"
-          color="onPop"
-          borderWidth="2px"
-          borderColor="ink"
-          transition="transform 120ms ease-out, box-shadow 120ms ease-out"
-          _hover={{
-            transform: 'translate(-2px, -2px) rotate(90deg)',
-            shadow: 'pop',
-          }}
-          _expanded={{ transform: 'rotate(45deg)' }}
+          variant="popOutline"
+          borderRadius="full"
+          transition="background-color 150ms ease-out, transform 150ms ease-out"
+          // Its plus turns into a cross while the menu is open.
+          _expanded={{ transform: 'rotate(45deg)', bg: 'surface' }}
           aria-label={t('nav.addNew')}
         >
           <Icon as={LuPlus} w={5} h={5} />

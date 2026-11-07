@@ -37,7 +37,7 @@ const placeOf = (location, venue) =>
     .join(' · ');
 
 /**
- * An event as a ticket stub (magazine pass): the day and month on the stub,
+ * An event as a ticket stub: the day and month on the stub,
  * a perforation, then the name and place. For the homepage's agenda.
  */
 const EventTicket = ({
@@ -104,7 +104,7 @@ const EventTicket = ({
       >
         <Text
           fontFamily="heading"
-          fontWeight="800"
+          fontWeight="600"
           fontSize="3xl"
           lineHeight="1"
           letterSpacing="-0.03em"
@@ -112,13 +112,7 @@ const EventTicket = ({
         >
           {day?.day}
         </Text>
-        <Text
-          fontSize="xs"
-          fontWeight="semibold"
-          letterSpacing="wider"
-          textTransform="uppercase"
-          color="brandDeep"
-        >
+        <Text fontSize="xs" fontWeight="semibold" color="brandDeep">
           {day?.month}
         </Text>
       </Flex>
@@ -141,13 +135,9 @@ const EventTicket = ({
         </Text>
         {(online || going) && (
           <Flex gap={1.5} mt={2} wrap="wrap">
-            {going && (
-              <Sticker tone="sun" rotate={0} shadow="none">
-                {t('events.going')}
-              </Sticker>
-            )}
+            {going && <Sticker tone="sun">{t('events.going')}</Sticker>}
             {online && (
-              <Sticker tone="lilac" rotate={0} shadow="none">
+              <Sticker tone="lilac">
                 {t(attendance === 'hybrid' ? 'events.hybrid' : 'events.online')}
               </Sticker>
             )}
@@ -155,13 +145,7 @@ const EventTicket = ({
         )}
       </Box>
       {canceled && (
-        <Sticker
-          tone="coral"
-          rotate={3}
-          position="absolute"
-          top="-10px"
-          right={3}
-        >
+        <Sticker tone="coral" position="absolute" top="-10px" right={3}>
           {t('events.canceled')}
         </Sticker>
       )}
@@ -250,10 +234,7 @@ function EventCard({
           title={startsAtText}
           marginTop={1}
           color="muted"
-          fontWeight="semibold"
-          letterSpacing="wide"
-          fontSize="xs"
-          textTransform="uppercase"
+          fontSize="sm"
           align="center"
         >
           <Icon>
@@ -271,10 +252,7 @@ function EventCard({
             as={Text}
             title={placeText}
             color="muted"
-            fontWeight="semibold"
-            letterSpacing="wide"
-            fontSize="xs"
-            textTransform="uppercase"
+            fontSize="sm"
             align="center"
           >
             <Icon>

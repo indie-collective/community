@@ -37,12 +37,19 @@ export const loader = async ({ request }) => {
 
   const currentUser = await isAuthenticated(request);
 
-  const [{ events, pastEvents, countries, years }, monthEvents] = await Promise.all([
-    listEvents({ country, period, where, near, km }),
-    shownMonth
-      ? listEventsBetween({ ...monthGridInstants(shownMonth), country, where, near, km })
-      : [],
-  ]);
+  const [{ events, pastEvents, countries, years }, monthEvents] =
+    await Promise.all([
+      listEvents({ country, period, where, near, km }),
+      shownMonth
+        ? listEventsBetween({
+            ...monthGridInstants(shownMonth),
+            country,
+            where,
+            near,
+            km,
+          })
+        : [],
+    ]);
 
   const data = {
     today,
@@ -97,25 +104,43 @@ const NoEvents = ({ children }) => (
 );
 
 const Events = () => {
-  const { today, shownMonth, monthEvents, events, pastEvents, currentUser, facets, selected } = useLoaderData();
+  const {
+    today,
+    shownMonth,
+    monthEvents,
+    events,
+    pastEvents,
+    currentUser,
+    facets,
+    selected,
+  } = useLoaderData();
   const t = useT();
   const isPeriodUpcoming = selected.period === 'upcoming';
   const where = [
-    selected.where === 'online' ? ' online' : selected.where === 'in_person' ? ' in person' : '',
-    selected.country ? ` in ${countryNames[selected.country] ?? selected.country}` : '',
+    selected.where === 'online'
+      ? ' online'
+      : selected.where === 'in_person'
+        ? ' in person'
+        : '',
+    selected.country
+      ? ` in ${countryNames[selected.country] ?? selected.country}`
+      : '',
     selected.near ? ` within ${selected.km} km` : '',
   ].join('');
 
   return (
     <Page>
       <PageHeader
-        eyebrow={t('events.diary')}
         title={t('lists.events.title')}
         description={t('lists.events.description')}
         actions={
           <>
             <SubscribeMenu
-              calendarPath={selected.country ? `/country/${selected.country.toLowerCase()}/calendar.ics` : '/calendar.ics'}
+              calendarPath={
+                selected.country
+                  ? `/country/${selected.country.toLowerCase()}/calendar.ics`
+                  : '/calendar.ics'
+              }
               feedPath={`/events/feed.xml${selected.country ? `?country=${selected.country}` : ''}`}
             />
             {currentUser && (

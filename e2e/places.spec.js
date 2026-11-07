@@ -193,7 +193,7 @@ test.describe('the places drawer on a phone', () => {
 
   test('opens and closes by tap and swipe, keeping its list', async ({ page }) => {
     await page.goto('/places', { waitUntil: 'networkidle' });
-    const drawer = page.getByRole('dialog', { name: 'Gazetteer' });
+    const drawer = page.getByRole('dialog', { name: 'In view' });
     const header = drawer.locator('header').first();
     const top = async () => (await drawer.boundingBox()).y;
 
@@ -320,7 +320,7 @@ test('the atlas opens plates, and lists places with their squares', async ({ pag
   try {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/places?country=XQ', { waitUntil: 'networkidle' });
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Where the scene is');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Atlas');
 
     // The place, then what's there; going to it stays on it.
     const place = page.getByTitle(`Go to Vik ${tag} on the map`);
@@ -336,9 +336,9 @@ test('the atlas opens plates, and lists places with their squares', async ({ pag
     await page.locator('.pigeon-zoom-buttons button').first().click();
     await expect(europe).toHaveAttribute('aria-pressed', 'false');
 
-    const contents = page.getByRole('region', { name: 'Contents, by country' });
+    const contents = page.getByRole('region', { name: 'Countries' });
     await expect(contents.locator('a[href^="/country/"]').first()).toBeVisible();
-    await expect(contents.getByRole('link', { name: 'Every country, as a table' })).toHaveAttribute('href', '/countries');
+    await expect(contents.getByRole('link', { name: 'All countries' })).toHaveAttribute('href', '/countries');
   } finally {
     await retryBusy(() => db.delete(organizations).where(eq(organizations.id, studio.id)));
   }
@@ -356,6 +356,6 @@ test('the places map fills its column beside the list on desktop', async ({ page
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(1440);
   // Beside the list, not under it.
-  const list = await page.getByRole('heading', { name: /^Gazetteer/ }).boundingBox();
+  const list = await page.getByRole('heading', { name: /^In view/ }).boundingBox();
   expect(list.x).toBeGreaterThan(box.x + box.width - 1);
 });

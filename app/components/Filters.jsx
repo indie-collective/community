@@ -60,7 +60,7 @@ const NearMe = ({ selected, onChange, without }) => {
     <Button
       type="button"
       size="sm"
-      variant="outline"
+      variant="popOutline"
       loading={state === 'locating'}
       onClick={(event) => {
         const form = event.currentTarget.form;
@@ -108,7 +108,9 @@ const Filters = ({ facets, selected, type }) => {
 
   return (
     <Form method="get">
-      {selected.month && <input type="hidden" name="month" value={selected.month} />}
+      {selected.month && (
+        <input type="hidden" name="month" value={selected.month} />
+      )}
       <FilterBar>
         <CountryCombobox
           countries={facets.countries}

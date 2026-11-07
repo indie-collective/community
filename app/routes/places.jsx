@@ -92,7 +92,7 @@ const PlaceRow = ({ row, onGo, t }) => (
       place: row.city ?? countryNames[row.code] ?? row.code,
     })}
   >
-    <Text as="span" fontFamily="heading" fontWeight="bold" truncate>
+    <Text as="span" fontFamily="heading" fontWeight="semibold" truncate>
       {row.city ?? countryNames[row.code] ?? row.code}
       {row.city && row.code && (
         <Text
@@ -464,28 +464,18 @@ const Places = () => {
     >
       <Flex justify="space-between" align="flex-end" wrap="wrap" gap={3} mb={4}>
         <Box minW={0}>
-          <Text
-            fontSize="xs"
-            fontWeight="semibold"
-            letterSpacing="wider"
-            textTransform="uppercase"
-            color="brandDeep"
-          >
-            {t('atlas.kicker')}
-          </Text>
           <Heading
             as="h1"
             fontSize={{ base: '3xl', md: '5xl' }}
-            fontWeight="800"
-            letterSpacing="-0.035em"
+            fontWeight="600"
+            letterSpacing="-0.03em"
             lineHeight="1"
-            mt={1}
           >
             {t('atlas.title')}
           </Heading>
         </Box>
         <HStack as="nav" aria-label={t('atlas.plates')} gap={1.5} wrap="wrap">
-          {PLATES.map((option, index) => (
+          {PLATES.map((option) => (
             <Button
               key={option.key}
               size="sm"
@@ -494,7 +484,7 @@ const Places = () => {
               aria-pressed={plate === option.key}
               onClick={() => openPlate(option)}
             >
-              {index + 1} · {t(`atlas.plate.${option.key}`)}
+              {t(`atlas.plate.${option.key}`)}
             </Button>
           ))}
         </HStack>
@@ -603,12 +593,7 @@ const Places = () => {
               pointerEvents="none"
               maxW="50%"
             >
-              <Text
-                fontFamily="heading"
-                fontWeight="800"
-                lineHeight="1.15"
-                letterSpacing="-0.01em"
-              >
+              <Text fontFamily="heading" fontWeight="600" lineHeight="1.15">
                 {plateName}
               </Text>
             </Box>
@@ -652,11 +637,8 @@ const Places = () => {
               py={2}
             >
               <Text
-                fontSize="2xs"
+                fontSize="xs"
                 fontWeight="semibold"
-                letterSpacing="wider"
-                textTransform="uppercase"
-                color="brandDeep"
                 mb={{ md: 1 }}
                 hideBelow="md"
               >
@@ -789,7 +771,7 @@ const Places = () => {
             as="h2"
             id="atlas-contents"
             fontSize={{ base: '2xl', md: '3xl' }}
-            fontWeight="800"
+            fontWeight="600"
             letterSpacing="-0.02em"
           >
             {t('atlas.contents')}

@@ -7,47 +7,59 @@ const TONES = {
   brand: 'brand',
 };
 
+// The big round one on the homepage's cover story, slapped on at an angle;
+// `land` plays its landing once.
+const ROUND = {
+  display: 'grid',
+  placeItems: 'center',
+  textAlign: 'center',
+  fontFamily: 'heading',
+  fontWeight: 'bold',
+  lineHeight: '1.05',
+  letterSpacing: '-0.01em',
+  fontSize: 'md',
+  px: 0,
+  py: 0,
+  w: { base: '84px', md: '100px' },
+  h: { base: '84px', md: '100px' },
+  borderRadius: 'full',
+  shadow: 'lift',
+  whiteSpace: 'normal',
+};
+
 /**
- * A sticker slapped on a cover or a ticket (magazine pass): a short status,
- * "Cover story", "Canceled", "Studio". Stickers carry status, never
- * decoration, so each says something true about what it's on. `round` makes
- * the big round one on the homepage cover; `land` plays its landing once.
+ * A short status on a card: "Canceled", "Online", "You're going". Status
+ * only, never decoration, so each says something true about what it's on.
+ * `round` makes the cover story's sticker.
  */
 const Sticker = ({
   tone = 'sun',
-  rotate = -3,
   round = false,
+  rotate = -14,
   land = false,
   children,
   ...rest
 }) => (
   <Box
     as="span"
-    display={round ? 'grid' : 'inline-block'}
-    placeItems="center"
-    textAlign="center"
+    display="inline-block"
     bg={TONES[tone] ?? tone}
     color="onPop"
-    fontFamily="heading"
-    fontWeight="bold"
-    lineHeight="1.05"
-    letterSpacing={round ? '-0.01em' : 'wider'}
-    textTransform={round ? 'none' : 'uppercase'}
-    fontSize={round ? 'md' : '2xs'}
-    px={round ? 0 : 2}
-    py={round ? 0 : 1}
-    w={round ? { base: '84px', md: '100px' } : undefined}
-    h={round ? { base: '84px', md: '100px' } : undefined}
-    borderRadius={round ? 'full' : 'md'}
-    shadow="lift"
-    whiteSpace={round ? 'normal' : 'nowrap'}
-    transform={`rotate(${rotate}deg)`}
-    css={{ '--sticker-rotate': `${rotate}deg` }}
-    animation={
-      land
+    fontSize="xs"
+    fontWeight="medium"
+    lineHeight="1.4"
+    px={2}
+    py={0.5}
+    borderRadius="md"
+    whiteSpace="nowrap"
+    {...(round && {
+      ...ROUND,
+      transform: `rotate(${rotate}deg)`,
+      css: { '--sticker-rotate': `${rotate}deg` },
+      animation: land
         ? 'sticker-land 500ms cubic-bezier(0.3, 1.4, 0.5, 1) 500ms both'
-        : undefined
-    }
+        : undefined,
+    })}
     {...rest}
   >
     {children}

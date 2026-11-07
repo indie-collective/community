@@ -1,11 +1,11 @@
-import { Box, Heading, Text, Flex, Button } from '@chakra-ui/react';
+import { Box, Heading, Flex, Button } from '@chakra-ui/react';
 import { LuChevronRight } from 'react-icons/lu';
 import Link from './Link';
 import { Overlay } from 'pigeon-maps';
 import TileMap from './TileMap';
 
 /**
- * The homepage's atlas spread (magazine pass): the map in the brand's deep
+ * The homepage's atlas spread: the map in the brand's deep
  * green, a coral pin for every place, and the count over it.
  */
 const PlacesWidget = ({ placesCount, placesPoints }) => (
@@ -22,10 +22,14 @@ const PlacesWidget = ({ placesCount, placesPoints }) => (
       position="absolute"
       inset={0}
       // Only the tiles are tinted the brand's deep green: the pins stay coral.
+      // As specific as TileMap's own tile filter, and later, so it wins; in
+      // dark mode the tiles are already dark, so they're left as they are.
       css={{
-        '& img': {
-          filter:
-            'grayscale(1) sepia(1) hue-rotate(115deg) saturate(1.8) brightness(0.6)',
+        _light: {
+          '& .pigeon-tiles-box img[src^="https://tile.openstreetmap.org/"]': {
+            filter:
+              'grayscale(1) sepia(1) hue-rotate(115deg) saturate(1.8) brightness(0.6)',
+          },
         },
       }}
       pointerEvents="none"
@@ -59,26 +63,22 @@ const PlacesWidget = ({ placesCount, placesPoints }) => (
       align={{ base: 'flex-start', sm: 'flex-end' }}
       gap={4}
       p={{ base: 5, md: 6 }}
-      // Dark at the bottom, where the text sits, in both colour modes.
+      // Dark only under the text, in both colour modes.
       bgGradient="to-t"
-      gradientFrom="rgba(5, 20, 18, 0.85)"
+      gradientFrom="rgba(5, 20, 18, 0.8)"
+      gradientVia="rgba(5, 20, 18, 0.35)"
       gradientTo="transparent"
+      css={{
+        '--gradient-via-position': '30%',
+        '--gradient-to-position': '60%',
+      }}
       color="white"
     >
       <Box mt="auto">
-        <Text
-          fontSize="xs"
-          fontWeight="semibold"
-          letterSpacing="wider"
-          textTransform="uppercase"
-          color="sun"
-        >
-          Where the scene meets
-        </Text>
         <Heading
           as="h3"
           fontSize={{ base: '4xl', md: '5xl' }}
-          fontWeight="800"
+          fontWeight="600"
           letterSpacing="-0.03em"
           lineHeight="1"
           fontVariantNumeric="tabular-nums"
@@ -88,20 +88,16 @@ const PlacesWidget = ({ placesCount, placesPoints }) => (
       </Box>
       <Button
         variant="solid"
-        bg="sun"
+        bg="white"
         color="onPop"
-        borderWidth="2px"
-        borderColor="onPop"
+        borderRadius="10px"
         fontWeight="semibold"
-        _hover={{
-          transform: 'translate(-2px, -2px)',
-          shadow: '4px 4px 0 #10201d',
-        }}
-        transition="transform 120ms ease-out, box-shadow 120ms ease-out"
+        _hover={{ bg: '#e8f1ee' }}
+        transition="background-color 150ms ease-out"
         asChild
       >
         <Link to="/places">
-          Open the map
+          Open the atlas
           <LuChevronRight />
         </Link>
       </Button>

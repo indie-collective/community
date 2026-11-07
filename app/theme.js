@@ -79,8 +79,8 @@ const config = defineConfig({
         from: { opacity: 0, transform: 'translateY(10px)' },
         to: { opacity: 1, transform: 'none' },
       },
-      // The homepage cover (magazine pass): the cover card settles into its
-      // tilt, and its sticker lands on it.
+      // The homepage's cover story: the card settles into its tilt, and its
+      // sticker lands on it.
       settle: {
         from: { transform: 'rotate(9deg) translateY(16px)' },
       },
@@ -104,16 +104,16 @@ const config = defineConfig({
     // loaded in root.jsx.
     semanticTokens: {
       colors: {
-        // The magazine pass: paper and ink with a green bias from the logo,
-        // the logo's two greens, and three pops for stickers and filters.
-        // The page background (paper), and the panels and cards on it.
+        // Paper and ink with a green bias from the logo, the logo's two greens,
+        // and three colours that only mark state.
+        // The page background, and the panels and cards on it.
         canvas: {
           value: { base: '#f3f6f2', _dark: '#0d1715' },
         },
         surface: {
           value: { base: '{colors.white}', _dark: '#15221f' },
         },
-        // Text, rules around pressable things and the hard shadows.
+        // Text, and the rules around pressable things.
         ink: {
           value: { base: '#10201d', _dark: '#e8f1ee' },
         },
@@ -133,8 +133,8 @@ const config = defineConfig({
         brandDeep: {
           value: { base: '#054f45', _dark: '#8fe3d4' },
         },
-        // Pops, only for stickers, highlights and selected filters: they
-        // carry status, never decoration. Text on them is always onPop.
+        // State only: sun for what's selected or yours, coral for today and
+        // canceled, lilac for online. Text on them is always onPop.
         sun: { value: '#ffd23f' },
         coral: { value: { base: '#ff6b5b', _dark: '#ff8475' } },
         lilac: { value: { base: '#b9a7ff', _dark: '#c4b5ff' } },
@@ -147,9 +147,6 @@ const config = defineConfig({
         },
       },
       shadows: {
-        // A hard offset shadow means "you can press this" (magazine pass).
-        pop: { value: '4px 4px 0 var(--chakra-colors-ink)' },
-        popHover: { value: '5px 5px 0 var(--chakra-colors-brand)' },
         // Cards lifted off the paper: covers, tickets.
         lift: {
           value: {
@@ -204,8 +201,8 @@ const config = defineConfig({
     // `subtle` fills with bg.muted, the same gray as the page background, so
     // fields were invisible; fill them with a colour that contrasts instead.
     recipes: {
-      // The magazine's pressable button: ink, outlined, with a hard shadow
-      // it rises onto under the pointer.
+      // The site's buttons: ink, or outlined in ink. Hover changes the
+      // colour; a press presses in a little.
       button: {
         variants: {
           variant: {
@@ -214,23 +211,23 @@ const config = defineConfig({
               color: 'canvas',
               borderWidth: '2px',
               borderColor: 'ink',
+              borderRadius: '10px',
               fontWeight: 'semibold',
-              transition: 'transform 120ms ease-out, box-shadow 120ms ease-out',
-              _hover: {
-                transform: 'translate(-2px, -2px)',
-                shadow: 'popHover',
-              },
-              _active: { transform: 'none', shadow: 'none' },
+              transition:
+                'background-color 150ms ease-out, border-color 150ms ease-out, transform 100ms ease-out',
+              _hover: { bg: 'muted', borderColor: 'muted' },
+              _active: { transform: 'scale(0.98)' },
             },
             popOutline: {
               bg: 'transparent',
               color: 'ink',
               borderWidth: '2px',
               borderColor: 'ink',
+              borderRadius: '10px',
               fontWeight: 'semibold',
-              transition: 'transform 120ms ease-out, box-shadow 120ms ease-out',
-              _hover: { transform: 'translate(-2px, -2px)', shadow: 'pop' },
-              _active: { transform: 'none', shadow: 'none' },
+              transition: 'background-color 150ms ease-out, transform 100ms ease-out',
+              _hover: { bg: 'surface' },
+              _active: { transform: 'scale(0.98)' },
             },
           },
         },
@@ -256,12 +253,12 @@ const config = defineConfig({
             '2xl': { fontSize: { base: '3xl', md: '4xl' }, lineHeight: '1.15' },
             '3xl': { fontSize: { base: '4xl', md: '5xl' }, lineHeight: '1.1' },
             '4xl': { fontSize: { base: '5xl', md: '6xl' }, lineHeight: '1.05' },
-            // The homepage cover (magazine pass): heavy and tight.
+            // The homepage's introduction: large, tight only because it's large.
             cover: {
-              fontSize: { base: '2.6rem', sm: '3.4rem', md: '4.2rem' },
-              lineHeight: '0.98',
-              fontWeight: '800',
-              letterSpacing: '-0.035em',
+              fontSize: { base: '2.6rem', sm: '3.4rem', md: '4rem' },
+              lineHeight: '1.02',
+              fontWeight: '600',
+              letterSpacing: '-0.03em',
             },
           },
         },

@@ -113,7 +113,7 @@ const Day = ({ day, today, selected, onSelect, language, t }) => {
         <Text
           as="span"
           fontFamily="heading"
-          fontWeight={day.inMonth ? 'bold' : 'semibold'}
+          fontWeight={day.inMonth ? 'semibold' : 'medium'}
           fontSize={{ base: 'sm', md: 'md' }}
           lineHeight="1"
           display="inline-grid"
@@ -161,9 +161,7 @@ const Calendar = ({ month, events, today, selected, onSelect, isGoing }) => {
             px={{ base: 1, md: 2 }}
             py={2}
             fontSize="xs"
-            fontWeight="semibold"
-            letterSpacing="wider"
-            textTransform="uppercase"
+            fontWeight="medium"
             color="muted"
           >
             {label}
@@ -227,7 +225,7 @@ const KeyItem = ({ tone, children }) => (
 );
 
 /**
- * The events page's diary (magazine pass): a month on the left, what's on on
+ * The events page's diary: a month on the left, what's on on
  * the right. Picking a day starts the agenda there. A month's events always
  * show on the calendar; `upcoming` is what the agenda opens on this month.
  */
@@ -298,6 +296,7 @@ const EventDiary = ({
   return (
     <Grid
       templateColumns={{ base: 'minmax(0, 1fr)', lg: 'minmax(0, 1fr) 320px' }}
+      mb={{ base: 10, md: 12 }}
       gap={{ base: 8, lg: 6 }}
       alignItems="start"
     >
@@ -314,7 +313,7 @@ const EventDiary = ({
             as="h2"
             id={headingId}
             fontSize={{ base: '3xl', md: '4xl' }}
-            fontWeight="800"
+            fontWeight="600"
             letterSpacing="-0.03em"
             lineHeight="1"
           >
@@ -352,7 +351,7 @@ const EventDiary = ({
               </Link>
             </IconButton>
             {!isThisMonth && (
-              <Button asChild variant="popOutline" rounded="full" size="sm">
+              <Button asChild variant="popOutline" size="sm">
                 <Link to={monthHref(null)} preventScrollReset>
                   {t('events.today')}
                 </Link>
@@ -403,11 +402,8 @@ const EventDiary = ({
             {agendaGroups(agenda, today).map(({ key, events }) => (
               <Stack key={key} gap={3}>
                 <Text
-                  fontSize="xs"
+                  fontSize="sm"
                   fontWeight="semibold"
-                  letterSpacing="wider"
-                  textTransform="uppercase"
-                  color="brandDeep"
                   borderTop="2px solid"
                   borderColor="ink"
                   pt={2}
