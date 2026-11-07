@@ -3,12 +3,14 @@ import { LuPlus } from 'react-icons/lu';
 import { useLoaderData } from 'react-router';
 import Link from '../components/Link';
 
-import { listEvents } from '../data/events.server';
+import { listEvents, listEventsBetween } from '../data/events.server';
 import isAuthenticated from '../utils/isAuthenticated.server';
 import EventCard from '../components/EventCard';
+import EventDiary from '../components/EventDiary';
 import { SubscribeMenu } from '../components/CalendarMenus';
 import Filters, { NEAR_RADII } from '../components/Filters';
 import { placeAt } from '../utils/mapFocus';
+import { monthGridInstants, monthOf, parseMonth } from '../utils/eventCalendar';
 import noEventsImage from '../assets/undraw_festivities_tvvj.svg';
 import { pageMeta } from '../utils/meta';
 import { Page, PageHeader, PageSection } from '../components/Page';
@@ -28,17 +30,24 @@ export const loader = async ({ request }) => {
     ? Number(searchParams.get('km'))
     : 50;
 
+  // The calendar's month, unless the list is a whole year's.
+  const today = new Date().toISOString().slice(0, 10);
+  const month = parseMonth(searchParams.get('month'));
+  const shownMonth = period === 'upcoming' ? (month ?? monthOf(today)) : null;
+
   const currentUser = await isAuthenticated(request);
 
-  const { events, pastEvents, countries, years } = await listEvents({
-    country,
-    period,
-    where,
-    near,
-    km,
-  });
+  const [{ events, pastEvents, countries, years }, monthEvents] = await Promise.all([
+    listEvents({ country, period, where, near, km }),
+    shownMonth
+      ? listEventsBetween({ ...monthGridInstants(shownMonth), country, where, near, km })
+      : [],
+  ]);
 
   const data = {
+    today,
+    shownMonth,
+    monthEvents,
     events,
     pastEvents, // Only populated if period is upcoming
     facets: {
@@ -48,6 +57,7 @@ export const loader = async ({ request }) => {
     selected: {
       country,
       period,
+      month,
       where,
       near: near && searchParams.get('near'),
       km,
@@ -87,7 +97,7 @@ const NoEvents = ({ children }) => (
 );
 
 const Events = () => {
-  const { events, pastEvents, currentUser, facets, selected } = useLoaderData();
+  const { today, shownMonth, monthEvents, events, pastEvents, currentUser, facets, selected } = useLoaderData();
   const t = useT();
   const isPeriodUpcoming = selected.period === 'upcoming';
   const where = [
@@ -99,6 +109,7 @@ const Events = () => {
   return (
     <Page>
       <PageHeader
+        eyebrow={t('events.diary')}
         title={t('lists.events.title')}
         description={t('lists.events.description')}
         actions={
@@ -121,13 +132,15 @@ const Events = () => {
       <Filters facets={facets} selected={selected} type="event" />
       {isPeriodUpcoming ? (
         <>
-          <PageSection title={t('lists.events.upcoming')}>
-            {events.length > 0 ? (
-              <EventGrid events={events} />
-            ) : (
-              <NoEvents>No upcoming events{where} yet.</NoEvents>
-            )}
-          </PageSection>
+          <EventDiary
+            key={`${selected.country}-${selected.where}-${selected.near}`}
+            month={shownMonth}
+            initialToday={today}
+            monthEvents={monthEvents}
+            upcoming={events}
+            currentUserId={currentUser?.id}
+            empty={<NoEvents>No upcoming events{where} yet.</NoEvents>}
+          />
           {pastEvents.length > 0 && (
             <PageSection title={t('lists.events.recently')}>
               <EventGrid events={pastEvents} />

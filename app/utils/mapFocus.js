@@ -28,7 +28,7 @@ export function focusOn(points) {
   return { sw, ne, center: [(sw[0] + ne[0]) / 2, (sw[1] + ne[1]) / 2] };
 }
 
-const mercatorY = (lat) =>
+export const mercatorY = (lat) =>
   Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360));
 
 /** The web-map zoom at which the box fits a map of `width` × `height` pixels. */

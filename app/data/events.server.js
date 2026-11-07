@@ -73,6 +73,42 @@ const withCoverLinks = (row) => {
 const computeCard = (row) =>
   computeEvent({ ...shape.event(row), ...links(row) });
 
+// What the events list and its calendar filter on.
+const listFilters = ({ country, where, near, km }) => ({
+  inCountry: country ? eq(events.countryCode, country) : undefined,
+  // #347: hybrid events are both in person and online.
+  attended:
+    where === 'online'
+      ? inArray(events.attendance, ['online', 'hybrid'])
+      : where === 'in_person'
+        ? inArray(events.attendance, ['in_person', 'hybrid'])
+        : undefined,
+  // Near a place: those with coordinates within `km` of it.
+  close: (rows) =>
+    near
+      ? rows.filter(
+          (row) =>
+            row.latitude != null &&
+            row.longitude != null &&
+            distanceKm(near, row) <= km
+        )
+      : rows,
+});
+
+/**
+ * The events under way at some point between two instants, for the events
+ * calendar, with the events list's filters.
+ */
+export async function listEventsBetween({ from, to, country = null, where = null, near = null, km = 50 }) {
+  const { inCountry, attended, close } = listFilters({ country, where, near, km });
+  const rows = await db.query.events.findMany({
+    where: and(notDeleted, inCountry, attended, lte(events.startsAt, to), gte(events.endsAt, from)),
+    with: CARD_WITH,
+    orderBy: asc(events.startsAt),
+  });
+  return close(rows).map(withCoverLinks);
+}
+
 /**
  * The events list: upcoming events, or a year's (`period` is "upcoming" or
  * a year), optionally in one country; for "upcoming", also the ten latest
@@ -90,24 +126,7 @@ export async function listEvents({
   km = 50,
 }) {
   const now = new Date();
-  const inCountry = country ? eq(events.countryCode, country) : undefined;
-  // #347: hybrid events are both in person and online.
-  const attended =
-    where === 'online'
-      ? inArray(events.attendance, ['online', 'hybrid'])
-      : where === 'in_person'
-        ? inArray(events.attendance, ['in_person', 'hybrid'])
-        : undefined;
-  // Near a place: those with coordinates within `km` of it.
-  const close = (rows) =>
-    near
-      ? rows.filter(
-          (row) =>
-            row.latitude != null &&
-            row.longitude != null &&
-            distanceKm(near, row) <= km
-        )
-      : rows;
+  const { inCountry, attended, close } = listFilters({ country, where, near, km });
   let when;
   if (period === 'upcoming') {
     when = gte(events.endsAt, now);

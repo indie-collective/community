@@ -74,17 +74,19 @@ test('the events list filters in person or online events', async ({ page }) => {
   const inPerson = await insertEvent(`Hall Fest ${id}`, { city: 'Lyon', countryCode: 'FR' });
   try {
     await page.goto('/events');
+    // This month's are on the calendar beside it too.
+    const agenda = page.getByRole('region', { name: 'Upcoming' });
     await page.getByLabel('Where').selectOption('online');
     await expect(page).toHaveURL(/where=online/);
-    await expect(page.getByText(online.name)).toBeVisible();
-    await expect(page.getByText(hybrid.name)).toBeVisible();
-    await expect(page.getByText(inPerson.name)).toHaveCount(0);
+    await expect(agenda.getByText(online.name)).toBeVisible();
+    await expect(agenda.getByText(hybrid.name)).toBeVisible();
+    await expect(agenda.getByText(inPerson.name)).toHaveCount(0);
 
     await page.getByLabel('Where').selectOption('in_person');
     await expect(page).toHaveURL(/where=in_person/);
-    await expect(page.getByText(inPerson.name)).toBeVisible();
-    await expect(page.getByText(hybrid.name)).toBeVisible();
-    await expect(page.getByText(online.name)).toHaveCount(0);
+    await expect(agenda.getByText(inPerson.name)).toBeVisible();
+    await expect(agenda.getByText(hybrid.name)).toBeVisible();
+    await expect(agenda.getByText(online.name)).toHaveCount(0);
   } finally {
     await retryBusy(() => db.delete(events).where(inArray(events.id, [online.id, hybrid.id, inPerson.id])));
   }
@@ -101,21 +103,22 @@ test.describe('near the visitor', () => {
     const tokyo = await insertEvent(`Tokyo Meetup ${id}`, { city: 'Tokyo', countryCode: 'JP', latitude: 35.6762, longitude: 139.6503 });
     try {
       await page.goto('/events');
+      const agenda = page.getByRole('region', { name: 'Upcoming' });
       await page.getByRole('button', { name: 'Near me' }).click();
       await expect(page).toHaveURL(/near=45\.760%2C4\.840&km=50/);
-      await expect(page.getByText(villeurbanne.name)).toBeVisible();
-      await expect(page.getByText(grenoble.name)).toHaveCount(0);
-      await expect(page.getByText(tokyo.name)).toHaveCount(0);
+      await expect(agenda.getByText(villeurbanne.name)).toBeVisible();
+      await expect(agenda.getByText(grenoble.name)).toHaveCount(0);
+      await expect(agenda.getByText(tokyo.name)).toHaveCount(0);
 
       // Grenoble is about 95 km away.
       await page.getByLabel('Distance').selectOption('100');
       await expect(page).toHaveURL(/km=100/);
-      await expect(page.getByText(grenoble.name)).toBeVisible();
-      await expect(page.getByText(tokyo.name)).toHaveCount(0);
+      await expect(agenda.getByText(grenoble.name)).toBeVisible();
+      await expect(agenda.getByText(tokyo.name)).toHaveCount(0);
 
       await page.getByRole('button', { name: 'Show events anywhere' }).click();
       await expect(page).not.toHaveURL(/near=/);
-      await expect(page.getByText(tokyo.name)).toBeVisible();
+      await expect(agenda.getByText(tokyo.name)).toBeVisible();
     } finally {
       await retryBusy(() => db.delete(events).where(inArray(events.id, [villeurbanne.id, grenoble.id, tokyo.id])));
     }

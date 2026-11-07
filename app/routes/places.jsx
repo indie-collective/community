@@ -1,92 +1,200 @@
 import { useLoaderData, useLocation, useNavigate } from 'react-router';
-import React, { useTransition, useCallback, useEffect, useMemo, useRef, useState  } from 'react';
+import React, {
+  useTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Box,
+  Button,
   Flex,
+  Grid,
+  Heading,
+  HStack,
+  Text,
   useBreakpointValue,
   Switch,
   Checkbox,
   CheckboxGroup,
-  HStack,
 } from '@chakra-ui/react';
 import { Overlay, ZoomControl } from 'pigeon-maps';
 import { usePrevious } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List } from 'react-window';
 
-// import Error from '../../../client/pages/_error';
 import { Tooltip } from '../components/ui/tooltip';
+import AtlasMark from '../components/AtlasMark';
 import ClusterMap from '../components/ClusterMap';
 import { focusOn, placeAt, zoomToFit } from '../utils/mapFocus';
-import OrgCard from '../components/OrgCard';
 import SwipeableEdgeDrawer from '../components/SwipeableEdgeDrawer';
 import SectionHeading from '../components/SectionHeading';
-import MapPin from '../components/MapPin';
-import { pinColor } from '../utils/orgTypes';
+import Link from '../components/Link';
 import { pageMeta } from '../utils/meta';
+import { eventPath, orgPath } from '../utils/slug';
+import { COLUMNS, PLATES, ROWS, gazetteerRows, scaleBar } from '../utils/atlas';
+import { countryTable } from '../utils/countryTable';
+import countryNames from '../assets/countries.json';
+import continents from '../assets/continents.json';
+import { listCountryFacts } from '../data/countries.server';
 import { listMappedOrganizations } from '../data/organizations.server';
 import { listMappedUpcomingEvents } from '../data/events.server';
-import EventMapCard from '../components/EventMapCard';
+import { useT } from '../i18n';
 
-const OrgMarker = React.memo(
-  ({ id, logo, name, type, highlighted, onClick }) => (
-    <Tooltip content={name} aria-label="A tooltip">
-      <Box
-        width={50}
-        height={50}
-        position="relative"
-        cursor="pointer"
-        transformOrigin="bottom center"
-        transform={highlighted && 'scale(1.2)'}
-        zIndex={highlighted ? 2 : logo ? 1 : 0}
-        _hover={{
-          zIndex: 2,
-          transform: 'scale(1.2)',
-        }}
-        onClick={onClick}
-      >
-        <MapPin color={pinColor(type)} logo={logo} />
-      </Box>
-    </Tooltip>
-  )
-);
+const OrgMarker = React.memo(({ name, type, highlighted, onClick }) => (
+  <Tooltip content={name} aria-label="A tooltip">
+    <Box
+      width="24px"
+      height="24px"
+      display="grid"
+      placeItems="center"
+      cursor="pointer"
+      transform={highlighted ? 'scale(1.5)' : undefined}
+      zIndex={highlighted ? 2 : 1}
+      position="relative"
+      _hover={{ zIndex: 2, transform: 'scale(1.5)' }}
+      onClick={onClick}
+    >
+      <AtlasMark type={type} size={type === 'event' ? 20 : 17} />
+    </Box>
+  </Tooltip>
+));
 
-// What the map shows (#211), each with a label and pin colour.
+// What the map shows (#211), each with its message and mark.
 const KINDS = [
-  ['studio', 'Studios'],
-  ['association', 'Associations'],
-  ['event', 'Upcoming events'],
+  ['studio', 'nav.studios'],
+  ['association', 'nav.associations'],
+  ['event', 'atlas.upcomingEvents'],
 ];
 
-const Row = ({ index, data, style }) => (
-  <div key={data.orgs[index].id} style={style}>
-    {data.orgs[index].type === 'event' ? (
-      <EventMapCard
-        css={{ '&:target': { animation: 'highlight' } }}
-        {...data.orgs[index]}
-        onMouseEnter={() => data.onMouseEnter(data.orgs[index])}
-        onMouseOut={() => data.onMouseOut(data.orgs[index])}
-        animation={data.selectedId === data.orgs[index].id ? 'highlight' : undefined}
-      />
-    ) : (
-    <OrgCard
-      id={data.orgs[index].id}
-      // `highlight` is the animation token (and keyframes) in theme.js.
-      css={{
-        '&:target': {
-          animation: 'highlight',
-        },
-      }}
-      {...data.orgs[index]}
-      onMouseEnter={() => data.onMouseEnter(data.orgs[index])}
-      onMouseOut={() => data.onMouseOut(data.orgs[index])}
-      animation={
-        data.selectedId === data.orgs[index].id ? 'highlight' : undefined
-      }
-    />
-    )}
-  </div>
+const ROW_HEIGHT = 44;
+
+// A place in the gazetteer: going there moves the map onto it.
+const PlaceRow = ({ row, onGo, t }) => (
+  <Flex
+    as="button"
+    type="button"
+    cursor="pointer"
+    h="100%"
+    w="100%"
+    px={1}
+    align="center"
+    justify="space-between"
+    gap={2}
+    textAlign="left"
+    borderBottom="2px solid"
+    borderColor="ink"
+    _hover={{ bg: 'surface' }}
+    onClick={() => onGo(row)}
+    title={t('atlas.goTo', {
+      place: row.city ?? countryNames[row.code] ?? row.code,
+    })}
+  >
+    <Text as="span" fontFamily="heading" fontWeight="bold" truncate>
+      {row.city ?? countryNames[row.code] ?? row.code}
+      {row.city && row.code && (
+        <Text
+          as="span"
+          fontFamily="body"
+          fontWeight="medium"
+          fontSize="xs"
+          color="muted"
+          ml={1.5}
+        >
+          {row.code}
+        </Text>
+      )}
+    </Text>
+    <HStack
+      as="span"
+      gap={2}
+      fontSize="xs"
+      fontWeight="semibold"
+      flexShrink={0}
+      fontVariantNumeric="tabular-nums"
+    >
+      {KINDS.map(([kind]) =>
+        row.counts[kind] > 0 ? (
+          <HStack as="span" gap={0.5} key={kind}>
+            <AtlasMark type={kind} size={11} />
+            {row.counts[kind]}
+          </HStack>
+        ) : null
+      )}
+      <Text
+        as="span"
+        minW="22px"
+        textAlign="right"
+        color="brandDeep"
+        fontWeight="bold"
+      >
+        {row.ref}
+      </Text>
+    </HStack>
+  </Flex>
 );
+
+const EntryRow = ({ item, selected, onMouseEnter, onMouseOut, t }) => (
+  <Flex
+    id={item.id}
+    align="center"
+    gap={2}
+    h="100%"
+    pl={2}
+    pr={1}
+    borderBottom="1px solid"
+    borderColor="rule"
+    _hover={{ bg: 'surface' }}
+    css={{ '&:target': { animation: 'highlight' } }}
+    animation={selected ? 'highlight' : undefined}
+    onMouseEnter={() => onMouseEnter(item)}
+    onMouseOut={() => onMouseOut(item)}
+  >
+    <AtlasMark type={item.type} size={13} />
+    <Link
+      to={item.type === 'event' ? eventPath(item) : orgPath(item)}
+      title={item.name}
+      style={{ minWidth: 0 }}
+    >
+      <Text
+        as="span"
+        display="block"
+        fontSize="sm"
+        fontWeight="medium"
+        truncate
+        _hover={{ textDecoration: 'underline' }}
+      >
+        {item.name}
+      </Text>
+    </Link>
+    {item.status === 'closed' && (
+      <Text as="span" fontSize="xs" color="muted" flexShrink={0}>
+        {t('atlas.closed')}
+      </Text>
+    )}
+  </Flex>
+);
+
+const Row = ({ index, data, style }) => {
+  const row = data.rows[index];
+  return (
+    <div style={style}>
+      {row.kind === 'place' ? (
+        <PlaceRow row={row} onGo={data.onGo} t={data.t} />
+      ) : (
+        <EntryRow
+          item={row.item}
+          selected={data.selectedId === row.item.id}
+          onMouseEnter={data.onMouseEnter}
+          onMouseOut={data.onMouseOut}
+          t={data.t}
+        />
+      )}
+    </div>
+  );
+};
 
 function inBounds(point, bounds) {
   var eastBound = point.longitude < bounds.ne[1];
@@ -103,43 +211,63 @@ function inBounds(point, bounds) {
   return inLat && inLong;
 }
 
-const MovingBand = React.memo(({ header, children, isOpen, onClose }) => {
-  const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
-  const isMobile = variant === 'mobile';
+const MovingBand = React.memo(
+  ({ header, label, children, isOpen, onClose }) => {
+    const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
+    const isMobile = variant === 'mobile';
 
-  if (isMobile) {
+    if (isMobile) {
+      return (
+        <SwipeableEdgeDrawer
+          header={header}
+          label={label}
+          isOpen={isOpen}
+          onClose={onClose}
+        >
+          <Box flex="1 1 auto" px={3}>
+            {children}
+          </Box>
+        </SwipeableEdgeDrawer>
+      );
+    }
+
     return (
-      <SwipeableEdgeDrawer header={header} isOpen={isOpen} onClose={onClose}>
-        <Box flex="1 1 auto" px={3}>
+      <Flex
+        direction="column"
+        w="340px"
+        flexShrink={0}
+        h="100%"
+        overflow="hidden"
+        position="relative"
+      >
+        <Box as="header" pb={2} userSelect="initial">
+          {header}
+        </Box>
+        <Box flex="1 1 auto" minH={0}>
           {children}
         </Box>
-      </SwipeableEdgeDrawer>
+      </Flex>
     );
   }
+);
 
-  return (
-    <Flex
-      direction="column"
-      w="400px"
-      h="auto"
-      overflow="auto"
-      css={{
-        scrollBehavior: 'smooth',
-      }}
-      background="transparent"
-      borderTopRadius={24}
-      position="relative"
-      zIndex="100"
-    >
-      <Box as="header" p={3} userSelect="initial">
-        {header}
+// The letters or numbers along the edge of the plate.
+const EdgeRefs = ({ refs, vertical }) => (
+  <Flex
+    direction={vertical ? 'column' : 'row'}
+    fontSize="2xs"
+    fontWeight="semibold"
+    color="muted"
+    aria-hidden
+    userSelect="none"
+  >
+    {refs.map((ref) => (
+      <Box key={ref} flex="1" display="grid" placeItems="center">
+        {ref}
       </Box>
-      <Box flex="1 1 auto" px={3}>
-        {children}
-      </Box>
-    </Flex>
-  );
-});
+    ))}
+  </Flex>
+);
 
 export const loader = async ({ request }) => {
   const params = new URL(request.url).searchParams;
@@ -148,49 +276,82 @@ export const loader = async ({ request }) => {
   // ?at=lat,lng opens it on a place, from an event or organisation page (#322).
   const at = placeAt(params.get('at'));
 
-  const [orgs, events] = await Promise.all([
-    listMappedOrganizations(),
-    listMappedUpcomingEvents(),
-  ]);
+  const [orgs, events, { locations, gameLinks, events: countryEvents }] =
+    await Promise.all([
+      listMappedOrganizations(),
+      listMappedUpcomingEvents(),
+      listCountryFacts(),
+    ]);
   return {
     orgs,
     // Upcoming events go on the map too (#211); past ones don't.
-    events: events.map((event) => ({ ...event, type: 'event', logo: event.cover })),
+    events: events.map((event) => ({
+      ...event,
+      type: 'event',
+      logo: event.cover,
+    })),
     focus: at
       ? focusOn([at])
       : countryCode
-      ? focusOn(
-          orgs
-            .filter((org) => org.location?.country_code === countryCode)
-            .map((org) => org.location)
-        )
-      : null,
+        ? focusOn(
+            orgs
+              .filter((org) => org.location?.country_code === countryCode)
+              .map((org) => org.location)
+          )
+        : null,
+    // The atlas's contents: every country with a scene, by name.
+    contents: countryTable({
+      locations,
+      gameLinks,
+      events: countryEvents,
+      names: countryNames,
+      continents,
+    })
+      .map(({ code, name, studios, associations }) => ({
+        code,
+        name,
+        count: studios + associations,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'en')),
   };
 };
 
 export const meta = ({ matches, location }) =>
   pageMeta(matches, {
-    title: 'Places',
-    description: 'Video game studios, associations and upcoming events on a map of the world.',
+    title: 'Atlas',
+    description:
+      'Video game studios, associations and upcoming events on a map of the world.',
     path: location.pathname,
   });
 
+const WORLD = PLATES[0];
+// As wide as the window lets it, past the page's column: a plate wants room.
+const PLATE_WIDTH = 'min(1320px, 100vw - 32px)';
+
 const Places = () => {
-  const containerRef = useRef();
+  const t = useT();
+  const sheetRef = useRef();
   const listRef = useRef();
   const [isPending, startTransition] = useTransition();
-  const { orgs, events, focus } = useLoaderData();
-  const [center, setCenter] = useState(focus?.center ?? [0, 0]);
+  const { orgs, events, focus, contents } = useLoaderData();
+  const [center, setCenter] = useState(focus?.center ?? WORLD.center);
   const [zoom, setZoom] = useState(() =>
     focus ? zoomToFit(focus, { width: 1240, height: 835 }) : 2
   );
+  const [plate, setPlate] = useState(focus ? null : WORLD.key);
+  // Where a plate put the map: moving away from there leaves the plate.
+  const plateView = useRef(null);
   const [currentBounds, setCurrentBounds] = useState();
   const [highlightedOrg, setHighlightedOrg] = useState();
   const [isMovingBandOpen, setMovingBandOpen] = useState(false);
   // #39: closed organisations are hidden unless asked for. #211: studios,
   // associations and upcoming events can each be hidden.
   const [showClosed, setShowClosed] = useState(false);
-  const [shownKinds, setShownKinds] = useState(() => KINDS.map(([kind]) => kind));
+  // Folded on a phone, where it would hide the map.
+  const [legendOpen, setLegendOpen] = useState(false);
+  const [shownKinds, setShownKinds] = useState(() =>
+    KINDS.map(([kind]) => kind)
+  );
   const shownOrgs = useMemo(
     () =>
       [...orgs, ...events].filter(
@@ -207,7 +368,7 @@ const Places = () => {
 
   // Fit the country to the map's real size once it's on screen.
   useEffect(() => {
-    const box = containerRef.current?.getBoundingClientRect();
+    const box = sheetRef.current?.getBoundingClientRect();
     if (focus && box?.width) setZoom(zoomToFit(focus, box));
   }, [focus]);
 
@@ -222,29 +383,52 @@ const Places = () => {
     document.documentElement.style.setProperty('--vh', `${vh}px`);
   }, [typeof window]);
 
-  const handleOrgCardEnter = useCallback((org) => setHighlightedOrg(org.id));
-  const handleOrgCardOut = useCallback(() => setHighlightedOrg());
+  const handleOrgCardEnter = useCallback(
+    (org) => setHighlightedOrg(org.id),
+    []
+  );
+  const handleOrgCardOut = useCallback(() => setHighlightedOrg(), []);
+
+  const openPlate = (next) => {
+    const box = sheetRef.current?.getBoundingClientRect();
+    const nextZoom = box?.width ? zoomToFit(next, box, { margin: 0 }) : zoom;
+    plateView.current = { center: next.center, zoom: nextZoom };
+    setPlate(next.key);
+    setCenter(next.center);
+    setZoom(nextZoom);
+  };
+
+  const goToPlace = useCallback(({ latitude, longitude }) => {
+    setCenter([latitude, longitude]);
+    setZoom((current) => Math.max(current, 9));
+    setMovingBandOpen(false);
+  }, []);
 
   const orgsInBounds = shownOrgs.filter((org) => {
     if (!currentBounds || !org.location || !org.location.latitude) return true;
 
     return inBounds(org.location, currentBounds);
   });
+  const rows = useMemo(
+    () => gazetteerRows(orgsInBounds, currentBounds),
+    // orgsInBounds is new each render, from these.
+    [shownOrgs, currentBounds]
+  );
 
   useEffect(() => {
     if (!selectedId) return;
     if (prevSelectedId === selectedId) return;
 
-    const cardIndex = orgsInBounds.findIndex((org) => org.id === selectedId);
+    const rowIndex = rows.findIndex(({ item }) => item?.id === selectedId);
 
-    if (cardIndex < 0) return;
+    if (rowIndex < 0) return;
 
     startTransition(() => {
       setMovingBandOpen(true);
 
-      listRef.current?.scrollToItem(cardIndex, 'start');
+      listRef.current?.scrollToItem(rowIndex, 'center');
     });
-  }, [orgsInBounds, selectedId, prevSelectedId, setMovingBandOpen]);
+  }, [rows, selectedId, prevSelectedId, setMovingBandOpen]);
 
   const orgsMarkers = useMemo(() => {
     return shownOrgs.map((org) => (
@@ -252,10 +436,11 @@ const Places = () => {
       <Overlay
         key={org.id}
         anchor={[org.location.latitude, org.location.longitude]}
-        offset={[48 / 2, 48]}
+        offset={[12, 12]}
       >
         <OrgMarker
-          {...org}
+          name={org.name}
+          type={org.type}
           highlighted={org.id === highlightedOrg}
           onClick={(e) => {
             e.preventDefault();
@@ -267,83 +452,291 @@ const Places = () => {
     ));
   }, [shownOrgs, highlightedOrg]);
 
+  const scale = scaleBar(center[0], zoom);
+  const plateName = plate ? t(`atlas.plate.${plate}`) : t('atlas.thisView');
+
   return (
-    // TODO: Fix this weird hack, see margin bottom in app
-    <Flex
-      h={{
-        base: 'calc(var(--vh, 1vh) * 100 - 10px)',
-        md: 'calc(100vh - 3rem)',
-      }}
-      direction="column"
-      overflow="hidden"
+    <Box
+      w={{ base: '100%', md: PLATE_WIDTH }}
+      ml={{ base: 0, md: `calc((100% - ${PLATE_WIDTH}) / 2)` }}
+      px={{ base: 3, md: 0 }}
+      pt={{ base: 4, md: 6 }}
     >
-      <Flex justify="space-between" align="center" wrap="wrap" gap={3} px={5} mt={3}>
-        <CheckboxGroup
-          value={shownKinds}
-          onValueChange={setShownKinds}
-          aria-label="Show on the map"
-        >
-          <HStack gap={4} wrap="wrap">
-            {KINDS.map(([kind, label]) => (
-              <Checkbox.Root key={kind} value={kind} size="sm">
-                <Checkbox.HiddenInput />
-                <Checkbox.Control />
-                <Checkbox.Label>{label}</Checkbox.Label>
-              </Checkbox.Root>
-            ))}
-          </HStack>
-        </CheckboxGroup>
-        <Switch.Root
-          size="sm"
-          checked={showClosed}
-          onCheckedChange={({ checked }) => setShowClosed(checked)}
-        >
-          <Switch.HiddenInput />
-          <Switch.Control />
-          <Switch.Label>Show closed organisations</Switch.Label>
-        </Switch.Root>
+      <Flex justify="space-between" align="flex-end" wrap="wrap" gap={3} mb={4}>
+        <Box minW={0}>
+          <Text
+            fontSize="xs"
+            fontWeight="semibold"
+            letterSpacing="wider"
+            textTransform="uppercase"
+            color="brandDeep"
+          >
+            {t('atlas.kicker')}
+          </Text>
+          <Heading
+            as="h1"
+            fontSize={{ base: '3xl', md: '5xl' }}
+            fontWeight="800"
+            letterSpacing="-0.035em"
+            lineHeight="1"
+            mt={1}
+          >
+            {t('atlas.title')}
+          </Heading>
+        </Box>
+        <HStack as="nav" aria-label={t('atlas.plates')} gap={1.5} wrap="wrap">
+          {PLATES.map((option, index) => (
+            <Button
+              key={option.key}
+              size="sm"
+              rounded="full"
+              variant={plate === option.key ? 'pop' : 'popOutline'}
+              aria-pressed={plate === option.key}
+              onClick={() => openPlate(option)}
+            >
+              {index + 1} · {t(`atlas.plate.${option.key}`)}
+            </Button>
+          ))}
+        </HStack>
       </Flex>
-      <Box
-        ref={containerRef}
-        flex="1"
-        mt={2}
-        padding={{ base: 0, md: 5 }}
-        display={{ base: '', md: 'flex' }}
-        h="100%"
-        overflow="hidden"
+
+      <Flex
+        gap={6}
+        h={{
+          base: 'calc(var(--vh, 1vh) * 72)',
+          md: 'max(520px, 100vh - 13rem)',
+        }}
       >
-        <ClusterMap
-          defaultWidth={1240}
-          defaultHeight={835}
-          center={center}
-          zoom={zoom}
-          bounds={currentBounds}
-          onBoundsChanged={({ bounds, center, zoom }) => {
-            startTransition(() => {
-              setCurrentBounds(bounds);
-              setCenter(center);
-              setZoom(zoom);
-            });
-          }}
-          maxZoom={18}
-          zoomSnap={false}
+        {/* The plate, framed like a printed one: a double rule, its squares lettered. */}
+        <Grid
+          flex="1"
+          minW={0}
+          templateColumns="20px minmax(0, 1fr) 20px"
+          templateRows="20px minmax(0, 1fr) 20px"
+          bg="surface"
+          borderWidth="3px"
+          borderStyle="double"
+          borderColor="ink"
         >
-          <ZoomControl />
-          {orgsMarkers}
-        </ClusterMap>
+          <Box />
+          <EdgeRefs refs={COLUMNS} />
+          <Box />
+          <EdgeRefs refs={ROWS} vertical />
+          <Box
+            ref={sheetRef}
+            position="relative"
+            minW={0}
+            minH={0}
+            display="flex"
+            overflow="hidden"
+            borderWidth="1px"
+            borderColor="ink"
+            // Old paper in daylight; the dark map stays as it is.
+            css={{
+              _light: {
+                '& .pigeon-tiles-box img[src^="https://tile.openstreetmap.org/"]':
+                  {
+                    filter:
+                      'sepia(0.35) saturate(0.6) brightness(1.03) contrast(0.92)',
+                  },
+              },
+            }}
+          >
+            <ClusterMap
+              defaultWidth={1240}
+              defaultHeight={835}
+              center={center}
+              zoom={zoom}
+              bounds={currentBounds}
+              onBoundsChanged={({
+                bounds,
+                center: nextCenter,
+                zoom: nextZoom,
+              }) => {
+                const view = plateView.current ?? {
+                  center: WORLD.center,
+                  zoom: 2,
+                };
+                const moved =
+                  Math.abs(view.zoom - nextZoom) > 0.05 ||
+                  Math.abs(view.center[0] - nextCenter[0]) > 1 ||
+                  Math.abs(view.center[1] - nextCenter[1]) > 1;
+                startTransition(() => {
+                  setCurrentBounds(bounds);
+                  setCenter(nextCenter);
+                  setZoom(nextZoom);
+                  if (moved) setPlate(null);
+                });
+              }}
+              maxZoom={18}
+              zoomSnap={false}
+            >
+              <ZoomControl />
+              {orgsMarkers}
+            </ClusterMap>
+
+            {/* The squares the gazetteer's references point to. */}
+            <Box
+              position="absolute"
+              inset={0}
+              pointerEvents="none"
+              aria-hidden
+              css={{
+                '--square-line': 'rgba(5,79,69,.22)',
+                _dark: { '--square-line': 'rgba(143,227,212,.2)' },
+                backgroundImage:
+                  'linear-gradient(to right, var(--square-line) 1px, transparent 1px), linear-gradient(to bottom, var(--square-line) 1px, transparent 1px)',
+                backgroundSize: `${100 / COLUMNS.length}% 100%, 100% ${100 / ROWS.length}%`,
+              }}
+            />
+
+            <Box
+              position="absolute"
+              top={3}
+              right={3}
+              px={3}
+              py={1.5}
+              textAlign="right"
+              bg="surface"
+              borderWidth="2px"
+              borderColor="ink"
+              pointerEvents="none"
+              maxW="50%"
+            >
+              <Text
+                fontFamily="heading"
+                fontWeight="800"
+                lineHeight="1.15"
+                letterSpacing="-0.01em"
+              >
+                {plateName}
+              </Text>
+            </Box>
+
+            <Box
+              position="absolute"
+              right={3}
+              bottom={7}
+              pointerEvents="none"
+              textAlign="center"
+              fontSize="2xs"
+              fontWeight="semibold"
+              color="onPop"
+              hideBelow="sm"
+            >
+              <Box
+                w={`${scale.width}px`}
+                h="7px"
+                border="1.5px solid #10201d"
+                css={{
+                  background:
+                    'linear-gradient(90deg, #10201d 50%, #fbfaf2 50%)',
+                }}
+              />
+              <Text as="span" bg="#fbfaf2" px={1}>
+                {scale.km} km
+              </Text>
+            </Box>
+
+            {/* The legend is also what's shown: unticking hides a kind. */}
+            <Box
+              position="absolute"
+              left={{ base: 2, md: 3 }}
+              // Under the zoom buttons on a phone: the drawer covers the bottom.
+              top={{ base: '84px', md: 'auto' }}
+              bottom={{ base: 'auto', md: 3 }}
+              bg="surface"
+              borderWidth="2px"
+              borderColor="ink"
+              px={3}
+              py={2}
+            >
+              <Text
+                fontSize="2xs"
+                fontWeight="semibold"
+                letterSpacing="wider"
+                textTransform="uppercase"
+                color="brandDeep"
+                mb={{ md: 1 }}
+                hideBelow="md"
+              >
+                {t('atlas.legend')}
+              </Text>
+              <Box
+                as="button"
+                type="button"
+                hideFrom="md"
+                cursor="pointer"
+                minH="24px"
+                fontSize="xs"
+                fontWeight="semibold"
+                aria-expanded={legendOpen}
+                onClick={() => setLegendOpen(!legendOpen)}
+              >
+                {t('atlas.legend')} {legendOpen ? '▾' : '▸'}
+              </Box>
+              <Box
+                display={{ base: legendOpen ? 'block' : 'none', md: 'block' }}
+              >
+                <CheckboxGroup
+                  value={shownKinds}
+                  onValueChange={setShownKinds}
+                  aria-label="Show on the map"
+                >
+                  <Flex direction="column" gap={1}>
+                    {KINDS.map(([kind, label]) => (
+                      <Checkbox.Root key={kind} value={kind} size="sm">
+                        <Checkbox.HiddenInput />
+                        <Checkbox.Control />
+                        <Checkbox.Label
+                          display="inline-flex"
+                          alignItems="center"
+                          gap={1.5}
+                        >
+                          <AtlasMark type={kind} size={13} />
+                          {t(label)}
+                        </Checkbox.Label>
+                      </Checkbox.Root>
+                    ))}
+                  </Flex>
+                </CheckboxGroup>
+                <Switch.Root
+                  size="sm"
+                  mt={1.5}
+                  checked={showClosed}
+                  onCheckedChange={({ checked }) => setShowClosed(checked)}
+                >
+                  <Switch.HiddenInput />
+                  <Switch.Control />
+                  <Switch.Label>{t('atlas.showClosed')}</Switch.Label>
+                </Switch.Root>
+              </Box>
+            </Box>
+          </Box>
+          <EdgeRefs refs={ROWS} vertical />
+          <Box />
+          <EdgeRefs refs={COLUMNS} />
+          <Box />
+        </Grid>
 
         <MovingBand
-          containerRef={containerRef}
+          label={t('atlas.gazetteer')}
           header={
             <SectionHeading
-              justify="center"
-              m={2}
-              mt={6}
+              justify={{ base: 'center', md: 'flex-start' }}
+              // Clear of the drawer's handle on a phone.
+              mt={{ base: 6, md: 0 }}
+              mb={{ base: 2, md: 0 }}
               count={orgsInBounds.length}
-              countLabel="locations"
-              badgeProps={{ variant: 'solid', fontSize: 'xl' }}
+              countLabel={t('atlas.entries')}
+              badgeProps={{
+                variant: 'solid',
+                fontSize: 'sm',
+                bg: 'ink',
+                color: 'canvas',
+              }}
             >
-              Locations
+              {t('atlas.gazetteer')}
             </SectionHeading>
           }
           isOpen={isMovingBandOpen}
@@ -355,14 +748,16 @@ const Places = () => {
                 ref={listRef}
                 width={width}
                 height={height}
-                itemCount={orgsInBounds.length}
+                itemCount={rows.length}
                 itemData={{
                   selectedId,
-                  orgs: orgsInBounds,
+                  rows,
+                  t,
+                  onGo: goToPlace,
                   onMouseEnter: handleOrgCardEnter,
                   onMouseOut: handleOrgCardOut,
                 }}
-                itemSize={90}
+                itemSize={ROW_HEIGHT}
                 style={{
                   scrollBehavior: 'smooth',
                 }}
@@ -372,8 +767,76 @@ const Places = () => {
             )}
           </AutoSizer>
         </MovingBand>
+      </Flex>
+
+      <Box
+        as="section"
+        aria-labelledby="atlas-contents"
+        mt={10}
+        mb={{ base: 24, md: 10 }}
+      >
+        <Flex
+          justify="space-between"
+          align="baseline"
+          wrap="wrap"
+          gap={3}
+          borderBottom="2px solid"
+          borderColor="ink"
+          pb={2}
+          mb={3}
+        >
+          <Heading
+            as="h2"
+            id="atlas-contents"
+            fontSize={{ base: '2xl', md: '3xl' }}
+            fontWeight="800"
+            letterSpacing="-0.02em"
+          >
+            {t('atlas.contents')}
+          </Heading>
+          <Link to="/countries" style={{ textDecoration: 'underline' }}>
+            {t('atlas.allCountries')}
+          </Link>
+        </Flex>
+        <Box
+          css={{ columnCount: { base: 1, sm: 2, lg: 4 }, columnGap: '32px' }}
+        >
+          {contents.map(({ code, name, count }) => (
+            <Link
+              key={code}
+              to={`/country/${code.toLowerCase()}`}
+              style={{ display: 'block', breakInside: 'avoid' }}
+            >
+              <Flex
+                align="baseline"
+                gap={1.5}
+                py={1}
+                _hover={{ textDecoration: 'underline' }}
+              >
+                <Text as="span" fontWeight="semibold">
+                  {name}
+                </Text>
+                <Box
+                  flex="1"
+                  minW={3}
+                  borderBottom="1.5px dotted"
+                  borderColor="muted"
+                  transform="translateY(-3px)"
+                />
+                <Text
+                  as="span"
+                  fontSize="sm"
+                  color="muted"
+                  fontVariantNumeric="tabular-nums"
+                >
+                  {count}
+                </Text>
+              </Flex>
+            </Link>
+          ))}
+        </Box>
       </Box>
-    </Flex>
+    </Box>
   );
 };
 

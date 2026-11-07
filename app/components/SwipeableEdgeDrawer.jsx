@@ -14,7 +14,7 @@ const DRAG_THRESHOLD = 40;
  * tap it or tap outside to close it. The content scrolls inside, and stays
  * mounted while the drawer is closed.
  */
-function SwipeableEdgeDrawer({ header, children, isOpen, onClose }) {
+function SwipeableEdgeDrawer({ header, label = 'Locations', children, isOpen, onClose }) {
   const [open, setOpen] = useState(isOpen);
   // How far the header is being dragged, in pixels (down is positive).
   const [drag, setDrag] = useState(null);
@@ -88,7 +88,7 @@ function SwipeableEdgeDrawer({ header, children, isOpen, onClose }) {
       <Box
         role="dialog"
         aria-modal={open}
-        aria-label="Locations"
+        aria-label={label}
         position="fixed"
         left={0}
         right={0}

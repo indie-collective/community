@@ -108,6 +108,7 @@ const Filters = ({ facets, selected, type }) => {
 
   return (
     <Form method="get">
+      {selected.month && <input type="hidden" name="month" value={selected.month} />}
       <FilterBar>
         <CountryCombobox
           countries={facets.countries}

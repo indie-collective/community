@@ -8,7 +8,7 @@ import {
   people,
   searchText,
 } from './db.js';
-import { expect, test, MEMBER, signIn } from './helpers';
+import { expect, test, MEMBER, signIn, waitForHydration } from './helpers';
 import { eventSlug } from '../app/utils/slug.js';
 
 // A new event tomorrow, in the same place as a seeded one.
@@ -362,6 +362,65 @@ test('the events page lists upcoming events, then recent ones', async ({
     ).toBeVisible();
   } finally {
     await db.delete(events).where(inArray(events.id, [soon.id, past.id]));
+  }
+});
+
+// The diary: a month's events on their days, in their own time zone, and an
+// agenda that starts from the day you pick.
+test('the events diary puts events on their days and moves between months', async ({ page }) => {
+  const { db, events } = await import('./db.js');
+  const { inArray } = await import('drizzle-orm');
+  const tag = Date.now() % 100000;
+  const [moot, canceled] = await db
+    .insert(events)
+    .values([
+      {
+        name: `Longmoot ${tag}`,
+        startsAt: new Date(Date.UTC(2031, 4, 14, 9)),
+        endsAt: new Date(Date.UTC(2031, 4, 16, 18)),
+        timeZone: 'UTC',
+      },
+      {
+        name: `Gonemoot ${tag}`,
+        startsAt: new Date(Date.UTC(2031, 4, 20, 9)),
+        endsAt: new Date(Date.UTC(2031, 4, 20, 18)),
+        timeZone: 'UTC',
+        status: 'canceled',
+      },
+    ])
+    .returning();
+  try {
+    await page.goto('/events?month=2031-05');
+    await waitForHydration(page);
+    await expect(page.getByRole('heading', { name: 'May 2031' }).first()).toBeVisible();
+    const bar = page.locator(`a[title="${moot.name}"]`);
+    await expect(bar).toHaveCSS('grid-column-start', '3');
+    await expect(bar).toHaveAttribute('href', new RegExp('^/event/'));
+
+    // The agenda is that month's, and a day starts it there.
+    const tickets = page.getByRole('heading', { level: 3 });
+    await expect(tickets.filter({ hasText: moot.name })).toBeVisible();
+    await page.getByRole('button', { name: /May 18/ }).click();
+    await expect(page.getByRole('heading', { name: /^From .*May 18/ })).toBeVisible();
+    await expect(tickets.filter({ hasText: moot.name })).toHaveCount(0);
+    await expect(tickets.filter({ hasText: canceled.name })).toBeVisible();
+    await page.getByRole('button', { name: 'Show everything' }).click();
+    await expect(tickets.filter({ hasText: moot.name })).toBeVisible();
+
+    // Filters keep the month, and months keep the filters.
+    await page.getByRole('combobox', { name: 'Where' }).selectOption('in_person');
+    await expect(page).toHaveURL(/month=2031-05/);
+    await expect(page).toHaveURL(/where=in_person/);
+    const nextMonth = page.getByRole('link', { name: 'Next month' });
+    // The address changes first; the page follows at the end of its transition.
+    await expect(nextMonth).toHaveAttribute('href', /where=in_person/);
+    await nextMonth.click();
+    await expect(page.getByRole('heading', { name: 'June 2031' }).first()).toBeVisible();
+    await expect(page).toHaveURL(/where=in_person/);
+    await page.getByRole('link', { name: 'Today' }).click();
+    await expect(page).not.toHaveURL(/month=/);
+  } finally {
+    await db.delete(events).where(inArray(events.id, [moot.id, canceled.id]));
   }
 });
 
