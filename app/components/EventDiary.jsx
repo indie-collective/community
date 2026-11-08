@@ -145,14 +145,14 @@ const Calendar = ({ month, events, today, selected, onSelect, isGoing }) => {
     <Box
       bg="surface"
       borderWidth="2px"
-      borderColor="ink"
+      borderColor="brand"
       borderRadius="panel"
       overflow="hidden"
     >
       <Grid
         templateColumns="repeat(7, minmax(0, 1fr))"
         borderBottom="2px solid"
-        borderColor="ink"
+        borderColor="brand"
         aria-hidden
       >
         {weekdayLabels(language).map((label) => (

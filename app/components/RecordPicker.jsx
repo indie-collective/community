@@ -206,7 +206,7 @@ const RecordPicker = ({
           placeholder={placeholder}
           borderRadius="control"
           borderWidth="2px"
-          borderColor="ink"
+          borderColor="brand"
         />
       </Combobox.Control>
       {/* Not portalled: inside a popover, a portalled list would count as a

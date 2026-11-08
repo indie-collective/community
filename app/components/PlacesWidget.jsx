@@ -16,7 +16,7 @@ const PlacesWidget = ({ placesCount, placesPoints }) => (
     height={{ base: '240px', md: '300px' }}
     borderRadius="panel"
     borderWidth="2px"
-    borderColor="ink"
+    borderColor="brand"
     bg="#054f45"
   >
     <Box

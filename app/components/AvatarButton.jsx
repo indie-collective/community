@@ -16,7 +16,7 @@ const AvatarButton = () => {
       <Link to="/profile">
         <HStack gap="2" pr={1}>
           {/* Ringed in ink, as the masthead's other pressable things. */}
-          <Avatar.Root size="md" borderWidth="2px" borderColor="ink">
+          <Avatar.Root size="md" borderWidth="2px" borderColor="brand">
             <Avatar.Fallback name={first_name} />
             <Avatar.Image src={avatar} />
           </Avatar.Root>

@@ -90,7 +90,7 @@ const PlaceRow = ({ row, onGo, t }) => (
     gap={2}
     textAlign="left"
     borderBottom="2px solid"
-    borderColor="ink"
+    borderColor="brand"
     _hover={{ bg: 'surface' }}
     onClick={() => onGo(row)}
     title={t('atlas.goTo', {
@@ -595,7 +595,7 @@ const Places = () => {
               textAlign="right"
               bg="surface"
               borderWidth="2px"
-              borderColor="ink"
+              borderColor="brand"
               pointerEvents="none"
               maxW="50%"
             >
@@ -638,7 +638,7 @@ const Places = () => {
               bottom={{ base: 'auto', md: 3 }}
               bg="surface"
               borderWidth="2px"
-              borderColor="ink"
+              borderColor="brand"
               px={3}
               py={2}
             >

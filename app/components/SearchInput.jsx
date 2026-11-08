@@ -128,10 +128,12 @@ const SearchInput = () => {
               name="q"
               placeholder={t('nav.search')}
               ps={10}
+              // A pill like the header's others, with no border: the
+              // filter bar's light shadow sets it off the page.
               bg="surface"
-              borderWidth="2px"
-              borderColor="ink"
-              borderRadius="control"
+              borderWidth="0"
+              borderRadius="full"
+              shadow="raised"
               _focusVisible={{
                 outline: '2px solid',
                 outlineColor: 'brand',
