@@ -47,8 +47,8 @@ export const loader = async ({ request }) => {
     games,
     associations,
     studios,
-    eventsToCome,
-    joinedEventsToCome,
+    upcomingEvents,
+    joinedEvents,
     placesPoints,
     gamesCount,
     orgsCount,
@@ -69,12 +69,22 @@ export const loader = async ({ request }) => {
     currentUser ? null : countEvents(),
   ]);
 
+  // One list of upcoming events: the member's own first in, the rest filled
+  // in by date, all in date order; theirs say they're going.
+  const joinedIds = joinedEvents.map((event) => event.id);
+  const eventsToCome = [
+    ...joinedEvents,
+    ...upcomingEvents.filter((event) => !joinedIds.includes(event.id)),
+  ]
+    .slice(0, 6)
+    .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
+
   return {
     games,
     associations,
     studios,
     eventsToCome,
-    joinedEventsToCome,
+    joinedIds,
     placesCount: placesPoints.length,
     placesPoints,
     counts: { games: gamesCount, orgs: orgsCount, events: eventsCount },
@@ -468,7 +478,7 @@ const HomePage = () => {
     studios,
     associations,
     eventsToCome,
-    joinedEventsToCome,
+    joinedIds,
     placesCount,
     placesPoints,
     counts,
@@ -485,20 +495,13 @@ const HomePage = () => {
         <Cover counts={counts} games={games} />
       )}
 
-      {joinedEventsToCome.length > 0 && (
-        <Section
-        big
-          title="Your next events"
-          to="/events"
-          linkLabel="All events"
-        >
-          <EventGrid events={joinedEventsToCome} reveal />
-        </Section>
-      )}
-
       <Section big title="Upcoming events" to="/events" linkLabel="All events">
         {eventsToCome.length > 0 ? (
-          <EventGrid events={eventsToCome} reveal />
+          <EventGrid
+            events={eventsToCome}
+            going={(event) => joinedIds.includes(event.id)}
+            reveal
+          />
         ) : (
           <Empty
             picture

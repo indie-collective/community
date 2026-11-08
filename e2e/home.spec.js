@@ -62,7 +62,11 @@ test("a signed-in member sees the events they're going to", async ({ page }) => 
   try {
     await signIn(page, MEMBER);
     await page.goto('/');
-    await expect(page.getByRole('region', { name: 'Your next events' }).getByText(event.name)).toBeVisible();
+    // One list of upcoming events; theirs carries the tag.
+    const upcoming = page.getByRole('region', { name: 'Upcoming events' });
+    await expect(upcoming.getByText(event.name)).toBeVisible();
+    await expect(upcoming.getByText("You're going")).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Your next events' })).toHaveCount(0);
   } finally {
     await db
       .delete(eventParticipants)
