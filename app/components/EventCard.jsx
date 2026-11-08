@@ -133,6 +133,9 @@ function EventCard({
         size="md"
         title={name}
         lineHeight="1.2"
+        // One line, so every ticket is the same height; the link clamps
+        // itself to two otherwise.
+        css={{ '& a': { WebkitLineClamp: '1' } }}
         textDecoration={canceled ? 'line-through' : undefined}
         color={canceled ? 'muted' : undefined}
       >
@@ -144,16 +147,6 @@ function EventCard({
         </time>
         {location && ` · ${placeOf(location, venue)}`}
       </Text>
-      {(online || going) && (
-        <Flex gap={1.5} mt={2} wrap="wrap">
-          {going && <Label tone="sun">{t('events.going')}</Label>}
-          {online && (
-            <Label tone="lilac">
-              {t(attendance === 'hybrid' ? 'events.hybrid' : 'events.online')}
-            </Label>
-          )}
-        </Flex>
-      )}
     </Box>
   );
 
@@ -198,10 +191,18 @@ function EventCard({
           {body}
         </Grid>
       </Card>
-      {canceled && (
-        <Label tone="coral" position="absolute" top="-10px" right={3}>
-          {t('events.canceled')}
-        </Label>
+      {/* Its tags, pinned astride the top edge so every ticket keeps the
+          same height. */}
+      {(canceled || going || online) && (
+        <Flex position="absolute" top="-10px" right={3} gap={1.5}>
+          {going && <Label tone="sun">{t('events.going')}</Label>}
+          {online && (
+            <Label tone="lilac">
+              {t(attendance === 'hybrid' ? 'events.hybrid' : 'events.online')}
+            </Label>
+          )}
+          {canceled && <Label tone="coral">{t('events.canceled')}</Label>}
+        </Flex>
       )}
     </Box>
   );

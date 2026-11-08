@@ -41,7 +41,7 @@ function NavLink(props) {
   const isNavigatingTo = navigation.location?.pathname === href;
 
   // The current section is an ink pill; the others tilt a little onto a
-  // panel under the pointer.
+  // pale green under the pointer, on the white bar and the phone's menu.
   return (
     <Button
       variant="ghost"
@@ -53,7 +53,7 @@ function NavLink(props) {
       borderRadius="full"
       transition="transform 150ms ease-out, background-color 150ms ease-out"
       _hover={
-        isActive ? { bg: 'ink' } : { bg: 'surface', transform: 'rotate(-2deg)' }
+        isActive ? { bg: 'ink' } : { bg: 'primary.subtle', transform: 'rotate(-2deg)' }
       }
       aria-current={isActive ? 'page' : undefined}
       loading={isNavigatingTo}
@@ -150,7 +150,7 @@ const Navigation = ({ search }) => {
           bg="coral"
           color="onPop"
           borderWidth="2px"
-          borderColor="ink"
+          borderColor="brand"
           borderRadius="full"
           pointerEvents="none"
           aria-hidden
@@ -216,7 +216,7 @@ const Navigation = ({ search }) => {
         bg="canvas"
         width="100%"
         borderBottom="2px solid"
-        borderColor="ink"
+        borderColor="brand"
         // Stays put while the page changes (view transitions).
         css={{ viewTransitionName: 'site-header' }}
       >
@@ -308,9 +308,10 @@ const Navigation = ({ search }) => {
       <Box
         w="100%"
         p={1.5}
-        borderWidth="2px"
-        borderColor="ink"
-        // A pill around the sections' pills, 6px out from them.
+        // A white pill around the sections' pills, 6px out from them, set
+        // off the page by the light shadow, like the search box above.
+        bg="surface"
+        shadow="raised"
         borderRadius="full"
       >
         <HStack as="nav" aria-label={t('nav.main')} gap={1} width="100%">

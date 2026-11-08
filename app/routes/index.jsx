@@ -129,7 +129,7 @@ const CoverStory = ({ games }) => {
         rounded="panel"
         overflow="hidden"
         borderWidth="2px"
-        borderColor="ink"
+        borderColor="brand"
         shadow="lift"
         transform="rotate(2.5deg)"
         // Backwards only: once settled, the hover transition takes the transform.
@@ -253,7 +253,7 @@ const Cover = ({ counts, games }) => (
           p={1}
           bg="surface"
           borderWidth="2px"
-          borderColor="ink"
+          borderColor="brand"
           // The button's 10px, plus the 4px between them.
           borderRadius="card"
           _focusWithin={{
@@ -328,7 +328,7 @@ const Contribute = () => (
     bg="sun"
     color="onPop"
     borderWidth="2px"
-    borderColor="onPop"
+    borderColor="brand"
     rounded="panel"
     transform="rotate(-0.6deg)"
   >

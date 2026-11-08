@@ -222,7 +222,7 @@ const PlaceField = ({
           placeholder={placeholder}
           borderRadius="control"
           borderWidth="2px"
-          borderColor="ink"
+          borderColor="brand"
         />
       </Combobox.Control>
       <Combobox.Positioner>
