@@ -15,7 +15,7 @@ const data = (currentUser = null) => ({
   studios,
   associations,
   eventsToCome: events,
-  joinedEventsToCome: currentUser ? events.slice(1, 2) : [],
+  joinedIds: currentUser ? [events[1].id] : [],
   placesCount: mapPoints.length,
   placesPoints: mapPoints,
   counts: currentUser
@@ -49,7 +49,9 @@ export const SignedIn = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByRole('region', { name: 'Your next events' })).toBeVisible();
+    // Their events are in the one list, tagged.
+    const upcoming = await canvas.findByRole('region', { name: 'Upcoming events' });
+    await expect(within(upcoming).getByText("You're going")).toBeInTheDocument();
     await expect(canvas.queryByRole('heading', { name: "Add what's missing" })).toBeNull();
   },
 };
