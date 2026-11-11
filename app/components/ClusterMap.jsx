@@ -21,7 +21,7 @@ export default class ClusterMap extends Component {
     let pointsMap = {};
 
     elements.forEach((child) => {
-      const { key, type, props } = child;
+      const { key, props } = child;
 
       // TODO: name is different when built, cannot filter out UI elements
       // if (type.name !== 'Overlay') return;

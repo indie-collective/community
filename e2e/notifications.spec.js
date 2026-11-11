@@ -66,7 +66,6 @@ test("followers of a country hear of new events there, not of the author's own c
   await clear();
   const member = await memberId();
   await retryBusy(() => db.insert(follows).values({ personId: member, recordType: 'country', recordId: 'FR' }));
-  let eventId;
   try {
     // The member adds one themself: nothing to tell them.
     const own = await page.request.post('/events/create', {
@@ -75,14 +74,13 @@ test("followers of a country hear of new events there, not of the author's own c
     });
     expect(own.status()).toBe(302);
 
-    const { idFromPath } = await import('./db.js');
     const admin = await newPage();
     await signIn(admin, ADMIN);
     const created = await admin.request.post('/events/create', {
       multipart: { name: `Jam in Lyon ${id}`, start: '2031-02-01T10:00', end: '2031-02-01T12:00', about: '', site: '', city: 'Lyon', country_code: 'FR', latitude: '45.76', longitude: '4.84' },
       maxRedirects: 0,
     });
-    eventId = await idFromPath(created.headers().location);
+    expect(created.status()).toBe(302);
 
     await expect
       .poll(async () => (await retryBusy(() => db.select().from(notifications).where(eq(notifications.personId, member)))).map((n) => n.data.message))

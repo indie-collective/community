@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -351,7 +351,6 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
               name="location"
               render={({ field }) => (
                 <PlaceField
-                  inputProps={{ id: 'location' }}
                   {...field}
                   venues
                   placeholder="A venue, a place or an address"

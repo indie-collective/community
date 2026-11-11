@@ -1,16 +1,6 @@
-import { LuExternalLink, LuGithub, LuInstagram } from 'react-icons/lu';
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Container,
-  IconButton,
-  Link as ChakraLink,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { LuExternalLink } from 'react-icons/lu';
+import { Box, ButtonGroup, Container, IconButton, Link as ChakraLink, Stack } from '@chakra-ui/react';
 import FeedbackWidget from './FeedbackWidget';
-import * as React from 'react';
 import { FaBluesky, FaGithub, FaInstagram, FaDiscord } from 'react-icons/fa6';
 import { useRouteLoaderData } from 'react-router';
 import Link from './Link';

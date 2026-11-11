@@ -43,29 +43,37 @@ import { listMappedOrganizations } from '../data/organizations.server';
 import { listMappedUpcomingEvents } from '../data/events.server';
 import { useT } from '../i18n';
 
-const OrgMarker = React.memo(({ name, type, logo, highlighted, onClick }) => (
-  <Tooltip content={name} aria-label="A tooltip">
-    <Box
-      width="28px"
-      height="28px"
-      display="grid"
-      placeItems="center"
-      cursor="pointer"
-      transform={highlighted ? 'scale(1.5)' : undefined}
-      zIndex={highlighted ? 2 : 1}
-      position="relative"
-      _hover={{ zIndex: 2, transform: 'scale(1.5)' }}
-      onClick={onClick}
-    >
-      {/* Its logo when it has one, else its mark. */}
-      {logo?.thumbnail_url ? (
-        <LogoMark type={type} logo={logo} size={26} />
-      ) : (
-        <AtlasMark type={type} size={type === 'event' ? 20 : 17} />
-      )}
-    </Box>
-  </Tooltip>
-));
+const OrgMarker = React.memo(function OrgMarker({
+  name,
+  type,
+  logo,
+  highlighted,
+  onClick,
+}) {
+  return (
+    <Tooltip content={name} aria-label="A tooltip">
+      <Box
+        width="28px"
+        height="28px"
+        display="grid"
+        placeItems="center"
+        cursor="pointer"
+        transform={highlighted ? 'scale(1.5)' : undefined}
+        zIndex={highlighted ? 2 : 1}
+        position="relative"
+        _hover={{ zIndex: 2, transform: 'scale(1.5)' }}
+        onClick={onClick}
+      >
+        {/* Its logo when it has one, else its mark. */}
+        {logo?.thumbnail_url ? (
+          <LogoMark type={type} logo={logo} size={26} />
+        ) : (
+          <AtlasMark type={type} size={type === 'event' ? 20 : 17} />
+        )}
+      </Box>
+    </Tooltip>
+  );
+});
 
 // What the map shows (#211), each with its message and mark.
 const KINDS = [
@@ -216,45 +224,49 @@ function inBounds(point, bounds) {
   return inLat && inLong;
 }
 
-const MovingBand = React.memo(
-  ({ header, label, children, isOpen, onClose }) => {
-    const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
-    const isMobile = variant === 'mobile';
+const MovingBand = React.memo(function MovingBand({
+  header,
+  label,
+  children,
+  isOpen,
+  onClose,
+}) {
+  const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });
+  const isMobile = variant === 'mobile';
 
-    if (isMobile) {
-      return (
-        <SwipeableEdgeDrawer
-          header={header}
-          label={label}
-          isOpen={isOpen}
-          onClose={onClose}
-        >
-          <Box flex="1 1 auto" px={3}>
-            {children}
-          </Box>
-        </SwipeableEdgeDrawer>
-      );
-    }
-
+  if (isMobile) {
     return (
-      <Flex
-        direction="column"
-        w="340px"
-        flexShrink={0}
-        h="100%"
-        overflow="hidden"
-        position="relative"
+      <SwipeableEdgeDrawer
+        header={header}
+        label={label}
+        isOpen={isOpen}
+        onClose={onClose}
       >
-        <Box as="header" pb={2} userSelect="initial">
-          {header}
-        </Box>
-        <Box flex="1 1 auto" minH={0}>
+        <Box flex="1 1 auto" px={3}>
           {children}
         </Box>
-      </Flex>
+      </SwipeableEdgeDrawer>
     );
   }
-);
+
+  return (
+    <Flex
+      direction="column"
+      w="340px"
+      flexShrink={0}
+      h="100%"
+      overflow="hidden"
+      position="relative"
+    >
+      <Box as="header" pb={2} userSelect="initial">
+        {header}
+      </Box>
+      <Box flex="1 1 auto" minH={0}>
+        {children}
+      </Box>
+    </Flex>
+  );
+});
 
 // The letters or numbers along the edge of the plate.
 const EdgeRefs = ({ refs, vertical }) => (
@@ -337,7 +349,7 @@ const Places = () => {
   const t = useT();
   const sheetRef = useRef();
   const listRef = useRef();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const { orgs, events, focus, contents } = useLoaderData();
   const [center, setCenter] = useState(focus?.center ?? WORLD.center);
   const [zoom, setZoom] = useState(() =>

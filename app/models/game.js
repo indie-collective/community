@@ -34,7 +34,6 @@ export default async function computeGame(game) {
   const game_entity = game.game_entity ? await Promise.all(game.game_entity.map(computeGameEntity) || []) : undefined;
 
   // The stored row isn't sent to the page: igdb_game is what's used.
-  // eslint-disable-next-line no-unused-vars
   const { igdb, ...rest } = game;
   let igdb_game = storedIGDBGame(game);
   if (igdb_game && game_entity) {

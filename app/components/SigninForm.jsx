@@ -1,11 +1,10 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Input, Button, Link as ChakraLink, Flex, HStack, Checkbox, Field } from '@chakra-ui/react';
-import { Form, useSearchParams, useSubmit } from 'react-router';
-import Link from './Link';
+import { Input, Button, Field } from '@chakra-ui/react';
+import { Form, useSubmit } from 'react-router';
+
 
 
 const validationSchema = yup.object().shape({

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -12,7 +12,6 @@ import {
   InputGroup,
   Spinner,
   Field,
-  Circle,
   Float,
   Checkbox,
 } from '@chakra-ui/react';
@@ -62,7 +61,6 @@ const ProfileForm = ({ loading = false, defaultData = {}, ...rest }) => {
     handleSubmit,
     register,
     formState: { errors },
-    watch,
   } = useForm({
     resolver: yupResolver(validationSchema),
     // Inputs hold strings: null columns would fail the string schema.

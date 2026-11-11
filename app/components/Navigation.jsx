@@ -5,13 +5,10 @@ import {
   HStack,
   VStack,
   Text,
-  Link as ChakraLink,
   Collapsible,
   IconButton,
   useDisclosure,
   useBreakpointValue,
-  Wrap,
-  WrapItem,
   VisuallyHidden,
   Spacer,
   Button,
@@ -110,7 +107,7 @@ const NAV = [
   ['/places', 'nav.map'],
 ];
 
-const Navigation = ({ search }) => {
+const Navigation = () => {
   const { open, onToggle } = useDisclosure();
 
   const variant = useBreakpointValue({ base: 'mobile', md: 'desktop' });

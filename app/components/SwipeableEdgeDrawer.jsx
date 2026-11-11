@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // How much of the drawer shows while it's closed, until its header is
 // measured: then, the whole header.

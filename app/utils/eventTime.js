@@ -21,7 +21,7 @@ function validZone(timeZone) {
 
 // ICU puts narrow and thin no-break spaces in some formats, and Node's and
 // browsers' ICU versions don't always agree on which: plain spaces only.
-const plain = (text) => text.replace(/[   ]/g, ' ');
+const plain = (text) => text.replace(/[\u00a0\u2009\u202f]/g, ' ');
 
 function parts(date, timeZone) {
   const values = {};

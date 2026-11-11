@@ -1,5 +1,5 @@
 import { chakra } from '@chakra-ui/react';
-import React from 'react';
+
 import Link from './Link';
 
 // chakra.a, not Chakra's Link: Link's recipe colours the text with the green

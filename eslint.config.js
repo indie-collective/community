@@ -6,7 +6,19 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 
 export default [
-  { ignores: ['dist', 'public/build'] },
+  // Build output, test reports and tools' caches: not ours to lint.
+  {
+    ignores: [
+      'dist',
+      'build',
+      'public/build',
+      'storybook-static',
+      'playwright-report',
+      'test-results',
+      '.react-router',
+      '.wrangler',
+    ],
+  },
   importX.flatConfigs.recommended,
   {
     files: ['**/*.{js,jsx}'],
@@ -19,7 +31,13 @@ export default [
         sourceType: 'module',
       },
     },
-    settings: { react: { version: '19.2' } },
+    settings: {
+      react: { version: '19.2' },
+      // Modules import each other without the extension: './Card'.
+      'import-x/resolver': {
+        node: { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
+      },
+    },
     plugins: {
       react,
       'react-hooks': reactHooks,
@@ -36,6 +54,32 @@ export default [
         { allowConstantExport: true },
       ],
       'react/prop-types': 'off',
+      // Props taken out so the rest can be passed on: `{ type, ...rest }`.
+      'no-unused-vars': ['error', { ignoreRestSiblings: true, argsIgnorePattern: '^_' }],
+      // Copy has apostrophes in it ("it's"); only these break JSX.
+      'react/no-unescaped-entities': ['error', { forbid: ['>', '}'] }],
+      // The platform's own modules: the Worker's bindings, React Router's
+      // build.
+      'import-x/no-unresolved': [
+        'error',
+        { ignore: ['^cloudflare:', '^virtual:'] },
+      ],
     },
   },
+  // Code that runs on the server (the Worker, with Node's compatibility),
+  // in Node (tests, scripts, tools' config) or in Playwright.
+  {
+    files: [
+      '**/*.server.js',
+      '**/*.test.js',
+      '*.config.js',
+      'app/db/node.js',
+      'workers/**',
+      'e2e/**',
+      'scripts/**',
+    ],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+  },
+  // Playwright's fixtures call `use`, which isn't React's.
+  { files: ['e2e/**'], rules: { 'react-hooks/rules-of-hooks': 'off' } },
 ];

@@ -73,9 +73,6 @@ export async function action(args) {
   }
 
   try {
-    const [, igdb_slug] =
-      (data.get('igdb_url') || '').match(/companies\/(.+)/) || [];
-
     const org = await updateOrganization(id, {
       name: data.get('name'),
       type: data.get('type').toLowerCase(),

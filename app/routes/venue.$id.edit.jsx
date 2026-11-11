@@ -83,7 +83,6 @@ const EditVenue = () => {
           <Field.Root>
             <Field.Label>Location</Field.Label>
             <PlaceField
-              inputProps={{ id: 'location' }}
               value={place}
               onChange={setPlace}
               onClear={() => setPlace({ label: '', value: null })}

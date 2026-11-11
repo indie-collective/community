@@ -51,7 +51,6 @@ const OrgCard = ({
   // #331: on the publishers list, how many games it published.
   published_count,
   // Props that belong to records, not to the card's box.
-  // eslint-disable-next-line no-unused-vars
   people, games, events,
   ...rest
 }) => {

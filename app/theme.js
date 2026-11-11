@@ -8,19 +8,6 @@ export const config = defineConfig({
     html: {
       colorPalette: 'primary',
     },
-    // #350: no motion for those who asked for less (transitions, hovers,
-    // animations, page cross-fades).
-    '@media (prefers-reduced-motion: reduce)': {
-      '*, *::before, *::after': {
-        animationDuration: '0.01ms !important',
-        animationIterationCount: '1 !important',
-        transitionDuration: '0.01ms !important',
-        scrollBehavior: 'auto !important',
-      },
-      '::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*)': {
-        animation: 'none !important',
-      },
-    },
     // One page background (the canvas), with panels (surface) on it.
     body: {
       color: 'ink',
@@ -47,8 +34,8 @@ export const config = defineConfig({
         overflow: 'clip',
       },
 
-    // People who ask for less motion get none: no page transitions, and
-    // animations and transitions end at once.
+    // #350: people who ask for less motion get none: no page transitions,
+    // and animations and transitions end at once.
     '@media (prefers-reduced-motion: reduce)': {
       '::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*)':
         {

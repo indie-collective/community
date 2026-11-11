@@ -21,7 +21,6 @@ import { FaCalendarAlt, FaGamepad, FaUsers, FaBuilding, FaMapMarkerAlt, FaHashta
 import { getYearInReview } from '../data/rewind.server';
 
 const MotionBox = Box;
-const MotionFlex = Flex;
 
 export const loader = async ({ params }) => {
   const year = rewindYear(params.year);
