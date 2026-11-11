@@ -167,9 +167,22 @@ const config = defineConfig({
       // (cards, tickets, the filter bar, panels), `raisedHover` for those
       // under the pointer, `lift` for what floats above it (the cover
       // story, stickers, pickers' lists, drawers).
+      // `raised` and `raisedHover` are Chakra's `xs` and `sm`, written out:
+      // pointing at those (`{shadows.xs}`) keeps only their dark value, so
+      // light mode got a 64% black shadow.
       shadows: {
-        raised: { value: '{shadows.xs}' },
-        raisedHover: { value: '{shadows.sm}' },
+        raised: {
+          value: {
+            base: '0px 1px 2px {colors.gray.900/10}, 0px 0px 1px {colors.gray.900/20}',
+            _dark: '0px 1px 1px {black/64}, 0px 0px 1px inset {colors.gray.300/20}',
+          },
+        },
+        raisedHover: {
+          value: {
+            base: '0px 2px 4px {colors.gray.900/10}, 0px 0px 1px {colors.gray.900/30}',
+            _dark: '0px 2px 4px {black/64}, 0px 0px 1px inset {colors.gray.300/30}',
+          },
+        },
         lift: {
           value: {
             base: '0 1px 0 rgba(16,32,29,.08), 0 10px 24px -12px rgba(16,32,29,.35)',
