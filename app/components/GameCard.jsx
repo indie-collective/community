@@ -78,7 +78,7 @@ function GameCard({
       ref={ref}
       bg="surface"
       rounded="card"
-      shadow="xs"
+      shadow="raised"
       p={1.5}
       transform={tilt ? `rotate(${tilt}deg)` : undefined}
       transition="transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 160ms ease-out"
