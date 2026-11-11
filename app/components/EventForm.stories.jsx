@@ -19,7 +19,12 @@ export default {
 
 export const Create = {
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByLabelText(/name/i)).toBeVisible();
+    const canvas = within(canvasElement);
+    await expect(canvas.getByLabelText(/name/i)).toBeVisible();
+    // The cover once collapsed to nothing, placeholder and preview with it.
+    const cover = canvas.getByAltText('Event cover');
+    await expect(cover.getBoundingClientRect().width).toBeGreaterThan(0);
+    await expect(cover.getBoundingClientRect().height).toBeGreaterThan(0);
   },
 };
 
