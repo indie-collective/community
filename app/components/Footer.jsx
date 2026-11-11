@@ -72,6 +72,14 @@ const Footer = () => {
           >
             {t('footer.donate')} <LuExternalLink mx="2px" />
           </ChakraLink>
+          {/* #400 */}
+          <ChakraLink
+            href="https://hosted.weblate.org/engage/indieco-community/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('footer.translate')} <LuExternalLink mx="2px" />
+          </ChakraLink>
 
           <ButtonGroup variant="ghost">
             <IconButton aria-label="Discord" asChild>
@@ -79,8 +87,9 @@ const Footer = () => {
                 <FaDiscord />
               </a>
             </IconButton>
-            <IconButton aria-label="GitHub" asChild>
-              <a href="https://github.com/indie-collective">
+            {/* The site's source, as its license asks (AGPL, #400) */}
+            <IconButton aria-label={t('footer.source')} asChild>
+              <a href="https://github.com/indie-collective/community">
                 <FaGithub />
               </a>
             </IconButton>

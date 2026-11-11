@@ -1,5 +1,6 @@
 {
   "type": "module",
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev -p 5000",
