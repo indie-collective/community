@@ -1,7 +1,4 @@
-import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { crc32 } from 'node:zlib';
 
 import { eq } from 'drizzle-orm';
 
@@ -9,6 +6,31 @@ import { db, games, people, retryBusy } from './db.js';
 import { expect, test, ADMIN, signIn } from './helpers';
 
 // #304: open data exports, under the ODbL, without people.
+
+// One file out of a ZIP the app stored without compression, found through the
+// central directory and checked against its CRC with Node's own (CI's image
+// has no `unzip`).
+function unzip(archive, file) {
+  const end = archive.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+  expect(end).toBeGreaterThan(-1);
+  let at = archive.readUInt32LE(end + 16);
+  for (let left = archive.readUInt16LE(end + 10); left > 0; left -= 1) {
+    expect(archive.readUInt32LE(at)).toBe(0x02014b50);
+    const nameLength = archive.readUInt16LE(at + 28);
+    const name = archive.toString('utf8', at + 46, at + 46 + nameLength);
+    if (name === file) {
+      expect(archive.readUInt16LE(at + 10)).toBe(0); // stored
+      const local = archive.readUInt32LE(at + 42);
+      expect(archive.readUInt32LE(local)).toBe(0x04034b50);
+      const start = local + 30 + archive.readUInt16LE(local + 26) + archive.readUInt16LE(local + 28);
+      const data = archive.subarray(start, start + archive.readUInt32LE(at + 20));
+      expect(crc32(data)).toBe(archive.readUInt32LE(at + 16));
+      return data.toString('utf8');
+    }
+    at += 46 + nameLength + archive.readUInt16LE(at + 30) + archive.readUInt16LE(at + 32);
+  }
+  throw new Error(`${file} is not in the archive`);
+}
 
 test('an export has every record as CSV and JSON, under the licence, and no members', async ({ page }) => {
   const name = `Exported, "quoted" ${Date.now() % 100000}`;
@@ -37,9 +59,7 @@ test('an export has every record as CSV and JSON, under the licence, and no memb
     const zipResponse = await page.request.get('/data/latest.zip');
     expect(zipResponse.headers()['content-type']).toBe('application/zip');
     const archive = await zipResponse.body();
-    const dir = mkdtempSync(join(tmpdir(), 'export-'));
-    writeFileSync(join(dir, 'latest.zip'), archive);
-    const read = (file) => execFileSync('unzip', ['-p', join(dir, 'latest.zip'), file], { encoding: 'utf8' });
+    const read = (file) => unzip(archive, file);
     expect(read('games.csv')).toContain(`"${name.replace(/"/g, '""')}"`);
     expect(read('venues.csv')).toContain('id,slug,url,name');
     expect(read('README.txt')).toContain('Licence: Open Database License (ODbL) 1.0');
