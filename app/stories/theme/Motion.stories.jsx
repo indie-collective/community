@@ -44,6 +44,24 @@ const KEYFRAMES = {
     description: 'A place picked on the places page pulses once.',
     animation: 'highlight 500ms ease-in-out',
   },
+  'lightbox-out-left': {
+    description: "The lightbox's picture leaves to the left for the next one.",
+    animation: 'lightbox-out-left 180ms ease-in both',
+    demo: 'lightbox-out-left 600ms ease-in',
+  },
+  'lightbox-in-right': {
+    description: 'The next picture in the lightbox comes in from the right.',
+    animation: 'lightbox-in-right 300ms cubic-bezier(0.2, 0, 0, 1) both',
+  },
+  'lightbox-out-right': {
+    description: "The lightbox's picture leaves to the right for the previous one.",
+    animation: 'lightbox-out-right 180ms ease-in both',
+    demo: 'lightbox-out-right 600ms ease-in',
+  },
+  'lightbox-in-left': {
+    description: 'The previous picture in the lightbox comes in from the left.',
+    animation: 'lightbox-in-left 300ms cubic-bezier(0.2, 0, 0, 1) both',
+  },
 };
 
 const animations = flatten(tokens.animations);

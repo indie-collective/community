@@ -34,6 +34,61 @@ export const config = defineConfig({
         overflow: 'clip',
       },
 
+    // The lightbox (lightboxTransition): the page stays still while its
+    // backdrop fades over it, and the picture grows out of its thumbnail,
+    // slides to the next, and goes back. Both above the page's own named
+    // parts (header, footer).
+    'html[data-lightbox]::view-transition-old(root), html[data-lightbox]::view-transition-new(root)':
+      {
+        animation: 'none',
+      },
+    '::view-transition-group(lightbox-backdrop)': {
+      zIndex: 1,
+    },
+    // Only opening and closing: between pictures it stays, opaque.
+    'html[data-lightbox=open]::view-transition-new(lightbox-backdrop)': {
+      animation: '220ms ease-out both fade-in',
+    },
+    'html[data-lightbox=close]::view-transition-old(lightbox-backdrop)': {
+      animation: '200ms ease-in both fade-out',
+    },
+    'html[data-lightbox=next]::view-transition-old(lightbox-backdrop), html[data-lightbox=prev]::view-transition-old(lightbox-backdrop)':
+      {
+        animation: 'none',
+        opacity: 0,
+      },
+    'html[data-lightbox=next]::view-transition-new(lightbox-backdrop), html[data-lightbox=prev]::view-transition-new(lightbox-backdrop)':
+      {
+        animation: 'none',
+      },
+    '::view-transition-group(lightbox-image)': {
+      zIndex: 2,
+      animationDuration: '360ms',
+      animationTimingFunction: 'cubic-bezier(0.2, 0, 0, 1)',
+    },
+    '::view-transition-old(lightbox-image), ::view-transition-new(lightbox-image)':
+      {
+        height: '100%',
+        objectFit: 'cover',
+        overflow: 'clip',
+      },
+    'html[data-lightbox=next]::view-transition-group(lightbox-image), html[data-lightbox=prev]::view-transition-group(lightbox-image)':
+      {
+        animationDuration: '300ms',
+      },
+    'html[data-lightbox=next]::view-transition-old(lightbox-image)': {
+      animation: '180ms ease-in both lightbox-out-left',
+    },
+    'html[data-lightbox=next]::view-transition-new(lightbox-image)': {
+      animation: '300ms cubic-bezier(0.2, 0, 0, 1) both lightbox-in-right',
+    },
+    'html[data-lightbox=prev]::view-transition-old(lightbox-image)': {
+      animation: '180ms ease-in both lightbox-out-right',
+    },
+    'html[data-lightbox=prev]::view-transition-new(lightbox-image)': {
+      animation: '300ms cubic-bezier(0.2, 0, 0, 1) both lightbox-in-left',
+    },
+
     // #350: people who ask for less motion get none: no page transitions,
     // and animations and transitions end at once.
     '@media (prefers-reduced-motion: reduce)': {
@@ -54,6 +109,11 @@ export const config = defineConfig({
     keyframes: {
       'vt-fade-out': { to: { opacity: 0 } },
       'vt-fade-in': { from: { opacity: 0, transform: 'translateY(8px)' } },
+      // The lightbox's picture, to the next or previous one.
+      'lightbox-out-left': { to: { opacity: 0, transform: 'translateX(-6%)' } },
+      'lightbox-out-right': { to: { opacity: 0, transform: 'translateX(6%)' } },
+      'lightbox-in-right': { from: { opacity: 0, transform: 'translateX(8%)' } },
+      'lightbox-in-left': { from: { opacity: 0, transform: 'translateX(-8%)' } },
       // A badge just earned (#377): it pops in, overshoots and settles.
       'badge-pop': {
         '0%': { opacity: 0, transform: 'scale(0.4) rotate(-20deg)' },
