@@ -13,6 +13,10 @@ jobs:
   build-and-test:
     name: Build, unit and story tests
     runs-on: ubuntu-latest
+    # Playwright's image has Chromium and its system libraries already, so
+    # CI doesn't depend on the Ubuntu mirrors (apt) being reachable. Keep
+    # the tag on the version of @playwright/test in package-lock.json.
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,7 +24,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:unit
       - run: npm run test:stories
@@ -29,6 +32,10 @@ jobs:
   e2e:
     name: End-to-end tests
     runs-on: ubuntu-latest
+    # Playwright's image has Chromium and its system libraries already, so
+    # CI doesn't depend on the Ubuntu mirrors (apt) being reachable. Keep
+    # the tag on the version of @playwright/test in package-lock.json.
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
     # The tests run against a build of the Worker in workerd, on a fresh
     # local D1 and R2, with test variables (see scripts/e2e-server.mjs).
     steps:
@@ -38,7 +45,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
