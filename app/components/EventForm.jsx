@@ -456,7 +456,9 @@ const EventForm = ({ defaultData = {}, loading = false, ...rest }) => {
         <Field.Root gridColumn="1 / 3">
           <Field.Label htmlFor="cover">Cover</Field.Label>
 
-          <Box position="relative">
+          {/* The field lays its children out at their own width, and an
+              AspectRatio has none: without a width the cover collapses. */}
+          <Box position="relative" w="full">
             <AspectRatio ratio={3} onClick={() => coverRef.current.click()}>
               <Image
                 size="100%"
