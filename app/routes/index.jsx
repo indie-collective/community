@@ -380,7 +380,7 @@ const Contribute = () => (
           transition="transform 120ms ease-out, box-shadow 120ms ease-out"
           _hover={{
             transform: 'translate(-2px, -2px)',
-            shadow: '4px 4px 0 #10201d',
+            shadow: 'pop',
           }}
           asChild
         >

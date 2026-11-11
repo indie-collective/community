@@ -62,7 +62,9 @@ export const Medal = ({ achievement, locked = false, size = 'md', celebrate = fa
       borderWidth="3px"
       borderColor={tier.rim}
       bgImage={`radial-gradient(circle at 30% 25%, rgba(255,255,255,0.75), transparent 45%), linear-gradient(145deg, ${tier.face[0]}, ${tier.face[1]})`}
-      boxShadow={`inset 0 -4px 0 rgba(0,0,0,0.12), inset 0 0 0 3px rgba(255,255,255,0.35), 0 3px 8px rgba(0,0,0,0.18)`}
+      // The coin's shading (a darker lower edge, a bright inner rim), then
+      // the `lift` shadow it floats on.
+      boxShadow="inset 0 -4px 0 rgba(0,0,0,0.12), inset 0 0 0 3px rgba(255,255,255,0.35), var(--chakra-shadows-lift)"
       display="grid"
       placeItems="center"
       color="white"
