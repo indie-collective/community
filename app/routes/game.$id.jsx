@@ -142,6 +142,10 @@ const Game = () => {
         thumbnail_url: image.url.replace('t_thumb', 't_screenshot_med'),
       }))
     : [];
+  const gallery = images.concat(igdb_images);
+  // Members get the gallery without pictures too: it's where they add them.
+  const hasPictures = gallery.length > 0 || Boolean(currentUser);
+  const hasDetails = tags.length > 0 || Boolean(about) || Boolean(site);
 
   // What kind of page this is, and who made it (design pass).
   const makers = entities.slice(0, 2).map((entity) => entity.name);
@@ -172,47 +176,54 @@ const Game = () => {
           </>
         }
       />
-      <Box mb={{ base: 8, md: 10 }}>
-        <Box mb={5}>
+      {/* The pictures and what the game is, side by side on wide screens
+          (the pictures first on narrow ones). */}
+      <Grid
+        mb={{ base: 8, md: 10 }}
+        gap={{ base: 5, lg: 8 }}
+        alignItems="start"
+        templateColumns={{
+          base: 'minmax(0, 1fr)',
+          lg: hasPictures && hasDetails ? 'minmax(0, 1.65fr) minmax(0, 1fr)' : 'minmax(0, 1fr)',
+        }}
+      >
+        {hasPictures && (
           <MotionGallery
             gameId={id}
             gameName={name}
-            images={images.concat(igdb_images)}
+            images={gallery}
             currentUser={currentUser}
             fetcher={fetcher}
           />
-        </Box>
-
-        {tags?.length > 0 && (
-          <TagList
-            tags={tags}
-            size="md"
-            linked
-            mt={1}
-          />
         )}
 
-        {about && (
-          <Box py={3} maxW="540px">
-            <Markdown value={about} />
-            <SourceCredit sources={sources} field="about" value={about} />
-          </Box>
-        )}
+        {hasDetails && (
+          <Stack gap={4} align="flex-start" maxW="540px">
+            {tags?.length > 0 && <TagList tags={tags} size="md" linked />}
 
-        {site && (
-          <Button asChild variant="outline">
-            <ChakraLink
-              href={site}
-              title={site.replace(/https?:\/\//, '')}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Visit website
-              <LuExternalLink />
-            </ChakraLink>
-          </Button>
+            {about && (
+              <Box>
+                <Markdown value={about} />
+                <SourceCredit sources={sources} field="about" value={about} />
+              </Box>
+            )}
+
+            {site && (
+              <Button asChild variant="outline">
+                <ChakraLink
+                  href={site}
+                  title={site.replace(/https?:\/\//, '')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Visit website
+                  <LuExternalLink />
+                </ChakraLink>
+              </Button>
+            )}
+          </Stack>
         )}
-      </Box>
+      </Grid>
       {(currentUser || entities.length > 0) && (
         <Section title="Made by">
           <Grid
