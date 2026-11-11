@@ -14,9 +14,6 @@ import Reveal from '../components/Reveal';
 const PAGE_SIZE = 50;
 
 export const loader = async ({ request }) => {
-  const { searchParams } = new URL(request.url);
-  const page = Number(searchParams.get('page') || '1');
-
   const currentUser = await isAuthenticated(request);
 
   const orgs = await listRecentOrganizations({ limit: PAGE_SIZE });

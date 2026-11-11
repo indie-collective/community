@@ -1,20 +1,8 @@
-import { redirect, useLoaderData, Form  } from 'react-router';
-import {
-    Box,
-  Table,
-  TableCaption,
-  Input,
-  Button,
-  NativeSelect,
-} from '@chakra-ui/react';
+import { redirect, useLoaderData, Form } from 'react-router';
+import { Box, Table, Input, Button, NativeSelect } from '@chakra-ui/react';
 
 import isAuthenticated from '../../utils/isAuthenticated.server'
-import {
-  addTag,
-  deleteTag,
-  listTags,
-  mergeTags,
-} from '../../data/tags.server';
+import { addTag, deleteTag, listTags, mergeTags } from '../../data/tags.server';
 import { PageHeader } from '../../components/Page';
 
 export const loader = async ({ request }) => {

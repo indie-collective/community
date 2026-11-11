@@ -66,7 +66,6 @@ const PlaceField = ({
   value = { label: '', value: null },
   venues = false,
   placeholder = 'Search for a place',
-  inputProps = {},
 }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState({ venues: [], places: [] });

@@ -62,7 +62,7 @@ export async function action({ request }) {
     let headers = new Headers({ 'Set-Cookie': await commitSession(session) });
 
     return data({ currentUser: updatedUser }, { headers });
-  } catch (error) {
+  } catch {
     const values = Object.fromEntries(formData);
     return {
       errors: {

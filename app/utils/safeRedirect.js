@@ -16,6 +16,8 @@ export function safeRedirectPath(value, fallback = '/') {
 
   for (const path of [value, decoded]) {
     if (path.startsWith('//') || path.startsWith('/\\')) return fallback;
+    // Control characters are what this looks for.
+    // eslint-disable-next-line no-control-regex
     if (/[\u0000-\u001f\u007f]/.test(path)) return fallback;
   }
 

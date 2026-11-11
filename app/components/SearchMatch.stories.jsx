@@ -1,4 +1,4 @@
-import { expect, within } from 'storybook/test';
+import { expect } from 'storybook/test';
 
 import SearchMatch from './SearchMatch';
 

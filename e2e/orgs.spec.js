@@ -48,7 +48,7 @@ test('the studios country filter is searchable', async ({ page }) => {
 // #198: an org without games or events shows signed-in users how to add them.
 test('an empty org page hints at adding games and events when signed in', async ({ page }) => {
   const { db, organizations } = await import('./db.js');
-  const { eq, inArray } = await import('drizzle-orm');
+  const { eq } = await import('drizzle-orm');
   const [org] = await db
     .insert(organizations)
     .values({ name: `Quiet Studio ${Date.now() % 100000}`, type: 'studio' })
@@ -105,7 +105,7 @@ test.describe('Bluesky handles on organizations', () => {
 // The lists showed the first 50 orgs and nothing more; the rest load in pages.
 test('the studios list loads past the first 50, keeping the filters', async ({ page }) => {
   const { db, organizations } = await import('./db.js');
-  const { eq, inArray } = await import('drizzle-orm');
+  const { eq } = await import('drizzle-orm');
   // XQ is a user-assigned ISO code: no seeded org lives there.
   // The same updated_at for all, so only the id tie-break keeps pages apart.
   const updatedAt = new Date();
@@ -152,7 +152,7 @@ test('adding an organisation from a list pre-selects its type', async ({ page })
 // #258: a country page's cities link to the lists filtered by city.
 test('the studios list filters by city, and keeps it across other filters', async ({ page }) => {
   const { db, organizations } = await import('./db.js');
-  const { eq, inArray } = await import('drizzle-orm');
+  const { inArray } = await import('drizzle-orm');
   const tag = Date.now() % 100000;
   const [here, there] = await db
     .insert(organizations)

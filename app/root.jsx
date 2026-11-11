@@ -1,14 +1,5 @@
-import React, { useContext, useEffect } from 'react';
 import { withEmotionCache } from '@emotion/react';
-import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  useBreakpointValue,
-  Progress,
-  Presence,
-} from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, Progress } from '@chakra-ui/react';
 import { LuTriangleAlert } from 'react-icons/lu';
 import {
   Links,
@@ -17,15 +8,10 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
-  useLoaderData,
-  useLocation,
   useNavigation,
-  useRouteError,
 } from 'react-router';
 
-import theme from './theme';
 import { useInjectStyles } from './emotion-client';
-import { ClientStyleContext, ServerStyleContext } from './context';
 // Vite resolves the file URL via the ?url suffix; passed to <Links />
 // via the route's `links` export below.
 import isAuthenticated from './utils/isAuthenticated.server';
@@ -201,7 +187,6 @@ export const loader = async ({ request }) => {
 };
 
 export default function App() {
-  let location = useLocation();
   const navigation = useNavigation();
 
   const isLoading =

@@ -112,7 +112,7 @@ const ROLE_LABELS = [
 
 const Profile = () => {
   const submit = useSubmit();
-  const { currentUser, people, nbOfPeople, lastChanges } = useLoaderData();
+  const { currentUser, people, nbOfPeople } = useLoaderData();
   const actionData = useActionData();
 
   return (

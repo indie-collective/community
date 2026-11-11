@@ -1,4 +1,3 @@
-import React from 'react';
 import { useColorModeValue } from "./ui/color-mode";
 
 const Logo = ({ height = 40 }) => {
