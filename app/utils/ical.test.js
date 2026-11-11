@@ -32,7 +32,7 @@ describe('calendar', () => {
     expect(unfolded).toContain('UID:e1@community.indieco.xyz');
     expect(unfolded).toContain('DTSTART:20261120T130000Z');
     expect(unfolded).toContain('DTEND:20261122T183000Z');
-    expect(unfolded).toContain('SUMMARY:Stunfest\\, 2026\; the big one');
+    expect(unfolded).toContain('SUMMARY:Stunfest\\, 2026\\; the big one');
     expect(unfolded).toContain('LOCATION:4bis Cours des Alliés\\, Rennes\\, France');
     expect(unfolded).toContain('GEO:48.105;-1.676');
     expect(unfolded).toContain('URL:https://community.indieco.xyz/event/e1');
@@ -60,7 +60,7 @@ describe('fold', () => {
 });
 
 it('escapes text and formats dates', () => {
-  expect(escapeText('a,b;c\\d\ne')).toBe('a\\,b\;c\\\\d\\ne');
+  expect(escapeText('a,b;c\\d\ne')).toBe('a\\,b\\;c\\\\d\\ne');
   expect(icsDate('2026-01-02T03:04:05.678Z')).toBe('20260102T030405Z');
 });
 
