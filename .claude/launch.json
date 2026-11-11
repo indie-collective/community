@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["react-router", "dev", "-p", "5100"],
+      "port": 5100
+    },
+    {
       "name": "storybook",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["storybook", "dev", "-p", "6116", "--no-open", "--ci"],

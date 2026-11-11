@@ -1,4 +1,13 @@
 [![Client CI](https://github.com/indie-collective/community/workflows/Client%20CI/badge.svg)](https://github.com/indie-collective/community/actions?query=workflow%3A%22Client+CI%22)
+[![Translation status](https://hosted.weblate.org/widget/indieco-community/svg-badge.svg)](https://hosted.weblate.org/engage/indieco-community/)
+
+## Translating
+
+The site is in English and French, with more languages on the way. Translations are made on [Hosted Weblate](https://hosted.weblate.org/engage/indieco-community/), which hosts this libre project gratis: sign in there to translate or review a language, no code needed. [docs/translating.md](docs/translating.md) explains how the translation files work and how the Weblate project is set up.
+
+## License
+
+The code is licensed under the [GNU Affero General Public License v3.0 or later](LICENSE): if you run a modified version as a website, you must offer its source code to its users. Translations are under the same license.
 
 ## Requirements
 
