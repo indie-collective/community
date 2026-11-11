@@ -103,7 +103,8 @@ export const InAPopover = {
     await userEvent.click(canvas.getByRole('button', { name: 'Add an author to the game' }));
     const page = within(canvasElement.ownerDocument.body);
     const box = await page.findByRole('combobox');
-    await expect(box).toHaveFocus();
+    // The popover moves focus once it has opened, not as it appears.
+    await waitFor(() => expect(box).toHaveFocus());
     // Picking a result picks it and closes the popover.
     onSelect.mockClear();
     await userEvent.type(box, 'Pix');
