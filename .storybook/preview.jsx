@@ -69,7 +69,19 @@ const preview = {
     },
   },
   initialGlobals: { colorMode: 'light' },
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    // The design system first, its introduction on top: Storybook opens on it.
+    options: {
+      storySort: {
+        order: [
+          'Theme',
+          ['Introduction', 'Colors', 'Typography', 'Shadows', 'Radii', 'Motion'],
+          '*',
+        ],
+      },
+    },
+  },
 };
 
 export default preview;
