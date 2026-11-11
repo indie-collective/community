@@ -154,7 +154,7 @@ const Lightbox = ({ images, index, onClose }) => {
               maxH="100%"
               objectFit="contain"
               draggable={false}
-              boxShadow="0 20px 50px rgba(0,0,0,0.5)"
+              shadow="lift"
             />
           </Box>
         </Box>

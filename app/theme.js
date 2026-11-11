@@ -81,8 +81,7 @@ export const config = defineConfig({
         },
         '50%': {
           transform: 'scale(0.9)',
-          boxShadow:
-            '0 0 0 1px rgba(16, 22, 26, 0.1), 0 4px 8px rgba(16, 22, 26, 0.2), 0 18px 46px 6px rgba(16, 22, 26, 0.2)',
+          boxShadow: 'var(--chakra-shadows-lift)',
         },
       },
     },
@@ -188,7 +187,9 @@ export const config = defineConfig({
           },
         },
       },
-      // Three shadows, nothing else.
+      // Three shadows for depth, nothing else, and two forms of them: every
+      // shadow on the site is one of these (Chakra's menus, dialogs and
+      // pickers too, below).
       // `raised` and `raisedHover` are Chakra's `xs` and `sm`, written out:
       // pointing at those (`{shadows.xs}`) keeps only their dark value, so
       // light mode got a 64% black shadow.
@@ -209,11 +210,24 @@ export const config = defineConfig({
         },
         lift: {
           description:
-            "What floats above the page: the cover story, stickers, pickers' lists, drawers.",
+            "What floats above the page: the cover story, stickers, badges, menus, dialogs, pickers' lists, tooltips, toasts, drawers, the lightbox.",
           value: {
             base: '0 1px 0 rgba(16,32,29,.08), 0 10px 24px -12px rgba(16,32,29,.35)',
             _dark: '0 1px 0 rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.8)',
           },
+        },
+        raisedDrop: {
+          description:
+            "raised, as a filter (filter='var(--chakra-shadows-raised-drop)'), for shapes a box shadow can't follow: the event ticket's notches.",
+          value: {
+            base: 'drop-shadow(0px 1px 2px {colors.gray.900/10}) drop-shadow(0px 0px 1px {colors.gray.900/20})',
+            _dark: 'drop-shadow(0px 1px 1px {black/64})',
+          },
+        },
+        pop: {
+          description:
+            "A hard offset, no blur, for what's pressed on sun: the home page's quick-add buttons under the pointer.",
+          value: '4px 4px 0 {colors.onPop}',
         },
       },
     },
@@ -361,6 +375,19 @@ export const config = defineConfig({
           variant: { subtle: { bg: { base: 'white', _dark: 'gray.800' } } },
         },
       },
+    },
+    // Chakra's overlays float above the page: `lift`, not Chakra's own
+    // md, lg and xl.
+    slotRecipes: {
+      menu: { base: { content: { boxShadow: 'lift' } } },
+      popover: { base: { content: { boxShadow: 'lift' } } },
+      hoverCard: { base: { content: { boxShadow: 'lift' } } },
+      dialog: { base: { content: { boxShadow: 'lift' } } },
+      drawer: { base: { content: { boxShadow: 'lift' } } },
+      combobox: { base: { content: { boxShadow: 'lift' } } },
+      select: { base: { content: { boxShadow: 'lift' } } },
+      tooltip: { base: { content: { boxShadow: 'lift' } } },
+      toast: { base: { root: { boxShadow: 'lift' } } },
     },
   },
 });

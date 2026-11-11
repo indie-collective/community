@@ -151,11 +151,12 @@ function EventCard({
   );
 
   return (
-    // The `raised` shadow, as a drop shadow on this wrapper so it follows
-    // the notches; the wrapper also carries the hover tilt and the focus ring.
+    // The `raised` shadow as a filter (`raisedDrop`), on this wrapper so it
+    // follows the notches; the wrapper also carries the hover tilt and the
+    // focus ring.
     <Box
       position="relative"
-      filter="drop-shadow(0 1px 2px rgba(16, 32, 29, 0.1)) drop-shadow(0 0 1px rgba(16, 32, 29, 0.2))"
+      filter="var(--chakra-shadows-raised-drop)"
       transition="transform 200ms ease-out"
       _hover={{ transform: 'translateY(-4px) rotate(-0.8deg)' }}
       _focusWithin={{ outline: '2px solid', outlineColor: 'brand', outlineOffset: '3px', rounded: 'card' }}
