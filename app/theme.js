@@ -1,6 +1,6 @@
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
 
-const config = defineConfig({
+export const config = defineConfig({
   // v2 `styles.global` via `mode()` → v3 `globalCss` with the `_dark` selector.
   // `colorPalette` cascades to every descendant: set once on the root, the
   // site's own green (`primary`, below) is every Chakra component's colour.
@@ -99,91 +99,130 @@ const config = defineConfig({
         },
       },
     },
-    // The design system (design pass): Poppins for titles, Inter for text,
-    // loaded in root.jsx.
+    // The design system (design pass). Every token the site defines says
+    // what it is for in its `description`; Storybook's Theme pages
+    // (app/stories/theme) show them, read from here.
     semanticTokens: {
       colors: {
         // Paper and ink with a green bias from the logo, the logo's two greens,
         // and three colours that only mark state.
-        // The page background, and the panels and cards on it.
         canvas: {
+          description: 'The page background.',
           value: { base: '#f3f6f2', _dark: '#0d1715' },
         },
         surface: {
+          description: 'Panels and cards on the page.',
           value: { base: '{colors.white}', _dark: '#15221f' },
         },
-        // Text, and the rules around pressable things.
         ink: {
+          description: 'Text, and the rules around pressable things.',
           value: { base: '#10201d', _dark: '#e8f1ee' },
         },
-        // Secondary text: dates, places, counts, hints. Readable on both
-        // (WCAG AA on canvas and surface).
         muted: {
+          description:
+            'Secondary text: dates, places, counts, hints. WCAG AA on canvas and surface.',
           value: { base: '#4f625d', _dark: '#9db2ac' },
         },
-        // Hairlines: dashed ticket perforations, list separators.
         rule: {
+          description: 'Hairlines: dashed ticket perforations, list separators.',
           value: { base: '#cdd8d3', _dark: '#2a3c38' },
         },
-        // The logo's C and I.
         brand: {
+          description:
+            "The logo's green: borders on what's current or active, focus rings, studios on the atlas.",
           value: { base: '#149c88', _dark: '#2cc4ac' },
         },
         brandDeep: {
+          description: "The logo's deep green. Green text on pale green.",
           value: { base: '#054f45', _dark: '#8fe3d4' },
         },
-        // State only: sun for what's selected or yours, coral for today and
-        // canceled, lilac for online. Text on them is always onPop.
-        sun: { value: '#ffd23f' },
-        coral: { value: { base: '#ff6b5b', _dark: '#ff8475' } },
-        lilac: { value: { base: '#b9a7ff', _dark: '#c4b5ff' } },
-        onPop: { value: '#10201d' },
+        // State only. Text on them is always onPop.
+        sun: {
+          description: "State: what's selected or yours.",
+          value: '#ffd23f',
+        },
+        coral: {
+          description: 'State: today, and canceled.',
+          value: { base: '#ff6b5b', _dark: '#ff8475' },
+        },
+        lilac: {
+          description: 'State: online. Also associations on the atlas.',
+          value: { base: '#b9a7ff', _dark: '#c4b5ff' },
+        },
+        onPop: {
+          description: 'Text on sun, coral and lilac, in both modes.',
+          value: '#10201d',
+        },
         // The site's green as a Chakra palette, the root's colorPalette: the
-        // primary button, checkboxes, switches, focus rings. White on the
-        // logo's green is 3.4:1, so the fill is a step darker (5:1).
+        // primary button, checkboxes, switches, focus rings.
         primary: {
-          solid: { value: { base: '#0f7d6d', _dark: '#2cc4ac' } },
-          contrast: { value: { base: '{colors.white}', _dark: '#0d1715' } },
-          // Green text on the palette's pale fills reads at the deep green.
-          fg: { value: '{colors.brandDeep}' },
-          muted: { value: { base: '#cfe8e2', _dark: '#16423b' } },
-          subtle: { value: { base: '#e3f2ee', _dark: '#102e29' } },
-          emphasized: { value: { base: '#b5dcd3', _dark: '#1d5a50' } },
-          focusRing: { value: '{colors.brand}' },
+          solid: {
+            description:
+              "The primary button's fill. A step darker than brand, so white on it is 5:1.",
+            value: { base: '#0f7d6d', _dark: '#2cc4ac' },
+          },
+          contrast: {
+            description: 'Text on primary.solid.',
+            value: { base: '{colors.white}', _dark: '#0d1715' },
+          },
+          fg: {
+            description: "Green text, on the palette's pale fills.",
+            value: '{colors.brandDeep}',
+          },
+          muted: {
+            description: 'Secondary buttons.',
+            value: { base: '#cfe8e2', _dark: '#16423b' },
+          },
+          subtle: {
+            description: 'The palest green fill.',
+            value: { base: '#e3f2ee', _dark: '#102e29' },
+          },
+          emphasized: {
+            description: 'Secondary buttons under the pointer.',
+            value: { base: '#b5dcd3', _dark: '#1d5a50' },
+          },
+          focusRing: {
+            description: 'Focus rings.',
+            value: '{colors.brand}',
+          },
         },
         // The countries table's continents: soft paper tints, each named on
         // its tiles too.
         continent: {
-          EU: { value: { base: '#dfe8f3', _dark: '#1c2a3a' } },
-          NA: { value: { base: '#f6e3d3', _dark: '#3a2a1e' } },
-          SA: { value: { base: '#dcefe4', _dark: '#1b3328' } },
-          AS: { value: { base: '#f4dcdc', _dark: '#3a2021' } },
-          OC: { value: { base: '#d9eef0', _dark: '#183538' } },
-          AF: { value: { base: '#f5ecd0', _dark: '#37301a' } },
-          AN: { value: { base: '#e7e9e8', _dark: '#262b2a' } },
+          EU: { description: 'Europe.', value: { base: '#dfe8f3', _dark: '#1c2a3a' } },
+          NA: { description: 'North America.', value: { base: '#f6e3d3', _dark: '#3a2a1e' } },
+          SA: { description: 'South America.', value: { base: '#dcefe4', _dark: '#1b3328' } },
+          AS: { description: 'Asia.', value: { base: '#f4dcdc', _dark: '#3a2021' } },
+          OC: { description: 'Oceania.', value: { base: '#d9eef0', _dark: '#183538' } },
+          AF: { description: 'Africa.', value: { base: '#f5ecd0', _dark: '#37301a' } },
+          AN: {
+            description: 'Antarctica, and any unknown continent.',
+            value: { base: '#e7e9e8', _dark: '#262b2a' },
+          },
         },
       },
-      // Three shadows, nothing else: `raised` for what rests on the page
-      // (cards, tickets, the filter bar, panels), `raisedHover` for those
-      // under the pointer, `lift` for what floats above it (the cover
-      // story, stickers, pickers' lists, drawers).
+      // Three shadows, nothing else.
       // `raised` and `raisedHover` are Chakra's `xs` and `sm`, written out:
       // pointing at those (`{shadows.xs}`) keeps only their dark value, so
       // light mode got a 64% black shadow.
       shadows: {
         raised: {
+          description: 'What rests on the page: cards, tickets, the filter bar, panels.',
           value: {
             base: '0px 1px 2px {colors.gray.900/10}, 0px 0px 1px {colors.gray.900/20}',
             _dark: '0px 1px 1px {black/64}, 0px 0px 1px inset {colors.gray.300/20}',
           },
         },
         raisedHover: {
+          description: 'Raised things under the pointer.',
           value: {
             base: '0px 2px 4px {colors.gray.900/10}, 0px 0px 1px {colors.gray.900/30}',
             _dark: '0px 2px 4px {black/64}, 0px 0px 1px inset {colors.gray.300/30}',
           },
         },
         lift: {
+          description:
+            "What floats above the page: the cover story, stickers, pickers' lists, drawers.",
           value: {
             base: '0 1px 0 rgba(16,32,29,.08), 0 10px 24px -12px rgba(16,32,29,.35)',
             _dark: '0 1px 0 rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.8)',
@@ -194,47 +233,31 @@ const config = defineConfig({
     tokens: {
       // Corners by the size of the thing; `full` for anything round.
       radii: {
-        label: { value: '6px' },
-        control: { value: '10px' },
-        card: { value: '14px' },
-        panel: { value: '20px' },
+        label: { description: 'Labels and tags.', value: '6px' },
+        control: { description: 'Buttons, fields, menus.', value: '10px' },
+        card: { description: 'Cards, and the pictures in them.', value: '14px' },
+        panel: {
+          description: "Panels: a page's main panel, the diary, the cover story.",
+          value: '20px',
+        },
       },
+      // Loaded in root.jsx.
       fonts: {
-        heading: { value: "'Poppins', ui-sans-serif, system-ui, sans-serif" },
+        heading: {
+          description: 'Titles, in Poppins semibold.',
+          value: "'Poppins', ui-sans-serif, system-ui, sans-serif",
+        },
         body: {
+          description: 'Everything else, in Inter.',
           value:
             "'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
         },
       },
-      // v3 requires token values wrapped in `{ value }` objects, not raw hex.
-      colors: {
-        discord: {
-          50: { value: '#e7e9fd' },
-          100: { value: '#b2cdfa' },
-          200: { value: '#929bf7' },
-          300: { value: '#6873f3' },
-          400: { value: '#6873f3' },
-          500: { value: '#6873f3' },
-          600: { value: '#0f1dbd' },
-          700: { value: '#0b168e' },
-          800: { value: '#070f5f' },
-          900: { value: '#04072f' },
-        },
-        github: {
-          50: { value: '#F2F2F2' },
-          100: { value: '#DBDBDB' },
-          200: { value: '#C4C4C4' },
-          300: { value: '#ADADAD' },
-          400: { value: '#969696' },
-          500: { value: '#808080' },
-          600: { value: '#666666' },
-          700: { value: '#4D4D4D' },
-          800: { value: '#333333' },
-          900: { value: '#1A1A1A' },
-        },
-      },
       animations: {
-        highlight: { value: `highlight 500ms ease-in-out 500ms` },
+        highlight: {
+          description: 'A place picked on the places page pulses once.',
+          value: `highlight 500ms ease-in-out 500ms`,
+        },
       },
     },
     // v2 `withDefaultVariant({ variant: 'filled', components: ['Input',
